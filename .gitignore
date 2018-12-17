@@ -13,3 +13,5 @@ coverage/
 docs
 
 *.iml
+
+yarn-error.log

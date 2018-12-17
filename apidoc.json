@@ -1,0 +1,9 @@
+{
+  "name": "DevWars",
+  "version": "1.0.0",
+  "description": "Official Documentation for DevWars API",
+  "apidoc": {
+    "title": "DevWars API Docs",
+    "url" : "https://github.com/DevWars/devwars-api"
+  }
+}
