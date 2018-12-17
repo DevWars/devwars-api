@@ -7,7 +7,6 @@
     "start": "npm run build && cd dist && cross-env NODE_ENV=PRODUCTION node Index.js",
     "dev": "nodemon",
     "test": "cross-env NODE_ENV=test nyc --reporter=html mocha test/**/*.ts",
-    "docker-test": "bash scripts/test.sh",
     "build": "npm run clean && tsc --outDir dist",
     "lint": "tslint app/**/*.ts",
     "clean": "rimraf dist",
