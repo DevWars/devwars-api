@@ -1,0 +1,15 @@
+node_modules
+*.log
+dist
+
+.nyc_output
+coverage/
+
+.idea
+.vscode
+
+*.sqlite
+
+docs
+
+*.iml
