@@ -17,7 +17,6 @@ if (process.env.NODE_ENV === "test") {
 
         database: "./db.sqlite",
         dropSchema: true,
-        synchronize: true,
         type: "sqlite",
     });
 } else {
@@ -29,7 +28,6 @@ if (process.env.NODE_ENV === "test") {
         logging: false,
         password: config.DATABASE.PASSWORD,
         port: config.DATABASE.PORT_DB,
-        synchronize: true,
         type: DIALECT,
         username: config.DATABASE.USER_DB,
     });

@@ -18,6 +18,14 @@ export class Server {
         } catch (e) {
             console.log("Could not save badges");
         }
+
+        try {
+            await connection.synchronize();
+        } catch (e) {
+            console.log("Couldn't synchronize database");
+        }
+
+        return connection;
     }
 
     private readonly app: express.Application;
