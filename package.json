@@ -40,8 +40,8 @@
     "JWT",
     "E2015"
   ],
-  "author": "Hector Riquelme",
-  "license": "MIT",
+  "author": "DevWars, LLC",
+  "license": "GPL V3",
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/faker": "^4.1.4",
