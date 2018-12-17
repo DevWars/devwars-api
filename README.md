@@ -9,14 +9,6 @@
 [<img src="https://img.shields.io/badge/TypeORM-red.svg">](http://typeorm.io/#/)
 [<img src="https://img.shields.io/badge/MySQL-orange.svg">](https://www.mysql.com/)
 ---
-Ouput
-``` bash
-[BS] Local URL: http://localhost:8081
-[BS] External URL: http://localhost:8081
-[BS] Serving files from: ./
-```
-
----
 ## Running our test suite:
 Go to the root of the repo
 
