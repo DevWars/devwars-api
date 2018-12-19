@@ -22,7 +22,7 @@ export class GameFactory {
                 GameStatus.SCHEDULING,
             ]),
             teams: [],
-            theme: hacker.phrase(),
+            theme: hacker.noun(),
             updatedAt: date.past(),
             videoUrl: internet.url(),
         });

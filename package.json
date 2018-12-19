@@ -1,7 +1,9 @@
 {
-  "name": "typescript-restful-starter",
+  "name": "devwars-api",
   "version": "0.1.0",
-  "description": "kit starter node application",
+  "author": "DevWars, LLC",
+  "license": "GPLv3",
+  "description": "Official Node API for DevWars",
   "main": "server.js",
   "scripts": {
     "start": "npm run build && cd dist && cross-env NODE_ENV=PRODUCTION node Index.js",
@@ -40,8 +42,6 @@
     "JWT",
     "E2015"
   ],
-  "author": "DevWars, LLC",
-  "license": "GPL V3",
   "dependencies": {
     "@types/axios": "^0.14.0",
     "@types/faker": "^4.1.4",
