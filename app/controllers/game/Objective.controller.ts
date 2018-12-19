@@ -3,6 +3,10 @@ import {Request, Response} from "express";
 import {GameRepository} from "../../repository";
 
 import {ObjectiveRepository} from "../../repository";
+import {ObjectiveService} from "../../services/Objective.service";
+import {Objective} from "../../models";
+import {getConnection} from "typeorm";
+import {ObjectiveFactory} from "../../factory";
 
 export class ObjectiveController {
     /**
@@ -50,5 +54,14 @@ export class ObjectiveController {
         const objectives = await ObjectiveRepository.forGame(game);
 
         response.json(objectives);
+    }
+
+    public static async store(request: Request, response: Response) {
+        const game = await GameRepository.byId(request.params.game);
+        const newObjectives = request.body as Objective[];
+
+        await ObjectiveService.replaceForGame(game, newObjectives);
+
+        response.json(ObjectiveRepository.forGame(game));
     }
 }

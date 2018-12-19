@@ -85,6 +85,8 @@ const generateFinishedGames = async () => {
 (async () => {
     connected = await Connection;
 
+    await connected.synchronize(true);
+
     await generateBasicUsers();
 
     await generateFinishedGames();

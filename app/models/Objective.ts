@@ -28,6 +28,6 @@ export class Objective extends BaseModel {
     @Column({nullable: true})
     public gameId: number;
 
-    @ManyToMany((type) => GameTeam)
-    public winningTeams: GameTeam[];
+    @ManyToMany((type) => GameTeam, (team: GameTeam) => team.completedObjectives)
+    public winningTeams: Promise<GameTeam[]>;
 }

@@ -47,7 +47,7 @@ export class GameTeam extends BaseModel {
     @Column({nullable: true})
     public gameId: number;
 
-    @ManyToMany((type) => Objective, {eager: true})
+    @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, {eager: true})
     @JoinTable()
     public completedObjectives: Objective[];
 }

@@ -26,15 +26,19 @@ export class ObjectiveFactory {
         return objective;
     }
 
-    public static defaultObjectivesForGame(game: Game): Objective[] {
+    public static defaultObjectivesForGame(game: Game, count?: number): Objective[] {
         const objectives: Objective[] = [];
 
-        for (let i = 0; i < random.number({min: 2, max: 5}); i++) {
+        if (!count) {
+            count = random.number({min: 2, max: 5});
+        }
+
+        for (let i = 0; i < count; i++) {
             const objective = this.withGame(game);
 
             objective.number = i + 1;
 
-            objectives.push(this.withGame(game));
+            objectives.push(objective);
         }
 
         return objectives;
