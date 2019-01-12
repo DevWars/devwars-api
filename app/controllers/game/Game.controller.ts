@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import {GameStatus} from "../../models";
 
 import {GameRepository, GameTeamRepository, ObjectiveRepository, PlayerRepository} from "../../repository";
+import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
 
 export class GameController {
     /**
@@ -89,6 +90,18 @@ export class GameController {
         }
 
         response.json(game);
+    }
+
+    public static async update(request: Request, response: Response) {
+        const id = request.params.id;
+        const params = request.body as IUpdateGameRequest;
+
+        const game = await GameRepository.byId(id);
+
+        Object.assign(game, params);
+        game.startTime = new Date(params.startTime);
+
+        response.json(await game.save());
     }
 
     /**

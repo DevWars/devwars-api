@@ -1,10 +1,13 @@
 import * as chai from "chai";
 import * as express from "express";
 import * as supertest from "supertest";
-import {GameFactory, GameTeamFactory} from "../app/factory";
+import {GameFactory, GameTeamFactory, UserFactory} from "../app/factory";
 import {Server} from "../config/Server";
 
-import {Game, GameStatus, GameTeam} from "../app/models";
+import {Game, GameStatus, GameTeam, UserRole} from "../app/models";
+import {IUpdateGameRequest} from "../app/request/IUpdateGameRequest";
+import {GameRepository} from "../app/repository";
+import {cookieForUser} from "./helpers";
 
 const server: Server = new Server();
 let app: express.Application;
@@ -117,5 +120,38 @@ describe("game", () => {
 
         chai.expect(containsBlueTeam).to.be.true;
         chai.expect(containsRedTeam).to.be.true;
+    });
+
+    it("can be updated as an admin", async () => {
+        const admin = await UserFactory.withRole(UserRole.ADMIN);
+        const game = await GameFactory.default().save();
+
+        const newData: IUpdateGameRequest = {
+            name: "New Name",
+            season: 1,
+            startTime: new Date().getTime(),
+            status: GameStatus.PREPARING,
+            theme: "Something Else",
+            videoUrl: "https://youtube.com",
+        };
+
+        const response = await supertest(app)
+            .put(`/game/${game.id}`)
+            .set("cookie", await cookieForUser(admin))
+            .send(newData);
+
+        chai.expect(response.status).to.be.eq(200);
+
+        const freshGame = await GameRepository.byId(game.id);
+
+        chai.expect(freshGame).not.to.be.null;
+
+        chai.expect(freshGame.name).to.be.eq(newData.name);
+        chai.expect(freshGame.season).to.be.eq(newData.season);
+        chai.expect(freshGame.status).to.be.eq(newData.status);
+        chai.expect(freshGame.theme).to.be.eq(newData.theme);
+        chai.expect(freshGame.videoUrl).to.be.eq(newData.videoUrl);
+
+        chai.expect(freshGame.startTime.getTime()).to.be.eq(newData.startTime);
     });
 });
