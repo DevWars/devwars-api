@@ -3,6 +3,7 @@ import {Request, Response} from "express";
 import {GameRepository} from "../../repository/Game.repository";
 
 import {GameTeamRepository} from "../../repository/GameTeam.repository";
+import {GameTeam} from "../../models";
 
 export class GameTeamController {
     /**
@@ -53,5 +54,15 @@ export class GameTeamController {
         const teams = await GameTeamRepository.forGame(game);
 
         response.json(teams);
+    }
+
+    public static async update(request: Request, response: Response) {
+        const team = await GameTeamRepository.byId(request.params.team);
+
+        Object.assign(team, request.body);
+
+        await team.save();
+
+        response.json(team);
     }
 }

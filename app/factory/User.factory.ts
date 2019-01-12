@@ -25,4 +25,12 @@ export class UserFactory {
 
         return user;
     }
+
+    public static withRole(role: UserRole) {
+        const user = UserFactory.default();
+
+        user.role = role;
+
+        return user;
+    }
 }

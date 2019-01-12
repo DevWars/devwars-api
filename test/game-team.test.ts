@@ -1,15 +1,16 @@
 import * as chai from "chai";
 import * as express from "express";
 import * as supertest from "supertest";
-import {GameFactory, GameTeamFactory} from "../app/factory";
+import {GameFactory, GameTeamFactory, ObjectiveFactory, UserFactory} from "../app/factory";
 import {Server} from "../config/Server";
 
-import {GameTeam} from "../app/models";
+import {GameTeam, UserRole} from "../app/models";
+import {cookieForUser} from "./helpers";
 
 const server: Server = new Server();
 let app: express.Application;
 
-describe("game", () => {
+describe("game-team", () => {
     beforeEach(async () => {
         await server.Start();
 
@@ -35,5 +36,36 @@ describe("game", () => {
 
         chai.expect(containsBlueTeam).to.be.true;
         chai.expect(containsRedTeam).to.be.true;
+    });
+
+    it("can be updated as an admin", async () => {
+        const objective = await ObjectiveFactory.default().save();
+        const admin = await UserFactory.withRole(UserRole.ADMIN);
+        let team = await GameTeamFactory.default().save();
+
+        const updates = {
+            completedObjectives: [objective],
+            status: "Setting up Discord",
+            votes: {
+                ui: 60,
+                ux: 22,
+            },
+            winner: true,
+        };
+
+        const response = await supertest(app)
+            .put(`/game/team/${team.id}`)
+            .set("cookie", await cookieForUser(admin))
+            .send(updates);
+
+        team = response.body as GameTeam;
+
+        chai.expect(response.status).to.be.eq(200);
+
+        chai.expect(team.votes.ui).to.be.eq(updates.votes.ui);
+        chai.expect(team.votes.ux).to.be.eq(updates.votes.ux);
+        chai.expect(team.winner).to.be.eq(updates.winner);
+        chai.expect(team.status).to.be.eq(updates.status);
+        chai.expect(team.completedObjectives).to.have.lengthOf(1);
     });
 });
