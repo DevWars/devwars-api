@@ -1,4 +1,6 @@
-import {Game, GameStatus} from "../models";
+import {Game, GameStatus, User} from "../models";
+import {getConnection} from "typeorm";
+import {GameApplication} from "../models/GameApplication";
 
 export class GameRepository {
 
@@ -20,5 +22,20 @@ export class GameRepository {
 
     public static byStatus(status: GameStatus): Promise<Game[]> {
         return Game.find({where: {status}});
+    }
+
+    public static async byUserApplication(user: User): Promise<Game[]> {
+        return Game.createQueryBuilder("game")
+            .where((qb) => {
+                const subQuery = qb.subQuery()
+                    .select("application.game_id")
+                    .from(GameApplication, "application")
+                    .where("application.user_id = :user")
+                    .getSql();
+
+                return "game.id in " + subQuery;
+            })
+            .setParameter("user", user.id)
+            .getMany();
     }
 }

@@ -6,7 +6,8 @@ import {UserRole} from "../models";
 export const GameRoute: express.Router = express.Router()
     .get("/", GameController.all)
     .get("/latest", GameController.latest)
-    .get("/:id", GameController.show)
-    .put("/:id", mustBeRole(UserRole.ADMIN), GameController.update)
+    .get("/:game", GameController.show)
+    .put("/:game", mustBeRole(UserRole.ADMIN), GameController.update)
+    .post("/:id/ended", mustBeRole(UserRole.ADMIN), GameController.end)
     .get("/season/:season", GameController.bySeason)
     .get("/status/:status", GameController.byStatus);

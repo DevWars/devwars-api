@@ -16,3 +16,4 @@ export * from "./Player";
 export * from "./User";
 export * from "./Competitor";
 export * from "./Player";
+export * from "./GameApplication";

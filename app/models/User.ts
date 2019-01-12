@@ -22,6 +22,7 @@ import {Game} from "./Game";
 import {LinkedAccount} from "./LinkedAccount";
 import {PasswordReset} from "./PasswordReset";
 import {Player} from "./Player";
+import {GameApplication} from "./GameApplication";
 
 interface IUserAnalytics {
     [name: string]: string;
@@ -85,8 +86,8 @@ export class User extends BaseModel {
     @OneToMany((type) => Player, (player) => player.user)
     public players: Player[];
 
-    @ManyToMany((type) => Game, (game) => game.appliedUsers)
-    public appliedGames: Promise<Game[]>;
+    @OneToMany((type) => GameApplication, (application) => application.user)
+    public gameApplications: Promise<GameApplication[]>;
 
     @ManyToMany((type) => Game, (game) => game.usersPlayed)
     @JoinTable()

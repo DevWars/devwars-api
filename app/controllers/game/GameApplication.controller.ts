@@ -1,5 +1,7 @@
 import {Request, Response} from "express";
 import {GameRepository, UserRepository} from "../../repository";
+import {GameFactory} from "../../factory";
+import {GameApplicationFactory} from "../../factory/GameApplication.factory";
 
 export class GameApplicationController {
     /**
@@ -24,7 +26,6 @@ export class GameApplicationController {
      *         message: "You are already applied to this game"
      *     }
      */
-
     public static async apply(request: Request, response: Response) {
         const user = await UserRepository.userForToken(request.cookies.auth);
         const game = await GameRepository.byId(request.params.game);
@@ -33,16 +34,25 @@ export class GameApplicationController {
             return response.status(400).send("Game not found");
         }
 
-        const appliedUsers = await game.appliedUsers;
-        game.appliedUsers = Promise.resolve([...appliedUsers, user]);
+        await GameApplicationFactory.withGameAndUser(game, user).save();
 
-        response.json(await game.save());
+        return game;
+    }
+
+    public static async forGame(request: Request, response: Response) {
+        const game = await GameRepository.byId(request.params.game);
+
+        if (!game) {
+            return response.status(400).send("Game not found");
+        }
+
+        response.json(await UserRepository.byAppliedGame(game));
     }
 
     public static async mine(request: Request, response: Response) {
         const user = await UserRepository.userForToken(request.cookies.auth);
 
-        response.json(await user.appliedGames);
+        response.json(await GameRepository.byUserApplication(user));
     }
 
     public static async entered(request: Request, response: Response) {

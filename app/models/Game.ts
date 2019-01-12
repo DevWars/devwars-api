@@ -4,6 +4,7 @@ import {GameTeam} from "./GameTeam";
 import {LanguageTemplate} from "./LanguageTemplate";
 import {Objective} from "./Objective";
 import {User} from "./User";
+import {GameApplication} from "./GameApplication";
 
 export enum GameStatus {
     SCHEDULING, PREPARING, ACTIVE, ENDED,
@@ -65,9 +66,8 @@ export class Game extends BaseModel {
     @ManyToMany((type) => User, (user) => user.playedGames)
     public usersPlayed: Promise<User[]>;
 
-    @ManyToMany((type) => User, (user) => user.appliedGames)
-    @JoinTable()
-    public appliedUsers: Promise<User[]>;
+    @OneToMany((type) => GameApplication, (application) => application.game)
+    public userApplications: Promise<GameApplication[]>;
 
     // get done() {
     //     return this.teams.values().any { it.getWinner() }

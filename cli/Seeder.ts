@@ -12,7 +12,9 @@ import {
     PlayerFactory,
     UserFactory,
 } from "../app/factory";
-import {UserRole} from "../app/models";
+import {GameApplicationFactory} from "../app/factory/GameApplication.factory";
+import {Game, User, UserRole} from "../app/models";
+import GameService from "../app/services/Game.service";
 
 let connected: typeorm.Connection;
 
@@ -50,9 +52,11 @@ const generateBasicUsers = async () => {
 };
 
 const generateFinishedGames = async () => {
-    await connected.manager.transaction(async (em) => {
-        for (let i = 0; i < 50; i++) {
-            const game = await em.save(GameFactory.default());
+    for (let i = 0; i < 50; i++) {
+        let game: Game;
+
+        await connected.manager.transaction(async (em) => {
+            game = await em.save(GameFactory.default());
 
             const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
 
@@ -70,16 +74,28 @@ const generateFinishedGames = async () => {
                 for (const player of players) {
                     const user = await em.save(UserFactory.default());
                     const competitor = CompetitorFactory.default();
+                    const application = GameApplicationFactory.withGameAndUser(game, user);
 
                     competitor.user = user;
                     player.user = user;
 
                     await em.save(competitor);
                     await em.save(player);
+                    await em.save(application);
                 }
             }
-        }
-    });
+        });
+
+
+    }
+
+    const allGames = await Game.find({relations: ["teams"]});
+
+    for (const game of allGames) {
+        const winner = game.teams[Math.floor(Math.random() * game.teams.length)];
+
+        await GameService.endGame(game, winner);
+    }
 };
 
 (async () => {

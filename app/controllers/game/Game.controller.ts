@@ -4,6 +4,7 @@ import {GameStatus} from "../../models";
 
 import {GameRepository, GameTeamRepository, ObjectiveRepository, PlayerRepository} from "../../repository";
 import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
+import GameService from "../../services/Game.service";
 
 export class GameController {
     /**
@@ -81,9 +82,7 @@ export class GameController {
      */
 
     public static async show(request: Request, response: Response) {
-        const id = request.params.id;
-
-        const game = await GameRepository.byId(id);
+        const game = await GameRepository.byId(request.params.game);
 
         if (!game) {
             return response.status(404).send("No game for this ID");
@@ -102,6 +101,21 @@ export class GameController {
         game.startTime = new Date(params.startTime);
 
         response.json(await game.save());
+    }
+
+    public static async end(request: Request, response: Response) {
+        const game = await GameRepository.byId(request.params.id);
+        const winner = await GameTeamRepository.byId(request.query.winner);
+
+        if (!game) {
+            return response.status(404).send("No game for this ID");
+        }
+
+        await GameService.endGame(game, winner);
+
+        response.json({
+            message: "Success",
+        });
     }
 
     /**

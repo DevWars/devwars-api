@@ -45,6 +45,12 @@ export class UserStatistics {
     @Column({default: 0})
     public xp: number;
 
+    @Column({default: 0})
+    public wins: number;
+
+    @Column({default: 0})
+    public losses: number;
+
     public rank?: IRank;
     public nextRank?: IRank;
 }

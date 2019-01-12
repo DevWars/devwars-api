@@ -1,4 +1,4 @@
-import {User} from "../models";
+import {Game, GameApplication, User} from "../models";
 
 import ILoginRequest from "../request/ILoginRequest";
 
@@ -34,5 +34,20 @@ export class UserRepository {
 
     public static byId(id: number): Promise<User> {
         return User.findOne(id);
+    }
+
+    public static async byAppliedGame(game: Game): Promise<User[]> {
+        return User.createQueryBuilder("user")
+            .where((qb) => {
+                const subQuery = qb.subQuery()
+                    .select("application.user_id")
+                    .from(GameApplication, "application")
+                    .where("application.game_id = :game")
+                    .getSql();
+
+                return "user.id in " + subQuery;
+            })
+            .setParameter("game", game.id)
+            .getMany();
     }
 }

@@ -8,7 +8,6 @@ export class GameFactory {
 
         Object.assign(game, {
             active: random.boolean(),
-            appliedUsers: [],
             createdAt: date.past(),
             languageTemplates: [],
             name: helpers.randomize(["Classic", "Zen Garden", "Blitz"]),
