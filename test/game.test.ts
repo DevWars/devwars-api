@@ -8,6 +8,7 @@ import {Game, GameStatus, GameTeam, UserRole} from "../app/models";
 import {IUpdateGameRequest} from "../app/request/IUpdateGameRequest";
 import {GameRepository} from "../app/repository";
 import {cookieForUser} from "./helpers";
+import GameService from "../app/services/Game.service";
 
 const server: Server = new Server();
 let app: express.Application;

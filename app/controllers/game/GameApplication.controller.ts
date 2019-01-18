@@ -1,6 +1,5 @@
 import {Request, Response} from "express";
 import {GameRepository, UserRepository} from "../../repository";
-import {GameFactory} from "../../factory";
 import {GameApplicationFactory} from "../../factory/GameApplication.factory";
 
 export class GameApplicationController {
@@ -36,7 +35,7 @@ export class GameApplicationController {
 
         await GameApplicationFactory.withGameAndUser(game, user).save();
 
-        return game;
+        return response.json(game);
     }
 
     public static async forGame(request: Request, response: Response) {

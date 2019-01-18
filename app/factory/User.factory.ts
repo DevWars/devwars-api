@@ -2,6 +2,7 @@ import {helpers, random} from "faker";
 import {User, UserRole} from "../models";
 
 export class UserFactory {
+
     public static default(): User {
         const user = new User();
 
@@ -12,6 +13,8 @@ export class UserFactory {
 
         user.statistics = {
             coins: random.number(100000),
+            losses: 0,
+            wins: 0,
             xp: random.number(22000),
         };
 

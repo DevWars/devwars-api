@@ -55,9 +55,9 @@ describe("game-application", () => {
         chai.expect(response.status).to.be.eq(200);
         chai.expect(responseGame.id).to.be.eq(game.id);
 
-        const appliedGames = await user.appliedGames;
+        const gameApplications = await user.gameApplications;
 
-        chai.expect(appliedGames).to.have.length.greaterThan(0);
+        chai.expect(gameApplications).to.have.length.greaterThan(0);
     });
 
     it("should return a list of my applied games", async () => {

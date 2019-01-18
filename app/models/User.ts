@@ -98,7 +98,7 @@ export class User extends BaseModel {
 
     @AfterLoad() @AfterUpdate() @AfterInsert()
     private loadRank() {
-        this.statistics = this.statistics || {xp: 0, coins: 0};
+        this.statistics = this.statistics || {xp: 0, coins: 0, wins: 0, losses: 0};
 
         this.statistics.rank = ALL_RANKS.find((rank) => {
             return rank.xpRequired <= this.statistics.xp;
