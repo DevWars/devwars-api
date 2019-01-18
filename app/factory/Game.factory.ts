@@ -33,7 +33,7 @@ export class GameFactory {
         const game = GameFactory.default();
 
         game.startTime = date.future();
-        game.status = GameStatus.PREPARING;
+        game.status = GameStatus.SCHEDULING;
 
         return game;
     }
