@@ -54,38 +54,40 @@ const generateBasicUsers = async () => {
 };
 
 const generateUpcomingGames = async () => {
-    let game: Game;
+    for (let i = 0; i < 50; i++) {
+        let game: Game;
 
-    await connected.manager.transaction(async (em) => {
-        game = await em.save(GameFactory.upcoming());
+        await connected.manager.transaction(async (em) => {
+            game = await em.save(GameFactory.upcoming());
 
-        const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
+            const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
 
-        await em.save(objectives);
+            await em.save(objectives);
 
-        const teams = GameTeamFactory.defaultTeamsForGame(game);
+            const teams = GameTeamFactory.defaultTeamsForGame(game);
 
-        for (const team of teams) {
-            team.completedObjectives.push(...objectives.slice(0, Math.random() * objectives.length));
+            for (const team of teams) {
+                team.completedObjectives.push(...objectives.slice(0, Math.random() * objectives.length));
 
-            await em.save(team);
+                await em.save(team);
 
-            const players = PlayerFactory.defaultPlayersForTeam(team);
+                const players = PlayerFactory.defaultPlayersForTeam(team);
 
-            for (const player of players) {
-                const user = await em.save(UserFactory.default());
-                const competitor = CompetitorFactory.default();
-                const application = GameApplicationFactory.withGameAndUser(game, user);
+                for (const player of players) {
+                    const user = await em.save(UserFactory.default());
+                    const competitor = CompetitorFactory.default();
+                    const application = GameApplicationFactory.withGameAndUser(game, user);
 
-                competitor.user = user;
-                player.user = user;
+                    competitor.user = user;
+                    player.user = user;
 
-                await em.save(competitor);
-                await em.save(player);
-                await em.save(application);
+                    await em.save(competitor);
+                    await em.save(player);
+                    await em.save(application);
+                }
             }
-        }
-    });
+        });
+    }
 };
 
 const generateFinishedGames = async () => {
