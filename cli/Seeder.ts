@@ -4,6 +4,8 @@ import * as typeorm from "typeorm";
 
 import {Connection} from "../config/Database";
 
+import {date} from "faker";
+
 import {
     CompetitorFactory,
     GameFactory,
@@ -51,6 +53,41 @@ const generateBasicUsers = async () => {
     });
 };
 
+const generateUpcomingGames = async () => {
+    let game: Game;
+
+    await connected.manager.transaction(async (em) => {
+        game = await em.save(GameFactory.upcoming());
+
+        const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
+
+        await em.save(objectives);
+
+        const teams = GameTeamFactory.defaultTeamsForGame(game);
+
+        for (const team of teams) {
+            team.completedObjectives.push(...objectives.slice(0, Math.random() * objectives.length));
+
+            await em.save(team);
+
+            const players = PlayerFactory.defaultPlayersForTeam(team);
+
+            for (const player of players) {
+                const user = await em.save(UserFactory.default());
+                const competitor = CompetitorFactory.default();
+                const application = GameApplicationFactory.withGameAndUser(game, user);
+
+                competitor.user = user;
+                player.user = user;
+
+                await em.save(competitor);
+                await em.save(player);
+                await em.save(application);
+            }
+        }
+    });
+};
+
 const generateFinishedGames = async () => {
     for (let i = 0; i < 50; i++) {
         let game: Game;
@@ -85,8 +122,6 @@ const generateFinishedGames = async () => {
                 }
             }
         });
-
-
     }
 
     const allGames = await Game.find({relations: ["teams"]});
@@ -106,6 +141,8 @@ const generateFinishedGames = async () => {
     await generateBasicUsers();
 
     await generateFinishedGames();
+
+    await generateUpcomingGames();
 
     await connected.close();
 })();

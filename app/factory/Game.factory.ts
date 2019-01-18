@@ -29,6 +29,15 @@ export class GameFactory {
         return game;
     }
 
+    public static upcoming() {
+        const game = GameFactory.default();
+
+        game.startTime = date.future();
+        game.status = GameStatus.PREPARING;
+
+        return game;
+    }
+
     public static withSeason(season: number): Game {
         const game = this.default();
 
