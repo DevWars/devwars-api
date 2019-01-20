@@ -4,8 +4,15 @@ import {User} from "../models";
 export class LeaderboardController {
 
     public static async users(request: Request, response: Response) {
+        const users = await User.createQueryBuilder("user")
+            .orderBy("statisticsXp", "DESC")
+            .limit(10)
+            .offset(request.query.page || 0)
+            .getMany();
+
         response.json({
             count: await User.count(),
+            users,
         });
     }
 

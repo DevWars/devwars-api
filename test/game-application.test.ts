@@ -85,13 +85,12 @@ describe("game-application", () => {
         chai.expect(games).to.have.length.greaterThan(0);
     });
 
-
     it("should return a list of entered games", async () => {
         const game = await GameFactory.default().save();
         const teams = await GameTeamFactory.defaultTeamsForGame(game);
         const user = await UserFactory.default().save();
 
-        for(const team of teams) {
+        for (const team of teams) {
             await team.save();
         }
 
