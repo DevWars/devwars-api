@@ -1,5 +1,6 @@
 import {Game, GameStatus, GameTeam} from "../models";
 import {GameTeamRepository, PlayerRepository} from "../repository";
+import {pathValueAtPath} from "../utils/firebase";
 
 export default class GameService {
 
@@ -50,5 +51,34 @@ export default class GameService {
                 await player.user.save();
             }
         }
+    }
+
+    public static async sendGameToFirebase(game: Game) {
+        const transformed = {
+            id: game.id,
+            name: game.name,
+            objectives: game.objectives.map((objective) => ({
+                description: objective.description,
+                number: objective.number,
+            })),
+            teams: game.teams.reduce((map: any, team) => {
+                map[team.name] = {
+                    players: team.players.map((player) => ({
+                        language: player.language,
+                        user: {
+                            id: player.user.id,
+                            username: player.user.username,
+                        },
+                    })),
+                    status: team.status,
+                };
+
+                return map;
+            }, {}),
+            templates: game.languageTemplates,
+            theme: game.theme,
+        };
+
+        await pathValueAtPath("game", transformed);
     }
 }

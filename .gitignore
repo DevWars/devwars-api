@@ -15,3 +15,5 @@ docs
 *.iml
 
 yarn-error.log
+
+firebase.json

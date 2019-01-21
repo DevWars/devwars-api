@@ -100,6 +100,8 @@ export class GameController {
         Object.assign(game, params);
         game.startTime = new Date(params.startTime);
 
+        await GameService.sendGameToFirebase(game);
+
         response.json(await game.save());
     }
 
@@ -222,6 +224,7 @@ export class GameController {
      * @apiSuccess {String} game.theme       Short description for what this game is about
      * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
      *
+     await * GameService.sendGameToFirebase(game;
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
      *     [
