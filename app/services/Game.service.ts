@@ -79,6 +79,8 @@ export default class GameService {
             theme: game.theme,
         };
 
-        await pathValueAtPath("game", transformed);
+        if (process.env.NODE_ENV !== "test") {
+            await pathValueAtPath("game", transformed);
+        }
     }
 }

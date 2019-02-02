@@ -7,4 +7,6 @@ export const AuthRoute: express.Router = express.Router()
     .post("/logout", AuthController.logout)
     .post("/register", AuthController.register)
     .get("/verify", AuthController.verify)
-    .post("/re-verify", AuthController.reVerify);
+    .post("/re-verify", AuthController.reVerify)
+    .post("/reset", AuthController.initiatePasswordReset)
+    .put("/reset", AuthController.resetPassword);

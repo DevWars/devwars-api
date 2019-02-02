@@ -1,10 +1,12 @@
 import {Game, GameApplication, User} from "../models";
 
-import ILoginRequest from "../request/ILoginRequest";
+interface ICredentials {
+    identifier: string;
+}
 
 export class UserRepository {
 
-    public static async userForCredentials(request: ILoginRequest): Promise<User> {
+    public static async userForCredentials(request: ICredentials): Promise<User> {
         const byEmail = await UserRepository.byEmail(request.identifier);
 
         if (byEmail) {

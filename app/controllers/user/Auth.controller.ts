@@ -7,9 +7,11 @@ import * as bcrypt from "bcrypt";
 
 import {AuthService} from "../../services/Auth.service";
 
-import {EmailVerification, UserRole} from "../../models";
+import {EmailVerification, PasswordReset, UserRole} from "../../models";
 import {UserRepository} from "../../repository";
 import {VerificationService} from "../../services/Verification.service";
+
+import {hash} from "../../utils/hash";
 
 export class AuthController {
     /**
@@ -59,13 +61,13 @@ export class AuthController {
     }
 
     public static async reVerify(request: Request, response: Response) {
-       const user = await UserRepository.userForToken(request.cookies.auth);
+        const user = await UserRepository.userForToken(request.cookies.auth);
 
-       await VerificationService.reset(user);
+        await VerificationService.reset(user);
 
-       response.json({
-           message: "Resent",
-       });
+        response.json({
+            message: "Resent",
+        });
     }
 
     public static async verify(request: Request, response: Response) {
@@ -119,5 +121,41 @@ export class AuthController {
         }
 
         response.json(user);
+    }
+
+    public static async initiatePasswordReset(request: Request, response: Response) {
+        const {username_or_email} = request.body;
+
+        const user = await UserRepository.userForCredentials({identifier: username_or_email});
+
+        if (user) {
+            await AuthService.resetPassword(user);
+        }
+
+        response.json({
+            message: "Reset password, check your email",
+        });
+    }
+
+    public static async resetPassword(request: Request, response: Response) {
+        const {key, password} = request.query;
+
+        const reset = await PasswordReset.findOne({where: {token: key}, relations: ["user"]});
+
+        if (!reset) {
+            return response.status(400).json({
+                message: "Could not reset password",
+            });
+        }
+
+        const {user} = reset;
+
+        user.password = await hash(password);
+
+        await user.save();
+
+        return response.json({
+            message: "Password reset",
+        });
     }
 }
