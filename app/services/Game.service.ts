@@ -27,7 +27,9 @@ export default class GameService {
 
         await game.save();
 
-        for (const team of await GameTeamRepository.forGame(game)) {
+        const teams = await GameTeamRepository.forGame(game);
+
+        for (const team of teams) {
             // Mark whether or not the current team won
             team.winner = team.id === winner.id;
 
@@ -50,6 +52,8 @@ export default class GameService {
 
                 await player.user.save();
             }
+
+            await team.save();
         }
     }
 
@@ -64,7 +68,7 @@ export default class GameService {
             teams: game.teams.reduce((map: any, team) => {
                 map[team.name] = {
                     players: team.players.map((player) => ({
-                        language: player.language,
+                        language: player.language.toUpperCase(),
                         user: {
                             id: player.user.id,
                             username: player.user.username,

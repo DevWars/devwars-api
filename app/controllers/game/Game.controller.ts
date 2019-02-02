@@ -104,7 +104,7 @@ export class GameController {
             await GameService.sendGameToFirebase(game);
         }
 
-        response.json(await game.save());
+        response.json(await GameRepository.byId(game.id));
     }
 
     public static async end(request: Request, response: Response) {

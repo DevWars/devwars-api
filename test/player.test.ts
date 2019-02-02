@@ -1,10 +1,12 @@
 import * as chai from "chai";
 import * as express from "express";
 import * as supertest from "supertest";
-import {GameFactory, GameTeamFactory, PlayerFactory} from "../app/factory";
+import {GameFactory, GameTeamFactory, PlayerFactory, UserFactory} from "../app/factory";
 import {Server} from "../config/Server";
 
-import {Player} from "../app/models";
+import {Player, UserRole} from "../app/models";
+import {PlayerRepository} from "../app/repository";
+import {cookieForUser} from "./helpers";
 
 const server: Server = new Server();
 let app: express.Application;
@@ -40,5 +42,24 @@ describe("player", () => {
 
             chai.expect(responsePlayers.length).to.be.eq(players.length);
         }
+    });
+
+    it("should be able to be added to a team with a user and language", async () => {
+        const user = await UserFactory.withRole(UserRole.ADMIN).save();
+        const game = await GameFactory.default().save();
+        const team = await GameTeamFactory.withGame(game).save();
+
+        const response = await supertest(app)
+            .post(`/game/team/${team.id}/players`)
+            .set("Cookie", await cookieForUser(user))
+            .query({language: "HTML", user: user.id})
+            .send();
+
+        chai.expect(response.status).to.be.eq(200);
+
+        const players = await PlayerRepository.forTeam(team);
+
+        chai.expect(players).to.have.lengthOf(1);
+        chai.expect(players[0].user.id).to.be.eq(user.id);
     });
 });

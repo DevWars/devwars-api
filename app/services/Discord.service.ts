@@ -7,13 +7,14 @@ export interface IDiscordUser {
 
 export class DiscordService {
     public static async accessTokenForCode(code: string): Promise<string> {
-        const tokenEndpoint = "https://discordapp.com/api/oauth2/token";
+        const tokenEndpoint = "https://discordapp.com/api/v6/oauth2/token";
 
         try {
             const response = await axios.post(tokenEndpoint, null, {
-                auth: {username: process.env.DISCORD_CLIENT, password: process.env.DISCORD_SECRET},
                 params: {
-                    code: {code},
+                    client_id: process.env.DISCORD_CLIENT,
+                    client_secret: process.env.DISCORD_SECRET,
+                    code,
                     grant_type: "authorization_code",
                     redirect_uri: `${process.env.ROOT_URL}/oauth/discord`,
                     scope: "identify",
@@ -22,7 +23,7 @@ export class DiscordService {
 
             return response.data.access_token;
         } catch (e) {
-            console.error(e.response);
+            console.error(e);
             return null;
         }
     }

@@ -1,6 +1,7 @@
 import {Request, Response} from "express";
 
-import {GameRepository, GameTeamRepository, PlayerRepository} from "../../repository";
+import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from "../../repository";
+import {Player} from "../../models";
 
 export class PlayerController {
     /**
@@ -55,5 +56,23 @@ export class PlayerController {
         const players = await PlayerRepository.forTeam(team);
 
         response.json(players);
+    }
+
+    public static async addPlayer(request: Request, response: Response) {
+        const team = await GameTeamRepository.byId(request.params.team);
+
+        const {language, user: userId} = request.query;
+
+        const user = await UserRepository.byId(userId);
+
+        if (!user) {
+            return response.status(400).json({
+                message: "Player does not exist",
+            });
+        }
+
+        const player = await new Player(user, team, language).save();
+
+        return response.json(player);
     }
 }

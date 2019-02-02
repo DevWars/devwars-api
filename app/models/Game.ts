@@ -1,4 +1,4 @@
-import {Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, OneToMany, AfterLoad} from "typeorm";
 import BaseModel from "./BaseModel";
 import {GameTeam} from "./GameTeam";
 import {LanguageTemplate} from "./LanguageTemplate";
@@ -68,6 +68,11 @@ export class Game extends BaseModel {
 
     @OneToMany((type) => GameApplication, (application) => application.game)
     public userApplications: Promise<GameApplication[]>;
+
+    @AfterLoad()
+    public updateActiveFromStatus() {
+        this.active = this.status === GameStatus.ACTIVE;
+    }
 
     // get done() {
     //     return this.teams.values().any { it.getWinner() }

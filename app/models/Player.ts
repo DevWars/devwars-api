@@ -26,6 +26,14 @@ export class Player extends BaseModel {
     @Column({nullable: true})
     public userId: number;
 
+    constructor(user: User, team: GameTeam, language: string) {
+        super();
+
+        this.user = user;
+        this.team = team;
+        this.language = language;
+    }
+
     @AfterInsert() @AfterUpdate()
     private async linkUserToGame() {
         const game = await GameTeam.createQueryBuilder().relation(GameTeam, "game").of(this.team).loadOne();

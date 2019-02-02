@@ -10,8 +10,6 @@ export class OAuthController {
         const user = await UserRepository.userForToken(request.cookies.auth);
         const token = await DiscordService.accessTokenForCode(request.query.code);
 
-        console.log(user.id, request.query);
-
         if (!token) {
             return response.status(400).json({
                 message: "Missing token",
