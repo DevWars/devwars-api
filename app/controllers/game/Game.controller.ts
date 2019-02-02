@@ -2,7 +2,7 @@ import {Request, Response} from "express";
 
 import {GameStatus} from "../../models";
 
-import {GameRepository, GameTeamRepository, ObjectiveRepository, PlayerRepository} from "../../repository";
+import {GameRepository, GameTeamRepository} from "../../repository";
 import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
 import GameService from "../../services/Game.service";
 
@@ -100,7 +100,9 @@ export class GameController {
         Object.assign(game, params);
         game.startTime = new Date(params.startTime);
 
-        await GameService.sendGameToFirebase(game);
+        if (game.status === GameStatus.ACTIVE) {
+            await GameService.sendGameToFirebase(game);
+        }
 
         response.json(await game.save());
     }
