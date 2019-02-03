@@ -1,4 +1,3 @@
-
 import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany} from "typeorm";
 
 import BaseModel from "./BaseModel";
@@ -50,4 +49,13 @@ export class GameTeam extends BaseModel {
     @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, {eager: true})
     @JoinTable()
     public completedObjectives: Objective[];
+
+    constructor() {
+        super();
+
+        this.winner = false;
+        this.votes = {};
+
+        this.status = "Waiting for players";
+    }
 }

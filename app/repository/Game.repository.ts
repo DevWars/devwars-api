@@ -1,11 +1,14 @@
 import {Game, GameStatus, User} from "../models";
-import {getConnection} from "typeorm";
 import {GameApplication} from "../models/GameApplication";
 
 export class GameRepository {
 
     public static all(): Promise<Game[]> {
-        return Game.find();
+        return Game.find({
+            order: {
+                startTime: "DESC",
+            },
+        });
     }
 
     public static latest(): Promise<Game> {

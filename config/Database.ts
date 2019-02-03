@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === "test") {
 
         database: config.DATABASE.DB,
         host: config.DATABASE.SERVER,
-        logging: false,
+        logging: true,
         password: config.DATABASE.PASSWORD,
         port: config.DATABASE.PORT_DB,
         type: DIALECT,

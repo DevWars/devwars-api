@@ -5,6 +5,7 @@ import {UserRole} from "../models";
 
 export const GameRoute: express.Router = express.Router()
     .get("/", GameController.all)
+    .post("/", GameController.createGame)
     .get("/latest", GameController.latest)
     .get("/:game", GameController.show)
     .put("/:game", mustBeRole(UserRole.ADMIN), GameController.update)

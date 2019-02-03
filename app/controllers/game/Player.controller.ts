@@ -71,7 +71,13 @@ export class PlayerController {
             });
         }
 
-        const player = await new Player(user, team, language).save();
+        const player = await new Player();
+
+        player.user = user;
+        player.language = language;
+        player.team = team;
+
+        await player.save();
 
         return response.json(player);
     }

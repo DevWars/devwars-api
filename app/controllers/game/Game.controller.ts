@@ -1,10 +1,12 @@
 import {Request, Response} from "express";
 
-import {GameStatus} from "../../models";
+import {Game, GameStatus, GameTeam} from "../../models";
 
 import {GameRepository, GameTeamRepository} from "../../repository";
 import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
 import GameService from "../../services/Game.service";
+import {GameFactory, GameTeamFactory} from "../../factory";
+import {getConnection} from "typeorm";
 
 export class GameController {
     /**
@@ -101,6 +103,7 @@ export class GameController {
         game.startTime = new Date(params.startTime);
 
         game.teams = undefined;
+        game.objectives = undefined;
 
         await game.save();
 
@@ -258,6 +261,29 @@ export class GameController {
         const games = await GameRepository.byStatus(status);
 
         response.json(games);
+    }
+
+    public static async createGame(request: Request, response: Response) {
+        const {name, timestamp} = request.body;
+
+        let game = new Game();
+
+        game.name = name;
+        game.startTime = new Date(timestamp);
+        await game.save();
+
+        for (const teamName of ["blue", "red"]) {
+            const team = new GameTeam();
+
+            team.name = teamName;
+            team.game = game;
+
+            await team.save();
+        }
+
+        game = await GameRepository.byId(game.id);
+
+        response.json(game);
     }
 
     // TO-DO: past() games with the status of ENDED

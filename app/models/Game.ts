@@ -35,10 +35,6 @@ export class Game extends BaseModel {
     @Column()
     public season: number;
 
-    /**
-     * Toggle for whether or not the game is active
-     */
-    @Column()
     public active: boolean;
 
     /**
@@ -73,6 +69,13 @@ export class Game extends BaseModel {
 
     @OneToMany((type) => GameApplication, (application) => application.game)
     public userApplications: Promise<GameApplication[]>;
+
+    constructor() {
+        super();
+
+        this.season = 3;
+        this.languageTemplates = {};
+    }
 
     @AfterLoad()
     public updateActiveFromStatus() {

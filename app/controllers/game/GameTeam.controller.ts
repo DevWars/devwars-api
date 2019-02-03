@@ -3,7 +3,6 @@ import {Request, Response} from "express";
 import {GameRepository} from "../../repository/Game.repository";
 
 import {GameTeamRepository} from "../../repository/GameTeam.repository";
-import {GameTeam} from "../../models";
 
 export class GameTeamController {
     /**
@@ -60,6 +59,8 @@ export class GameTeamController {
         const team = await GameTeamRepository.byId(request.params.team);
 
         Object.assign(team, request.body);
+
+        team.players = undefined;
 
         await team.save();
 
