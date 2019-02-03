@@ -16,14 +16,25 @@ export class ObjectiveService {
             await transaction.remove(toDelete);
 
             for (const newObjective of objectives) {
-                const found = game.objectives.find((it) => it.number === newObjective.number) || new Objective();
+                const found = game.objectives.find((it) => it.number === newObjective.number);
 
-                found.game = game;
-                found.number = newObjective.number;
-                found.description = newObjective.description;
-                found.bonus = newObjective.bonus;
+                const objective = {
+                    bonus: newObjective.bonus !== null,
+                    description: newObjective.description,
+                    gameId: game.id,
+                    number: newObjective.number,
+                };
 
-                await transaction.save(found);
+                if (found) {
+                    await transaction.createQueryBuilder().update("objectives")
+                        .where("id = :id", {id: found.id})
+                        .set(objective)
+                        .execute();
+                } else {
+                    const query = transaction.createQueryBuilder().insert().into("objectives").values(objective);
+
+                    await query.execute();
+                }
             }
         });
     }

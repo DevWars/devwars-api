@@ -1,13 +1,18 @@
-import {Column, Entity, JoinTable, ManyToMany, OneToMany, AfterLoad} from "typeorm";
+import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
 import BaseModel from "./BaseModel";
+import {GameApplication} from "./GameApplication";
 import {GameTeam} from "./GameTeam";
-import {LanguageTemplate} from "./LanguageTemplate";
 import {Objective} from "./Objective";
 import {User} from "./User";
-import {GameApplication} from "./GameApplication";
 
 export enum GameStatus {
     SCHEDULING, PREPARING, ACTIVE, ENDED,
+}
+
+interface ILanguageTemplate {
+    language: string;
+
+    content: string;
 }
 
 @Entity("games")
@@ -54,8 +59,8 @@ export class Game extends BaseModel {
     @Column({nullable: true})
     public videoUrl: string;
 
-    @OneToMany((type) => LanguageTemplate, (template) => template.game, {eager: true})
-    public languageTemplates: LanguageTemplate[];
+    @Column("simple-json", {nullable: false})
+    public languageTemplates: { [language: string]: string };
 
     @OneToMany((type) => GameTeam, (team) => team.game)
     public teams: GameTeam[];

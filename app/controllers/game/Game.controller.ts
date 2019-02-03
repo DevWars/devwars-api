@@ -95,16 +95,22 @@ export class GameController {
         const id = request.params.id;
         const params = request.body as IUpdateGameRequest;
 
-        const game = await GameRepository.byId(id);
+        let game = await GameRepository.byId(id);
 
         Object.assign(game, params);
         game.startTime = new Date(params.startTime);
+
+        game.teams = undefined;
+
+        await game.save();
+
+        game = await GameRepository.byId(id);
 
         if (game.status === GameStatus.ACTIVE) {
             await GameService.sendGameToFirebase(game);
         }
 
-        response.json(await GameRepository.byId(game.id));
+        response.json(game);
     }
 
     public static async end(request: Request, response: Response) {

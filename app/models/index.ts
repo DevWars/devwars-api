@@ -8,7 +8,6 @@ export * from "./Competitor";
 export * from "./EmailVerification";
 export * from "./Game";
 export * from "./GameTeam";
-export * from "./LanguageTemplate";
 export * from "./LinkedAccount";
 export * from "./Objective";
 export * from "./PasswordReset";

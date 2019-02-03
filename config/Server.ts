@@ -22,6 +22,7 @@ export class Server {
         try {
             await connection.synchronize();
         } catch (e) {
+            console.log(e);
             console.log("Couldn't synchronize database");
         }
 
