@@ -5,7 +5,7 @@ import * as supertest from "supertest";
 import {CompetitorFactory, GameFactory, GameTeamFactory, UserFactory} from "../app/factory";
 import {Server} from "../config/Server";
 
-import {Game, Player} from "../app/models";
+import {Game, Player, UserRole} from "../app/models";
 import {cookieForUser} from "./helpers";
 
 const server: Server = new Server();
@@ -96,7 +96,7 @@ describe("game-application", () => {
 
         const team = teams[0];
         const player = new Player();
-        player.language = 'html';
+        player.language = "html";
         player.user = user;
         player.team = team;
 
@@ -113,6 +113,35 @@ describe("game-application", () => {
 
         chai.expect(response.body).to.be.an("array");
         chai.expect(response.body).to.have.lengthOf(1);
+
+        chai.expect(responseGame.id).to.be.eq(game.id);
+    });
+
+    it("should be able to apply by username if admin", async () => {
+        const admin = await UserFactory.withRole(UserRole.ADMIN).save();
+        const applicant = await UserFactory.default().save();
+
+        const game = await GameFactory.default().save();
+
+        const response = await supertest(app)
+            .post(`/game/${game.id}/applications/${applicant.username}`)
+            .set("Cookie", await cookieForUser(admin))
+            .send();
+
+        chai.expect(response.status).to.be.eq(200);
+
+        const gamesResponse = await supertest(app)
+            .get(`/game/applications/mine`)
+            .set("Cookie", await cookieForUser(applicant))
+            .send();
+
+        chai.expect(gamesResponse.status).to.be.eq(200);
+
+        const games = gamesResponse.body as Game[];
+
+        chai.expect(games).to.have.length.greaterThan(0);
+
+        const responseGame = games[0];
 
         chai.expect(responseGame.id).to.be.eq(game.id);
     });

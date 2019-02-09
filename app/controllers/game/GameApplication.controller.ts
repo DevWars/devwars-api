@@ -38,6 +38,23 @@ export class GameApplicationController {
         return response.json(game);
     }
 
+    public static async applyByUsername(request: Request, response: Response) {
+        const game = await GameRepository.byId(request.params.game);
+        const user = await UserRepository.byUsername(request.params.username);
+
+        if (!game || !user) {
+            return response.status(400).json({
+                message: "Either game or user did not exist",
+            });
+        }
+
+        await GameApplicationFactory.withGameAndUser(game, user).save();
+
+        response.json({
+            message: "Applied",
+        });
+    }
+
     public static async forGame(request: Request, response: Response) {
         const game = await GameRepository.byId(request.params.game);
 
