@@ -1,6 +1,6 @@
 import {GameTeamFactory, UserFactory} from "./";
 
-import {GameTeam, Player} from "../models";
+import {GameTeam, Player, User} from "../models";
 
 export class PlayerFactory {
     public static default(): Player {
@@ -17,10 +17,15 @@ export class PlayerFactory {
     }
 
     public static withTeamAndLanguage(team: GameTeam, language: string): Player {
+        return this.withTeamAndLanguageAndUser(team, language);
+    }
+
+    public static withTeamAndLanguageAndUser(team: GameTeam, language: string, user?: User): Player {
         const player = this.default();
 
         player.team = team;
         player.language = language;
+        player.user = user;
 
         return player;
     }

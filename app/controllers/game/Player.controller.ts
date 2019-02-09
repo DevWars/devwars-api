@@ -81,4 +81,20 @@ export class PlayerController {
 
         return response.json(player);
     }
+
+    public static async removePlayer(request: Request, response: Response) {
+        const player = await Player.findOne(request.params.player);
+
+        if (!player) {
+            return response.status(400).json({
+                message: "Player does not exist",
+            });
+        }
+
+        await player.remove();
+
+        return response.json({
+            message: "Player removed",
+        });
+    }
 }

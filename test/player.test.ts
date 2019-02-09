@@ -62,4 +62,28 @@ describe("player", () => {
         chai.expect(players).to.have.lengthOf(1);
         chai.expect(players[0].user.id).to.be.eq(user.id);
     });
+
+    it("should be able to be removed by an admin", async () => {
+        const user = await UserFactory.default().save();
+        const admin = await UserFactory.withRole(UserRole.ADMIN).save();
+        const game = await GameFactory.default().save();
+        const team = await GameTeamFactory.withGame(game).save();
+        const player = await PlayerFactory.withTeamAndLanguageAndUser(team, "HTML", user).save();
+
+        let players = await PlayerRepository.forTeam(team);
+
+        chai.expect(players).to.have.lengthOf(1);
+
+        const response = await supertest(app)
+            .delete(`/game/players/${player.id}`)
+            .set("Cookie", await cookieForUser(admin))
+            .send();
+
+        chai.expect(response.status).to.be.eq(200);
+
+        players = await PlayerRepository.forTeam(team);
+
+        chai.expect(players).to.have.lengthOf(0);
+    });
+
 });
