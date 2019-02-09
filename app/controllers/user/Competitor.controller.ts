@@ -65,6 +65,7 @@ export class CompetitorController {
         competitor.user = user;
 
         Object.assign(competitor, request.body);
+        competitor.dob = new Date(request.body.dob);
 
         await competitor.save();
 
