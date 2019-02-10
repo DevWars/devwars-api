@@ -91,10 +91,14 @@ export class AuthController {
     public static async login(request: Request, response: Response) {
         const user = await UserRepository.userForCredentials(request.body as ILoginRequest);
 
+        if (!user) {
+            return response.status(400).send("Invalid Credentials");
+        }
+
         const passwordsMatch: boolean = await bcrypt.compare(request.body.password, user.password);
 
         if (!passwordsMatch) {
-            response.status(400).send({error: "Invalid Credentials"});
+            return response.status(400).send("Invalid Credentials");
         } else {
             const token = await AuthService.newToken(user);
 
