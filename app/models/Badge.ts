@@ -11,7 +11,7 @@ export class Badge extends BaseModel {
     /**
      * Display name of the badge
      */
-    @Column({unique: true})
+    @Column()
     public name: string;
 
     /**
