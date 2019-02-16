@@ -84,6 +84,7 @@ export default class GameService {
         };
 
         if (process.env.NODE_ENV !== "test") {
+            console.log("sending game to firebase");
             await pathValueAtPath("game", transformed);
         }
     }

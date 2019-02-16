@@ -19,10 +19,10 @@ import {EmailVerification} from "./EmailVerification";
 import {ALL_RANKS, UserProfile} from "./embedded";
 import {UserStatistics} from "./embedded";
 import {Game} from "./Game";
+import {GameApplication} from "./GameApplication";
 import {LinkedAccount} from "./LinkedAccount";
 import {PasswordReset} from "./PasswordReset";
 import {Player} from "./Player";
-import {GameApplication} from "./GameApplication";
 
 interface IUserAnalytics {
     [name: string]: string;

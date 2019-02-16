@@ -14,7 +14,7 @@ export const mustBeRole = (role: UserRole) => async (request: Request, response:
     response.status(403).json({
         error: "Unauthenticated",
     });
-}
+};
 
 export const mustBeAuthenticated = async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.auth;

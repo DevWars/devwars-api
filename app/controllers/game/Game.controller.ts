@@ -2,11 +2,11 @@ import {Request, Response} from "express";
 
 import {Game, GameStatus, GameTeam} from "../../models";
 
+import {getConnection} from "typeorm";
+import {GameFactory, GameTeamFactory} from "../../factory";
 import {GameRepository, GameTeamRepository} from "../../repository";
 import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
 import GameService from "../../services/Game.service";
-import {GameFactory, GameTeamFactory} from "../../factory";
-import {getConnection} from "typeorm";
 
 export class GameController {
     /**
@@ -107,7 +107,9 @@ export class GameController {
 
         await game.save();
 
-        game = await GameRepository.byId(id);
+        const isActive = game.status === GameStatus.ACTIVE;
+
+        game = await GameRepository.byId(game.id);
 
         if (game.status === GameStatus.ACTIVE) {
             await GameService.sendGameToFirebase(game);
@@ -235,7 +237,6 @@ export class GameController {
      * @apiSuccess {String} game.theme       Short description for what this game is about
      * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
      *
-     await * GameService.sendGameToFirebase(game;
      * @apiSuccessExample Success-Response:
      *     HTTP/1.1 200 OK
      *     [

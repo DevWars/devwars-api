@@ -3,8 +3,8 @@ import {hash} from "../utils/hash";
 
 import IRegistrationRequest from "../request/RegistrationRequest";
 import {randomString} from "../utils/random";
-import {VerificationService} from "./Verification.service";
 import {MailService} from "./Mail.service";
+import {VerificationService} from "./Verification.service";
 
 export class AuthService {
 

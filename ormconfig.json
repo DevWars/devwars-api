@@ -1,0 +1,13 @@
+{
+    "migrations": [
+        "./app/migration/*.ts"
+    ],
+    "cli": {
+        "migrationsDir": "./app/migration"
+    },
+    "type": "mysql",
+    "host": "database",
+    "port": 3306,
+    "username": "root",
+    "database": "devwars_api"
+}

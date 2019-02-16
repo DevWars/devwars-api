@@ -2,11 +2,11 @@ import {Request, Response} from "express";
 
 import {GameRepository} from "../../repository";
 
-import {ObjectiveRepository} from "../../repository";
-import {ObjectiveService} from "../../services/Objective.service";
-import {Objective} from "../../models";
 import {getConnection} from "typeorm";
 import {ObjectiveFactory} from "../../factory";
+import {Objective} from "../../models";
+import {ObjectiveRepository} from "../../repository";
+import {ObjectiveService} from "../../services/Objective.service";
 
 export class ObjectiveController {
     /**

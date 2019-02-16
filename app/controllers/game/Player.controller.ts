@@ -1,7 +1,7 @@
 import {Request, Response} from "express";
 
-import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from "../../repository";
 import {Player} from "../../models";
+import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from "../../repository";
 
 export class PlayerController {
     /**
