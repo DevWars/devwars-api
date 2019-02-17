@@ -1,6 +1,9 @@
+import {IGame} from "../external/Editor";
 import {Game, GameStatus, GameTeam} from "../models";
 import {GameTeamRepository, PlayerRepository} from "../repository";
-import {pathValueAtPath} from "../utils/firebase";
+import {getValueAtPath, pathValueAtPath} from "../utils/firebase";
+import {ManagedUpload, PutObjectRequest} from "aws-sdk/clients/s3";
+import AWS = require("aws-sdk");
 
 export default class GameService {
 
@@ -16,6 +19,42 @@ export default class GameService {
                 name: "Blitz",
             },
         ];
+    }
+
+    public static async backupGame(game: Game) {
+        const files = ["index.html", "game.css", "game.js"];
+
+        const editorGame = await getValueAtPath(process.env.EDITOR_PATH) as IGame;
+
+        for (const player of editorGame.players) {
+            const language = files[player.id % 3];
+            const path = `game/${game.id}/${player.team}/${language}`;
+
+            const editor = editorGame.editors[player.editorId];
+            console.log(editor);
+
+            if (!editor) {
+                continue;
+            }
+
+            const params: PutObjectRequest = {
+                Body: editor.text,
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: path,
+            };
+
+            const s3 = new AWS.S3();
+
+            await new Promise<ManagedUpload.SendData>((resolve, reject) => {
+                s3.upload(params, (err: Error, data: ManagedUpload.SendData) => {
+                    if (err) {
+                        reject(err);
+                    }
+
+                    resolve(data);
+                });
+            });
+        }
     }
 
     public static async endGame(game: Game, winner: GameTeam) {

@@ -126,6 +126,7 @@ export class GameController {
             return response.status(404).send("No game for this ID");
         }
 
+        await GameService.backupGame(game);
         await GameService.endGame(game, winner);
 
         response.json({
