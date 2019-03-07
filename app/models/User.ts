@@ -41,13 +41,13 @@ export class User extends BaseModel {
     @Column({nullable: true})
     public email: string;
 
-    @Column({nullable: true})
+    @Column({unique: true})
     public username: string;
 
     @Column({nullable: true})
     public password: string;
 
-    @Column({nullable: true})
+    @Column()
     public role: UserRole;
 
     @Column({nullable: true})
