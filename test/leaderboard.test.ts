@@ -1,15 +1,15 @@
-import * as chai from "chai";
-import * as express from "express";
-import * as supertest from "supertest";
-import {UserFactory} from "../app/factory";
-import {Server} from "../config/Server";
-import {getConnection} from "typeorm";
-import {User} from "../app/models";
+import * as chai from 'chai';
+import * as express from 'express';
+import * as supertest from 'supertest';
+import {getConnection} from 'typeorm';
+import {UserFactory} from '../app/factory';
+import {User} from '../app/models';
+import {Server} from '../config/Server';
 
 const server: Server = new Server();
 let app: express.Application;
 
-describe("leaderboards", () => {
+describe('leaderboards', () => {
 
     beforeEach(async () => {
         await server.Start();
@@ -18,16 +18,16 @@ describe("leaderboards", () => {
     });
 
     // Utilize UserFactory
-    it("should return the user count", async () => {
+    it('should return the user count', async () => {
         await UserFactory.default().save();
 
-        const response = await supertest(app).get(`/leaderboard/users`).send();
+        const response = await supertest(app).get('/leaderboard/users').send();
 
         chai.expect(response.status).to.be.eq(200);
         chai.expect(response.body.count).to.be.eq(1);
     });
 
-    it("should return the users sorted by xp", async () => {
+    it('should return the users sorted by xp', async () => {
         const loser = UserFactory.default();
         const winner = UserFactory.default();
 
@@ -38,10 +38,10 @@ describe("leaderboards", () => {
             await em.save([winner, loser]);
         });
 
-        const response = await supertest(app).get(`/leaderboard/users`).send();
+        const response = await supertest(app).get('/leaderboard/users').send();
 
         chai.expect(response.status).to.be.eq(200);
-        chai.expect(response.body.users).to.be.an("array");
+        chai.expect(response.body.users).to.be.an('array');
         chai.expect(response.body.users).to.have.lengthOf(2);
 
         const [first, second] = response.body.users as User[];

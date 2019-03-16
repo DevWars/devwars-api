@@ -1,7 +1,7 @@
-import {date, name, random} from "faker";
+import {date, name, random} from 'faker';
 
-import {AddressFactory} from "../factory";
-import {Competitor, User} from "../models";
+import {AddressFactory} from '../factory';
+import {Competitor, User} from '../models';
 
 export class CompetitorFactory {
     public static default(): Competitor {

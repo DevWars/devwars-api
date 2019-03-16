@@ -1,6 +1,6 @@
-import {date, random} from "faker";
+import {date, random} from 'faker';
 
-import {Game, GameTeam} from "../models";
+import {Game, GameTeam} from '../models';
 
 export class GameTeamFactory {
     public static default(): GameTeam {
@@ -9,8 +9,8 @@ export class GameTeamFactory {
         Object.assign(team, {
             completedObjectives: [],
             createdAt: date.past(),
-            name: random.arrayElement(["red", "blue"]),
-            status: random.arrayElement(["Waiting", "Ready to play", "Setting up game"]),
+            name: random.arrayElement(['red', 'blue']),
+            status: random.arrayElement(['Waiting', 'Ready to play', 'Setting up game']),
             updatedAt: date.past(),
             votes: {ui: random.number(100), ux: random.number(100)},
             winner: random.boolean(),
@@ -31,8 +31,8 @@ export class GameTeamFactory {
         const blue = this.withGame(game);
         const red = this.withGame(game);
 
-        blue.name = "blue";
-        red.name = "red";
+        blue.name = 'blue';
+        red.name = 'red';
 
         return [blue, red];
     }

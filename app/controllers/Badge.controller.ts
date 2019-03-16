@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import {BadgeRepository, UserRepository} from "../repository";
+import {BadgeRepository, UserRepository} from '../repository';
 
 export class BadgeController {
     /**

@@ -1,5 +1,5 @@
-import {BlogPost} from "../models";
-import { UserFactory } from "./User.factory";
+import {BlogPost} from '../models';
+import { UserFactory } from './User.factory';
 
 export class BlogPostFactory {
     public static default(): BlogPost {
@@ -9,10 +9,10 @@ export class BlogPostFactory {
             author: UserFactory.default(),
             content: "<p>Don't forget to tune in this weekend for the DevWars tournament!</p>",
             createdAt: new Date(),
-            description: "The DevWars tournament starts this weekend!",
-            imageUrl: "https://i.imgur.com/laaKm3C.png",
-            slug: "the-devwars-tournament-approaches",
-            title: "The DevWars Tournament Approaches",
+            description: 'The DevWars tournament starts this weekend!',
+            imageUrl: 'https://i.imgur.com/laaKm3C.png',
+            slug: 'the-devwars-tournament-approaches',
+            title: 'The DevWars Tournament Approaches',
             updatedAt: new Date(),
         });
 

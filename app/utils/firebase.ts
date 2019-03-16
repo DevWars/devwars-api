@@ -1,6 +1,6 @@
-import * as firebase from "firebase-admin";
+import * as firebase from 'firebase-admin';
 
-const serviceAccount = require("../../firebase.json");
+const serviceAccount = require('../../firebase.json');
 
 firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
@@ -12,7 +12,7 @@ export const pathValueAtPath = async (path: string, value: any) => {
 };
 
 export const getValueAtPath = async (path: string) => {
-    const value = await firebase.database().ref(path).once("value");
+    const value = await firebase.database().ref(path).once('value');
 
     return value.val();
 };

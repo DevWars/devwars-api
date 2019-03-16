@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 
-import {CompetitorRepository, UserRepository} from "../../repository";
+import {CompetitorRepository, UserRepository} from '../../repository';
 
-import {Competitor} from "../../models";
+import {Competitor} from '../../models';
 
 export class CompetitorController {
     /**
@@ -57,7 +57,7 @@ export class CompetitorController {
 
         if (existing) {
             return response.status(400).json({
-                message: "You are already a competitor",
+                message: 'You are already a competitor',
             });
         }
 

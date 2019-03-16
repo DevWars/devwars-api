@@ -1,12 +1,12 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 
-import {Game, GameStatus, GameTeam} from "../../models";
+import {Game, GameStatus, GameTeam} from '../../models';
 
-import {getConnection} from "typeorm";
-import {GameFactory, GameTeamFactory} from "../../factory";
-import {GameRepository, GameTeamRepository} from "../../repository";
-import {IUpdateGameRequest} from "../../request/IUpdateGameRequest";
-import GameService from "../../services/Game.service";
+import {getConnection} from 'typeorm';
+import {GameFactory, GameTeamFactory} from '../../factory';
+import {GameRepository, GameTeamRepository} from '../../repository';
+import {IUpdateGameRequest} from '../../request/IUpdateGameRequest';
+import GameService from '../../services/Game.service';
 
 export class GameController {
     /**
@@ -87,7 +87,7 @@ export class GameController {
         const game = await GameRepository.byId(request.params.game);
 
         if (!game) {
-            return response.status(404).send("No game for this ID");
+            return response.status(404).send('No game for this ID');
         }
 
         response.json(game);
@@ -123,14 +123,14 @@ export class GameController {
         const winner = await GameTeamRepository.byId(request.query.winner);
 
         if (!game) {
-            return response.status(404).send("No game for this ID");
+            return response.status(404).send('No game for this ID');
         }
 
         await GameService.backupGame(game);
         await GameService.endGame(game, winner);
 
         response.json({
-            message: "Success",
+            message: 'Success',
         });
     }
 
@@ -170,7 +170,7 @@ export class GameController {
         const game = await GameRepository.latest();
 
         if (!game) {
-            return response.status(404).send("There is not latest game to be found");
+            return response.status(404).send('There is not latest game to be found');
         }
 
         response.json(game);
@@ -257,7 +257,7 @@ export class GameController {
      */
 
     public static async byStatus(request: Request, response: Response) {
-        const toEnum: string = (request.params.status || "").toUpperCase();
+        const toEnum: string = (request.params.status || '').toUpperCase();
         const status: GameStatus = (GameStatus as any)[toEnum];
 
         const games = await GameRepository.byStatus(status);
@@ -274,7 +274,7 @@ export class GameController {
         game.startTime = new Date(timestamp);
         await game.save();
 
-        for (const teamName of ["blue", "red"]) {
+        for (const teamName of ['blue', 'red']) {
             const team = new GameTeam();
 
             team.name = teamName;

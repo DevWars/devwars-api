@@ -1,7 +1,7 @@
-import * as express from "express";
-import * as JWT from "jsonwebtoken";
-import * as bearer from "token-extractor";
-import { config } from "../../config";
+import * as express from 'express';
+import * as JWT from 'jsonwebtoken';
+import * as bearer from 'token-extractor';
+import { config } from '../../config';
 
 export class JWTService {
 

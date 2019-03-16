@@ -1,9 +1,9 @@
-import {BlogPost} from "../models";
+import {BlogPost} from '../models';
 
 export class BlogPostRepository {
 
     public static all(): Promise<BlogPost[]> {
-        return BlogPost.find({order: {createdAt: "DESC"}});
+        return BlogPost.find({order: {createdAt: 'DESC'}});
     }
 
     public static show(id: number): Promise<BlogPost> {

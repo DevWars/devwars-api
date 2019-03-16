@@ -1,15 +1,15 @@
-import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany} from "typeorm";
+import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany} from 'typeorm';
 
-import BaseModel from "./BaseModel";
-import {Game} from "./Game";
-import {Objective} from "./Objective";
-import {Player} from "./Player";
+import BaseModel from './BaseModel';
+import {Game} from './Game';
+import {Objective} from './Objective';
+import {Player} from './Player';
 
 interface IVotes {
     [phase: string]: number;
 }
 
-@Entity("game_teams")
+@Entity('game_teams')
 export class GameTeam extends BaseModel {
 
     /**
@@ -30,7 +30,7 @@ export class GameTeam extends BaseModel {
     @Column({nullable: true})
     public status: string;
 
-    @Column("simple-json")
+    @Column('simple-json')
     public votes: IVotes;
 
     /**
@@ -56,6 +56,6 @@ export class GameTeam extends BaseModel {
         this.winner = false;
         this.votes = {};
 
-        this.status = "Waiting for players";
+        this.status = 'Waiting for players';
     }
 }

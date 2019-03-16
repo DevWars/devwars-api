@@ -1,4 +1,4 @@
-import {Competitor, User} from "../models";
+import {Competitor, User} from '../models';
 
 export class CompetitorRepository {
 

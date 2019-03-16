@@ -1,9 +1,9 @@
-import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany} from "typeorm";
-import BaseModel from "./BaseModel";
-import {GameApplication} from "./GameApplication";
-import {GameTeam} from "./GameTeam";
-import {Objective} from "./Objective";
-import {User} from "./User";
+import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany} from 'typeorm';
+import BaseModel from './BaseModel';
+import {GameApplication} from './GameApplication';
+import {GameTeam} from './GameTeam';
+import {Objective} from './Objective';
+import {User} from './User';
 
 export enum GameStatus {
     SCHEDULING, PREPARING, ACTIVE, ENDED,
@@ -15,7 +15,7 @@ interface ILanguageTemplate {
     content: string;
 }
 
-@Entity("games")
+@Entity('games')
 export class Game extends BaseModel {
     /**
      * Projected status of the game,
@@ -26,7 +26,7 @@ export class Game extends BaseModel {
     /**
      * Scheduled start time
      */
-    @Column({type: "datetime"})
+    @Column({type: 'datetime'})
     public startTime: Date;
 
     /**
@@ -55,7 +55,7 @@ export class Game extends BaseModel {
     @Column({nullable: true})
     public videoUrl: string;
 
-    @Column("simple-json", {nullable: false})
+    @Column('simple-json', {nullable: false})
     public languageTemplates: { [language: string]: string };
 
     @OneToMany((type) => GameTeam, (team) => team.game)

@@ -1,4 +1,4 @@
-import {GameTeam, Player} from "../models";
+import {GameTeam, Player} from '../models';
 
 export class PlayerRepository {
 

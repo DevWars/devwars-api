@@ -1,1 +1,1 @@
-declare module "mailgun.js";
+declare module 'mailgun.js';

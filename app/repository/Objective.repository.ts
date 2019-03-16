@@ -1,4 +1,4 @@
-import {Game, Objective} from "../models";
+import {Game, Objective} from '../models';
 
 export class ObjectiveRepository {
 

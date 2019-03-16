@@ -1,6 +1,6 @@
-import {getConnection} from "typeorm";
+import {getConnection} from 'typeorm';
 
-import {Game, Objective} from "../models";
+import {Game, Objective} from '../models';
 
 export class ObjectiveService {
     public static async clearForGame(game: Game) {
@@ -26,12 +26,12 @@ export class ObjectiveService {
                 };
 
                 if (found) {
-                    await transaction.createQueryBuilder().update("objectives")
-                        .where("id = :id", {id: found.id})
+                    await transaction.createQueryBuilder().update('objectives')
+                        .where('id = :id', {id: found.id})
                         .set(objective)
                         .execute();
                 } else {
-                    const query = transaction.createQueryBuilder().insert().into("objectives").values(objective);
+                    const query = transaction.createQueryBuilder().insert().into('objectives').values(objective);
 
                     await query.execute();
                 }

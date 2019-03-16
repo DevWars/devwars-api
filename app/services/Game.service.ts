@@ -1,28 +1,28 @@
-import {IGame} from "../external/Editor";
-import {Game, GameStatus, GameTeam} from "../models";
-import {GameTeamRepository, PlayerRepository} from "../repository";
-import {getValueAtPath, pathValueAtPath} from "../utils/firebase";
-import {ManagedUpload, PutObjectRequest} from "aws-sdk/clients/s3";
-import AWS = require("aws-sdk");
+import AWS = require('aws-sdk');
+import {ManagedUpload, PutObjectRequest} from 'aws-sdk/clients/s3';
+import {IGame} from '../external/Editor';
+import {Game, GameStatus, GameTeam} from '../models';
+import {GameTeamRepository, PlayerRepository} from '../repository';
+import {getValueAtPath, pathValueAtPath} from '../utils/firebase';
 
 export default class GameService {
 
     public static async all() {
         return [
             {
-                name: "Zen Garden",
+                name: 'Zen Garden',
             },
             {
-                name: "Classic",
+                name: 'Classic',
             },
             {
-                name: "Blitz",
+                name: 'Blitz',
             },
         ];
     }
 
     public static async backupGame(game: Game) {
-        const files = ["index.html", "game.css", "game.js"];
+        const files = ['index.html', 'game.css', 'game.js'];
 
         const editorGame = await getValueAtPath(process.env.EDITOR_PATH) as IGame;
 
@@ -122,9 +122,9 @@ export default class GameService {
             theme: game.theme,
         };
 
-        if (process.env.NODE_ENV !== "test") {
-            console.log("sending game to firebase");
-            await pathValueAtPath("game", transformed);
+        if (process.env.NODE_ENV !== 'test') {
+            console.log('sending game to firebase');
+            await pathValueAtPath('game', transformed);
         }
     }
 }

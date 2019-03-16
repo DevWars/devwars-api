@@ -1,6 +1,6 @@
-import {lorem, random} from "faker";
+import {lorem, random} from 'faker';
 
-import {Game, Objective} from "../models";
+import {Game, Objective} from '../models';
 
 export class ObjectiveFactory {
     public static default(): Objective {

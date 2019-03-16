@@ -1,7 +1,7 @@
-import {NextFunction, Request, Response} from "express";
+import {NextFunction, Request, Response} from 'express';
 
-import {UserRole} from "../models";
-import {UserRepository} from "../repository";
+import {UserRole} from '../models';
+import {UserRepository} from '../repository';
 
 export const mustBeRole = (role: UserRole) => async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.auth;
@@ -12,7 +12,7 @@ export const mustBeRole = (role: UserRole) => async (request: Request, response:
     }
 
     response.status(403).json({
-        error: "Unauthenticated",
+        error: 'Unauthenticated',
     });
 };
 
@@ -25,6 +25,6 @@ export const mustBeAuthenticated = async (request: Request, response: Response, 
     }
 
     response.status(403).json({
-        error: "Unauthenticated",
+        error: 'Unauthenticated',
     });
 };

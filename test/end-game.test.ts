@@ -1,18 +1,18 @@
-import * as chai from "chai";
-import * as express from "express";
-import * as supertest from "supertest";
-import {GameFactory, GameTeamFactory, PlayerFactory, UserFactory} from "../app/factory";
-import {Server} from "../config/Server";
+import * as chai from 'chai';
+import * as express from 'express';
+import * as supertest from 'supertest';
+import {GameFactory, GameTeamFactory, PlayerFactory, UserFactory} from '../app/factory';
+import {Server} from '../config/Server';
 
-import {getConnection} from "typeorm";
-import {Game, GameTeam, Player} from "../app/models";
-import {PlayerRepository} from "../app/repository";
-import GameService from "../app/services/Game.service";
+import {getConnection} from 'typeorm';
+import {Game, GameTeam, Player} from '../app/models';
+import {PlayerRepository} from '../app/repository';
+import GameService from '../app/services/Game.service';
 
 const server: Server = new Server();
 let app: express.Application;
 
-describe("end-game", () => {
+describe('end-game', () => {
     let game: Game;
     let winner: GameTeam;
     let loser: GameTeam;
@@ -27,8 +27,8 @@ describe("end-game", () => {
             winner = GameTeamFactory.withGame(game);
             loser = GameTeamFactory.withGame(game);
 
-            winner.name = "red";
-            loser.name = "blue";
+            winner.name = 'red';
+            loser.name = 'blue';
 
             const redPlayers = PlayerFactory.defaultPlayersForTeam(winner);
             const bluePlayers = PlayerFactory.defaultPlayersForTeam(loser);
@@ -52,7 +52,7 @@ describe("end-game", () => {
         await GameService.endGame(fresh, winner);
     });
 
-    it("should distribute 300 xp to a winning team", async () => {
+    it('should distribute 300 xp to a winning team', async () => {
         const winningPlayers = await PlayerRepository.forTeam(winner);
 
         for (const player of winningPlayers) {
@@ -60,7 +60,7 @@ describe("end-game", () => {
         }
     });
 
-    it("should distribute 50 xp to a losing team", async () => {
+    it('should distribute 50 xp to a losing team', async () => {
         const losingPlayers = await PlayerRepository.forTeam(loser);
 
         for (const player of losingPlayers) {
@@ -68,7 +68,7 @@ describe("end-game", () => {
         }
     });
 
-    it("should distribute 600 coins to a winning team", async () => {
+    it('should distribute 600 coins to a winning team', async () => {
         const winningPlayers = await PlayerRepository.forTeam(winner);
 
         for (const player of winningPlayers) {
@@ -76,7 +76,7 @@ describe("end-game", () => {
         }
     });
 
-    it("should distribute 200 coins to a losing team", async () => {
+    it('should distribute 200 coins to a losing team', async () => {
         const losingPlayers = await PlayerRepository.forTeam(loser);
 
         for (const player of losingPlayers) {

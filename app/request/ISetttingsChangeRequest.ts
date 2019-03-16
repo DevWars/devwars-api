@@ -1,4 +1,4 @@
-import * as Joi from "joi";
+import * as Joi from 'joi';
 
 export interface ISettingsChangeRequest {
     username: string;
@@ -10,9 +10,9 @@ export interface ISettingsChangeRequest {
 }
 
 export const SettingsChangeRequestValidator = Joi.object().keys({
-    about: Joi.string().allow("", null),
+    about: Joi.string().allow('', null),
     forHire: Joi.bool().required(),
-    location: Joi.string().allow("", null),
-    username: Joi.string().allow("", null),
-    websiteUrl: Joi.string().uri().allow("", null),
+    location: Joi.string().allow('', null),
+    username: Joi.string().allow('', null),
+    websiteUrl: Joi.string().uri().allow('', null),
 });

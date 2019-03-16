@@ -1,17 +1,17 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 
-import ILoginRequest from "../../request/ILoginRequest";
-import IRegistrationRequest from "../../request/RegistrationRequest";
+import ILoginRequest from '../../request/ILoginRequest';
+import IRegistrationRequest from '../../request/RegistrationRequest';
 
-import * as bcrypt from "bcrypt";
+import * as bcrypt from 'bcrypt';
 
-import {AuthService} from "../../services/Auth.service";
+import {AuthService} from '../../services/Auth.service';
 
-import {EmailVerification, PasswordReset, UserRole} from "../../models";
-import {UserRepository} from "../../repository";
-import {VerificationService} from "../../services/Verification.service";
+import {EmailVerification, PasswordReset, UserRole} from '../../models';
+import {UserRepository} from '../../repository';
+import {VerificationService} from '../../services/Verification.service';
 
-import {hash} from "../../utils/hash";
+import {hash} from '../../utils/hash';
 
 export class AuthController {
     /**
@@ -55,7 +55,7 @@ export class AuthController {
 
         const user = await AuthService.register({username, email, password});
 
-        response.cookie("auth", await AuthService.newToken(user), {domain: process.env.COOKIE_DOMAIN});
+        response.cookie('auth', await AuthService.newToken(user), {domain: process.env.COOKIE_DOMAIN});
 
         response.json(user);
     }
@@ -66,7 +66,7 @@ export class AuthController {
         await VerificationService.reset(user);
 
         response.json({
-            message: "Resent",
+            message: 'Resent',
         });
     }
 
@@ -92,27 +92,27 @@ export class AuthController {
         const user = await UserRepository.userForCredentials(request.body as ILoginRequest);
 
         if (!user) {
-            return response.status(400).send("Invalid Credentials");
+            return response.status(400).send('Invalid Credentials');
         }
 
         const passwordsMatch: boolean = await bcrypt.compare(request.body.password, user.password);
 
         if (!passwordsMatch) {
-            return response.status(400).send("Invalid Credentials");
+            return response.status(400).send('Invalid Credentials');
         } else {
             const token = await AuthService.newToken(user);
 
-            response.cookie("auth", token, {domain: process.env.COOKIE_DOMAIN});
+            response.cookie('auth', token, {domain: process.env.COOKIE_DOMAIN});
 
             response.json(user);
         }
     }
 
     public static async logout(request: Request, response: Response) {
-        response.cookie("auth", null, {domain: process.env.COOKIE_DOMAIN});
+        response.cookie('auth', null, {domain: process.env.COOKIE_DOMAIN});
 
         response.json({
-            message: "Success",
+            message: 'Success',
         });
     }
 
@@ -121,7 +121,7 @@ export class AuthController {
         const user = await UserRepository.userForToken(token);
 
         if (!user) {
-            response.status(404).send("You are not logged in");
+            response.status(404).send('You are not logged in');
         }
 
         response.json(user);
@@ -137,18 +137,18 @@ export class AuthController {
         }
 
         response.json({
-            message: "Reset password, check your email",
+            message: 'Reset password, check your email',
         });
     }
 
     public static async resetPassword(request: Request, response: Response) {
         const {key, password} = request.query;
 
-        const reset = await PasswordReset.findOne({where: {token: key}, relations: ["user"]});
+        const reset = await PasswordReset.findOne({where: {token: key}, relations: ['user']});
 
         if (!reset) {
             return response.status(400).json({
-                message: "Could not reset password",
+                message: 'Could not reset password',
             });
         }
 
@@ -159,7 +159,7 @@ export class AuthController {
         await user.save();
 
         return response.json({
-            message: "Password reset",
+            message: 'Password reset',
         });
     }
 }

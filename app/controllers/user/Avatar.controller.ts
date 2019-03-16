@@ -1,9 +1,9 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import * as fs from "fs";
+import * as fs from 'fs';
 
-import {UserRepository} from "../../repository";
-import {AvatarService} from "../../services/Avatar.service";
+import {UserRepository} from '../../repository';
+import {AvatarService} from '../../services/Avatar.service';
 
 export class AvatarController {
     /**
@@ -35,7 +35,7 @@ export class AvatarController {
         }
 
         response.json({
-            message: "Okay",
+            message: 'Okay',
         });
     }
 }

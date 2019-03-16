@@ -1,7 +1,7 @@
-import {NextFunction, Request, Response} from "express";
+import {NextFunction, Request, Response} from 'express';
 
-import {UserRole} from "../models";
-import {UserRepository} from "../repository";
+import {UserRole} from '../models';
+import {UserRepository} from '../repository';
 
 export const mustOwnUser = async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.auth;
@@ -9,7 +9,7 @@ export const mustOwnUser = async (request: Request, response: Response, next: Ne
 
     if (!user) {
         return response.status(404).json({
-            message: "That user does not exist",
+            message: 'That user does not exist',
         });
     }
 
@@ -17,7 +17,7 @@ export const mustOwnUser = async (request: Request, response: Response, next: Ne
 
     if (user.id !== requestedUserId && user.role !== UserRole.ADMIN) {
         return response.status(403).json({
-            message: "You are not authenticated for this user",
+            message: 'You are not authenticated for this user',
         });
     }
 

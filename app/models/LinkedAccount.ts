@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import BaseModel from "./BaseModel";
-import { User } from "./User";
+import { Column, Entity, ManyToOne } from 'typeorm';
+import BaseModel from './BaseModel';
+import { User } from './User';
 
-@Entity("linked_accounts")
+@Entity('linked_accounts')
 export class LinkedAccount extends BaseModel {
     /**
      * Given username from provider
@@ -14,7 +14,7 @@ export class LinkedAccount extends BaseModel {
      * Used to store information about a linked account
      * before the account has been linked to DevWars
      */
-    @Column("simple-json", {nullable: true})
+    @Column('simple-json', {nullable: true})
     public storage: object;
 
     /**

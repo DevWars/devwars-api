@@ -1,8 +1,8 @@
-import {Request, Response} from "express";
-import {DiscordService} from "../../services/Discord.service";
+import {Request, Response} from 'express';
+import {DiscordService} from '../../services/Discord.service';
 
-import {LinkedAccount} from "../../models";
-import {UserRepository} from "../../repository";
+import {LinkedAccount} from '../../models';
+import {UserRepository} from '../../repository';
 
 export class OAuthController {
 
@@ -12,7 +12,7 @@ export class OAuthController {
 
         if (!token) {
             return response.status(400).json({
-                message: "Missing token",
+                message: 'Missing token',
             });
         }
 
@@ -20,13 +20,13 @@ export class OAuthController {
 
         if (!discordUser) {
             response.status(403).json({
-                message: "Discord user not found",
+                message: 'Discord user not found',
             });
         }
 
         const linked = new LinkedAccount();
         linked.user = user;
-        linked.provider = "DISCORD";
+        linked.provider = 'DISCORD';
         linked.username = discordUser.username;
         linked.providerId = discordUser.id;
 

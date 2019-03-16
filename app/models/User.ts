@@ -8,34 +8,34 @@ import {
     ManyToMany,
     OneToMany,
     OneToOne,
-} from "typeorm";
-import {Activity} from "./Activity";
-import BaseModel from "./BaseModel";
+} from 'typeorm';
+import {Activity} from './Activity';
+import BaseModel from './BaseModel';
 
-import {Badge} from "./Badge";
-import {BlogPost} from "./BlogPost";
-import {Competitor} from "./Competitor";
-import {EmailVerification} from "./EmailVerification";
-import {ALL_RANKS, UserProfile} from "./embedded";
-import {UserStatistics} from "./embedded";
-import {Game} from "./Game";
-import {GameApplication} from "./GameApplication";
-import {LinkedAccount} from "./LinkedAccount";
-import {PasswordReset} from "./PasswordReset";
-import {Player} from "./Player";
+import {Badge} from './Badge';
+import {BlogPost} from './BlogPost';
+import {Competitor} from './Competitor';
+import {EmailVerification} from './EmailVerification';
+import {ALL_RANKS, UserProfile} from './embedded';
+import {UserStatistics} from './embedded';
+import {Game} from './Game';
+import {GameApplication} from './GameApplication';
+import {LinkedAccount} from './LinkedAccount';
+import {PasswordReset} from './PasswordReset';
+import {Player} from './Player';
 
 interface IUserAnalytics {
     [name: string]: string;
 }
 
 export enum UserRole {
-    PENDING = "PENDING",
-    USER = "USER",
-    MODERATOR = "MODERATOR",
-    ADMIN = "ADMIN",
+    PENDING = 'PENDING',
+    USER = 'USER',
+    MODERATOR = 'MODERATOR',
+    ADMIN = 'ADMIN',
 }
 
-@Entity("users")
+@Entity('users')
 export class User extends BaseModel {
 
     @Column({nullable: true})
@@ -56,7 +56,7 @@ export class User extends BaseModel {
     @Column({nullable: true})
     public avatarUrl: string;
 
-    @Column("simple-json", {nullable: true})
+    @Column('simple-json', {nullable: true})
     public analytics: IUserAnalytics;
 
     @OneToMany((type) => Activity, (activity) => activity.user)

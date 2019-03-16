@@ -1,5 +1,5 @@
-import * as express from "express";
-import { JWTService } from "../services/Jwt.service";
+import * as express from 'express';
+import { JWTService } from '../services/Jwt.service';
 
 export class JWTController {
 

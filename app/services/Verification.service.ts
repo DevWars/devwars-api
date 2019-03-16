@@ -1,6 +1,6 @@
-import {EmailVerification, User, UserRole} from "../models";
-import {randomString} from "../utils/random";
-import {MailService} from "./Mail.service";
+import {EmailVerification, User, UserRole} from '../models';
+import {randomString} from '../utils/random';
+import {MailService} from './Mail.service';
 
 export class VerificationService {
 
@@ -17,7 +17,7 @@ export class VerificationService {
 
         const url = `${process.env.ROOT_URL}/auth/verify?key=${verification.token}`;
 
-        await MailService.send([user.email], "welcome", {url});
+        await MailService.send([user.email], 'welcome', {url});
     }
 
    public static async newToken(user: User): Promise<string> {

@@ -1,5 +1,5 @@
-import {Request, Response} from "express";
-import {LinkedAccountRepository, UserRepository} from "../../repository";
+import {Request, Response} from 'express';
+import {LinkedAccountRepository, UserRepository} from '../../repository';
 
 export class LinkedAccountsController {
     public static async all(request: Request, response: Response) {

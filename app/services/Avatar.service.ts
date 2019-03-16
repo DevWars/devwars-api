@@ -1,12 +1,12 @@
-import * as AWS from "aws-sdk";
-import * as fs from "fs";
+import * as AWS from 'aws-sdk';
+import * as fs from 'fs';
 
-import {PutObjectRequest} from "aws-sdk/clients/s3";
-import {ManagedUpload} from "aws-sdk/lib/s3/managed_upload";
+import {PutObjectRequest} from 'aws-sdk/clients/s3';
+import {ManagedUpload} from 'aws-sdk/lib/s3/managed_upload';
 
-import {User} from "../models";
+import {User} from '../models';
 
-import {randomString} from "../utils/random";
+import {randomString} from '../utils/random';
 
 export class AvatarService {
     public static async updateAvatarForUser(user: User, filePath: string) {

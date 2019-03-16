@@ -1,16 +1,16 @@
-import * as chai from "chai";
-import * as express from "express";
-import * as supertest from "supertest";
+import * as chai from 'chai';
+import * as express from 'express';
+import * as supertest from 'supertest';
 
-import { Server } from "../config/Server";
+import { Server } from '../config/Server';
 
-import {UserFactory} from "../app/factory";
-import {ALL_BADGES} from "../app/models";
+import {UserFactory} from '../app/factory';
+import {ALL_BADGES} from '../app/models';
 
 const server: Server = new Server();
 let app: express.Application;
 
-describe("badge", () => {
+describe('badge', () => {
 
     beforeEach(async () => {
         await server.Start();
@@ -18,11 +18,11 @@ describe("badge", () => {
         app = server.App();
     });
 
-    it("should return all badge", async () => {
-        const response = await supertest(app).get(`/badge`).send();
+    it('should return all badge', async () => {
+        const response = await supertest(app).get('/badge').send();
 
         chai.expect(response.status).to.be.eq(200);
-        chai.expect(response.body).to.be.an("array");
+        chai.expect(response.body).to.be.an('array');
     });
 
     it("should return a user's badges", async () => {
@@ -36,6 +36,6 @@ describe("badge", () => {
         const response = await supertest(app).get(`/user/${user.id}/badges`).send();
 
         chai.expect(response.status).to.be.eq(200);
-        chai.expect(response.body).to.be.an("array").of.length(1);
+        chai.expect(response.body).to.be.an('array').of.length(1);
     });
 });

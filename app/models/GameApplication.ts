@@ -1,9 +1,9 @@
-import {Entity, ManyToOne} from "typeorm";
+import {Entity, ManyToOne} from 'typeorm';
 
-import BaseModel from "./BaseModel";
+import BaseModel from './BaseModel';
 
-import {Game} from "./Game";
-import {User} from "./User";
+import {Game} from './Game';
+import {User} from './User';
 
 @Entity()
 export class GameApplication extends BaseModel {

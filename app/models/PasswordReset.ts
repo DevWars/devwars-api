@@ -1,12 +1,12 @@
-import {Column, Entity, ManyToOne} from "typeorm";
-import BaseModel from "./BaseModel";
-import {User} from "./User";
+import {Column, Entity, ManyToOne} from 'typeorm';
+import BaseModel from './BaseModel';
+import {User} from './User';
 
-import {randomString} from "../utils/random";
+import {randomString} from '../utils/random';
 
-@Entity("password_resets")
+@Entity('password_resets')
 export class PasswordReset extends BaseModel {
-    @Column({default: ""})
+    @Column({default: ''})
     public token: string;
 
     @ManyToOne((type) => User, (user) => user.passwordResets)

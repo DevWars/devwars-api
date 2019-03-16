@@ -1,9 +1,9 @@
-import {Request, Response} from "express";
-import {UserRepository} from "../../repository";
+import {Request, Response} from 'express';
+import {UserRepository} from '../../repository';
 
-import * as bcrypt from "bcrypt";
-import {ResetService} from "../../services/Reset.service";
-import {hash} from "../../utils/hash";
+import * as bcrypt from 'bcrypt';
+import {ResetService} from '../../services/Reset.service';
+import {hash} from '../../utils/hash';
 
 export class ResetController {
     public static async email(request: Request, response: Response) {
@@ -14,14 +14,14 @@ export class ResetController {
 
         if (!passwordsMatch) {
             return response.status(400).json({
-                message: "Password did not match",
+                message: 'Password did not match',
             });
         }
 
         await ResetService.resetEmail(user, email);
 
         response.json({
-            message: "Email reset",
+            message: 'Email reset',
         });
     }
 
@@ -34,7 +34,7 @@ export class ResetController {
         await user.save();
 
         response.json({
-            message: "Password reset",
+            message: 'Password reset',
         });
     }
 }

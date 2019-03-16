@@ -1,7 +1,7 @@
-import { Column } from "typeorm";
+import { Column } from 'typeorm';
 
 export class UserProfile {
-    @Column("text", {nullable: true})
+    @Column('text', {nullable: true})
     public about: string;
 
     @Column({nullable: true})

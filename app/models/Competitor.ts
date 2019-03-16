@@ -1,13 +1,13 @@
-import {Column, Entity, JoinColumn, OneToOne} from "typeorm";
-import BaseModel from "./BaseModel";
-import {Address, Name} from "./embedded";
-import {User} from "./User";
+import {Column, Entity, JoinColumn, OneToOne} from 'typeorm';
+import BaseModel from './BaseModel';
+import {Address, Name} from './embedded';
+import {User} from './User';
 
 interface ILanguageRatings {
     [language: string]: number;
 }
 
-@Entity("competitors")
+@Entity('competitors')
 export class Competitor extends BaseModel {
     /**
      * Full Name
@@ -24,13 +24,13 @@ export class Competitor extends BaseModel {
     /**
      * Date of birth
      */
-    @Column({type: "datetime", nullable: true})
+    @Column({type: 'datetime', nullable: true})
     public dob: Date;
 
     /**
      * User specified ratings for proficiency in each language
      */
-    @Column("simple-json")
+    @Column('simple-json')
     public ratings: ILanguageRatings;
 
     @OneToOne((type) => User)

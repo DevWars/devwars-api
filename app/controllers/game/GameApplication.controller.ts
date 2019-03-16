@@ -1,6 +1,6 @@
-import {Request, Response} from "express";
-import {GameApplicationFactory} from "../../factory/GameApplication.factory";
-import {GameRepository, UserRepository} from "../../repository";
+import {Request, Response} from 'express';
+import {GameApplicationFactory} from '../../factory/GameApplication.factory';
+import {GameRepository, UserRepository} from '../../repository';
 
 export class GameApplicationController {
     /**
@@ -30,7 +30,7 @@ export class GameApplicationController {
         const game = await GameRepository.byId(request.params.game);
 
         if (!game) {
-            return response.status(400).send("Game not found");
+            return response.status(400).send('Game not found');
         }
 
         await GameApplicationFactory.withGameAndUser(game, user).save();
@@ -44,14 +44,14 @@ export class GameApplicationController {
 
         if (!game || !user) {
             return response.status(400).json({
-                message: "Either game or user did not exist",
+                message: 'Either game or user did not exist',
             });
         }
 
         await GameApplicationFactory.withGameAndUser(game, user).save();
 
         response.json({
-            message: "Applied",
+            message: 'Applied',
         });
     }
 
@@ -59,7 +59,7 @@ export class GameApplicationController {
         const game = await GameRepository.byId(request.params.game);
 
         if (!game) {
-            return response.status(400).send("Game not found");
+            return response.status(400).send('Game not found');
         }
 
         response.json(await UserRepository.byAppliedGame(game));

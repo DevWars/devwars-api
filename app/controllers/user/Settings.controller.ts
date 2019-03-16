@@ -1,7 +1,7 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 
-import {UserRepository} from "../../repository";
-import {ISettingsChangeRequest} from "../../request/ISetttingsChangeRequest";
+import {UserRepository} from '../../repository';
+import {ISettingsChangeRequest} from '../../request/ISetttingsChangeRequest';
 
 export class SettingsController {
     /**
@@ -41,7 +41,7 @@ export class SettingsController {
 
         if (conflictingUser && conflictingUser.id !== user.id) {
             return response.status(409).json({
-                message: "Username already taken",
+                message: 'Username already taken',
             });
         }
 

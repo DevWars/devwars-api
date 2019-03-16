@@ -1,6 +1,6 @@
-import {GameTeamFactory, UserFactory} from "./";
+import {GameTeamFactory, UserFactory} from './';
 
-import {GameTeam, Player, User} from "../models";
+import {GameTeam, Player, User} from '../models';
 
 export class PlayerFactory {
     public static default(): Player {
@@ -8,7 +8,7 @@ export class PlayerFactory {
 
         Object.assign(player, {
             createdAt: new Date(),
-            language: "html",
+            language: 'html',
             team: GameTeamFactory.default(),
             updatedAt: new Date(),
         });
@@ -31,9 +31,9 @@ export class PlayerFactory {
     }
 
     public static defaultPlayersForTeam(team: GameTeam): Player[] {
-        const html = this.withTeamAndLanguage(team, "html");
-        const css = this.withTeamAndLanguage(team, "css");
-        const js = this.withTeamAndLanguage(team, "js");
+        const html = this.withTeamAndLanguage(team, 'html');
+        const css = this.withTeamAndLanguage(team, 'css');
+        const js = this.withTeamAndLanguage(team, 'js');
 
         return [html, css, js];
     }

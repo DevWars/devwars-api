@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import { BlogPostRepository } from "../repository";
+import { BlogPostRepository } from '../repository';
 
 export class BlogPostController {
     public static async all(request: Request, response: Response) {

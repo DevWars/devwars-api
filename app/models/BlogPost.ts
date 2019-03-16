@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import BaseModel from "./BaseModel";
-import { User } from "./User";
+import { Column, Entity, ManyToOne } from 'typeorm';
+import BaseModel from './BaseModel';
+import { User } from './User';
 
-@Entity("blog_posts")
+@Entity('blog_posts')
 export class BlogPost extends BaseModel {
     /**
      * Display title
@@ -25,7 +25,7 @@ export class BlogPost extends BaseModel {
     /**
      * Raw HTML content
      */
-    @Column({type: "text"})
+    @Column({type: 'text'})
     public content: string;
 
     /**

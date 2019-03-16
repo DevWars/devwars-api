@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne } from "typeorm";
-import BaseModel from "./BaseModel";
-import { User } from "./User";
+import { Column, Entity, ManyToOne } from 'typeorm';
+import BaseModel from './BaseModel';
+import { User } from './User';
 
-@Entity("activities")
+@Entity('activities')
 export class Activity extends BaseModel {
     /**
      * Short description of the activity

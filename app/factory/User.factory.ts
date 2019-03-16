@@ -1,5 +1,5 @@
-import {helpers, random} from "faker";
-import {User, UserRole} from "../models";
+import {helpers, random} from 'faker';
+import {User, UserRole} from '../models';
 
 export class UserFactory {
 

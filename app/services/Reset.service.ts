@@ -1,5 +1,5 @@
-import {User} from "../models";
-import {VerificationService} from "./Verification.service";
+import {User} from '../models';
+import {VerificationService} from './Verification.service';
 
 export class ResetService {
 

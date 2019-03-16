@@ -1,7 +1,7 @@
-import {Request, Response} from "express";
+import {Request, Response} from 'express';
 
-import {Player} from "../../models";
-import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from "../../repository";
+import {Player} from '../../models';
+import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from '../../repository';
 
 export class PlayerController {
     /**
@@ -67,7 +67,7 @@ export class PlayerController {
 
         if (!user) {
             return response.status(400).json({
-                message: "Player does not exist",
+                message: 'Player does not exist',
             });
         }
 
@@ -87,14 +87,14 @@ export class PlayerController {
 
         if (!player) {
             return response.status(400).json({
-                message: "Player does not exist",
+                message: 'Player does not exist',
             });
         }
 
         await player.remove();
 
         return response.json({
-            message: "Player removed",
+            message: 'Player removed',
         });
     }
 }

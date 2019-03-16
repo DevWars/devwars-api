@@ -1,6 +1,6 @@
-import {address} from "faker";
+import {address} from 'faker';
 
-import {Address} from "../models/embedded";
+import {Address} from '../models/embedded';
 
 export class AddressFactory {
     public static default(): Address {

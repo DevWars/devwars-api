@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
 export class HealthController {
 
@@ -20,6 +20,6 @@ export class HealthController {
     public static index(request: Request, response: Response) {
         response
             .status(200)
-            .json({status: "Healthy"});
+            .json({status: 'Healthy'});
     }
 }

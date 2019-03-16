@@ -1,6 +1,6 @@
-import { Request, Response } from "express";
+import { Request, Response } from 'express';
 
-import {ActivityRepository, UserRepository} from "../../repository";
+import {ActivityRepository, UserRepository} from '../../repository';
 
 export class ActivityController {
     /**

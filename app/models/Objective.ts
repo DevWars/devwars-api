@@ -1,10 +1,10 @@
-import {Column, Entity, ManyToMany, ManyToOne} from "typeorm";
+import {Column, Entity, ManyToMany, ManyToOne} from 'typeorm';
 
-import BaseModel from "./BaseModel";
-import {Game} from "./Game";
-import {GameTeam} from "./GameTeam";
+import BaseModel from './BaseModel';
+import {Game} from './Game';
+import {GameTeam} from './GameTeam';
 
-@Entity("objectives")
+@Entity('objectives')
 export class Objective extends BaseModel {
     /**
      * Short description of objective

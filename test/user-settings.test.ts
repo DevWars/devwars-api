@@ -1,19 +1,19 @@
-import * as chai from "chai";
-import * as express from "express";
-import * as supertest from "supertest";
+import * as chai from 'chai';
+import * as express from 'express';
+import * as supertest from 'supertest';
 
-import {Server} from "../config/Server";
+import {Server} from '../config/Server';
 
-import {ISettingsChangeRequest} from "../app/request/ISetttingsChangeRequest";
-import {cookieForUser} from "./helpers";
+import {ISettingsChangeRequest} from '../app/request/ISetttingsChangeRequest';
+import {cookieForUser} from './helpers';
 
-import {UserFactory} from "../app/factory";
-import {User} from "../app/models";
+import {UserFactory} from '../app/factory';
+import {User} from '../app/models';
 
 const server: Server = new Server();
 let app: express.Application;
 
-describe("user-settings", () => {
+describe('user-settings', () => {
 
     beforeEach(async () => {
         await server.Start();
@@ -26,16 +26,16 @@ describe("user-settings", () => {
         let user = await UserFactory.default().save();
 
         const settings: ISettingsChangeRequest = {
-            about: "Hello World",
+            about: 'Hello World',
             forHire: true,
-            location: "New York",
-            username: "Hello World",
-            websiteUrl: "http://google.com",
+            location: 'New York',
+            username: 'Hello World',
+            websiteUrl: 'http://google.com',
         };
 
         const response = await supertest(app)
             .post(`/user/${user.id}/settings`)
-            .set("cookie", await cookieForUser(user))
+            .set('cookie', await cookieForUser(user))
             .send(settings);
 
         chai.expect(response.status).to.be.eq(200);

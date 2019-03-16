@@ -1,10 +1,10 @@
-import {AfterInsert, AfterUpdate, BeforeRemove, Column, Entity, ManyToOne} from "typeorm";
+import {AfterInsert, AfterUpdate, BeforeRemove, Column, Entity, ManyToOne} from 'typeorm';
 
-import BaseModel from "./BaseModel";
-import {GameTeam} from "./GameTeam";
-import {User} from "./User";
+import BaseModel from './BaseModel';
+import {GameTeam} from './GameTeam';
+import {User} from './User';
 
-@Entity("players")
+@Entity('players')
 export class Player extends BaseModel {
     /**
      * Position assigned
@@ -28,21 +28,21 @@ export class Player extends BaseModel {
 
     @AfterInsert() @AfterUpdate()
     private async linkUserToGame() {
-        const game = await GameTeam.createQueryBuilder().relation(GameTeam, "game").of(this.team).loadOne();
-        const user = await Player.createQueryBuilder().relation(Player, "user").of(this).loadOne();
+        const game = await GameTeam.createQueryBuilder().relation(GameTeam, 'game').of(this.team).loadOne();
+        const user = await Player.createQueryBuilder().relation(Player, 'user').of(this).loadOne();
 
         if (user && game) {
-            await User.createQueryBuilder().relation(User, "playedGames").of(user).add(game);
+            await User.createQueryBuilder().relation(User, 'playedGames').of(user).add(game);
         }
     }
 
     @BeforeRemove()
     private async unlinkUserFromGame() {
-        const game = await GameTeam.createQueryBuilder().relation(GameTeam, "game").of(this.team).loadOne();
-        const user = await Player.createQueryBuilder().relation(Player, "user").of(this).loadOne();
+        const game = await GameTeam.createQueryBuilder().relation(GameTeam, 'game').of(this.team).loadOne();
+        const user = await Player.createQueryBuilder().relation(Player, 'user').of(this).loadOne();
 
         if (user && game) {
-            await User.createQueryBuilder().relation(User, "playedGames").of(user).remove(game);
+            await User.createQueryBuilder().relation(User, 'playedGames').of(user).remove(game);
         }
     }
 }

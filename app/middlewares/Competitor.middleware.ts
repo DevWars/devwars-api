@@ -1,6 +1,6 @@
-import {NextFunction, Request, Response} from "express";
+import {NextFunction, Request, Response} from 'express';
 
-import {CompetitorRepository, UserRepository} from "../repository";
+import {CompetitorRepository, UserRepository} from '../repository';
 
 export const mustBeCompetitor = async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.auth;
@@ -12,6 +12,6 @@ export const mustBeCompetitor = async (request: Request, response: Response, nex
     }
 
     response.status(400).json({
-        error: "Not a competitor",
+        error: 'Not a competitor',
     });
 };

@@ -1,2 +1,2 @@
-export * from "./Auth.middleware";
-export * from "./Competitor.middleware";
+export * from './Auth.middleware';
+export * from './Competitor.middleware';

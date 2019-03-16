@@ -1,4 +1,4 @@
-import {Activity, User} from "../models";
+import {Activity, User} from '../models';
 
 export class ActivityRepository {
 

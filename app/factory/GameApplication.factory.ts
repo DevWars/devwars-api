@@ -1,4 +1,4 @@
-import {Game, GameApplication, User} from "../models";
+import {Game, GameApplication, User} from '../models';
 
 export class GameApplicationFactory {
     public static withGameAndUser(game: Game, user: User): GameApplication {

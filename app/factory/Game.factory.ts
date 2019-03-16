@@ -1,6 +1,6 @@
-import {date, hacker, helpers, internet, random} from "faker";
+import {date, hacker, helpers, internet, random} from 'faker';
 
-import {Game, GameStatus} from "../models";
+import {Game, GameStatus} from '../models';
 
 export class GameFactory {
     public static default(): Game {
@@ -10,7 +10,7 @@ export class GameFactory {
             active: random.boolean(),
             createdAt: date.past(),
             languageTemplates: [],
-            name: helpers.randomize(["Classic", "Zen Garden", "Blitz"]),
+            name: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
             objectives: [],
             season: random.number({min: 1, max: 3}),
             startTime: date.past(),

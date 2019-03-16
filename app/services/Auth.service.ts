@@ -1,10 +1,10 @@
-import {PasswordReset, User, UserRole} from "../models";
-import {hash} from "../utils/hash";
+import {PasswordReset, User, UserRole} from '../models';
+import {hash} from '../utils/hash';
 
-import IRegistrationRequest from "../request/RegistrationRequest";
-import {randomString} from "../utils/random";
-import {MailService} from "./Mail.service";
-import {VerificationService} from "./Verification.service";
+import IRegistrationRequest from '../request/RegistrationRequest';
+import {randomString} from '../utils/random';
+import {MailService} from './Mail.service';
+import {VerificationService} from './Verification.service';
 
 export class AuthService {
 
@@ -32,7 +32,7 @@ export class AuthService {
     public static async resetPassword(user: User) {
         const reset = await new PasswordReset(user).save();
 
-        await MailService.send([user.email], "reset-password", {
+        await MailService.send([user.email], 'reset-password', {
             url: `${process.env.FRONT_URL}/reset-password?key=${reset.token}`,
             username: user.username,
         });

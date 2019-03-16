@@ -1,4 +1,4 @@
-import {GameStatus} from "../models";
+import {GameStatus} from '../models';
 
 export interface IUpdateGameRequest {
     status: GameStatus;
