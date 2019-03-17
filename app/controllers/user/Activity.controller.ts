@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
-
-import {ActivityRepository, UserRepository} from '../../repository';
+import { getCustomRepository } from 'typeorm';
+import { ActivityRepository, UserRepository } from '../../repository';
 
 export class ActivityController {
     /**
@@ -43,7 +43,8 @@ export class ActivityController {
      */
 
     public static async mine(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(request.cookies.auth);
 
         const activities = await ActivityRepository.forUser(user);
 

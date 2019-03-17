@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import { getCustomRepository } from 'typeorm';
 import { UserRepository } from '../../repository';
 import { ISettingsChangeRequest } from '../../request/ISetttingsChangeRequest';
 
@@ -32,12 +33,11 @@ export class SettingsController {
      */
 
     public static async update(request: Request, response: Response) {
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
         const settings = request.body as ISettingsChangeRequest;
 
-        const user = await UserRepository.byId(request.params.user);
-
-        const conflictingUser = await UserRepository.byUsername(settings.username);
-
+        const conflictingUser = await userRepository.findByUsername(settings.username);
         if (conflictingUser && conflictingUser.id !== user.id) {
             return response.status(409).json({
                 message: 'Username already taken',
@@ -45,13 +45,8 @@ export class SettingsController {
         }
 
         user.username = settings.username;
-        // user.profile.about = settings.about;
-        // user.profile.forHire = settings.forHire;
-        // user.profile.location = settings.location;
-        // user.profile.websiteUrl = settings.websiteUrl;
 
         await user.save();
-
         response.json(user);
     }
 }

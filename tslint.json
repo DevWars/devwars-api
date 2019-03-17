@@ -4,7 +4,8 @@
     "rules": {
         "no-console": false,
         "quotemark": [true, "single", "avoid-escape", "avoid-template"],
-        "whitespace": [true, "check-module"]
+        "whitespace": [true, "check-module"],
+        "max-line-length": [true, 120]
     },
     "rulesDirectory": [],
     "extends": ["tslint:recommended", "tslint-config-prettier"]

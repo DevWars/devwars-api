@@ -1,9 +1,7 @@
 import { Request, Response } from 'express';
-
-import * as fs from 'fs';
-
-import {UserRepository} from '../../repository';
-import {AvatarService} from '../../services/Avatar.service';
+import { getCustomRepository } from 'typeorm';
+import { UserRepository } from '../../repository';
+import { AvatarService } from '../../services/Avatar.service';
 
 export class AvatarController {
     /**
@@ -24,7 +22,8 @@ export class AvatarController {
      */
 
     public static async store(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(request.cookies.auth);
 
         try {
             await AvatarService.updateAvatarForUser(user, request.file.path);
