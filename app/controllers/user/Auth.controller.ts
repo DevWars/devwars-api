@@ -1,17 +1,13 @@
-import {Request, Response} from 'express';
-
+import * as bcrypt from 'bcrypt';
+import { Request, Response } from 'express';
+import { getCustomRepository } from 'typeorm';
+import { EmailVerification, PasswordReset, UserRole } from '../../models';
+import { UserRepository } from '../../repository';
 import ILoginRequest from '../../request/ILoginRequest';
 import IRegistrationRequest from '../../request/RegistrationRequest';
-
-import * as bcrypt from 'bcrypt';
-
-import {AuthService} from '../../services/Auth.service';
-
-import {EmailVerification, PasswordReset, UserRole} from '../../models';
-import {UserRepository} from '../../repository';
-import {VerificationService} from '../../services/Verification.service';
-
-import {hash} from '../../utils/hash';
+import { AuthService } from '../../services/Auth.service';
+import { VerificationService } from '../../services/Verification.service';
+import { hash } from '../../utils/hash';
 
 export class AuthController {
     /**
@@ -51,17 +47,18 @@ export class AuthController {
      */
 
     public static async register(request: Request, response: Response) {
-        const {username, email, password}: IRegistrationRequest = request.body;
+        const { username, email, password }: IRegistrationRequest = request.body;
 
-        const user = await AuthService.register({username, email, password});
+        const user = await AuthService.register({ username, email, password });
 
-        response.cookie('auth', await AuthService.newToken(user), {domain: process.env.COOKIE_DOMAIN});
+        response.cookie('auth', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
 
         response.json(user);
     }
 
     public static async reVerify(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(request.cookies.auth);
 
         await VerificationService.reset(user);
 
@@ -71,13 +68,13 @@ export class AuthController {
     }
 
     public static async verify(request: Request, response: Response) {
-        const {key} = request.query;
+        const { key } = request.query;
         const redirectUrl = `${process.env.FRONT_URL}`;
 
-        const foundToken = await EmailVerification.findOne({where: {token: key}});
+        const foundToken = await EmailVerification.findOne({ where: { token: key } });
 
         if (foundToken) {
-            const {user} = foundToken;
+            const { user } = foundToken;
 
             user.role = UserRole.USER;
 
@@ -89,7 +86,8 @@ export class AuthController {
     }
 
     public static async login(request: Request, response: Response) {
-        const user = await UserRepository.userForCredentials(request.body as ILoginRequest);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByCredentials(request.body as ILoginRequest);
 
         if (!user) {
             return response.status(400).send('Invalid Credentials');
@@ -102,14 +100,14 @@ export class AuthController {
         } else {
             const token = await AuthService.newToken(user);
 
-            response.cookie('auth', token, {domain: process.env.COOKIE_DOMAIN});
+            response.cookie('auth', token, { domain: process.env.COOKIE_DOMAIN });
 
             response.json(user);
         }
     }
 
     public static async logout(request: Request, response: Response) {
-        response.cookie('auth', null, {domain: process.env.COOKIE_DOMAIN});
+        response.cookie('auth', null, { domain: process.env.COOKIE_DOMAIN });
 
         response.json({
             message: 'Success',
@@ -118,7 +116,8 @@ export class AuthController {
 
     public static async currentUser(request: Request, response: Response) {
         const token = request.cookies.auth;
-        const user = await UserRepository.userForToken(token);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(token);
 
         if (!user) {
             response.status(404).send('You are not logged in');
@@ -128,9 +127,10 @@ export class AuthController {
     }
 
     public static async initiatePasswordReset(request: Request, response: Response) {
-        const {username_or_email} = request.body;
+        const { username_or_email } = request.body;
 
-        const user = await UserRepository.userForCredentials({identifier: username_or_email});
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
         if (user) {
             await AuthService.resetPassword(user);
@@ -142,9 +142,9 @@ export class AuthController {
     }
 
     public static async resetPassword(request: Request, response: Response) {
-        const {key, password} = request.query;
+        const { key, password } = request.query;
 
-        const reset = await PasswordReset.findOne({where: {token: key}, relations: ['user']});
+        const reset = await PasswordReset.findOne({ where: { token: key }, relations: ['user'] });
 
         if (!reset) {
             return response.status(400).json({
@@ -152,7 +152,7 @@ export class AuthController {
             });
         }
 
-        const {user} = reset;
+        const { user } = reset;
 
         user.password = await hash(password);
 

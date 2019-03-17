@@ -1,13 +1,14 @@
-import {Request, Response} from 'express';
-import {DiscordService} from '../../services/Discord.service';
-
-import {LinkedAccount} from '../../models';
-import {UserRepository} from '../../repository';
+import { Request, Response } from 'express';
+import { getCustomRepository } from 'typeorm';
+import { LinkedAccount } from '../../models';
+import { UserRepository } from '../../repository';
+import { DiscordService } from '../../services/Discord.service';
 
 export class OAuthController {
 
     public static async discord(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(request.cookies.auth);
         const token = await DiscordService.accessTokenForCode(request.query.code);
 
         if (!token) {

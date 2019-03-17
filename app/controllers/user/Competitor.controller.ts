@@ -1,8 +1,7 @@
-import {Request, Response} from 'express';
-
-import {CompetitorRepository, UserRepository} from '../../repository';
-
-import {Competitor} from '../../models';
+import { Request, Response } from 'express';
+import { getCustomRepository } from 'typeorm';
+import { Competitor } from '../../models';
+import { CompetitorRepository, UserRepository } from '../../repository';
 
 export class CompetitorController {
     /**
@@ -43,7 +42,8 @@ export class CompetitorController {
      */
 
     public static async forUser(request: Request, response: Response) {
-        const user = await UserRepository.byId(request.params.user);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
 
         const competitor = await CompetitorRepository.forUser(user);
 
@@ -51,7 +51,8 @@ export class CompetitorController {
     }
 
     public static async create(request: Request, response: Response) {
-        const user = await UserRepository.byId(request.params.user);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
 
         const existing = await CompetitorRepository.forUser(user);
 

@@ -1,21 +1,6 @@
-import {
-    AfterInsert,
-    AfterLoad,
-    AfterUpdate,
-    Column,
-    Entity,
-    JoinTable,
-    ManyToMany,
-    OneToMany,
-    OneToOne,
-} from 'typeorm';
-import { Activity } from './Activity';
+import { Column, Entity, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-
-import { EmailVerification } from './EmailVerification';
-import { GameApplication } from './GameApplication';
-import { LinkedAccount } from './LinkedAccount';
-import { PasswordReset } from './PasswordReset';
+import { UserProfile } from './UserProfile';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -31,10 +16,10 @@ export class User extends BaseModel {
     @Column()
     public lastSignIn: Date;
 
-    @Column({unique: true})
+    @Column({ unique: true })
     public email: string;
 
-    @Column({unique: true})
+    @Column({ unique: true })
     public username: string;
 
     @Column()
@@ -43,26 +28,14 @@ export class User extends BaseModel {
     @Column()
     public role: UserRole;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public token: string;
 
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public avatarUrl: string;
 
     // ------------------------------------------------------------
     // Relations
-    @OneToMany((type) => Activity, (activity) => activity.user)
-    public activities: Activity[];
-
-    @OneToMany((type) => EmailVerification, (verification) => verification.user)
-    public verifications: EmailVerification[];
-
-    @OneToMany((type) => LinkedAccount, (link) => link.user, {eager: true})
-    public linkedAccounts: LinkedAccount[];
-
-    @OneToMany((type) => PasswordReset, (reset) => reset.user)
-    public passwordResets: PasswordReset[];
-
-    @OneToMany((type) => GameApplication, (application) => application.user)
-    public gameApplications: Promise<GameApplication[]>;
+    @OneToOne((type) => UserProfile, (profile) => profile.user)
+    public userProfile: UserProfile;
 }

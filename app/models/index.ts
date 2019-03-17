@@ -13,6 +13,7 @@ export * from './Objective';
 export * from './PasswordReset';
 export * from './Player';
 export * from './User';
+export * from './UserProfile';
 export * from './Competitor';
 export * from './Player';
 export * from './GameApplication';

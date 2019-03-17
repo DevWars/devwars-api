@@ -1,9 +1,11 @@
-import {Request, Response} from 'express';
-import {LinkedAccountRepository, UserRepository} from '../../repository';
+import { Request, Response } from 'express';
+import { getCustomRepository } from 'typeorm';
+import { LinkedAccountRepository, UserRepository } from '../../repository';
 
 export class LinkedAccountsController {
     public static async all(request: Request, response: Response) {
-        const user = await UserRepository.byId(request.params.user);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
 
         const accounts = await LinkedAccountRepository.forUser(user);
 
@@ -11,7 +13,8 @@ export class LinkedAccountsController {
     }
 
     public static async remove(request: Request, response: Response) {
-        const user = await UserRepository.byId(request.params.user);
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
 
         const accounts = await LinkedAccountRepository.forUser(user);
 
