@@ -9,24 +9,13 @@ import {
     OneToMany,
     OneToOne,
 } from 'typeorm';
-import {Activity} from './Activity';
+import { Activity } from './Activity';
 import BaseModel from './BaseModel';
 
-import {Badge} from './Badge';
-import {BlogPost} from './BlogPost';
-import {Competitor} from './Competitor';
-import {EmailVerification} from './EmailVerification';
-import {ALL_RANKS, UserProfile} from './embedded';
-import {UserStatistics} from './embedded';
-import {Game} from './Game';
-import {GameApplication} from './GameApplication';
-import {LinkedAccount} from './LinkedAccount';
-import {PasswordReset} from './PasswordReset';
-import {Player} from './Player';
-
-interface IUserAnalytics {
-    [name: string]: string;
-}
+import { EmailVerification } from './EmailVerification';
+import { GameApplication } from './GameApplication';
+import { LinkedAccount } from './LinkedAccount';
+import { PasswordReset } from './PasswordReset';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -37,14 +26,18 @@ export enum UserRole {
 
 @Entity('users')
 export class User extends BaseModel {
+    // ------------------------------------------------------------
+    // Columns
+    @Column()
+    public lastSignIn: Date;
 
-    @Column({nullable: true})
+    @Column({unique: true})
     public email: string;
 
     @Column({unique: true})
     public username: string;
 
-    @Column({nullable: true})
+    @Column()
     public password: string;
 
     @Column()
@@ -56,23 +49,10 @@ export class User extends BaseModel {
     @Column({nullable: true})
     public avatarUrl: string;
 
-    @Column('simple-json', {nullable: true})
-    public analytics: IUserAnalytics;
-
+    // ------------------------------------------------------------
+    // Relations
     @OneToMany((type) => Activity, (activity) => activity.user)
     public activities: Activity[];
-
-    @OneToMany((type) => BlogPost, (post) => post.author)
-    public blogPosts: BlogPost[];
-
-    @Column((type) => UserProfile)
-    public profile: UserProfile;
-
-    @OneToOne((type) => Competitor)
-    public competitor: Competitor;
-
-    @Column((type) => UserStatistics)
-    public statistics: UserStatistics;
 
     @OneToMany((type) => EmailVerification, (verification) => verification.user)
     public verifications: EmailVerification[];
@@ -83,29 +63,6 @@ export class User extends BaseModel {
     @OneToMany((type) => PasswordReset, (reset) => reset.user)
     public passwordResets: PasswordReset[];
 
-    @OneToMany((type) => Player, (player) => player.user)
-    public players: Player[];
-
     @OneToMany((type) => GameApplication, (application) => application.user)
     public gameApplications: Promise<GameApplication[]>;
-
-    @ManyToMany((type) => Game, (game) => game.usersPlayed)
-    @JoinTable()
-    public playedGames: Promise<Game[]>;
-
-    @ManyToMany((type) => Badge)
-    public badges: Promise<Badge[]>;
-
-    @AfterLoad() @AfterUpdate() @AfterInsert()
-    private loadRank() {
-        this.statistics = this.statistics || {xp: 0, coins: 0, wins: 0, losses: 0};
-
-        this.statistics.rank = ALL_RANKS.find((rank) => {
-            return rank.xpRequired <= this.statistics.xp;
-        });
-
-        this.statistics.nextRank = ALL_RANKS.find((rank) => {
-            return rank.xpRequired > this.statistics.xp;
-        });
-    }
 }
