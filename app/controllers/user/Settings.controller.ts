@@ -1,7 +1,6 @@
-import {Request, Response} from 'express';
-
-import {UserRepository} from '../../repository';
-import {ISettingsChangeRequest} from '../../request/ISetttingsChangeRequest';
+import { Request, Response } from 'express';
+import { UserRepository } from '../../repository';
+import { ISettingsChangeRequest } from '../../request/ISetttingsChangeRequest';
 
 export class SettingsController {
     /**
@@ -46,10 +45,10 @@ export class SettingsController {
         }
 
         user.username = settings.username;
-        user.profile.about = settings.about;
-        user.profile.forHire = settings.forHire;
-        user.profile.location = settings.location;
-        user.profile.websiteUrl = settings.websiteUrl;
+        // user.profile.about = settings.about;
+        // user.profile.forHire = settings.forHire;
+        // user.profile.location = settings.location;
+        // user.profile.websiteUrl = settings.websiteUrl;
 
         await user.save();
 
