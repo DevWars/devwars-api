@@ -1,8 +1,13 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Entity, Column, JoinTable, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import { User } from './User';
 
-@Entity('linked_accounts')
+export enum Provider {
+    TWITCH = 'TWITCH',
+    DISCORD = 'DISCORD',
+}
+
+@Entity('linked_account')
 export class LinkedAccount extends BaseModel {
     /**
      * Given username from provider
@@ -14,11 +19,11 @@ export class LinkedAccount extends BaseModel {
      * Used to store information about a linked account
      * before the account has been linked to DevWars
      */
-    @Column('simple-json', {nullable: true})
+    @Column({ type: 'jsonb', nullable: true })
     public storage: object;
 
     /**
-     * Third-party account provider
+     * Third-party account provider name
      */
     @Column()
     public provider: string;
@@ -29,13 +34,9 @@ export class LinkedAccount extends BaseModel {
     @Column()
     public providerId: string;
 
-    /**
-     * The associated user
-     */
-    @ManyToOne((type) => User, (user) => user.linkedAccounts)
+    // ------------------------------------------------------------
+    // Relations
+    @OneToOne((type) => User)
+    @JoinTable()
     public user: User;
-
-    // TEMP (just so we can set the id manually for a given user)
-    @Column({nullable: true})
-    public userId: number;
 }

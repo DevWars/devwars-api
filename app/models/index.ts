@@ -14,6 +14,7 @@ export * from './PasswordReset';
 export * from './Player';
 export * from './User';
 export * from './UserProfile';
+export * from './UserStats';
 export * from './Competitor';
 export * from './Player';
 export * from './GameApplication';

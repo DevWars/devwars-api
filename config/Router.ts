@@ -10,7 +10,7 @@ import { GameTeamRoute } from '../app/routes/GameTeam.route';
 import { HealthRoute } from '../app/routes/Health.route';
 import { JWTRoute } from '../app/routes/Jwt.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
-import { LinkedAccountsRoute } from '../app/routes/LinkedAccounts.route';
+import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
 import { OAuthRoute } from '../app/routes/OAuth.route';
 import { ObjectiveRoute } from '../app/routes/Objective.route';
 import { PlayerRoute } from '../app/routes/Player.route';
@@ -84,7 +84,7 @@ export const ROUTER: IROUTER[] = [
         path: '/user',
     },
     {
-        handler: LinkedAccountsRoute,
+        handler: LinkedAccountRoute,
         middleware: [],
         path: '/user',
     },

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinTable, OneToOne } from 'typeorm';
+import { Entity, Column, JoinTable, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import { User } from './User';
 
@@ -15,8 +15,8 @@ export class UserProfile extends BaseModel {
     @Column({ nullable: true })
     public dob: Date;
 
-    @Column({ nullable: true })
-    public about: Text;
+    @Column({ type: 'text', nullable: true })
+    public about: string;
 
     @Column({ default: false })
     public forHire: boolean;
@@ -32,6 +32,9 @@ export class UserProfile extends BaseModel {
 
     @Column({ nullable: true })
     public city: string;
+
+    @Column({ nullable: true })
+    public state: string;
 
     @Column({ nullable: true })
     public zip: string;

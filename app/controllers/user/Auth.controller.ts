@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+
 import { EmailVerification, PasswordReset, UserRole } from '../../models';
 import { UserRepository } from '../../repository';
 import ILoginRequest from '../../request/ILoginRequest';
