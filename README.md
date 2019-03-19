@@ -13,8 +13,8 @@
 Go to the root of the repo
 
 ``` bash
-yarn
-yarn test
+npm install
+npm test
 ```
 
 All of your tests should pass by default on your first run. We use SQLite so you won't need a database running while you develop.
