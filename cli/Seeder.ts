@@ -11,7 +11,7 @@ import {
     UserFactory,
 } from '../app/factory';
 import { GameApplicationFactory } from '../app/factory/GameApplication.factory';
-import { UserProfileFactory } from '../app/factory/UserProfile';
+import { UserProfileFactory } from '../app/factory/UserProfile.factory';
 import { UserStatsFactory } from '../app/factory/UserStats.factory';
 import { Game, User, UserProfile, UserRole } from '../app/models';
 import { UserRepository } from '../app/repository';
