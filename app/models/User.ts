@@ -13,8 +13,6 @@ export enum UserRole {
 
 @Entity('user')
 export class User extends BaseModel {
-    // ------------------------------------------------------------
-    // Columns
     @Column()
     public lastSignIn: Date;
 
@@ -38,6 +36,7 @@ export class User extends BaseModel {
 
     // ------------------------------------------------------------
     // Relations
+
     @OneToOne((type) => UserProfile)
     public profile: UserProfile;
 

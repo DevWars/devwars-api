@@ -1,12 +1,10 @@
 import AWS = require('aws-sdk');
-import {ManagedUpload, PutObjectRequest} from 'aws-sdk/clients/s3';
-import {IGame} from '../external/Editor';
-import {Game, GameStatus, GameTeam} from '../models';
-import {GameTeamRepository, PlayerRepository} from '../repository';
-import {getValueAtPath, pathValueAtPath} from '../utils/firebase';
+import { ManagedUpload, PutObjectRequest } from 'aws-sdk/clients/s3';
+import { Game, GameStatus, GameTeam } from '../models';
+import { GameTeamRepository, PlayerRepository } from '../repository';
+import { getValueAtPath, pathValueAtPath } from '../utils/firebase';
 
 export default class GameService {
-
     public static async all() {
         return [
             {
@@ -24,7 +22,7 @@ export default class GameService {
     public static async backupGame(game: Game) {
         const files = ['index.html', 'game.css', 'game.js'];
 
-        const editorGame = await getValueAtPath(process.env.EDITOR_PATH) as IGame;
+        const editorGame = await getValueAtPath(process.env.EDITOR_PATH);
 
         for (const player of editorGame.players) {
             const language = files[player.id % 3];
