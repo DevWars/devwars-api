@@ -1,7 +1,8 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
-import {Player} from '../../models';
-import {GameRepository, GameTeamRepository, PlayerRepository, UserRepository} from '../../repository';
+import GameRepository from '../../repository/Game.repository';
+import GameTeamRepository from '../../repository/GameTeam.repository';
+import UserRepository from '../../repository/User.repository';
 
 export class PlayerController {
     /**
@@ -61,7 +62,7 @@ export class PlayerController {
     public static async addPlayer(request: Request, response: Response) {
         const team = await GameTeamRepository.byId(request.params.team);
 
-        const {language, user: userId} = request.query;
+        const { language, user: userId } = request.query;
 
         const user = await UserRepository.byId(userId);
 

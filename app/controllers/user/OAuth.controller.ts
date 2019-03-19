@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { LinkedAccount } from '../../models';
-import { UserRepository } from '../../repository';
+import LinkedAccount from '../../models/LinkedAccount';
+import UserRepository from '../../repository/User.repository';
 import { DiscordService } from '../../services/Discord.service';
 
 export class OAuthController {

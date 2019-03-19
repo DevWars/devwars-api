@@ -1,5 +1,6 @@
-import {date, random} from 'faker';
-import {Activity, User} from '../models';
+import { date, random } from 'faker';
+import Activity from '../models/Activity';
+import User from '../models/User';
 
 export class ActivityFactory {
     public static default(): Activity {

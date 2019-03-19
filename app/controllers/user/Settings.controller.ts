@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { UserRepository } from '../../repository';
+import UserRepository from '../../repository/User.repository';
 import { ISettingsChangeRequest } from '../../request/ISetttingsChangeRequest';
 
 export class SettingsController {

@@ -1,8 +1,7 @@
-import {Request, Response} from 'express';
-import {User} from '../models';
+import { Request, Response } from 'express';
+import User from '../models/User';
 
 export class LeaderboardController {
-
     public static async users(request: Request, response: Response) {
         const users = await User.createQueryBuilder('user')
             .orderBy('statisticsXp', 'DESC')
@@ -15,5 +14,4 @@ export class LeaderboardController {
             users,
         });
     }
-
 }

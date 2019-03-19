@@ -1,6 +1,8 @@
-import {Game, GameApplication, User} from '../models';
+import Game from '../models/Game';
+import GameApplication from '../models/GameApplication';
+import User from '../models/User';
 
-export class GameApplicationFactory {
+export default class GameApplicationFactory {
     public static withGameAndUser(game: Game, user: User): GameApplication {
         const application = new GameApplication();
 

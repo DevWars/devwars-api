@@ -1,4 +1,4 @@
-import {GameTeam} from '../models';
+import GameTeam from '../models/GameTeam';
 
 export const pointsForTeam = async (team: GameTeam): Promise<number> => {
     let points = 0;

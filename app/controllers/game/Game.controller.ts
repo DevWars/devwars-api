@@ -1,11 +1,10 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
-import {Game, GameStatus, GameTeam} from '../../models';
+import Game from '../../models/Game';
 
-import {getConnection} from 'typeorm';
-import {GameFactory, GameTeamFactory} from '../../factory';
-import {GameRepository, GameTeamRepository} from '../../repository';
-import {IUpdateGameRequest} from '../../request/IUpdateGameRequest';
+import GameRepository from '../../repository/Game.repository';
+import GameTeamRepository from '../../repository/GameTeam.repository';
+import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
 import GameService from '../../services/Game.service';
 
 export class GameController {
@@ -266,7 +265,7 @@ export class GameController {
     }
 
     public static async createGame(request: Request, response: Response) {
-        const {name, timestamp} = request.body;
+        const { name, timestamp } = request.body;
 
         let game = new Game();
 

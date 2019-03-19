@@ -1,9 +1,9 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
-import { User } from './User';
+import User from './User';
 
 @Entity('user_profile')
-export class UserProfile extends BaseModel {
+export default class UserProfile extends BaseModel {
     // ------------------------------------------------------------
     // Columns
     @Column({ nullable: true })

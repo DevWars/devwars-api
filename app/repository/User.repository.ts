@@ -1,12 +1,14 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { GameApplication, User, UserProfile, UserStats } from '../models';
+import User from '../models/User';
+import UserProfile from '../models/UserProfile';
+import UserStats from '../models/UserStats';
 
 interface ICredentials {
     identifier: string;
 }
 
 @EntityRepository(User)
-export class UserRepository extends Repository<User> {
+export default class UserRepository extends Repository<User> {
     public findByUsername(username: string): Promise<User> {
         return User.findOne({ where: { username } });
     }

@@ -1,7 +1,10 @@
 import AWS = require('aws-sdk');
 import { ManagedUpload, PutObjectRequest } from 'aws-sdk/clients/s3';
-import { Game, GameStatus, GameTeam } from '../models';
-import { GameTeamRepository, PlayerRepository } from '../repository';
+import Game from '../models/Game';
+import { GameStatus } from '../models/Game';
+import GameTeam from '../models/GameTeam';
+
+import GameTeamRepository from '../repository/GameTeam.repository';
 import { getValueAtPath, pathValueAtPath } from '../utils/firebase';
 
 export default class GameService {

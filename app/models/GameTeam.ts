@@ -1,17 +1,14 @@
-import {Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany} from 'typeorm';
+import { Column, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany } from 'typeorm';
 
 import BaseModel from './BaseModel';
-import {Game} from './Game';
-import {Objective} from './Objective';
-import {Player} from './Player';
+import Game from './Game';
 
 interface IVotes {
     [phase: string]: number;
 }
 
 @Entity('game_teams')
-export class GameTeam extends BaseModel {
-
+export default class GameTeam extends BaseModel {
     /**
      * Display name
      */
@@ -27,7 +24,7 @@ export class GameTeam extends BaseModel {
     /**
      * Short description of the team's current preparation status
      */
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public status: string;
 
     @Column('simple-json')
@@ -39,14 +36,14 @@ export class GameTeam extends BaseModel {
     @ManyToOne((type) => Game, (game) => game.teams)
     public game: Game;
 
-    @OneToMany((type) => Player, (player) => player.team, {eager: true})
+    @OneToMany((type) => Player, (player) => player.team, { eager: true })
     public players: Player[];
 
     // TEMP (just so we can set the id manually for a given user)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public gameId: number;
 
-    @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, {eager: true})
+    @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, { eager: true })
     @JoinTable()
     public completedObjectives: Objective[];
 

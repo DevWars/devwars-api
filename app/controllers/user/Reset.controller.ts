@@ -1,7 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { UserRepository } from '../../repository';
+import UserRepository from '../../repository/User.repository';
 import { ResetService } from '../../services/Reset.service';
 import { hash } from '../../utils/hash';
 
