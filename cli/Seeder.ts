@@ -2,19 +2,18 @@ import * as typeorm from 'typeorm';
 
 import { Connection } from '../config/Database';
 
-import {
-    CompetitorFactory,
-    GameFactory,
-    GameTeamFactory,
-    ObjectiveFactory,
-    PlayerFactory,
-    UserFactory,
-} from '../app/factory';
-import { GameApplicationFactory } from '../app/factory/GameApplication.factory';
-import { UserProfileFactory } from '../app/factory/UserProfile.factory';
+import UserFactory from '../app/factory/User.factory';
+import UserProfileFactory from '../app/factory/UserProfile.factory';
+import GameApplicationFactory from '../app/factory/GameApplication.factory';
+
 import { UserStatsFactory } from '../app/factory/UserStats.factory';
-import { Game, User, UserProfile, UserRole } from '../app/models';
-import { UserRepository } from '../app/repository';
+
+import Game from '../app/models/Game';
+import User from '../app/models/User';
+import { UserRole } from '../app/models/User';
+import UserProfile from '../app/models/UserProfile';
+
+import UserRepository from '../app/repository/User.repository';
 import GameService from '../app/services/Game.service';
 
 let connection: typeorm.Connection;
