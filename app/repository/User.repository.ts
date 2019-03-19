@@ -1,5 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import { GameApplication, User, UserProfile } from '../models';
+import { GameApplication, User, UserProfile, UserStats } from '../models';
 
 interface ICredentials {
     identifier: string;
@@ -19,10 +19,6 @@ export class UserRepository extends Repository<User> {
         return User.findOne({ where: { token } });
     }
 
-    public findByProfile(user: User): Promise<UserProfile> {
-        return UserProfile.findOne(user.id);
-    }
-
     public async findByCredentials(request: ICredentials): Promise<User> {
         const byEmail = await this.findByEmail(request.identifier);
         if (byEmail) {
@@ -35,6 +31,14 @@ export class UserRepository extends Repository<User> {
         }
 
         return undefined;
+    }
+
+    public findProfileByUser(user: User): Promise<UserProfile> {
+        return UserProfile.findOne(user.id);
+    }
+
+    public findStatsByUser(user: User): Promise<UserStats[]> {
+        return UserStats.find({ where: { user } });
     }
 }
 

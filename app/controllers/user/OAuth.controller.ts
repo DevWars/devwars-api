@@ -5,7 +5,6 @@ import { UserRepository } from '../../repository';
 import { DiscordService } from '../../services/Discord.service';
 
 export class OAuthController {
-
     public static async discord(request: Request, response: Response) {
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(request.cookies.auth);
