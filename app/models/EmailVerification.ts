@@ -1,12 +1,15 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, OneToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
-@Entity('email_verifications')
+@Entity('email_verification')
 export default class EmailVerification extends BaseModel {
-    @Column({ default: '' })
+    @Column()
     public token: string;
 
-    @ManyToOne((type) => User, (user) => user.verifications, { eager: true })
+    // ------------------------------------------------------------
+    // Relations
+    @OneToOne((type) => User)
+    @JoinColumn()
     public user: User;
 }

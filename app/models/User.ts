@@ -3,6 +3,7 @@ import BaseModel from './BaseModel';
 import LinkedAccount from './LinkedAccount';
 import UserProfile from './UserProfile';
 import UserStats from './UserStats';
+import EmailVerification from './EmailVerification';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -42,6 +43,9 @@ export default class User extends BaseModel {
 
     @OneToOne((type) => UserStats)
     public stats: UserStats;
+
+    @OneToOne((type) => EmailVerification)
+    public verification: EmailVerification;
 
     @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
     public accounts: LinkedAccount;
