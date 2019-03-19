@@ -1,8 +1,8 @@
 import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import { LinkedAccount } from './LinkedAccount';
-import { UserProfile } from './UserProfile';
-import { UserStats } from './UserStats';
+import LinkedAccount from './LinkedAccount';
+import UserProfile from './UserProfile';
+import UserStats from './UserStats';
 
 export enum UserRole {
     PENDING = 'PENDING',

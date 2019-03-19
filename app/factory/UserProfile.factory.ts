@@ -1,7 +1,7 @@
 import { name, date, random, lorem, internet, address } from 'faker';
-import { UserProfile } from '../models';
+import UserProfile from '../models/UserProfile';
 
-export class UserProfileFactory {
+export default class UserProfileFactory {
     public static default(): UserProfile {
         const profile = new UserProfile();
 
