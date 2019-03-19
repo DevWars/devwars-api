@@ -1,6 +1,7 @@
 import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import LinkedAccount from './LinkedAccount';
+import Activity from './Activity';
 import UserProfile from './UserProfile';
 import UserStats from './UserStats';
 import EmailVerification from './EmailVerification';
@@ -46,6 +47,9 @@ export default class User extends BaseModel {
 
     @OneToOne((type) => EmailVerification)
     public verification: EmailVerification;
+
+    @OneToMany((type) => Activity, (activities) => activities.user)
+    public activities: Activity;
 
     @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
     public accounts: LinkedAccount;

@@ -1,8 +1,8 @@
-import { Column, Entity, ManyToOne } from 'typeorm';
+import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
-@Entity('activities')
+@Entity('activity')
 export default class Activity extends BaseModel {
     /**
      * Short description of the activity
@@ -13,13 +13,13 @@ export default class Activity extends BaseModel {
     /**
      * The amount of coins received by the user
      */
-    @Column()
+    @Column({ default: 0 })
     public coins: number;
 
     /**
      * The amount of xp received by the user
      */
-    @Column()
+    @Column({ default: 0 })
     public xp: number;
 
     /**
@@ -27,8 +27,4 @@ export default class Activity extends BaseModel {
      */
     @ManyToOne((type) => User, (user) => user.activities)
     public user: User;
-
-    // TEMP (just so we can set the id manually for a given user)
-    @Column({ nullable: true })
-    public userId: number;
 }
