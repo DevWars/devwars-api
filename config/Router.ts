@@ -1,7 +1,6 @@
 import * as express from 'express';
 import { ActivityRoute } from '../app/routes/Activity.route';
 import { AuthRoute } from '../app/routes/Auth.routes';
-import { BadgeRoute } from '../app/routes/Badge.route';
 // import { GameRoute } from '../app/routes/Game.route';
 // import { GameApplicationRoute } from '../app/routes/GameApplication.route';
 import { GameTeamRoute } from '../app/routes/GameTeam.route';
@@ -64,11 +63,6 @@ export const ROUTER: IROUTER[] = [
         handler: LeaderboardRoute,
         middleware: [],
         path: '/leaderboard',
-    },
-    {
-        handler: BadgeRoute,
-        middleware: [],
-        path: '/badge',
     },
     {
         handler: LinkedAccountRoute,

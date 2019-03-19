@@ -1,5 +1,4 @@
 export * from './Activity';
-export * from './Badge';
 export * from './BaseModel';
 export * from './EmailVerification';
 export * from './Game';
