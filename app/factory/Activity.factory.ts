@@ -1,4 +1,4 @@
-import { date, random } from 'faker';
+import { random } from 'faker';
 import Activity from '../models/Activity';
 import User from '../models/User';
 
@@ -7,10 +7,8 @@ export class ActivityFactory {
         const activity = new Activity();
 
         Object.assign(activity, {
-            coins: random.number(20000),
-            createdAt: date.past(),
             description: random.words(5),
-            updatedAt: date.past(),
+            coins: random.number(20000),
             xp: random.number(20000),
         });
 
