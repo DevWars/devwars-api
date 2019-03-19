@@ -1,9 +1,10 @@
 import * as express from 'express';
-import {GameController} from '../controllers/game/Game.controller';
-import {mustBeRole} from '../middlewares';
-import {UserRole} from '../models';
+import { GameController } from '../controllers/game/Game.controller';
+import { mustBeRole } from '../middlewares';
+import { UserRole } from '../models/User';
 
-export const GameRoute: express.Router = express.Router()
+export const GameRoute: express.Router = express
+    .Router()
     .get('/', GameController.all)
     .post('/', GameController.createGame)
     .get('/latest', GameController.latest)

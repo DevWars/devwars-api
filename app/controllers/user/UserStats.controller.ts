@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { UserStats } from '../../models';
-import { UserRepository } from '../../repository';
+import UserStats from '../../models/UserStats';
+import UserRepository from '../../repository/User.repository';
 
 export class UserStatsController {
     public static async forUser(request: Request, response: Response) {

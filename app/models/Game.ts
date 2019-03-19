@@ -11,14 +11,8 @@ export enum GameStatus {
     ENDED,
 }
 
-interface ILanguageTemplate {
-    language: string;
-
-    content: string;
-}
-
 @Entity('games')
-export class Game extends BaseModel {
+export default class Game extends BaseModel {
     /**
      * Projected status of the game,
      */

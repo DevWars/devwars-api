@@ -1,6 +1,6 @@
 import { Entity, Column, JoinTable, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import { User } from './User';
+import User from './User';
 
 export enum Provider {
     TWITCH = 'TWITCH',
@@ -8,7 +8,7 @@ export enum Provider {
 }
 
 @Entity('linked_account')
-export class LinkedAccount extends BaseModel {
+export default class LinkedAccount extends BaseModel {
     /**
      * Given username from provider
      */

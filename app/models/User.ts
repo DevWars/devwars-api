@@ -12,7 +12,7 @@ export enum UserRole {
 }
 
 @Entity('user')
-export class User extends BaseModel {
+export default class User extends BaseModel {
     @Column()
     public lastSignIn: Date;
 

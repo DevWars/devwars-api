@@ -1,11 +1,12 @@
 import * as express from 'express';
 
-import {mustBeAuthenticated, mustBeCompetitor, mustBeRole} from '../middlewares';
+import { mustBeAuthenticated, mustBeCompetitor, mustBeRole } from '../middlewares';
 
-import {GameApplicationController} from '../controllers/game/GameApplication.controller';
-import {UserRole} from '../models';
+import { GameApplicationController } from '../controllers/game/GameApplication.controller';
+import { UserRole } from '../models/User';
 
-export const GameApplicationRoute: express.Router = express.Router()
+export const GameApplicationRoute: express.Router = express
+    .Router()
     .get('/applications/mine', mustBeAuthenticated, GameApplicationController.mine)
     .get('/entered/mine', mustBeAuthenticated, GameApplicationController.entered)
     .get('/:game/applications', GameApplicationController.forGame)

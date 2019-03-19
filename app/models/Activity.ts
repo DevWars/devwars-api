@@ -1,9 +1,9 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import { User } from './User';
+import User from './User';
 
 @Entity('activities')
-export class Activity extends BaseModel {
+export default class Activity extends BaseModel {
     /**
      * Short description of the activity
      */
@@ -29,6 +29,6 @@ export class Activity extends BaseModel {
     public user: User;
 
     // TEMP (just so we can set the id manually for a given user)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public userId: number;
 }

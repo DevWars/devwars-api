@@ -1,9 +1,11 @@
-import {EmailVerification, User, UserRole} from '../models';
-import {randomString} from '../utils/random';
-import {MailService} from './Mail.service';
+import EmailVerification from '../models/EmailVerification';
+import User from '../models/User';
+import { UserRole } from '../models/User';
+
+import { randomString } from '../utils/random';
+import { MailService } from './Mail.service';
 
 export class VerificationService {
-
     public static async reset(user: User) {
         user.role = UserRole.PENDING;
 
@@ -17,15 +19,14 @@ export class VerificationService {
 
         const url = `${process.env.ROOT_URL}/auth/verify?key=${verification.token}`;
 
-        await MailService.send([user.email], 'welcome', {url});
+        await MailService.send([user.email], 'welcome', { url });
     }
 
-   public static async newToken(user: User): Promise<string> {
+    public static async newToken(user: User): Promise<string> {
         user.token = randomString(32);
 
         await user.save();
 
         return user.token;
     }
-
 }

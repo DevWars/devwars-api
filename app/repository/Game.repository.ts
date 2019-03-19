@@ -1,8 +1,9 @@
-import {Game, GameStatus, User} from '../models';
-import {GameApplication} from '../models/GameApplication';
+import Game from '../models/Game';
+import { GameStatus } from '../models/Game';
+import User from '../models/User';
+import GameApplication from '../models/GameApplication';
 
-export class GameRepository {
-
+export default class GameRepository {
     public static all(): Promise<Game[]> {
         return Game.find({
             order: {
@@ -12,25 +13,26 @@ export class GameRepository {
     }
 
     public static latest(): Promise<Game> {
-        return Game.findOne({order: {startTime: 'DESC'}, relations: ['teams', 'objectives']});
+        return Game.findOne({ order: { startTime: 'DESC' }, relations: ['teams', 'objectives'] });
     }
 
     public static byId(id: number): Promise<Game> {
-        return Game.findOne(id, {relations: ['teams', 'objectives']});
+        return Game.findOne(id, { relations: ['teams', 'objectives'] });
     }
 
     public static bySeason(season: number): Promise<Game[]> {
-        return Game.find({where: {season}});
+        return Game.find({ where: { season } });
     }
 
     public static byStatus(status: GameStatus): Promise<Game[]> {
-        return Game.find({where: {status}});
+        return Game.find({ where: { status } });
     }
 
     public static async byUserApplication(user: User): Promise<Game[]> {
         return Game.createQueryBuilder('game')
             .where((qb) => {
-                const subQuery = qb.subQuery()
+                const subQuery = qb
+                    .subQuery()
                     .select('application.game_id')
                     .from(GameApplication, 'application')
                     .where('application.user_id = :user')

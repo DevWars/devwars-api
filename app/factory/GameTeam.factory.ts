@@ -1,6 +1,7 @@
-import {date, random} from 'faker';
+import { date, random } from 'faker';
 
-import {Game, GameTeam} from '../models';
+import Game from '../models/Game';
+import GameTeam from '../models/GameTeam';
 
 export class GameTeamFactory {
     public static default(): GameTeam {
@@ -12,7 +13,7 @@ export class GameTeamFactory {
             name: random.arrayElement(['red', 'blue']),
             status: random.arrayElement(['Waiting', 'Ready to play', 'Setting up game']),
             updatedAt: date.past(),
-            votes: {ui: random.number(100), ux: random.number(100)},
+            votes: { ui: random.number(100), ux: random.number(100) },
             winner: random.boolean(),
         });
 

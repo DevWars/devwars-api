@@ -2,8 +2,12 @@ import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 
-import { EmailVerification, PasswordReset, UserRole } from '../../models';
-import { UserRepository } from '../../repository';
+import EmailVerification from '../../models/EmailVerification';
+import PasswordReset from '../../models/PasswordReset';
+import { UserRole } from '../../models/User';
+
+import UserRepository from '../../repository/User.repository';
+
 import ILoginRequest from '../../request/ILoginRequest';
 import IRegistrationRequest from '../../request/RegistrationRequest';
 import { AuthService } from '../../services/Auth.service';

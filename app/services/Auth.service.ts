@@ -1,13 +1,15 @@
-import {PasswordReset, User, UserRole} from '../models';
-import {hash} from '../utils/hash';
+import { hash } from '../utils/hash';
+
+import PasswordReset from '../models/PasswordReset';
+import User from '../models/User';
+import { UserRole } from '../models/User';
 
 import IRegistrationRequest from '../request/RegistrationRequest';
-import {randomString} from '../utils/random';
-import {MailService} from './Mail.service';
-import {VerificationService} from './Verification.service';
+import { randomString } from '../utils/random';
+import { MailService } from './Mail.service';
+import { VerificationService } from './Verification.service';
 
 export class AuthService {
-
     public static async register(request: IRegistrationRequest) {
         const user = new User();
 

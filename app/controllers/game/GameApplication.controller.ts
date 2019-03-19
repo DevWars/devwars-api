@@ -1,6 +1,7 @@
-import {Request, Response} from 'express';
-import {GameApplicationFactory} from '../../factory/GameApplication.factory';
-import {GameRepository, UserRepository} from '../../repository';
+import { Request, Response } from 'express';
+import GameApplicationFactory from '../../factory/GameApplication.factory';
+import GameRepository from '../../repository/Game.repository';
+import UserRepository from '../../repository/User.repository';
 
 export class GameApplicationController {
     /**
