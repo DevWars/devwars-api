@@ -1,12 +1,15 @@
-import {AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany} from 'typeorm';
+import { AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
 import BaseModel from './BaseModel';
-import {GameApplication} from './GameApplication';
-import {GameTeam} from './GameTeam';
-import {Objective} from './Objective';
-import {User} from './User';
+import { GameApplication } from './GameApplication';
+import { GameTeam } from './GameTeam';
+import { Objective } from './Objective';
+import { User } from './User';
 
 export enum GameStatus {
-    SCHEDULING, PREPARING, ACTIVE, ENDED,
+    SCHEDULING,
+    PREPARING,
+    ACTIVE,
+    ENDED,
 }
 
 interface ILanguageTemplate {
@@ -20,13 +23,13 @@ export class Game extends BaseModel {
     /**
      * Projected status of the game,
      */
-    @Column({default: GameStatus.SCHEDULING})
+    @Column({ default: GameStatus.SCHEDULING })
     public status?: GameStatus;
 
     /**
      * Scheduled start time
      */
-    @Column({type: 'datetime'})
+    @Column()
     public startTime: Date;
 
     /**
@@ -46,16 +49,16 @@ export class Game extends BaseModel {
     /**
      * Short description for what this game is about
      */
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public theme: string;
 
     /**
      * Link to the video recording for this game
      */
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public videoUrl: string;
 
-    @Column('simple-json', {nullable: false})
+    @Column('simple-json', { nullable: false })
     public languageTemplates: { [language: string]: string };
 
     @OneToMany((type) => GameTeam, (team) => team.game)
@@ -64,8 +67,8 @@ export class Game extends BaseModel {
     @OneToMany((type) => Objective, (objective) => objective.game)
     public objectives: Objective[];
 
-    @ManyToMany((type) => User, (user) => user.playedGames)
-    public usersPlayed: Promise<User[]>;
+    // @ManyToMany((type) => User, (user) => user.playedGames)
+    // public usersPlayed: Promise<User[]>;
 
     @OneToMany((type) => GameApplication, (application) => application.game)
     public userApplications: Promise<GameApplication[]>;

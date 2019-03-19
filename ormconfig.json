@@ -1,11 +1,9 @@
 {
-    "migrations": [
-        "./app/migration/*.ts"
-    ],
+    "migrations": ["./app/migration/*.ts"],
     "cli": {
         "migrationsDir": "./app/migration"
     },
-    "type": "mysql",
+    "type": "postgres",
     "host": "database",
     "port": 3306,
     "username": "root",

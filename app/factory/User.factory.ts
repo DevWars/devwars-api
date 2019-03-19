@@ -1,3 +1,4 @@
+import * as bcrypt from 'bcrypt';
 import { helpers, random } from 'faker';
 import { User, UserRole } from '../models';
 
@@ -8,12 +9,8 @@ export class UserFactory {
         user.lastSignIn = new Date();
         user.email = helpers.userCard().email;
         user.username = helpers.userCard().username;
-        user.role = random.arrayElement([
-            UserRole.PENDING,
-            UserRole.ADMIN,
-            UserRole.MODERATOR,
-            UserRole.USER],
-        );
+        user.password = bcrypt.hashSync('secret', 1);
+        user.role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
         user.avatarUrl = random.image();
 
         return user;
