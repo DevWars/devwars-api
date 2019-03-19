@@ -2,7 +2,6 @@ import { AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typ
 import BaseModel from './BaseModel';
 import { GameApplication } from './GameApplication';
 import { GameTeam } from './GameTeam';
-import { Objective } from './Objective';
 import { User } from './User';
 
 export enum GameStatus {
