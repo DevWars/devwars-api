@@ -1,4 +1,4 @@
-import { Entity, Column, JoinTable, OneToOne } from 'typeorm';
+import { Entity, Column, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import { User } from './User';
 
@@ -21,6 +21,5 @@ export class UserStats extends BaseModel {
     // ------------------------------------------------------------
     // Relations
     @OneToOne((type) => User)
-    @JoinTable()
     public user: User;
 }

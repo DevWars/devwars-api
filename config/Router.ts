@@ -3,9 +3,9 @@ import { ActivityRoute } from '../app/routes/Activity.route';
 import { AuthRoute } from '../app/routes/Auth.routes';
 import { BadgeRoute } from '../app/routes/Badge.route';
 import { BlogPostRoute } from '../app/routes/BlogPost.route';
-import { CompetitorRoute } from '../app/routes/Competitor.route';
-import { GameRoute } from '../app/routes/Game.route';
-import { GameApplicationRoute } from '../app/routes/GameApplication.route';
+// import { CompetitorRoute } from '../app/routes/Competitor.route';
+// import { GameRoute } from '../app/routes/Game.route';
+// import { GameApplicationRoute } from '../app/routes/GameApplication.route';
 import { GameTeamRoute } from '../app/routes/GameTeam.route';
 import { HealthRoute } from '../app/routes/Health.route';
 import { JWTRoute } from '../app/routes/Jwt.route';
@@ -38,11 +38,11 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/auth',
     },
-    {
-        handler: GameRoute,
-        middleware: [],
-        path: '/game',
-    },
+    // {
+    //     handler: GameRoute,
+    //     middleware: [],
+    //     path: '/game',
+    // },
     {
         handler: GameTeamRoute,
         middleware: [],
@@ -53,11 +53,11 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/game',
     },
-    {
-        handler: GameApplicationRoute,
-        middleware: [],
-        path: '/game',
-    },
+    // {
+    //     handler: GameApplicationRoute,
+    //     middleware: [],
+    //     path: '/game',
+    // },
     {
         handler: ObjectiveRoute,
         middleware: [],
@@ -78,11 +78,11 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/badge',
     },
-    {
-        handler: CompetitorRoute,
-        middleware: [],
-        path: '/user',
-    },
+    // {
+    //     handler: CompetitorRoute,
+    //     middleware: [],
+    //     path: '/user',
+    // },
     {
         handler: LinkedAccountRoute,
         middleware: [],

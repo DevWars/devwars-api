@@ -1,7 +1,8 @@
-import { Entity, Column, OneToOne, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import { UserProfile } from './UserProfile';
 import { LinkedAccount } from './LinkedAccount';
+import { UserProfile } from './UserProfile';
+import { UserStats } from './UserStats';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -10,7 +11,7 @@ export enum UserRole {
     ADMIN = 'ADMIN',
 }
 
-@Entity('users')
+@Entity('user')
 export class User extends BaseModel {
     // ------------------------------------------------------------
     // Columns
@@ -37,9 +38,12 @@ export class User extends BaseModel {
 
     // ------------------------------------------------------------
     // Relations
-    @OneToOne((type) => UserProfile, (profile) => profile.user)
-    public userProfile: UserProfile;
+    @OneToOne((type) => UserProfile)
+    public profile: UserProfile;
 
-    @OneToMany((type) => LinkedAccount, (link) => link.user)
-    public linkedAccount: LinkedAccount;
+    @OneToOne((type) => UserStats)
+    public stats: UserStats;
+
+    @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
+    public accounts: LinkedAccount;
 }

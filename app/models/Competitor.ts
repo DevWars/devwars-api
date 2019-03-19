@@ -1,7 +1,7 @@
-import {Column, Entity, JoinColumn, OneToOne} from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import {Address, Name} from './embedded';
-import {User} from './User';
+import { Address, Name } from './embedded';
+import { User } from './User';
 
 interface ILanguageRatings {
     [language: string]: number;
@@ -24,7 +24,7 @@ export class Competitor extends BaseModel {
     /**
      * Date of birth
      */
-    @Column({type: 'datetime', nullable: true})
+    @Column({ nullable: true })
     public dob: Date;
 
     /**
@@ -38,6 +38,6 @@ export class Competitor extends BaseModel {
     public user: User;
 
     // TEMP (just so we can set the id manually for a given user)
-    @Column({nullable: true})
+    @Column({ nullable: true })
     public userId: number;
 }

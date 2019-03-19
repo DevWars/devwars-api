@@ -1,5 +1,5 @@
-import {Connection, createConnection} from 'typeorm';
-import {config, DIALECT} from '../config';
+import { Connection, createConnection } from 'typeorm';
+import { config, DIALECT } from '../config';
 
 import * as entities from '../app/models';
 
@@ -25,7 +25,7 @@ if (process.env.NODE_ENV === 'test') {
 
         database: config.DATABASE.DB,
         host: config.DATABASE.SERVER,
-        logging: false,
+        logging: 'all',
         password: config.DATABASE.PASSWORD,
         port: config.DATABASE.PORT_DB,
         type: DIALECT,
@@ -33,4 +33,4 @@ if (process.env.NODE_ENV === 'test') {
     });
 }
 
-export {connection as Connection};
+export { connection as Connection };
