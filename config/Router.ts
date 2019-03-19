@@ -3,7 +3,6 @@ import { ActivityRoute } from '../app/routes/Activity.route';
 import { AuthRoute } from '../app/routes/Auth.routes';
 import { BadgeRoute } from '../app/routes/Badge.route';
 import { BlogPostRoute } from '../app/routes/BlogPost.route';
-// import { CompetitorRoute } from '../app/routes/Competitor.route';
 // import { GameRoute } from '../app/routes/Game.route';
 // import { GameApplicationRoute } from '../app/routes/GameApplication.route';
 import { GameTeamRoute } from '../app/routes/GameTeam.route';
@@ -78,11 +77,6 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/badge',
     },
-    // {
-    //     handler: CompetitorRoute,
-    //     middleware: [],
-    //     path: '/user',
-    // },
     {
         handler: LinkedAccountRoute,
         middleware: [],
