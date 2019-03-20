@@ -9,18 +9,9 @@ export const mustOwnUser = async (request: Request, response: Response, next: Ne
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(token);
 
-    if (!user) {
-        return response.status(404).json({
-            message: 'That user does not exist',
-        });
-    }
-
-    const requestedUserId = parseInt(request.params.user, 10);
-
-    if (user.id !== requestedUserId && user.role !== UserRole.ADMIN) {
-        return response.status(403).json({
-            message: 'You are not authenticated for this user',
-        });
+    const requestedUserId = Number(request.params.id);
+    if (user && user.id !== requestedUserId && user.role !== UserRole.ADMIN) {
+        return response.sendStatus(401);
     }
 
     return next();

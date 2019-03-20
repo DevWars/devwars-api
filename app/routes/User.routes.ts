@@ -12,6 +12,8 @@ const upload = multer({ dest: 'uploads/' });
 
 export const UserRoute: express.Router = express
     .Router()
+    .get('/', UserController.all)
+    .get('/:id', UserController.show)
     .put('/:id/update', mustOwnUser, UserController.update)
     .put('/:id/avatar', upload.single('avatar'), UserAvatarController.store)
     .get('/:id/stats', UserStatsController.forUser)

@@ -3,6 +3,7 @@ import { ActivityRoute } from '../app/routes/Activity.routes';
 import { AuthRoute } from '../app/routes/Auth.routes';
 import { GameRoute } from '../app/routes/Game.routes';
 import { GameScheduleRoute } from '../app/routes/GameSchedule.routes';
+import { GameApplicationRoute } from '../app/routes/GameApplication.routes';
 import { HealthRoute } from '../app/routes/Health.route';
 import { JWTRoute } from '../app/routes/Jwt.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
@@ -42,11 +43,11 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/schedules',
     },
-    // {
-    //     handler: GameApplicationRoute,
-    //     middleware: [],
-    //     path: '/games',
-    // },
+    {
+        handler: GameApplicationRoute,
+        middleware: [],
+        path: '/applications',
+    },
     {
         handler: ActivityRoute,
         middleware: [],
@@ -58,14 +59,14 @@ export const ROUTER: IROUTER[] = [
         path: '/leaderboards',
     },
     {
-        handler: LinkedAccountRoute,
-        middleware: [],
-        path: '/users',
-    },
-    {
         handler: OAuthRoute,
         middleware: [],
         path: '/oauth',
+    },
+    {
+        handler: LinkedAccountRoute,
+        middleware: [],
+        path: '/users',
     },
     {
         handler: UserRoute,

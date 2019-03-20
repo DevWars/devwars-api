@@ -3,7 +3,7 @@ import { env } from 'process';
 export const DIALECT = 'postgres';
 
 const LOCAL_CONFIGURATION = {
-    DB: env.DB || 'devwars-test',
+    DB: env.DB || 'devwars',
     PASSWORD: env.PASSWORD || 'secret',
     PORT_DB: Number(env.PORT_DB) || 5432,
     SERVER: env.SERVER || '127.0.0.1',
