@@ -27,12 +27,12 @@ export default class GameScheduleRepository extends Repository<GameSchedule> {
             .where((qb) => {
                 const subQuery = qb
                     .subQuery()
-                    .select('application.game_id')
+                    .select('application.schedule_id')
                     .from(GameApplication, 'application')
                     .where('application.user_id = :user')
                     .getSql();
 
-                return 'game.id in ' + subQuery;
+                return 'schedule.id in ' + subQuery;
             })
             .setParameter('user', user.id)
             .getMany();

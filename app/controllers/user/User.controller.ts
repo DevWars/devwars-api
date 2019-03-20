@@ -16,7 +16,7 @@ interface IUpdateUserRequest {
 
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
-    const user = await User.findOne({ where: { userId } });
+    const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
     response.json(user);
@@ -32,7 +32,7 @@ export async function update(request: Request, response: Response) {
     const userId = request.params.id;
     const params = request.body as IUpdateUserRequest;
 
-    const user = await User.findOne({ where: { userId } });
+    const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
     const userRepository = await getCustomRepository(UserRepository);

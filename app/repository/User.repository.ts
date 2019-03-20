@@ -2,6 +2,8 @@ import { EntityRepository, Repository } from 'typeorm';
 import User from '../models/User';
 import UserProfile from '../models/UserProfile';
 import UserStats from '../models/UserStats';
+import GameSchedule from '../models/GameSchedule';
+import GameApplication from '../models/GameApplication';
 
 interface ICredentials {
     identifier: string;
@@ -42,19 +44,20 @@ export default class UserRepository extends Repository<User> {
     public findStatsByUser(user: User): Promise<UserStats[]> {
         return UserStats.find({ where: { user } });
     }
+
+    public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {
+        return User.createQueryBuilder('user')
+            .where((qb) => {
+                const subQuery = qb
+                    .subQuery()
+                    .select('application.user_id')
+                    .from(GameApplication, 'application')
+                    .where('application.schedule_id = :schedule')
+                    .getSql();
+
+                return 'user.id in ' + subQuery;
+            })
+            .setParameter('schedule', schedule.id)
+            .getMany();
+    }
 }
-
-// public static async byAppliedGame(game: Game): Promise<User[]> {
-//     return User.createQueryBuilder('user')
-//         .where((qb) => {
-//             const subQuery = qb.subQuery()
-//                 .select('application.user_id')
-//                 .from(GameApplication, 'application')
-//                 .where('application.game_id = :game')
-//                 .getSql();
-
-//             return 'user.id in ' + subQuery;
-//         })
-//         .setParameter('game', game.id)
-//         .getMany();
-// }

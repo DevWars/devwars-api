@@ -4,5 +4,5 @@ import { mustOwnUser } from '../middlewares/OwnsUser';
 
 export const LinkedAccountRoute: express.Router = express
     .Router()
-    .get('/:user/linked-accounts', mustOwnUser, LinkedAccountController.all)
-    .delete('/:user/linked-accounts/:provider', mustOwnUser, LinkedAccountController.remove);
+    .get('/:id/linked-accounts', mustOwnUser, LinkedAccountController.all)
+    .delete('/:id/linked-accounts/:provider', mustOwnUser, LinkedAccountController.remove);

@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 
-import UserProfile from '../../models/User';
+import UserProfile from '../../models/UserProfile';
 
 interface IUpdateUserProfileRequest {
     firstName: string;
@@ -20,7 +20,7 @@ interface IUpdateUserProfileRequest {
 
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
-    const user = await UserProfile.findOne({ where: { userId } });
+    const user = await UserProfile.findOne(userId);
     if (!user) return response.sendStatus(404);
 
     response.json(user);
@@ -30,7 +30,7 @@ export async function update(request: Request, response: Response) {
     const userId = request.params.id;
     const params = request.body as IUpdateUserProfileRequest;
 
-    const user = await UserProfile.findOne({ where: { userId } });
+    const user = await UserProfile.findOne(userId);
     if (!user) return response.sendStatus(404);
 
     Object.assign(user, params);
