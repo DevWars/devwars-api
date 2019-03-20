@@ -12,9 +12,9 @@ const upload = multer({ dest: 'uploads/' });
 
 export const UserRoute: express.Router = express
     .Router()
-    .put('/:user/update', mustOwnUser, UserController.update)
-    .put('/:user/avatar', upload.single('avatar'), UserAvatarController.store)
-    .get('/:user/stats', UserStatsController.forUser)
-    .post('/:user/stats/create', UserStatsController.create)
-    .get('/:user/profile', UserProfileController.show)
-    .get('/:user/profile/update', UserProfileController.update);
+    .put('/:id/update', mustOwnUser, UserController.update)
+    .put('/:id/avatar', upload.single('avatar'), UserAvatarController.store)
+    .get('/:id/stats', UserStatsController.forUser)
+    .post('/:id/stats/create', UserStatsController.create)
+    .get('/:id/profile', UserProfileController.show)
+    .get('/:id/profile/update', UserProfileController.update);

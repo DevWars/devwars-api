@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 
 import GameRepository from '../../repository/Game.repository';
-import GameTeamRepository from '../../repository/GameTeam.repository';
 import UserRepository from '../../repository/User.repository';
 
 export class PlayerController {
@@ -51,12 +50,12 @@ export class PlayerController {
      */
     //     public static async forTeam(request: Request, response: Response) {
     //         const game = await GameRepository.byId(request.params.game);
-    //         const team = await GameTeamRepository.forGameAndTeamName(game, request.params.team);
+    //         const team = await TeamRepository.forGameAndTeamName(game, request.params.team);
     //         const players = await PlayerRepository.forTeam(team);
     //         response.json(players);
     //     }
     //     public static async addPlayer(request: Request, response: Response) {
-    //         const team = await GameTeamRepository.byId(request.params.team);
+    //         const team = await TeamRepository.byId(request.params.team);
     //         const { language, user: userId } = request.query;
     //         const user = await UserRepository.byId(userId);
     //         if (!user) {

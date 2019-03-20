@@ -1,119 +1,76 @@
+import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
-import Game from '../../models/Game';
-
-import GameRepository from '../../repository/Game.repository';
-import GameTeamRepository from '../../repository/GameTeam.repository';
-import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
+import GameSchedule from '../../models/GameSchedule';
+import { GameStatus } from '../../models/GameSchedule';
+import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameService from '../../services/Game.service';
 
-export class GameController {
-    public static async all(request: Request, response: Response) {
-        const games = await GameRepository.all();
+interface IUpdateGameScheduleRequest {
+    lastSigned: Date;
+}
 
-        response.json(games);
+export async function show(request: Request, response: Response) {
+    const scheduleId = request.params.id;
+    const schedule = await GameSchedule.findOne({ where: { scheduleId } });
+    if (!schedule) return response.sendStatus(404);
+
+    response.json(schedule);
+}
+
+export async function all(request: Request, response: Response) {
+    const schedules = await GameSchedule.find();
+
+    response.json(schedules);
+}
+
+export async function update(request: Request, response: Response) {
+    const scheduleId = request.params.id;
+    const params = request.body as IUpdateGameScheduleRequest;
+
+    const schedule = await GameSchedule.findOne({ where: { scheduleId } });
+    if (!schedule) return response.sendStatus(404);
+
+    Object.assign(schedule, params);
+    await schedule.save();
+
+    if (schedule.status === GameStatus.ACTIVE) {
+        // await GameService.sendGameToFirebase(schedule);
     }
 
-    public static async show(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.game);
+    response.json(schedule);
+}
 
-        if (!game) {
-            return response.status(404).send('No game for this ID');
-        }
+export async function latest(request: Request, response: Response) {
+    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const latestSchedule = await gameScheduleRepository.latest();
+    if (!latestSchedule) return response.sendStatus(404);
 
-        response.json(game);
-    }
+    response.json(latestSchedule);
+}
 
-    public static async update(request: Request, response: Response) {
-        const id = request.params.id;
-        const params = request.body as IUpdateGameRequest;
+export async function byStatus(request: Request, response: Response) {
+    const toEnum: string = (request.params.status || '').toUpperCase();
+    const status: GameStatus = (GameStatus as any)[toEnum];
 
-        let game = await GameRepository.byId(id);
+    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const schedules = await gameScheduleRepository.findAllByStatus(status);
 
-        Object.assign(game, params);
-        game.startTime = new Date(params.startTime);
+    response.json(schedules);
+}
 
-        game.teams = undefined;
-        game.objectives = undefined;
+export async function create(request: Request, response: Response) {
+    const { timestamp, mode, title, objectives } = request.body;
+    const schedule = new GameSchedule();
 
-        await game.save();
+    schedule.startTime = new Date(timestamp);
+    schedule.setup = {
+        mode,
+        title,
+        objectives,
+    };
 
-        const isActive = game.status === GameStatus.ACTIVE;
+    await schedule.save();
 
-        game = await GameRepository.byId(game.id);
-
-        if (game.status === GameStatus.ACTIVE) {
-            await GameService.sendGameToFirebase(game);
-        }
-
-        response.json(game);
-    }
-
-    public static async end(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.id);
-        const winner = await GameTeamRepository.byId(request.query.winner);
-
-        if (!game) {
-            return response.status(404).send('No game for this ID');
-        }
-
-        await GameService.backupGame(game);
-        await GameService.endGame(game, winner);
-
-        response.json({
-            message: 'Success',
-        });
-    }
-
-    public static async latest(request: Request, response: Response) {
-        const game = await GameRepository.latest();
-
-        if (!game) {
-            return response.status(404).send('There is not latest game to be found');
-        }
-
-        response.json(game);
-    }
-
-    public static async bySeason(request: Request, response: Response) {
-        const season = request.params.season;
-
-        const games = await GameRepository.bySeason(season);
-
-        response.json(games);
-    }
-
-    public static async byStatus(request: Request, response: Response) {
-        const toEnum: string = (request.params.status || '').toUpperCase();
-        const status: GameStatus = (GameStatus as any)[toEnum];
-
-        const games = await GameRepository.byStatus(status);
-
-        response.json(games);
-    }
-
-    public static async createGame(request: Request, response: Response) {
-        const { name, timestamp } = request.body;
-
-        let game = new Game();
-
-        game.name = name;
-        game.startTime = new Date(timestamp);
-        await game.save();
-
-        for (const teamName of ['blue', 'red']) {
-            const team = new GameTeam();
-
-            team.name = teamName;
-            team.game = game;
-
-            await team.save();
-        }
-
-        game = await GameRepository.byId(game.id);
-
-        response.json(game);
-    }
-
-    // TO-DO: past() games with the status of ENDED
+    response.json(schedule);
 }
