@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { ActivityRoute } from '../app/routes/Activity.route';
+import { ActivityRoute } from '../app/routes/Activity.routes';
 import { AuthRoute } from '../app/routes/Auth.routes';
 import { GameTeamRoute } from '../app/routes/GameTeam.route';
 import { HealthRoute } from '../app/routes/Health.route';

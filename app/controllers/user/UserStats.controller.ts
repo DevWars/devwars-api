@@ -3,32 +3,30 @@ import { getCustomRepository } from 'typeorm';
 import UserStats from '../../models/UserStats';
 import UserRepository from '../../repository/User.repository';
 
-export class UserStatsController {
-    public static async forUser(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findOne(request.params.user.id);
-        if (!user) return response.status(404).json({ message: 'User not found' });
+export async function forUser(request: Request, response: Response) {
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findOne(request.params.user.id);
+    if (!user) return response.status(404).json({ message: 'User not found' });
 
-        const stats = await userRepository.findStatsByUser(user);
-        if (stats.length === 0) {
-            return response.status(404).json({
-                message: 'Not stats found for user',
-            });
-        }
-
-        response.json(stats);
+    const stats = await userRepository.findStatsByUser(user);
+    if (stats.length === 0) {
+        return response.status(404).json({
+            message: 'Not stats found for user',
+        });
     }
 
-    public static async create(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findOne(request.params.user.id);
-        if (user) return response.status(400).json({ message: 'User already exists' });
+    response.json(stats);
+}
 
-        const stats = new UserStats();
-        stats.user = user;
-        Object.assign(stats, request.body);
+export async function create(request: Request, response: Response) {
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findOne(request.params.user.id);
+    if (user) return response.status(400).json({ message: 'User already exists' });
 
-        await stats.save();
-        response.json(stats);
-    }
+    const stats = new UserStats();
+    stats.user = user;
+    Object.assign(stats, request.body);
+
+    await stats.save();
+    response.json(stats);
 }
