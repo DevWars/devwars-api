@@ -1,5 +1,5 @@
 import * as express from 'express';
-import { OAuthController } from '../controllers/user/OAuth.controller';
+import { OAuthController } from '../controllers/auth/OAuth.controller';
 import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
 
 export const OAuthRoute: express.Router = express

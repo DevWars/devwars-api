@@ -1,5 +1,4 @@
 import * as express from 'express';
-import {LeaderboardController} from '../controllers/Leaderboard.controller';
+import * as LeaderboardController from '../controllers/user/Leaderboard.controller';
 
-export const LeaderboardRoute: express.Router = express.Router()
-    .get('/users', LeaderboardController.users);
+export const LeaderboardRoute: express.Router = express.Router().get('/users', LeaderboardController.leaderboards);
