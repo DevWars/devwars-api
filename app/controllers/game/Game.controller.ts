@@ -1,235 +1,85 @@
+import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
 import Game from '../../models/Game';
-
+import { IGameStorage } from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
-import GameTeamRepository from '../../repository/GameTeam.repository';
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
 import GameService from '../../services/Game.service';
-import { getCustomRepository } from 'typeorm';
 
-export class GameController {
-    /**
-     * @api {get} /game Get games
-     * @apiVersion 1.0.0
-     * @apiName all
-     * @apiGroup Game
-     *
-     * @apiSuccess {Date} game.createdAt     Time created
-     * @apiSuccess {Date} game.updatedAt     Time updated
-     * @apiSuccess {Boolean} game.active     Toggle for whether or not the game is active
-     * @apiSuccess {Number} game.status      Status of game by enum
-     * @apiSuccess {Date} game.startTime     Start time of game
-     * @apiSuccess {Number} game.season      Season number game was broadcasted
-     * @apiSuccess {String} game.name        Type of game mode
-     * @apiSuccess {String} game.theme       Short description for what this game is about
-     * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     [
-     *       {
-     *         "id": 1,
-     *         "createdAt": "2018-10-21T21:45:45.000Z",
-     *         "updatedAt": "2018-10-21T21:45:45.000Z",
-     *         "active": false,
-     *         "status": 0,
-     *         "startTime": "2018-03-11T06:53:40.352Z",
-     *         "season": 3,
-     *         "name": "Blitz",
-     *         "theme": "Online Chat",
-     *         "videoUrl": "https://www.youtube.com/watch?v=RItASROFU0Y"
-     *       }
-     *     ]
-     */
+export async function show(request: Request, response: Response) {
+    const gameId = request.params.id;
+    const game = await Game.findOne({ where: { gameId } });
+    if (!game) return response.sendStatus(404);
 
-    // public static async all(request: Request, response: Response) {
-    //     const games = await GameRepository.all();
+    response.json(game);
+}
 
-    //     response.json(games);
-    // }
+export async function all(request: Request, response: Response) {
+    const games = await Game.find();
 
-    /**
-     * @api {get} /game/:id Get game
-     * @apiVersion 1.0.0
-     * @apiName show
-     * @apiGroup Game
-     *
-     * @apiParam {Number} Game ID
-     *
-     * @apiSuccess {Date} game.createdAt     Time created
-     * @apiSuccess {Date} game.updatedAt     Time updated
-     * @apiSuccess {Boolean} game.active     Toggle for whether or not the game is active
-     * @apiSuccess {Number} game.status      Status of game by enum
-     * @apiSuccess {Date} game.startTime     Start time of game
-     * @apiSuccess {Number} game.season      Season number game was broadcasted
-     * @apiSuccess {String} game.name        Type of game mode
-     * @apiSuccess {String} game.theme       Short description for what this game is about
-     * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "id": 1,
-     *       "createdAt": "2018-10-21T21:45:45.000Z",
-     *       "updatedAt": "2018-10-21T21:45:45.000Z",
-     *       "active": false,
-     *       "status": 0,
-     *       "startTime": "2018-03-11T06:53:40.352Z",
-     *       "season": 3,
-     *       "name": "Blitz",
-     *       "theme": "Online Chat",
-     *       "videoUrl": "https://www.youtube.com/watch?v=RItASROFU0Y"
-     *     }
-     */
+    response.json(games);
+}
 
-    /**
-     * @api {get} /game/latest Get latest game
-     * @apiVersion 1.0.0
-     * @apiName latest
-     * @apiGroup Game
-     *
-     * @apiSuccess {Date} game.createdAt     Time created
-     * @apiSuccess {Date} game.updatedAt     Time updated
-     * @apiSuccess {Boolean} game.active     Toggle for whether or not the game is active
-     * @apiSuccess {Number} game.status      Status of game by enum
-     * @apiSuccess {Date} game.startTime     Start time of game
-     * @apiSuccess {Number} game.season      Season number game was broadcasted
-     * @apiSuccess {String} game.name        Type of game mode
-     * @apiSuccess {String} game.theme       Short description for what this game is about
-     * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "id": 1,
-     *       "createdAt": "2018-10-21T21:45:45.000Z",
-     *       "updatedAt": "2018-10-21T21:45:45.000Z",
-     *       "active": false,
-     *       "status": 0,
-     *       "startTime": "2018-03-11T06:53:40.352Z",
-     *       "season": 3,
-     *       "name": "Blitz",
-     *       "theme": "Online Chat",
-     *       "videoUrl": "https://www.youtube.com/watch?v=RItASROFU0Y"
-     *     }
-     */
+export async function update(request: Request, response: Response) {
+    const gameId = request.params.id;
+    const params = request.body as IUpdateGameRequest;
 
-    // public static async latest(request: Request, response: Response) {
-    //     const game = await GameRepository.latest();
+    const game = await Game.findOne({ where: { gameId } });
+    if (!game) return response.sendStatus(404);
 
-    //     if (!game) {
-    //         return response.status(404).send('There is not latest game to be found');
-    //     }
+    Object.assign(game, params);
+    await game.save();
 
-    //     response.json(game);
-    // }
+    response.json(game);
+}
 
-    /**
-     * @api {get} /game/season/:season Get games from season
-     * @apiVersion 1.0.0
-     * @apiName findAllBySeason
-     * @apiGroup Game
-     *
-     * @apiParam {Number} Season number
-     *
-     * @apiSuccess {Date} game.createdAt     Time created
-     * @apiSuccess {Date} game.updatedAt     Time updated
-     * @apiSuccess {Boolean} game.active     Toggle for whether or not the game is active
-     * @apiSuccess {Number} game.status      Status of game by enum
-     * @apiSuccess {Date} game.startTime     Start time of game
-     * @apiSuccess {Number} game.season      Season number game was broadcasted
-     * @apiSuccess {String} game.name        Type of game mode
-     * @apiSuccess {String} game.theme       Short description for what this game is about
-     * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     [
-     *       {
-     *         "id": 1,
-     *         "createdAt": "2018-10-21T21:45:45.000Z",
-     *         "updatedAt": "2018-10-21T21:45:45.000Z",
-     *         "active": false,
-     *         "status": 0,
-     *         "startTime": "2018-03-11T06:53:40.352Z",
-     *         "season": 3,
-     *         "name": "Blitz",
-     *         "theme": "Online Chat",
-     *         "videoUrl": "https://www.youtube.com/watch?v=RItASROFU0Y"
-     *       }
-     *     ]
-     */
+export async function latest(request: Request, response: Response) {
+    const gameRepository = getCustomRepository(GameRepository);
+    const game = await gameRepository.latest();
+    if (!game) return response.sendStatus(404);
 
-    public static async findAllBySeason(request: Request, response: Response) {
-        const season = request.params.season;
-        const gameRepository = await getCustomRepository(GameRepository);
-        const games = await gameRepository.findAllBySeason(season);
+    response.json(game);
+}
 
-        response.json(games);
-    }
+export async function create(request: Request, response: Response) {
+    const { season, mode, videoUrl, storage } = request.body;
+    const game = new Game();
 
-    /**
-     * @api {get} /game/status/:status Get games from status
-     * @apiVersion 1.0.0
-     * @apiName byStatus
-     * @apiGroup Game
-     *
-     * @apiParam {Number} Status Enum
-     *
-     * @apiSuccess {Date} game.createdAt     Time created
-     * @apiSuccess {Date} game.updatedAt     Time updated
-     * @apiSuccess {Boolean} game.active     Toggle for whether or not the game is active
-     * @apiSuccess {Number} game.status      Status of game by enum
-     * @apiSuccess {Date} game.startTime     Start time of game
-     * @apiSuccess {Number} game.season      Season number game was broadcasted
-     * @apiSuccess {String} game.name        Type of game mode
-     * @apiSuccess {String} game.theme       Short description for what this game is about
-     * @apiSuccess {String} game.videoUrl  Link to the video recording for this game
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     [
-     *       {
-     *         "id": 1,
-     *         "createdAt": "2018-10-21T21:45:45.000Z",
-     *         "updatedAt": "2018-10-21T21:45:45.000Z",
-     *         "active": false,
-     *         "status": 0,
-     *         "startTime": "2018-03-11T06:53:40.352Z",
-     *         "season": 3,
-     *         "name": "Blitz",
-     *         "theme": "Online Chat",
-     *         "videoUrl": "https://www.youtube.com/watch?v=RItASROFU0Y"
-     *       }
-     *     ]
-     */
+    game.season = season;
+    game.mode = mode;
+    game.videoUrl = videoUrl;
+    game.storage = {
+        mode,
+        title: storage.title,
+        objectives: storage.objectives || {},
+        players: storage.players || {},
+    } as IGameStorage;
 
-    public static async byStatus(request: Request, response: Response) {
-        const toEnum: string = (request.params.status || '').toUpperCase();
-        const status: GameStatus = (GameStatus as any)[toEnum];
+    await game.save();
 
-        const games = await GameRepository.byStatus(status);
+    response.json(game);
+}
 
-        response.json(games);
-    }
+export async function findAllBySeason(request: Request, response: Response) {
+    const season = request.params.season;
+    const gameRepository = await getCustomRepository(GameRepository);
+    const games = await gameRepository.findAllBySeason(season);
 
-    public static async createGame(request: Request, response: Response) {
-        // const { name, timestamp } = request.body;
-        // let game = new Game();
-        // game.name = name;
-        // game.startTime = new Date(timestamp);
-        // await game.save();
-        // for (const teamName of ['blue', 'red']) {
-        //     const team = new GameTeam();
-        //     team.name = teamName;
-        //     team.game = game;
-        //     await team.save();
-        // }
-        // const gameRepository = await getCustomRepository(GameRepository);
-        // game = await gameRepository.findOne(game.id);
-        // response.json(game);
-    }
+    response.json(games);
+}
 
-    // TO-DO: past() games with the status of ENDED
+export async function end(request: Request, response: Response) {
+    const gameId = request.params.id;
+    const gameRepository = getCustomRepository(GameRepository);
+    const game = await gameRepository.findOne(gameId);
+    if (!game) return response.sendStatus(404);
+
+    // Get winner
+    // const winner = await TeamRepository.byId(request.query.winner);
+
+    // await GameService.backupGame(game);
+    // await GameService.endGame(game, winner);
+
+    // response.json({ game, winner });
 }

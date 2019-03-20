@@ -1,7 +1,8 @@
 import * as express from 'express';
 import { ActivityRoute } from '../app/routes/Activity.routes';
 import { AuthRoute } from '../app/routes/Auth.routes';
-import { GameTeamRoute } from '../app/routes/GameTeam.route';
+import { GameRoute } from '../app/routes/Game.routes';
+import { GameScheduleRoute } from '../app/routes/GameSchedule.routes';
 import { HealthRoute } from '../app/routes/Health.route';
 import { JWTRoute } from '../app/routes/Jwt.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
@@ -31,15 +32,15 @@ export const ROUTER: IROUTER[] = [
         middleware: [],
         path: '/auth',
     },
-    // {
-    //     handler: GameRoute,
-    //     middleware: [],
-    //     path: '/game',
-    // },
     {
-        handler: GameTeamRoute,
+        handler: GameRoute,
         middleware: [],
-        path: '/game',
+        path: '/games',
+    },
+    {
+        handler: GameScheduleRoute,
+        middleware: [],
+        path: '/schedules',
     },
     // {
     //     handler: GameApplicationRoute,
