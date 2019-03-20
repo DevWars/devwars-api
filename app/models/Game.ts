@@ -7,6 +7,7 @@ export interface IGameStorage {
     title: string;
     objectives: object;
     players: object;
+    teams: object;
 }
 
 @Entity('game')
