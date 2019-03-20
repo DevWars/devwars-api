@@ -12,7 +12,7 @@
         "build": "npm run clean && tsc --outDir dist",
         "lint": "tslint app/**/*.ts config/**/*.ts test/**/*.ts",
         "serve-docs": "apidoc -i ./app -o ./docs && http-server docs",
-        "seed:users": "node -r ts-node/register ./cli/Seeder.ts",
+        "seed": "node -r ts-node/register ./cli/Seeder.ts",
         "test-user": "node -r ts-node/register ./cli/GetTestUser.ts",
         "change-role": "node -r ts-node/register ./cli/ChangeRole.ts",
         "typeorm": "ts-node -P ./tsconfig.json ./node_modules/.bin/typeorm",
