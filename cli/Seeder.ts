@@ -24,15 +24,22 @@ const generateConstantUsers = async () => {
     for (const role of ['admin', 'moderator', 'user']) {
         const user = UserFactory.withUsername(`test-${role}`);
         user.role = (UserRole as any)[role.toUpperCase()];
+        const newUser = await user.save();
 
-        await user.save();
+        const profile = UserProfileFactory.default();
+        profile.user = newUser;
+        await connection.manager.save(profile);
+
+        const stats = UserStatsFactory.default();
+        stats.user = newUser;
+        await connection.manager.save(stats);
     }
 };
 
 const generateBasicUsers = async () => {
     await generateConstantUsers();
 
-    for (let i = 1; i < 100; i++) {
+    for (let i = 3; i < 100; i++) {
         const user = UserFactory.default();
         const newUser = await connection.manager.save(user);
 

@@ -17,6 +17,6 @@ export const UserRoute: express.Router = express
     .put('/:id/update', mustOwnUser, UserController.update)
     .put('/:id/avatar', upload.single('avatar'), UserAvatarController.store)
     .get('/:id/stats', UserStatsController.forUser)
-    .post('/:id/stats/create', UserStatsController.create)
+    .post('/:id/stats', UserStatsController.create)
     .get('/:id/profile', UserProfileController.show)
-    .get('/:id/profile/update', UserProfileController.update);
+    .put('/:id/profile', UserProfileController.update);

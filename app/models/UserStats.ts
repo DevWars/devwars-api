@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
@@ -21,5 +21,6 @@ export default class UserStats extends BaseModel {
     // ------------------------------------------------------------
     // Relations
     @OneToOne((type) => User)
+    @JoinColumn()
     public user: User;
 }
