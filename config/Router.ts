@@ -45,22 +45,22 @@ export const ROUTER: IROUTER[] = [
     // {
     //     handler: GameApplicationRoute,
     //     middleware: [],
-    //     path: '/game',
+    //     path: '/games',
     // },
     {
         handler: ActivityRoute,
         middleware: [],
-        path: '/activity',
+        path: '/activities',
     },
     {
         handler: LeaderboardRoute,
         middleware: [],
-        path: '/leaderboard',
+        path: '/leaderboards',
     },
     {
         handler: LinkedAccountRoute,
         middleware: [],
-        path: '/user',
+        path: '/users',
     },
     {
         handler: OAuthRoute,
@@ -70,6 +70,6 @@ export const ROUTER: IROUTER[] = [
     {
         handler: UserRoute,
         middleware: [],
-        path: '/user',
+        path: '/users',
     },
 ];
