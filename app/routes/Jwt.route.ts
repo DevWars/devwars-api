@@ -1,5 +1,4 @@
 import * as express from 'express';
-import { JWTController } from '../controllers/Jwt.controller';
+import { JWTController } from '../controllers/auth/Jwt.controller';
 
-export const JWTRoute: express.Router = express.Router()
-    .post('/', JWTController.Index);
+export const JWTRoute: express.Router = express.Router().post('/', JWTController.Index);

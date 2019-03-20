@@ -138,7 +138,7 @@ export class AuthController {
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
         if (user) {
-            await AuthService.resetPassword(user);
+            await AuthService.resetPassword();
         }
 
         response.json({

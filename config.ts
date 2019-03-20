@@ -5,14 +5,14 @@ export const DIALECT = 'postgres';
 const LOCAL_CONFIGURATION = {
     DB: env.DB || 'devwars-test',
     PASSWORD: env.PASSWORD || 'secret',
-    PORT_DB: 5432,
+    PORT_DB: Number(env.PORT_DB) || 5432,
     SERVER: env.SERVER || '127.0.0.1',
-    USER_DB: 'postgres',
+    USER_DB: env.USER_DB || 'postgres',
 };
 
 const PRODUCTION_CONFIGURATION = {
-    DB: env.DB || 'prod',
-    PASSWORD: env.PASSWORD || '',
+    DB: env.DB || 'devwars',
+    PASSWORD: env.PASSWORD || 'secret',
     PORT_DB: Number(env.PORT_DB) || 5432,
     SERVER: env.SERVER || 'localhost',
     USER_DB: env.USER_DB || 'postgres',

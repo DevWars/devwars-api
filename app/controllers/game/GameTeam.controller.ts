@@ -1,8 +1,8 @@
-import {Request, Response} from 'express';
+import { Request, Response } from 'express';
 
-import {GameRepository} from '../../repository/Game.repository';
+import GameRepository from '../../repository/Game.repository';
 
-import {GameTeamRepository} from '../../repository/GameTeam.repository';
+import GameTeamRepository from '../../repository/GameTeam.repository';
 
 export class GameTeamController {
     /**
@@ -48,22 +48,16 @@ export class GameTeamController {
      */
 
     public static async forGame(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.game);
-
-        const teams = await GameTeamRepository.forGame(game);
-
-        response.json(teams);
+        // const game = await GameRepository.byId(request.params.game);
+        // const teams = await GameTeamRepository.forGame(game);
+        // response.json(teams);
     }
 
     public static async update(request: Request, response: Response) {
-        const team = await GameTeamRepository.byId(request.params.team);
-
-        Object.assign(team, request.body);
-
-        team.players = undefined;
-
-        await team.save();
-
-        response.json(team);
+        // const team = await GameTeamRepository.byId(request.params.team);
+        // Object.assign(team, request.body);
+        // team.players = undefined;
+        // await team.save();
+        // response.json(team);
     }
 }
