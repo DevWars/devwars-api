@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { LinkedAccountRepository, UserRepository } from '../../repository';
+import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
+import UserRepository from '../../repository/User.repository';
 
 export class LinkedAccountController {
     public static async all(request: Request, response: Response) {

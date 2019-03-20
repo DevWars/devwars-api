@@ -7,7 +7,6 @@ import { JWTRoute } from '../app/routes/Jwt.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
 import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
 import { OAuthRoute } from '../app/routes/OAuth.route';
-import { PlayerRoute } from '../app/routes/Player.route';
 import { UserRoute } from '../app/routes/User.routes';
 
 interface IROUTER {
@@ -39,11 +38,6 @@ export const ROUTER: IROUTER[] = [
     // },
     {
         handler: GameTeamRoute,
-        middleware: [],
-        path: '/game',
-    },
-    {
-        handler: PlayerRoute,
         middleware: [],
         path: '/game',
     },

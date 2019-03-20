@@ -26,7 +26,7 @@ export default class UserFactory {
     }
 
     public static withRole(role: UserRole) {
-        const user = UserFactory.default();
+        const user = this.default();
 
         user.role = role;
 

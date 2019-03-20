@@ -5,6 +5,7 @@ import Activity from './Activity';
 import UserProfile from './UserProfile';
 import UserStats from './UserStats';
 import EmailVerification from './EmailVerification';
+import GameApplication from './GameApplication';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -53,4 +54,7 @@ export default class User extends BaseModel {
 
     @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
     public accounts: LinkedAccount;
+
+    @OneToMany((type) => GameApplication, (applications) => applications.user)
+    public applications: GameApplication;
 }

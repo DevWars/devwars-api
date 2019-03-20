@@ -1,49 +1,27 @@
-import { AfterLoad, Column, Entity, JoinTable, ManyToMany, OneToMany } from 'typeorm';
+import { Column, Entity, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
-import { GameApplication } from './GameApplication';
-import { GameTeam } from './GameTeam';
-import { User } from './User';
+import GameSchedule from './GameSchedule';
 
-export enum GameStatus {
-    SCHEDULING,
-    PREPARING,
-    ACTIVE,
-    ENDED,
+export interface IGameStorage {
+    mode: string;
+    title: string;
+    objectives: object;
+    players: object;
 }
 
-@Entity('games')
+@Entity('game')
 export default class Game extends BaseModel {
-    /**
-     * Projected status of the game,
-     */
-    @Column({ default: GameStatus.SCHEDULING })
-    public status?: GameStatus;
-
-    /**
-     * Scheduled start time
-     */
-    @Column()
-    public startTime: Date;
-
     /**
      * Season number game was broadcasted
      */
     @Column()
     public season: number;
 
-    public active: boolean;
-
     /**
-     * Represents which game type we're playing.
+     * Represents which game mode we are playing.
      */
     @Column()
-    public name: string;
-
-    /**
-     * Short description for what this game is about
-     */
-    @Column({ nullable: true })
-    public theme: string;
+    public mode: string;
 
     /**
      * Link to the video recording for this game
@@ -51,34 +29,15 @@ export default class Game extends BaseModel {
     @Column({ nullable: true })
     public videoUrl: string;
 
-    @Column('simple-json', { nullable: false })
-    public languageTemplates: { [language: string]: string };
+    /**
+     * Big json object with all game information
+     */
+    @Column({ type: 'jsonb' })
+    public storage: IGameStorage;
 
-    @OneToMany((type) => GameTeam, (team) => team.game)
-    public teams: GameTeam[];
+    // ------------------------------------------------------------
+    // Relations
 
-    @OneToMany((type) => Objective, (objective) => objective.game)
-    public objectives: Objective[];
-
-    // @ManyToMany((type) => User, (user) => user.playedGames)
-    // public usersPlayed: Promise<User[]>;
-
-    @OneToMany((type) => GameApplication, (application) => application.game)
-    public userApplications: Promise<GameApplication[]>;
-
-    constructor() {
-        super();
-
-        this.season = 3;
-        this.languageTemplates = {};
-    }
-
-    @AfterLoad()
-    public updateActiveFromStatus() {
-        this.active = this.status === GameStatus.ACTIVE;
-    }
-
-    // get done() {
-    //     return this.teams.values().any { it.getWinner() }
-    // }
+    @OneToOne((type) => GameSchedule)
+    public schedule: GameSchedule;
 }

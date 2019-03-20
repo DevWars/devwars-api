@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { ActivityRepository, UserRepository } from '../../repository';
+import ActivityRepository from '../../repository/Activity.repository';
+import UserRepository from '../../repository/User.repository';
 
 export class ActivityController {
     /**

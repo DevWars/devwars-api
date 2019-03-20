@@ -1,7 +1,7 @@
 import { random } from 'faker';
 import UserGameStats from '../models/UserGameStats';
 
-export class UserGameStatsFactory {
+export default class UserGameStatsFactory {
     public static default(): UserGameStats {
         const stats = new UserGameStats();
 

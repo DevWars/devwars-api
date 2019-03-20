@@ -3,7 +3,7 @@ import LinkedAccount from '../models/LinkedAccount';
 import User from '../models/User';
 
 @EntityRepository(User)
-export class LinkedAccountRepository extends Repository<LinkedAccount> {
+export default class LinkedAccountRepository extends Repository<LinkedAccount> {
     public findAllByUserId(userId: number): Promise<LinkedAccount[]> {
         return LinkedAccount.find({ where: { userId } });
     }

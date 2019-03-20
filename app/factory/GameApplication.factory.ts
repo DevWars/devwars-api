@@ -1,12 +1,21 @@
-import Game from '../models/Game';
+import GameSchedule from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 import User from '../models/User';
 
 export default class GameApplicationFactory {
-    public static withGameAndUser(game: Game, user: User): GameApplication {
-        const application = new GameApplication();
+    public static default(): GameApplication {
+        const schedule = new GameApplication();
 
-        application.game = game;
+        schedule.schedule = null;
+        schedule.user = null;
+
+        return schedule;
+    }
+
+    public static withScheduleAndUser(schedule: GameSchedule, user: User): GameApplication {
+        const application = this.default();
+
+        application.schedule = schedule;
         application.user = user;
 
         return application;
