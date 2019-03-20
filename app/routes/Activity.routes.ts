@@ -5,4 +5,4 @@ import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
 
 export const ActivityRoute: express.Router = express
     .Router()
-    .get('/:user', mustBeAuthenticated, ActivityController.mine);
+    .get('/mine', mustBeAuthenticated, ActivityController.mine);

@@ -46,7 +46,8 @@ export async function mine(request: Request, response: Response) {
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(request.cookies.auth);
 
-    const activities = await ActivityRepository.findByUser(user);
+    const activityRepository = await getCustomRepository(ActivityRepository);
+    const activities = await activityRepository.findByUser(user);
 
     response.json(activities);
 }

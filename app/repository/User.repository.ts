@@ -38,11 +38,11 @@ export default class UserRepository extends Repository<User> {
     }
 
     public findProfileByUser(user: User): Promise<UserProfile> {
-        return UserProfile.findOne(user.id);
+        return UserProfile.findOne({ user });
     }
 
-    public findStatsByUser(user: User): Promise<UserStats[]> {
-        return UserStats.find({ where: { user } });
+    public findStatsByUser(user: User): Promise<UserStats> {
+        return UserStats.findOne({ user });
     }
 
     public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {
