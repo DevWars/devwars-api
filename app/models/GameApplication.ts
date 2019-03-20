@@ -2,14 +2,14 @@ import { Entity, ManyToOne } from 'typeorm';
 
 import BaseModel from './BaseModel';
 
-import Game from './Game';
+import GameSchedule from './GameSchedule';
 import User from './User';
 
-@Entity()
+@Entity('game_application')
 export default class GameApplication extends BaseModel {
-    @ManyToOne((type) => Game, (game) => game.userApplications)
-    public game: Game;
+    @ManyToOne((type) => GameSchedule, (schedule) => schedule.applications)
+    public schedule: GameSchedule;
 
-    @ManyToOne((type) => User, (user) => user.gameApplications)
+    @ManyToOne((type) => User, (user) => user.applications)
     public user: User;
 }

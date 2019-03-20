@@ -1,40 +1,38 @@
-import { date, hacker, helpers, internet, random } from 'faker';
+import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
-import { GameStatus } from '../models/Game';
 
-export class GameFactory {
+export default class GameFactory {
     public static default(): Game {
         const game = new Game();
 
-        Object.assign(game, {
-            active: random.boolean(),
-            createdAt: date.past(),
-            languageTemplates: [],
-            name: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
-            objectives: [],
-            season: random.number({ min: 1, max: 3 }),
-            startTime: date.past(),
-            status: helpers.randomize([
-                GameStatus.ACTIVE,
-                GameStatus.ENDED,
-                GameStatus.PREPARING,
-                GameStatus.SCHEDULING,
-            ]),
-            teams: [],
-            theme: hacker.noun(),
-            updatedAt: date.past(),
-            videoUrl: internet.url(),
-        });
-
-        return game;
-    }
-
-    public static upcoming() {
-        const game = GameFactory.default();
-
-        game.startTime = date.future();
-        game.status = GameStatus.SCHEDULING;
+        game.season = random.number({ min: 1, max: 3 });
+        game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
+        game.videoUrl = internet.url();
+        game.storage = {
+            mode: game.mode,
+            title: hacker.noun(),
+            objectives: {
+                0: {
+                    description: lorem.sentence(),
+                    isBonus: random.boolean(),
+                },
+                1: {
+                    description: lorem.sentence(),
+                    isBonus: random.boolean(),
+                },
+            },
+            players: {
+                0: {
+                    username: helpers.userCard().username,
+                    team: 0,
+                },
+                1: {
+                    description: helpers.userCard().username,
+                    team: 1,
+                },
+            },
+        };
 
         return game;
     }
@@ -43,22 +41,6 @@ export class GameFactory {
         const game = this.default();
 
         game.season = season;
-
-        return game;
-    }
-
-    public static withStatus(status: GameStatus): Game {
-        const game = this.default();
-
-        game.status = status;
-
-        return game;
-    }
-
-    public static withTime(time: Date) {
-        const game = this.default();
-
-        game.startTime = time;
 
         return game;
     }

@@ -4,17 +4,19 @@ import { Connection } from '../config/Database';
 
 import UserFactory from '../app/factory/User.factory';
 import UserProfileFactory from '../app/factory/UserProfile.factory';
+import GameFactory from '../app/factory/Game.factory';
+import GameScheduleFactory from '../app/factory/GameSchedule.factory';
 import GameApplicationFactory from '../app/factory/GameApplication.factory';
 
 import { UserStatsFactory } from '../app/factory/UserStats.factory';
 
-import Game from '../app/models/Game';
 import User from '../app/models/User';
 import { UserRole } from '../app/models/User';
-import UserProfile from '../app/models/UserProfile';
 
 import UserRepository from '../app/repository/User.repository';
-import GameService from '../app/services/Game.service';
+import GameScheduleRepository from '../app/repository/GameSchedule.repository';
+import UserGameStatsFactory from '../app/factory/UserGameStats.factory';
+import ActivityFactory from '../app/factory/Activity.factory';
 
 let connection: typeorm.Connection;
 
@@ -25,20 +27,12 @@ const generateConstantUsers = async () => {
 
         await user.save();
     }
-
-    const competitiveUser = UserFactory.withUsername('test-competitor');
-    competitiveUser.role = UserRole.USER;
-
-    const competitor = CompetitorFactory.withUser(competitiveUser);
-
-    await competitiveUser.save();
-    await competitor.save();
 };
 
 const generateBasicUsers = async () => {
     await generateConstantUsers();
 
-    for (let i = 0; i < 100; i++) {
+    for (let i = 1; i < 100; i++) {
         const user = UserFactory.default();
         const newUser = await connection.manager.save(user);
 
@@ -49,88 +43,45 @@ const generateBasicUsers = async () => {
         const stats = UserStatsFactory.default();
         stats.user = newUser;
         await connection.manager.save(stats);
+
+        await generateActivitiesForUser(user);
     }
 };
 
-const generateUpcomingGames = async () => {
-    for (let i = 0; i < 50; i++) {
-        let game: Game;
+const generateActivitiesForUser = async (user: User) => {
+    for (let i = 1; i < 25; i++) {
+        const activity = ActivityFactory.withUser(user);
 
-        await connection.manager.transaction(async (em) => {
-            game = await em.save(GameFactory.upcoming());
-
-            const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
-
-            await em.save(objectives);
-
-            const teams = GameTeamFactory.defaultTeamsForGame(game);
-
-            for (const team of teams) {
-                team.completedObjectives.push(...objectives.slice(0, Math.random() * objectives.length));
-
-                await em.save(team);
-
-                const players = PlayerFactory.defaultPlayersForTeam(team);
-
-                for (const player of players) {
-                    const user = await em.save(UserFactory.default());
-                    const competitor = CompetitorFactory.default();
-                    const application = GameApplicationFactory.withGameAndUser(game, user);
-
-                    competitor.user = user;
-                    player.user = user;
-
-                    await em.save(competitor);
-                    await em.save(player);
-                    await em.save(application);
-                }
-            }
-        });
+        await connection.manager.save(activity);
     }
 };
 
-const generateFinishedGames = async () => {
-    for (let i = 0; i < 50; i++) {
-        let game: Game;
+const generateGames = async () => {
+    for (let i = 1; i < 100; i++) {
+        const schedule = GameScheduleFactory.upcoming();
+        const newSchedule = await connection.manager.save(schedule);
 
-        await connection.manager.transaction(async (em) => {
-            game = await em.save(GameFactory.default());
+        const game = GameFactory.default();
+        newSchedule.game = await connection.manager.save(game);
+        await connection.manager.save(newSchedule);
 
-            const objectives = ObjectiveFactory.defaultObjectivesForGame(game);
-
-            await em.save(objectives);
-
-            const teams = GameTeamFactory.defaultTeamsForGame(game);
-
-            for (const team of teams) {
-                team.completedObjectives.push(...objectives.slice(0, Math.random() * objectives.length));
-
-                await em.save(team);
-
-                const players = PlayerFactory.defaultPlayersForTeam(team);
-
-                for (const player of players) {
-                    const user = await em.save(UserFactory.default());
-                    const competitor = CompetitorFactory.default();
-                    const application = GameApplicationFactory.withGameAndUser(game, user);
-
-                    competitor.user = user;
-                    player.user = user;
-
-                    await em.save(competitor);
-                    await em.save(player);
-                    await em.save(application);
-                }
-            }
-        });
+        const userRepository = await typeorm.getCustomRepository(UserRepository);
+        const gameStats = UserGameStatsFactory.default();
+        gameStats.user = await userRepository.findOne(i);
+        await connection.manager.save(gameStats);
     }
+};
 
-    const allGames = await Game.find({ relations: ['teams'] });
+const generateApplications = async () => {
+    for (let i = 1; i < 50; i++) {
+        const userRepository = await typeorm.getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(i);
 
-    for (const game of allGames) {
-        const winner = game.teams[Math.floor(Math.random() * game.teams.length)];
+        const gameScheduleRepository = await typeorm.getCustomRepository(GameScheduleRepository);
+        const schedule = await gameScheduleRepository.findOne(user.id);
 
-        await GameService.endGame(game, winner);
+        const application = GameApplicationFactory.withScheduleAndUser(schedule, user);
+        await connection.manager.save(application);
     }
 };
 
@@ -141,15 +92,14 @@ const generateFinishedGames = async () => {
 
     await generateBasicUsers();
 
-    // await generateFinishedGames();
+    await generateGames();
+    await generateApplications();
 
-    // await generateUpcomingGames();
+    // await generateFinishedGames();
 
     const userRepository = await typeorm.getCustomRepository(UserRepository);
     const user = await userRepository.findOne(5);
     user.profile = await userRepository.findProfileByUser(user);
-
-    console.log(user);
 
     await connection.close();
 })();

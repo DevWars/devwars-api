@@ -49,53 +49,38 @@ export class PlayerController {
      *       }
      *     ]
      */
-
-    public static async forTeam(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.game);
-        const team = await GameTeamRepository.forGameAndTeamName(game, request.params.team);
-
-        const players = await PlayerRepository.forTeam(team);
-
-        response.json(players);
-    }
-
-    public static async addPlayer(request: Request, response: Response) {
-        const team = await GameTeamRepository.byId(request.params.team);
-
-        const { language, user: userId } = request.query;
-
-        const user = await UserRepository.byId(userId);
-
-        if (!user) {
-            return response.status(400).json({
-                message: 'Player does not exist',
-            });
-        }
-
-        const player = await new Player();
-
-        player.user = user;
-        player.language = language;
-        player.team = team;
-
-        await player.save();
-
-        return response.json(player);
-    }
-
-    public static async removePlayer(request: Request, response: Response) {
-        const player = await Player.findOne(request.params.player);
-
-        if (!player) {
-            return response.status(400).json({
-                message: 'Player does not exist',
-            });
-        }
-
-        await player.remove();
-
-        return response.json({
-            message: 'Player removed',
-        });
-    }
+    //     public static async forTeam(request: Request, response: Response) {
+    //         const game = await GameRepository.byId(request.params.game);
+    //         const team = await GameTeamRepository.forGameAndTeamName(game, request.params.team);
+    //         const players = await PlayerRepository.forTeam(team);
+    //         response.json(players);
+    //     }
+    //     public static async addPlayer(request: Request, response: Response) {
+    //         const team = await GameTeamRepository.byId(request.params.team);
+    //         const { language, user: userId } = request.query;
+    //         const user = await UserRepository.byId(userId);
+    //         if (!user) {
+    //             return response.status(400).json({
+    //                 message: 'Player does not exist',
+    //             });
+    //         }
+    //         const player = await new Player();
+    //         player.user = user;
+    //         player.language = language;
+    //         player.team = team;
+    //         await player.save();
+    //         return response.json(player);
+    //     }
+    //     public static async removePlayer(request: Request, response: Response) {
+    //         const player = await Player.findOne(request.params.player);
+    //         if (!player) {
+    //             return response.status(400).json({
+    //                 message: 'Player does not exist',
+    //             });
+    //         }
+    //         await player.remove();
+    //         return response.json({
+    //             message: 'Player removed',
+    //         });
+    //     }
 }

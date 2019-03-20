@@ -26,55 +26,41 @@ export class GameApplicationController {
      *         message: "You are already applied to this game"
      *     }
      */
-    public static async apply(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
-        const game = await GameRepository.byId(request.params.game);
-
-        if (!game) {
-            return response.status(400).send('Game not found');
-        }
-
-        await GameApplicationFactory.withGameAndUser(game, user).save();
-
-        return response.json(game);
-    }
-
-    public static async applyByUsername(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.game);
-        const user = await UserRepository.byUsername(request.params.username);
-
-        if (!game || !user) {
-            return response.status(400).json({
-                message: 'Either game or user did not exist',
-            });
-        }
-
-        await GameApplicationFactory.withGameAndUser(game, user).save();
-
-        response.json({
-            message: 'Applied',
-        });
-    }
-
-    public static async forGame(request: Request, response: Response) {
-        const game = await GameRepository.byId(request.params.game);
-
-        if (!game) {
-            return response.status(400).send('Game not found');
-        }
-
-        response.json(await UserRepository.byAppliedGame(game));
-    }
-
-    public static async mine(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
-
-        response.json(await GameRepository.byUserApplication(user));
-    }
-
-    public static async entered(request: Request, response: Response) {
-        const user = await UserRepository.userForToken(request.cookies.auth);
-
-        response.json(await user.playedGames);
-    }
+    // public static async apply(request: Request, response: Response) {
+    //     const user = await UserRepository.userForToken(request.cookies.auth);
+    //     const game = await GameRepository.byId(request.params.game);
+    //     if (!game) {
+    //         return response.status(400).send('Game not found');
+    //     }
+    //     await GameApplicationFactory.withGameAndUser(game, user).save();
+    //     return response.json(game);
+    // }
+    // public static async applyByUsername(request: Request, response: Response) {
+    //     const game = await GameRepository.byId(request.params.game);
+    //     const user = await UserRepository.byUsername(request.params.username);
+    //     if (!game || !user) {
+    //         return response.status(400).json({
+    //             message: 'Either game or user did not exist',
+    //         });
+    //     }
+    //     await GameApplicationFactory.withGameAndUser(game, user).save();
+    //     response.json({
+    //         message: 'Applied',
+    //     });
+    // }
+    // public static async forGame(request: Request, response: Response) {
+    //     const game = await GameRepository.byId(request.params.game);
+    //     if (!game) {
+    //         return response.status(400).send('Game not found');
+    //     }
+    //     response.json(await UserRepository.byAppliedGame(game));
+    // }
+    // public static async mine(request: Request, response: Response) {
+    //     const user = await UserRepository.userForToken(request.cookies.auth);
+    //     response.json(await GameRepository.byUserApplication(user));
+    // }
+    // public static async entered(request: Request, response: Response) {
+    //     const user = await UserRepository.userForToken(request.cookies.auth);
+    //     response.json(await user.playedGames);
+    // }
 }

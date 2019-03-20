@@ -33,26 +33,26 @@ export default class GameTeam extends BaseModel {
     /**
      * Game which this team is associated with
      */
-    @ManyToOne((type) => Game, (game) => game.teams)
-    public game: Game;
+    // @ManyToOne((type) => Game, (game) => game.teams)
+    // public game: Game;
 
-    @OneToMany((type) => Player, (player) => player.team, { eager: true })
-    public players: Player[];
+    // @OneToMany((type) => Player, (player) => player.team, { eager: true })
+    // public players: Player[];
 
-    // TEMP (just so we can set the id manually for a given user)
-    @Column({ nullable: true })
-    public gameId: number;
+    // // TEMP (just so we can set the id manually for a given user)
+    // @Column({ nullable: true })
+    // public gameId: number;
 
-    @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, { eager: true })
-    @JoinTable()
-    public completedObjectives: Objective[];
+    // @ManyToMany((type) => Objective, (objective: Objective) => objective.winningTeams, { eager: true })
+    // @JoinTable()
+    // public completedObjectives: Objective[];
 
-    constructor() {
-        super();
+    // constructor() {
+    //     super();
 
-        this.winner = false;
-        this.votes = {};
+    //     this.winner = false;
+    //     this.votes = {};
 
-        this.status = 'Waiting for players';
-    }
+    //     this.status = 'Waiting for players';
+    // }
 }

@@ -1,7 +1,7 @@
-import {Connection} from "../config/Database";
+import { Connection } from '../config/Database';
 
-import {UserRole} from "../app/models";
-import {UserRepository} from "../app/repository";
+import { UserRole } from '../app/models/User';
+import UserRepository from '../app/repository/User.repository';
 
 (async () => {
     try {
@@ -17,7 +17,7 @@ import {UserRepository} from "../app/repository";
 
         console.log(`Saved user with id ${user.id}`);
     } catch (e) {
-        console.log("Could not fetch user.");
+        console.log('Could not fetch user.');
     } finally {
         process.exit();
     }
