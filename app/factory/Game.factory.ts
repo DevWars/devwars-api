@@ -1,7 +1,6 @@
 import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
-import { Index } from 'typeorm';
 
 interface IObjective {
     id: number;
@@ -9,14 +8,21 @@ interface IObjective {
     isBonus: boolean;
 }
 
-interface IVote {
-    name: string;
-    votes: number;
-}
-
 export default class GameFactory {
-    public static default(): Game {
+    public static default() {
         const game = new Game();
+
+        const objectives = GameFactory.createObjectives(Math.floor(Math.random() * 5) + 2);
+
+        const toIdMap = (result: any, obj: { id: number }) => {
+            result[obj.id] = obj;
+            return result;
+        };
+
+        const addRandomObjectiveState = (result: any, obj: { id: number }) => {
+            result[obj.id] = helpers.randomize(['incomplete', 'complete']);
+            return result;
+        };
 
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
@@ -24,89 +30,61 @@ export default class GameFactory {
         game.storage = {
             mode: game.mode,
             title: hacker.noun(),
-            objectives: GameFactory.createObjectives(5),
-            players: {
-                0: {
-                    id: 0,
-                    username: helpers.userCard().username,
-                    team: 0,
-                },
-                1: {
-                    id: 1,
-                    description: helpers.userCard().username,
-                    team: 1,
-                },
-            },
+            objectives: objectives.reduce(toIdMap, {}),
+            players: GameFactory.createPlayers(6),
             teams: {
                 0: {
                     id: 0,
                     name: 'blue',
-                    objectives: GameFactory.completedObjectives(5),
-                    votes: GameFactory.createVotes(),
+                    objectives: objectives.reduce(addRandomObjectiveState, {}),
+                    votes: {
+                        ui: random.number({ min: 0, max: 100 }),
+                        ux: random.number({ min: 0, max: 100 }),
+                        tie: random.number({ min: 0, max: 100 }),
+                    },
                 },
                 1: {
                     id: 1,
                     name: 'red',
-                    objectives: GameFactory.completedObjectives(5),
-                    votes: GameFactory.createVotes(),
+                    objectives: objectives.reduce(addRandomObjectiveState, {}),
+                    votes: {
+                        ui: random.number({ min: 0, max: 100 }),
+                        ux: random.number({ min: 0, max: 100 }),
+                        tie: random.number({ min: 0, max: 100 }),
+                    },
                 },
             },
+            meta: {},
         };
 
-        return game;
-    }
-
-    public static withSeason(season: number): Game {
-        const game = this.default();
-
-        game.season = season;
+        game.storage.meta = { winningTeam: random.number({ max: 1 }) };
 
         return game;
     }
 
-    public static createObjectives(objectivesAmt: number) {
-        const objectives: any = {};
-
-        for (let i = 0; i <= objectivesAmt; i++) {
-            const objective: IObjective = {
-                id: i,
+    public static createObjectives(num: number): IObjective[] {
+        const objectives = [];
+        for (let id = 0; id < num; id++) {
+            objectives.push({
+                id,
                 description: lorem.sentence(),
-                isBonus: false,
-            };
-
-            if (i === objectivesAmt) {
-                objective.isBonus = true;
-            }
-
-            objectives[i] = objective;
+                isBonus: id === num - 1,
+            });
         }
 
         return objectives;
     }
 
-    public static completedObjectives(objectivesAmt: number) {
-        const objectives: any = {};
-
-        for (let i = 0; i <= objectivesAmt; i++) {
-            objectives[i] = helpers.randomize(['incomplete', 'complete']);
-        }
-
-        return objectives;
-    }
-
-    public static createVotes() {
-        const votes: any = {};
-        const phases = ['ui', 'ux'];
-
-        for (const phase of phases) {
-            const vote: IVote = {
-                name: phase,
-                votes: random.number({ min: 0, max: 100 }),
+    public static createPlayers(num: number) {
+        const players: any = {};
+        for (let id = 0; id <= num; id++) {
+            players[id] = {
+                id,
+                username: helpers.userCard().username,
+                team: id < num / 2 ? 0 : 1,
             };
-
-            votes[phases.indexOf(phase)] = vote;
         }
 
-        return votes;
+        return players;
     }
 }
