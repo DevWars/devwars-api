@@ -14,8 +14,6 @@ interface IVote {
     votes: number;
 }
 
-const teams = ['blue', 'red'];
-
 export default class GameFactory {
     public static default(): Game {
         const game = new Game();
@@ -98,14 +96,15 @@ export default class GameFactory {
 
     public static createVotes() {
         const votes: any = {};
+        const phases = ['ui', 'ux'];
 
-        for (const team of teams) {
+        for (const phase of phases) {
             const vote: IVote = {
-                name: team,
+                name: phase,
                 votes: random.number({ min: 0, max: 100 }),
             };
 
-            votes[teams.indexOf(team)] = vote;
+            votes[phases.indexOf(phase)] = vote;
         }
 
         return votes;
