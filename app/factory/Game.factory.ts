@@ -57,7 +57,13 @@ export default class GameFactory {
             meta: {},
         };
 
-        game.storage.meta = { winningTeam: random.number({ max: 1 }) };
+        game.storage.meta = {
+            winningTeam: random.number({ max: 1 }),
+            teamScores: {
+                0: random.number({ min: 0, max: 100 }),
+                1: random.number({ min: 0, max: 100 }),
+            },
+        };
 
         return game;
     }
