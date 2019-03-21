@@ -1,12 +1,20 @@
 import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
+import { Index } from 'typeorm';
 
 interface IObjective {
     id: number;
     description: string;
     isBonus: boolean;
 }
+
+interface IVote {
+    name: string;
+    votes: number;
+}
+
+const teams = ['blue', 'red'];
 
 export default class GameFactory {
     public static default(): Game {
@@ -36,11 +44,13 @@ export default class GameFactory {
                     id: 0,
                     name: 'blue',
                     objectives: GameFactory.completedObjectives(5),
+                    votes: GameFactory.createVotes(),
                 },
                 1: {
                     id: 1,
                     name: 'red',
                     objectives: GameFactory.completedObjectives(5),
+                    votes: GameFactory.createVotes(),
                 },
             },
         };
@@ -84,5 +94,20 @@ export default class GameFactory {
         }
 
         return objectives;
+    }
+
+    public static createVotes() {
+        const votes: any = {};
+
+        for (const team of teams) {
+            const vote: IVote = {
+                name: team,
+                votes: random.number({ min: 0, max: 100 }),
+            };
+
+            votes[teams.indexOf(team)] = vote;
+        }
+
+        return votes;
     }
 }
