@@ -13,8 +13,6 @@
         "lint": "tslint app/**/*.ts config/**/*.ts test/**/*.ts",
         "serve-docs": "apidoc -i ./app -o ./docs && http-server docs",
         "seed": "node -r ts-node/register ./cli/Seeder.ts",
-        "test-user": "node -r ts-node/register ./cli/GetTestUser.ts",
-        "change-role": "node -r ts-node/register ./cli/ChangeRole.ts",
         "typeorm": "ts-node -P ./tsconfig.json ./node_modules/.bin/typeorm",
         "migrate": "ts-node ./node_modules/.bin/typeorm migration:run"
     },
@@ -34,15 +32,6 @@
         ],
         "all": true
     },
-    "keywords": [
-        "node",
-        "express",
-        "typeorm",
-        "typescript",
-        "tslint",
-        "JWT",
-        "E2015"
-    ],
     "dependencies": {
         "@types/axios": "^0.14.0",
         "@types/faker": "^4.1.4",
