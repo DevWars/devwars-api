@@ -64,7 +64,7 @@ const generateActivitiesForUser = async (user: User) => {
 };
 
 const generateGames = async () => {
-    for (let i = 1; i < 100; i++) {
+    for (let i = 1; i < 50; i++) {
         const schedule = GameScheduleFactory.upcoming();
         const newSchedule = await connection.manager.save(schedule);
 
@@ -80,7 +80,7 @@ const generateGames = async () => {
 };
 
 const generateApplications = async () => {
-    for (let i = 1; i < 50; i++) {
+    for (let i = 1; i < 25; i++) {
         const userRepository = await typeorm.getCustomRepository(UserRepository);
         const user = await userRepository.findOne(i);
 
@@ -101,8 +101,6 @@ const generateApplications = async () => {
 
     await generateGames();
     await generateApplications();
-
-    // await generateFinishedGames();
 
     const userRepository = await typeorm.getCustomRepository(UserRepository);
     const user = await userRepository.findOne(5);

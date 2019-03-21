@@ -8,6 +8,7 @@ export interface IGameStorage {
     objectives: object;
     players: object;
     teams: object;
+    meta: object;
 }
 
 @Entity('game')
