@@ -114,7 +114,6 @@ export default class GameFactory {
                 id,
                 player: id,
                 language: id > 2 ? languages[id - 3] : languages[id],
-                template: '',
             };
         }
 

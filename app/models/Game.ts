@@ -2,16 +2,6 @@ import { Column, Entity, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import GameSchedule from './GameSchedule';
 
-export interface IGameStorage {
-    mode: string;
-    title: string;
-    objectives: object;
-    players: object;
-    editors: object;
-    teams: object;
-    meta: object;
-}
-
 @Entity('game')
 export default class Game extends BaseModel {
     /**
@@ -36,7 +26,7 @@ export default class Game extends BaseModel {
      * Big json object with all game information
      */
     @Column({ type: 'jsonb' })
-    public storage: IGameStorage;
+    public storage: any;
 
     // ------------------------------------------------------------
     // Relations

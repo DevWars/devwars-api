@@ -12,7 +12,7 @@ interface IUpdateGameScheduleRequest {
 
 export async function show(request: Request, response: Response) {
     const scheduleId = request.params.id;
-    const schedule = await GameSchedule.findOne({ where: { scheduleId } });
+    const schedule = await GameSchedule.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
 
     response.json(schedule);
@@ -28,7 +28,7 @@ export async function update(request: Request, response: Response) {
     const scheduleId = request.params.id;
     const params = request.body as IUpdateGameScheduleRequest;
 
-    const schedule = await GameSchedule.findOne({ where: { scheduleId } });
+    const schedule = await GameSchedule.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
 
     Object.assign(schedule, params);
