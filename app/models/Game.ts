@@ -7,6 +7,7 @@ export interface IGameStorage {
     title: string;
     objectives: object;
     players: object;
+    editors: object;
     teams: object;
     meta: object;
 }
