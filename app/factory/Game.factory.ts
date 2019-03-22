@@ -26,7 +26,7 @@ export default class GameFactory {
 
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
-        game.videoUrl = internet.url();
+        game.videoUrl = helpers.randomize([null, internet.url()]);
         game.storage = {
             mode: game.mode,
             title: hacker.noun(),
@@ -81,11 +81,11 @@ export default class GameFactory {
 
     public static createObjectives(num: number): IObjective[] {
         const objectives = [];
-        for (let id = 0; id < num; id++) {
+        for (let id = 1; id <= num; id++) {
             objectives.push({
                 id,
                 description: lorem.sentence(),
-                isBonus: id === num - 1,
+                isBonus: id === num,
             });
         }
 
@@ -94,11 +94,11 @@ export default class GameFactory {
 
     public static createPlayers(num: number) {
         const players: any = {};
-        for (let id = 0; id < num; id++) {
+        for (let id = 1; id <= num; id++) {
             players[id] = {
                 id,
                 username: helpers.userCard().username,
-                team: id < num / 2 ? 0 : 1,
+                team: id <= num / 2 ? 0 : 1,
             };
         }
 
@@ -107,13 +107,13 @@ export default class GameFactory {
 
     public static createEditors(num: number) {
         const editors: any = {};
-        const languages: any = { 0: 'html', 1: 'css', 2: 'js' };
+        const languages: any = { 1: 'html', 2: 'css', 3: 'js' };
 
-        for (let id = 0; id < num; id++) {
+        for (let id = 1; id <= num; id++) {
             editors[id] = {
                 id,
                 player: id,
-                language: id > 2 ? languages[id - 3] : languages[id],
+                language: id > 3 ? languages[id - 3] : languages[id],
             };
         }
 

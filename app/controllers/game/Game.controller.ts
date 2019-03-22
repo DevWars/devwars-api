@@ -2,23 +2,34 @@ import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
 import Game from '../../models/Game';
-import { IGameStorage } from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
 import GameService from '../../services/Game.service';
+
+function flattenGame(game: Game) {
+    return {
+        ...game.storage,
+        id: game.id,
+        createdAt: game.createdAt,
+        updatedAt: game.updatedAt,
+        season: game.season,
+        mode: game.mode,
+        videoUrl: game.videoUrl,
+    };
+}
 
 export async function show(request: Request, response: Response) {
     const gameId = request.params.id;
     const game = await Game.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
-    response.json(game);
+    response.json(flattenGame(game));
 }
 
 export async function all(request: Request, response: Response) {
     const games = await Game.find();
 
-    response.json(games);
+    response.json(games.map((game) => flattenGame(game)));
 }
 
 export async function update(request: Request, response: Response) {
@@ -31,7 +42,7 @@ export async function update(request: Request, response: Response) {
     Object.assign(game, params);
     await game.save();
 
-    response.json(game);
+    response.json(flattenGame(game));
 }
 
 export async function latest(request: Request, response: Response) {
@@ -39,7 +50,7 @@ export async function latest(request: Request, response: Response) {
     const game = await gameRepository.latest();
     if (!game) return response.sendStatus(404);
 
-    response.json(game);
+    response.json(flattenGame(game));
 }
 
 export async function create(request: Request, response: Response) {
@@ -54,11 +65,11 @@ export async function create(request: Request, response: Response) {
         title: storage.title,
         objectives: storage.objectives || {},
         players: storage.players || {},
-    } as IGameStorage;
+    };
 
     await game.save();
 
-    response.json(game);
+    response.json(flattenGame(game));
 }
 
 export async function findAllBySeason(request: Request, response: Response) {
@@ -66,7 +77,7 @@ export async function findAllBySeason(request: Request, response: Response) {
     const gameRepository = await getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(season);
 
-    response.json(games);
+    response.json(games.map((game) => flattenGame(game)));
 }
 
 export async function end(request: Request, response: Response) {

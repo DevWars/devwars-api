@@ -14,18 +14,25 @@ interface IUpdateUserRequest {
     token: string;
 }
 
+function sanitizeUser(user: User) {
+    delete user.password;
+    delete user.token;
+
+    return user;
+}
+
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
     const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
-    response.json(user);
+    response.json(sanitizeUser(user));
 }
 
 export async function all(request: Request, response: Response) {
     const users = await User.find();
 
-    response.json(users);
+    response.json(users.map((user) => sanitizeUser(user)));
 }
 
 export async function update(request: Request, response: Response) {
