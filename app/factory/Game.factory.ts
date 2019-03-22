@@ -12,7 +12,7 @@ export default class GameFactory {
     public static default() {
         const game = new Game();
 
-        const objectives = GameFactory.createObjectives(Math.floor(Math.random() * 5) + 2);
+        const objectives = GameFactory.createObjectives(random.number({ min: 3, max: 5 }));
 
         const toIdMap = (result: any, obj: { id: number }) => {
             result[obj.id] = obj;
@@ -32,6 +32,7 @@ export default class GameFactory {
             title: hacker.noun(),
             objectives: objectives.reduce(toIdMap, {}),
             players: GameFactory.createPlayers(6),
+            editors: GameFactory.createEditors(6),
             teams: {
                 0: {
                     id: 0,
@@ -60,8 +61,18 @@ export default class GameFactory {
         game.storage.meta = {
             winningTeam: random.number({ max: 1 }),
             teamScores: {
-                0: random.number({ min: 0, max: 100 }),
-                1: random.number({ min: 0, max: 100 }),
+                0: {
+                    objectives: random.number({ min: 0, max: 5 }),
+                    ui: random.number({ min: 0, max: 2 }),
+                    ux: random.number({ min: 0, max: 2 }),
+                    tie: random.number({ min: 0, max: 1 }),
+                },
+                1: {
+                    objectives: random.number({ min: 0, max: 5 }),
+                    ui: random.number({ min: 0, max: 2 }),
+                    ux: random.number({ min: 0, max: 2 }),
+                    tie: random.number({ min: 0, max: 1 }),
+                },
             },
         };
 
@@ -83,7 +94,7 @@ export default class GameFactory {
 
     public static createPlayers(num: number) {
         const players: any = {};
-        for (let id = 0; id <= num; id++) {
+        for (let id = 0; id < num; id++) {
             players[id] = {
                 id,
                 username: helpers.userCard().username,
@@ -92,5 +103,21 @@ export default class GameFactory {
         }
 
         return players;
+    }
+
+    public static createEditors(num: number) {
+        const editors: any = {};
+        const languages: any = { 0: 'html', 1: 'css', 2: 'js' };
+
+        for (let id = 0; id < num; id++) {
+            editors[id] = {
+                id,
+                player: id,
+                language: id > 2 ? languages[id - 3] : languages[id],
+                template: '',
+            };
+        }
+
+        return editors;
     }
 }
