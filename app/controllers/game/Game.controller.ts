@@ -9,7 +9,7 @@ import GameService from '../../services/Game.service';
 
 export async function show(request: Request, response: Response) {
     const gameId = request.params.id;
-    const game = await Game.findOne({ where: { gameId } });
+    const game = await Game.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
     response.json(game);
@@ -25,7 +25,7 @@ export async function update(request: Request, response: Response) {
     const gameId = request.params.id;
     const params = request.body as IUpdateGameRequest;
 
-    const game = await Game.findOne({ where: { gameId } });
+    const game = await Game.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
     Object.assign(game, params);

@@ -9,12 +9,6 @@ export enum GameStatus {
     ENDED,
 }
 
-export interface IGameSetup {
-    mode: string;
-    title: string;
-    objectives: object;
-}
-
 @Entity('game_schedule')
 export default class GameSchedule extends BaseModel {
     @Column()
@@ -24,7 +18,7 @@ export default class GameSchedule extends BaseModel {
     public status: GameStatus;
 
     @Column({ type: 'jsonb' })
-    public setup: IGameSetup;
+    public setup: any;
 
     // ------------------------------------------------------------
     // Relations
