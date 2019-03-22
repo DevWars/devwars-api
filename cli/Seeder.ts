@@ -39,7 +39,7 @@ const generateConstantUsers = async () => {
 const generateBasicUsers = async () => {
     await generateConstantUsers();
 
-    for (let i = 3; i < 100; i++) {
+    for (let i = 4; i < 100; i++) {
         const user = UserFactory.default();
         const newUser = await connection.manager.save(user);
 
