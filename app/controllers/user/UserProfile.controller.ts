@@ -8,6 +8,7 @@ interface IUpdateUserProfileRequest {
     dob: Date;
     about: string;
     forHire: boolean;
+    company: string;
     websiteUrl: string;
     addressOne: string;
     addressTwo: string;

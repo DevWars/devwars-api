@@ -1,4 +1,4 @@
-import { name, date, random, lorem, internet, address } from 'faker';
+import { name, date, random, lorem, internet, address, company } from 'faker';
 import UserProfile from '../models/UserProfile';
 
 export default class UserProfileFactory {
@@ -10,6 +10,7 @@ export default class UserProfileFactory {
         profile.dob = date.past(50);
         profile.about = lorem.paragraphs(5);
         profile.forHire = random.boolean();
+        profile.company = company.companyName();
         profile.websiteUrl = internet.url();
 
         profile.addressOne = address.streetAddress();
