@@ -22,6 +22,9 @@ export default class UserProfile extends BaseModel {
     public forHire: boolean;
 
     @Column({ nullable: true })
+    public company: string;
+
+    @Column({ nullable: true })
     public websiteUrl: string;
 
     @Column({ nullable: true })
