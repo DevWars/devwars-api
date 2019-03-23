@@ -14,9 +14,9 @@ export const UserRoute: express.Router = express
     .Router()
     .get('/', UserController.all)
     .get('/:id', UserController.show)
-    .put('/:id/update', mustOwnUser, UserController.update)
-    .put('/:id/avatar', upload.single('avatar'), UserAvatarController.store)
+    .put('/:id', mustOwnUser, UserController.update)
+    .put('/:id/avatar', mustOwnUser, upload.single('avatar'), UserAvatarController.store)
     .get('/:id/stats', UserStatsController.forUser)
     .post('/:id/stats', UserStatsController.create)
     .get('/:id/profile', UserProfileController.show)
-    .put('/:id/profile', UserProfileController.update);
+    .put('/:id/profile', mustOwnUser, UserProfileController.update);
