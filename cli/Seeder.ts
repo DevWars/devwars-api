@@ -65,7 +65,7 @@ const generateActivitiesForUser = async (user: User) => {
 
 const generateGames = async () => {
     for (let i = 1; i < 50; i++) {
-        const schedule = GameScheduleFactory.upcoming();
+        const schedule = GameScheduleFactory.default();
         const newSchedule = await connection.manager.save(schedule);
 
         const game = GameFactory.default();

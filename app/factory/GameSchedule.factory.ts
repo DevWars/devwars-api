@@ -7,8 +7,8 @@ export default class GameScheduleFactory {
     public static default(): GameSchedule {
         const schedule = new GameSchedule();
 
-        schedule.startTime = date.past();
-        schedule.status = GameStatus.ENDED;
+        schedule.startTime = helpers.randomize([date.past(), date.future()]);
+        schedule.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ACTIVE, GameStatus.ENDED]);
         schedule.setup = {
             mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
             title: hacker.noun(),

@@ -8,7 +8,7 @@ export class UserStatsFactory {
         stats.coins = random.number(20000);
         stats.xp = random.number(20000);
         stats.level = random.number({ min: 1, max: 20 });
-        // stats.twitchId = random.alphaNumeric(20);
+        stats.twitchId = random.alphaNumeric(20);
 
         return stats;
     }
