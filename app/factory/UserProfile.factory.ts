@@ -21,9 +21,9 @@ export default class UserProfileFactory {
         profile.country = address.country();
 
         profile.skills = {
-            css: random.number({ min: 0, max: 4 }),
-            html: random.number({ min: 0, max: 4 }),
-            js: random.number({ min: 0, max: 4 }),
+            css: random.number({ min: 1, max: 5 }),
+            html: random.number({ min: 1, max: 5 }),
+            js: random.number({ min: 1, max: 5 }),
         };
 
         return profile;
