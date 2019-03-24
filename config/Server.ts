@@ -61,7 +61,7 @@ export class Server {
         this.app.use(
             cors({
                 credentials: true,
-                origin: process.env.FRONT_URL,
+                origin: process.env.FRONT_URL || "http://localhost:3000",
             })
         );
 
