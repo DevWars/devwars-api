@@ -1,8 +1,8 @@
 {
     "name": "devwars-api",
-    "version": "0.1.0",
+    "version": "0.0.0",
     "author": "DevWars, LLC",
-    "license": "GPLv3",
+    "license": "MIT",
     "description": "Official Node API for DevWars",
     "main": "server.js",
     "scripts": {
