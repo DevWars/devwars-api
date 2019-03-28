@@ -19,7 +19,7 @@ if (cluster.isMaster) {
         cluster.fork();
     });
 } else {
-    const port: number = Number(env.PORT) || config.PORT_APP || 3030;
+    const port: number = Number(env.PORT) || config.PORT_APP || 8080;
 
     new Server().Start().then((server) => {
         server.listen(port);

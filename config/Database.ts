@@ -33,8 +33,6 @@ let connection: Promise<Connection>;
 
 if (process.env.NODE_ENV === 'test') {
     // Create a test connection to sqlite to keep tests fast
-    // and without a MySql instance
-
     connection = createConnection({
         entities: allEntities,
 
@@ -50,9 +48,9 @@ if (process.env.NODE_ENV === 'test') {
         host: config.DATABASE.SERVER,
         logging: false,
         password: config.DATABASE.PASSWORD,
-        port: config.DATABASE.PORT_DB,
+        port: config.DATABASE.PORT,
         type: DIALECT,
-        username: config.DATABASE.USER_DB,
+        username: config.DATABASE.USER,
     });
 }
 
