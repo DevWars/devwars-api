@@ -2,26 +2,24 @@ import { date, hacker, helpers, random, lorem } from 'faker';
 
 import GameSchedule from '../models/GameSchedule';
 import { GameStatus } from '../models/GameSchedule';
+import { IObjective } from '../factory/Game.factory';
 
 export default class GameScheduleFactory {
     public static default(): GameSchedule {
         const schedule = new GameSchedule();
+
+        const objectives = GameScheduleFactory.createObjectives(random.number({ min: 3, max: 5 }));
+        const toIdMap = (result: any, obj: { id: number }) => {
+            result[obj.id] = obj;
+            return result;
+        };
 
         schedule.startTime = helpers.randomize([date.past(), date.future()]);
         schedule.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ACTIVE, GameStatus.ENDED]);
         schedule.setup = {
             mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
             title: hacker.noun(),
-            objectives: {
-                0: {
-                    description: lorem.sentence(),
-                    isBonus: random.boolean(),
-                },
-                1: {
-                    description: lorem.sentence(),
-                    isBonus: random.boolean(),
-                },
-            },
+            objectives: objectives.reduce(toIdMap, {}),
         };
 
         return schedule;
@@ -48,5 +46,18 @@ export default class GameScheduleFactory {
         game.startTime = time;
 
         return game;
+    }
+
+    public static createObjectives(num: number): IObjective[] {
+        const objectives = [];
+        for (let id = 1; id <= num; id++) {
+            objectives.push({
+                id,
+                description: lorem.sentence(),
+                isBonus: id === num,
+            });
+        }
+
+        return objectives;
     }
 }
