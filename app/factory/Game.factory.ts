@@ -2,7 +2,7 @@ import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
 
-interface IObjective {
+export interface IObjective {
     id: number;
     description: string;
     isBonus: boolean;
