@@ -2,17 +2,16 @@ import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
 
-import {CompetitorFactory, GameFactory, GameTeamFactory, UserFactory} from '../app/factory';
-import {Server} from '../config/Server';
+import { CompetitorFactory, GameFactory, GameTeamFactory, UserFactory } from '../app/factory';
+import { Server } from '../config/Server';
 
-import {Game, Player, UserRole} from '../app/models';
-import {cookieForUser} from './helpers';
+import { Game, Player, UserRole } from '../app/models';
+import { cookieForUser } from './helpers';
 
 const server: Server = new Server();
 let app: express.Application;
 
 describe('game-application', () => {
-
     beforeEach(async () => {
         await server.Start();
 
@@ -22,7 +21,9 @@ describe('game-application', () => {
     it('should deny an application from a signed out user', async () => {
         const game = await GameFactory.default().save();
 
-        const response = await supertest(app).post(`/game/${game.id}/applications`).send();
+        const response = await supertest(app)
+            .post(`/game/${game.id}/applications`)
+            .send();
 
         chai.expect(response.status).to.be.eq(403);
     });

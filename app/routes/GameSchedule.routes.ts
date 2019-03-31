@@ -7,8 +7,8 @@ import { UserRole } from '../models/User';
 export const GameScheduleRoute: express.Router = express
     .Router()
     .get('/', GameScheduleController.all)
-    .post('/', GameScheduleController.create)
+    .post('/', mustBeRole(UserRole.MODERATOR), GameScheduleController.create)
     .get('/latest', GameScheduleController.latest)
     .get('/:id', GameScheduleController.show)
-    .put('/:id', mustBeRole(UserRole.ADMIN), GameScheduleController.update)
+    .patch('/:id', mustBeRole(UserRole.MODERATOR), GameScheduleController.update)
     .get('/status/:status', GameScheduleController.byStatus);
