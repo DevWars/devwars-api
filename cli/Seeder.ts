@@ -8,7 +8,7 @@ import GameFactory from '../app/factory/Game.factory';
 import GameScheduleFactory from '../app/factory/GameSchedule.factory';
 import GameApplicationFactory from '../app/factory/GameApplication.factory';
 
-import { UserStatsFactory } from '../app/factory/UserStats.factory';
+import UserStatsFactory from '../app/factory/UserStats.factory';
 
 import User from '../app/models/User';
 import { UserRole } from '../app/models/User';

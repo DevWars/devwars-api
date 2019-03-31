@@ -2,19 +2,18 @@ import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
 
-import {Server} from '../config/Server';
+import { Server } from '../config/Server';
 
-import {ISettingsChangeRequest} from '../app/request/ISetttingsChangeRequest';
-import {cookieForUser} from './helpers';
+import { ISettingsChangeRequest } from '../app/request/ISetttingsChangeRequest';
+import { cookieForUser } from './helpers';
 
-import {UserFactory} from '../app/factory';
-import {User} from '../app/models';
+import { UserFactory } from '../app/factory';
+import { User } from '../app/models';
 
 const server: Server = new Server();
 let app: express.Application;
 
 describe('user-settings', () => {
-
     beforeEach(async () => {
         await server.Start();
 

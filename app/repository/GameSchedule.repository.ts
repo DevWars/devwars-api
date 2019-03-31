@@ -1,6 +1,5 @@
 import { EntityRepository, Repository } from 'typeorm';
-import GameSchedule from '../models/GameSchedule';
-import { GameStatus } from '../models/GameSchedule';
+import GameSchedule, { GameStatus } from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 import User from '../models/User';
 

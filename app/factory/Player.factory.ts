@@ -1,6 +1,6 @@
 import User from '../models/User';
 
-export class PlayerFactory {
+export default class PlayerFactory {
     // public static default(): Player {
     //     const player = new Player();
     //     Object.assign(player, {

@@ -41,16 +41,16 @@ let connection: Promise<Connection>;
 //         type: 'sqlite',
 //     });
 // } else {
-    connection = createConnection({
-        entities: allEntities,
-        database: config.DATABASE.DB,
-        host: config.DATABASE.SERVER,
-        logging: false,
-        password: config.DATABASE.PASSWORD,
-        port: config.DATABASE.PORT,
-        type: DIALECT,
-        username: config.DATABASE.USER,
-    });
+connection = createConnection({
+    entities: allEntities,
+    database: config.DATABASE.DB,
+    host: config.DATABASE.SERVER,
+    logging: false,
+    password: config.DATABASE.PASSWORD,
+    port: config.DATABASE.PORT,
+    type: DIALECT,
+    username: config.DATABASE.USER,
+});
 // }
 
 export { connection as Connection };
