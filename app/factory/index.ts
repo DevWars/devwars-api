@@ -4,7 +4,7 @@ export { default as GameApplicationFactory } from './GameApplication.factory';
 
 export { default as ActivityFactory } from './Activity.factory';
 
-export { default as GameFactoy } from './Game.factory';
+export { default as GameFactory } from './Game.factory';
 
 export { default as PlayerFactory } from './Player.factory';
 
