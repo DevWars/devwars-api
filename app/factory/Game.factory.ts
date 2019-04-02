@@ -79,6 +79,20 @@ export default class GameFactory {
         return game;
     }
 
+    public static withMode(mode: string){
+        const game = this.default();
+
+        game.mode = mode;
+
+        return game;
+    }
+
+    public static withSeason(season: number){
+        const game = this.default();
+        game.season = season;
+        return game;
+    }
+
     public static createObjectives(num: number): IObjective[] {
         const objectives = [];
         for (let id = 1; id <= num; id++) {
