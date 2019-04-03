@@ -20,7 +20,7 @@ const PRODUCTION_CONFIGURATION = {
 
 const TEST_CONFIGURATION = {
     SERVER: env.SERVER || 'localhost',
-    PORT: Number(env.PORT_DB) || 5433,
+    PORT: Number(env.PORT_DB) || 5432,
     DB: env.DB || 'devwars_test',
     USER: env.USER_DB || 'postgres',
     PASSWORD: env.PASSWORD || 'secret',

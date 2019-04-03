@@ -31,16 +31,6 @@ const allEntities = Object.keys(entities).map((it) => entities[it]);
 
 let connection: Promise<Connection>;
 
-// if (process.env.NODE_ENV === 'test') {
-//     // Create a test connection to sqlite to keep tests fast
-//     connection = createConnection({
-//         entities: allEntities,
-
-//         database: './db.sqlite',
-//         dropSchema: true,
-//         type: 'sqlite',
-//     });
-// } else {
 connection = createConnection({
     entities: allEntities,
     database: config.DATABASE.DB,
@@ -51,6 +41,5 @@ connection = createConnection({
     type: DIALECT,
     username: config.DATABASE.USER,
 });
-// }
 
 export { connection as Connection };
