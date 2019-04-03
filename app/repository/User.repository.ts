@@ -2,6 +2,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import User from '../models/User';
 import UserProfile from '../models/UserProfile';
 import UserStats from '../models/UserStats';
+import UserGameStats from '../models/UserGameStats';
 import GameSchedule from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 
@@ -43,6 +44,10 @@ export default class UserRepository extends Repository<User> {
 
     public findStatsByUser(user: User): Promise<UserStats> {
         return UserStats.findOne({ user });
+    }
+
+    public findGameStatsByUser(user: User): Promise<UserGameStats> {
+        return UserGameStats.findOne({ user });
     }
 
     public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {

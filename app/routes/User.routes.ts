@@ -4,6 +4,7 @@ import * as multer from 'multer';
 import * as UserController from '../controllers/user/User.controller';
 import * as UserProfileController from '../controllers/user/UserProfile.controller';
 import * as UserStatsController from '../controllers/user/UserStats.controller';
+import * as UserGameStatsController from '../controllers/user/UserGameStats.controller';
 import * as UserAvatarController from '../controllers/user/UserAvatar.controller';
 
 import { mustOwnUser } from '../middlewares/OwnsUser';
@@ -18,5 +19,6 @@ export const UserRoute: express.Router = express
     .put('/:id/avatar', mustOwnUser, upload.single('avatar'), UserAvatarController.store)
     .get('/:id/stats', UserStatsController.forUser)
     .post('/:id/stats', UserStatsController.create)
+    .get('/:id/stats/game', UserGameStatsController.forUser)
     .get('/:id/profile', UserProfileController.show)
     .put('/:id/profile', mustOwnUser, UserProfileController.update);
