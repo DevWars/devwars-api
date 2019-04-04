@@ -1,10 +1,13 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
+import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from "../../request/IGameScheduleRequest";
 
 import GameSchedule from '../../models/GameSchedule';
 import { GameStatus } from '../../models/GameSchedule';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameService from '../../services/Game.service';
+
+const { validationResult } = require('express-validator/check');
 
 function flattenSchedule(schedule: GameSchedule) {
     return {
@@ -32,19 +35,22 @@ export async function all(request: Request, response: Response) {
 
 export async function update(request: Request, response: Response) {
     const scheduleId = request.params.id;
-    const { title, startTime, objectives } = request.body;
+    const params = { ...request.body as IUpdateGameScheduleRequest };
+
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
 
     const schedule = await GameSchedule.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
 
-    schedule.setup.title = title || schedule.setup.title;
-    schedule.startTime = startTime || schedule.startTime;
-    schedule.setup.objectives = objectives || schedule.setup.objectives;
+    schedule.setup.title = params.title || schedule.setup.title;
+    schedule.startTime = params.startTime || schedule.startTime;
+    schedule.setup.objectives = params.objectives || schedule.setup.objectives;
 
-    await schedule.save();
-
-    if (schedule.status === GameStatus.ACTIVE) {
-        // await GameService.sendGameToFirebase(schedule);
+    try {
+        await schedule.save();
+    } catch(e) {
+        return response.status(500).json({"error": e.message})
     }
 
     response.json(flattenSchedule(schedule));
@@ -68,17 +74,26 @@ export async function byStatus(request: Request, response: Response) {
 }
 
 export async function create(request: Request, response: Response) {
-    const { startTime, mode, title, objectives } = request.body;
+
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
+
+    const params = { ...request.body as ICreateGameScheduleRequest };
+
     const schedule = new GameSchedule();
 
-    schedule.startTime = new Date(startTime);
+    schedule.startTime = new Date(params.startTime);
     schedule.setup = {
-        mode,
-        title,
-        objectives,
+        mode: params.mode,
+        title: params.title,
+        objectives: params.objectives,
     };
 
-    await schedule.save();
+    try {
+        await schedule.save();
+    } catch(e) {
+        return response.status(500).json({"error": e.message})
+    }
 
     response.json(flattenSchedule(schedule));
 }

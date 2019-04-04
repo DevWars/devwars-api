@@ -40,6 +40,7 @@
         "all": true
     },
     "dependencies": {
+        "@hapi/joi": "^15.0.0",
         "@types/axios": "^0.14.0",
         "@types/faker": "^4.1.4",
         "aws-sdk": "^2.355.0",
@@ -53,6 +54,7 @@
         "express": "^4.16.3",
         "express-jwt": "^5.3.1",
         "express-validation": "^0.4.5",
+        "express-validator": "^5.3.1",
         "faker": "^4.1.0",
         "firebase-admin": "^6.5.0",
         "joi": "^7.3.0",
