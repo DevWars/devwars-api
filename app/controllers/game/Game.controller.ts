@@ -3,10 +3,10 @@ import { Request, Response } from 'express';
 
 import Game from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
-import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
-import GameService from '../../services/Game.service';
 
-function flattenGame(game: Game) {
+import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
+
+export function flattenGame(game: Game) {
     return {
         ...game.storage,
         id: game.id,
@@ -79,19 +79,4 @@ export async function findAllBySeason(request: Request, response: Response) {
 
     if (!games) return response.sendStatus(404);
     response.json(games.map((game) => flattenGame(game)));
-}
-
-export async function end(request: Request, response: Response) {
-    const gameId = request.params.id;
-    const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    // Get winner
-    // const winner = await TeamRepository.byId(request.query.winner);
-
-    // await GameService.backupGame(game);
-    // await GameService.endGame(game, winner);
-
-    // response.json({ game, winner });
 }

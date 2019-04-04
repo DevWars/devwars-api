@@ -1,6 +1,7 @@
 import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
+import User from '../models/User';
 
 export interface IObjective {
     id: number;
@@ -9,7 +10,7 @@ export interface IObjective {
 }
 
 export default class GameFactory {
-    public static default() {
+    public static async default() {
         const game = new Game();
 
         const objectives = GameFactory.createObjectives(random.number({ min: 3, max: 5 }));
@@ -24,6 +25,8 @@ export default class GameFactory {
             return result;
         };
 
+        const players = await GameFactory.createPlayers(6);
+
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
         game.videoUrl = helpers.randomize([null, internet.url()]);
@@ -31,8 +34,8 @@ export default class GameFactory {
             mode: game.mode,
             title: hacker.noun(),
             objectives: objectives.reduce(toIdMap, {}),
-            players: GameFactory.createPlayers(6),
-            editors: GameFactory.createEditors(6),
+            players,
+            editors: GameFactory.createEditors(6, Object.values(players)),
             teams: {
                 0: {
                     id: 0,
@@ -79,16 +82,16 @@ export default class GameFactory {
         return game;
     }
 
-    public static withMode(mode: string){
-        const game = this.default();
+    public static async withMode(mode: string){
+        const game = await GameFactory.default();
 
         game.mode = mode;
 
         return game;
     }
 
-    public static withSeason(season: number){
-        const game = this.default();
+    public static async withSeason(season: number){
+        const game = await GameFactory.default();
         game.season = season;
         return game;
     }
@@ -106,31 +109,46 @@ export default class GameFactory {
         return objectives;
     }
 
-    public static createPlayers(num: number) {
+    public static async createPlayers(num: number) {
         const players: any = {};
-        for (let id = 1; id <= num; id++) {
-            players[id] = {
-                id,
-                username: helpers.userCard().username,
-                team: id <= num / 2 ? 0 : 1,
+        const users = await User.find();
+
+        for (let i = 1; i <= num; i++) {
+            const randomUserIndex = random.number({ min: 0, max: users.length - 1 });
+            const user = users[randomUserIndex];
+
+            players[user.id] = {
+                id: user.id,
+                username: user.username,
+                team: i <= num / 2 ? 0 : 1,
             };
         }
 
         return players;
     }
 
-    public static createEditors(num: number) {
-        const editors: any = {};
-        const languages: any = { 1: 'html', 2: 'css', 3: 'js' };
+    public static createEditors(num: number, players: any[]) {
+        const editors: any[] = [
+            { id: 0, team: 0, language: 'html' },
+            { id: 1, team: 0, language: 'css' },
+            { id: 2, team: 0, language: 'js' },
+            
+            { id: 3, team: 1, language: 'html' },
+            { id: 4, team: 1, language: 'css' },
+            { id: 5, team: 1, language: 'js' },
+        ];
 
-        for (let id = 1; id <= num; id++) {
-            editors[id] = {
-                id,
-                player: id,
-                language: id > 3 ? languages[id - 3] : languages[id],
-            };
+        const result: any = {};
+        for (const player of players) {
+            const editor = editors.shift();
+            if (!editor) break;
+            
+            editor.player = player.id;
+            // Override player.team with editor.team
+            player.team = editor.team;
+            result[editor.id] = editor;
         }
 
-        return editors;
+        return result;
     }
 }

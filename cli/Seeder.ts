@@ -68,7 +68,7 @@ const generateGames = async () => {
         const schedule = GameScheduleFactory.default();
         const newSchedule = await connection.manager.save(schedule);
 
-        const game = GameFactory.default();
+        const game = await GameFactory.default();
         newSchedule.game = await connection.manager.save(game);
         await connection.manager.save(newSchedule);
 

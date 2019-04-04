@@ -33,13 +33,13 @@ let connection: Promise<Connection>;
 
 connection = createConnection({
     entities: allEntities,
+    type: DIALECT,
     database: config.DATABASE.DB,
     host: config.DATABASE.SERVER,
-    logging: false,
-    password: config.DATABASE.PASSWORD,
     port: config.DATABASE.PORT,
-    type: DIALECT,
     username: config.DATABASE.USER,
+    password: config.DATABASE.PASSWORD,
+    logging: false,
 });
 
 export { connection as Connection };

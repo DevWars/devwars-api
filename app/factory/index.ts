@@ -6,8 +6,6 @@ export { default as ActivityFactory } from './Activity.factory';
 
 export { default as GameFactory } from './Game.factory';
 
-export { default as PlayerFactory } from './Player.factory';
-
 export { default as UserFactory } from './User.factory';
 
 export { default as UserGameStatsFactory } from './UserGameStats.factory';

@@ -122,7 +122,7 @@ describe('game', () => {
     it('PATCH - games/:id - mod user', async () => {
 
         const user = UserFactory.withRole(UserRole.MODERATOR);
-        const game = await GameFactory.withMode("Blitz").save();
+        const game = await GameFactory.withMode('Blitz').save();
 
         const response = await supertest(app)
             .patch(`/games/${game.id}`)
@@ -137,7 +137,7 @@ describe('game', () => {
     it('PATCH - games/:id - admin user', async () => {
 
         const user = UserFactory.withRole(UserRole.ADMIN);
-        const game = await GameFactory.withMode("Blitz").save();
+        const game = await GameFactory.withMode('Blitz').save();
 
         const response = await supertest(app)
             .patch(`/games/${game.id}`)
@@ -152,7 +152,7 @@ describe('game', () => {
     // TODO: need finish end method in controller
     // it('POST - games/:id/end - normal user ', async () => {
     //     const user = UserFactory.withRole(UserRole.USER);
-    //     const game = await GameFactory.withMode("Blitz").save();
+    //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
     //         .patch(`/games/${game.id}/end`)
@@ -164,7 +164,7 @@ describe('game', () => {
 
     // it('POST - games/:id/end - mod user ', async () => {
     //     const user = UserFactory.withRole(UserRole.MODERATOR);
-    //     const game = await GameFactory.withMode("Blitz").save();
+    //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
     //         .patch(`/games/${game.id}/end`)
@@ -176,7 +176,7 @@ describe('game', () => {
 
     // it('POST - games/:id/end - admin user ', async () => {
     //     const user = UserFactory.withRole(UserRole.ADMIN);
-    //     const game = await GameFactory.withMode("Blitz").save();
+    //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
     //         .patch(`/games/${game.id}/end`)
