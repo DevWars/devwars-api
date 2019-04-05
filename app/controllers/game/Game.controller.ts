@@ -5,6 +5,8 @@ import Game from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
+import { GameStatus } from '../../models/GameSchedule';
+import GameService from '../../services/Game.service';
 
 export function flattenGame(game: Game) {
     return {
@@ -15,6 +17,7 @@ export function flattenGame(game: Game) {
         season: game.season,
         mode: game.mode,
         videoUrl: game.videoUrl,
+        status: game.status, // TEMPORARY
     };
 }
 
@@ -27,7 +30,7 @@ export async function show(request: Request, response: Response) {
 }
 
 export async function all(request: Request, response: Response) {
-    const games = await Game.find();
+    const games = await Game.find({ order: { createdAt: 'DESC' } });
 
     response.json(games.map((game) => flattenGame(game)));
 }
@@ -79,4 +82,18 @@ export async function findAllBySeason(request: Request, response: Response) {
 
     if (!games) return response.sendStatus(404);
     response.json(games.map((game) => flattenGame(game)));
+}
+
+export async function activate(request: Request, response: Response) {
+    const gameId = request.params.id;
+
+    const game = await Game.findOne(gameId);
+    if (!game) return response.sendStatus(404);
+
+    game.status = GameStatus.ACTIVE;
+    await game.save();
+
+    GameService.sendGameToFirebase(game);
+
+    response.json(flattenGame(game));
 }

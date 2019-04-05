@@ -102,7 +102,7 @@ export default class GameService {
         for (const editor of Object.values(game.storage.editors) as any) {
             const player = game.storage.players[editor.player];
             if (!player) continue;
-            
+
             const playerArr = player.team === 0 ? bluePlayers : redPlayers;
 
             playerArr.push({
@@ -111,11 +111,39 @@ export default class GameService {
                 user: {
                     id: player.id,
                     username: player.username,
-                }
+                },
             });
         }
 
-        await firebaseGame.child('teams').child('blue').child('players').set(bluePlayers);
-        await firebaseGame.child('teams').child('red').child('players').set(redPlayers);
+        await firebaseGame
+            .child('teams')
+            .child('blue')
+            .child('players')
+            .set(bluePlayers);
+        await firebaseGame
+            .child('teams')
+            .child('red')
+            .child('players')
+            .set(redPlayers);
+    }
+
+    public static async sendGameToFirebase(game: any) {
+        await this.setPlayersToFirebase(game);
+
+        const objectives = Object.values(game.storage.objectives).map((obj: any) => {
+            return {
+                number: obj.id,
+                description: obj.description,
+            };
+        });
+
+        const newGame = {
+            id: game.id,
+            name: game.mode,
+            theme: game.storage.title,
+            objectives,
+        };
+
+        await firebaseGame.update(newGame);
     }
 }

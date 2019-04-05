@@ -1,6 +1,7 @@
 import { hacker, helpers, internet, random, lorem } from 'faker';
 
 import Game from '../models/Game';
+import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
 export interface IObjective {
@@ -26,6 +27,9 @@ export default class GameFactory {
         };
 
         const players = await GameFactory.createPlayers(6);
+
+        // TEMPORARY: Remove once Editor refactor is completed
+        game.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
 
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
@@ -82,7 +86,7 @@ export default class GameFactory {
         return game;
     }
 
-    public static async withMode(mode: string){
+    public static async withMode(mode: string) {
         const game = await GameFactory.default();
 
         game.mode = mode;
@@ -90,7 +94,7 @@ export default class GameFactory {
         return game;
     }
 
-    public static async withSeason(season: number){
+    public static async withSeason(season: number) {
         const game = await GameFactory.default();
         game.season = season;
         return game;
@@ -132,7 +136,7 @@ export default class GameFactory {
             { id: 0, team: 0, language: 'html' },
             { id: 1, team: 0, language: 'css' },
             { id: 2, team: 0, language: 'js' },
-            
+
             { id: 3, team: 1, language: 'html' },
             { id: 4, team: 1, language: 'css' },
             { id: 5, team: 1, language: 'js' },
@@ -142,7 +146,7 @@ export default class GameFactory {
         for (const player of players) {
             const editor = editors.shift();
             if (!editor) break;
-            
+
             editor.player = player.id;
             // Override player.team with editor.team
             player.team = editor.team;

@@ -12,6 +12,7 @@ export const GameRoute: express.Router = express
     .get('/latest', GameController.latest)
     .get('/:id', GameController.show)
     .patch('/:id', mustBeRole(UserRole.MODERATOR), GameController.update)
+    .post('/:id/activate', mustBeRole(UserRole.MODERATOR), GameController.activate)
     .post('/:id/end', mustBeRole(UserRole.MODERATOR), LiveGameController.end)
     .post('/:id/player', mustBeRole(UserRole.MODERATOR), LiveGameController.addPlayer)
     .delete('/:id/player', mustBeRole(UserRole.MODERATOR), LiveGameController.removePlayer)

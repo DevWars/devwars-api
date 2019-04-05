@@ -3,7 +3,7 @@ import * as GameScheduleController from '../controllers/game/GameSchedule.contro
 
 import { mustBeRole } from '../middlewares/Auth.middleware';
 import { UserRole } from '../models/User';
-import { createValidator, updateValidator } from "./validators/GameSchedule.validator"
+import { createValidator, updateValidator } from './validators/GameSchedule.validator';
 
 export const GameScheduleRoute: express.Router = express
     .Router()

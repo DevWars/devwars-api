@@ -5,15 +5,16 @@ import { flattenGame } from './Game.controller';
 import GameRepository from '../../repository/Game.repository';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameService from '../../services/Game.service';
+import { GameStatus } from '../../models/GameSchedule';
 
 export async function addPlayer(request: Request, response: Response) {
     const gameId = request.params.id;
     const { player, team, language } = request.body;
-    
+
     const gameRepository = await getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
     if (!game) return response.sendStatus(404);
-    
+
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
     if (!schedule) return response.sendStatus(404);
@@ -22,7 +23,7 @@ export async function addPlayer(request: Request, response: Response) {
         id: player.id,
         username: player.username,
         team: team.id,
-    }
+    };
 
     for (const editor of Object.values(game.storage.editors) as any) {
         if (editor.language === language && editor.team === team.id) {
@@ -47,7 +48,9 @@ export async function addPlayer(request: Request, response: Response) {
 
     await game.save();
 
-    await GameService.setPlayersToFirebase(game);
+    if (game.status === GameStatus.ACTIVE) {
+        await GameService.setPlayersToFirebase(game);
+    }
 
     response.status(201).json(flattenGame(game));
 }
@@ -72,7 +75,9 @@ export async function removePlayer(request: Request, response: Response) {
 
     await game.save();
 
-    await GameService.setPlayersToFirebase(game);
+    if (game.status === GameStatus.ACTIVE) {
+        await GameService.setPlayersToFirebase(game);
+    }
 
     response.status(201).json(flattenGame(game));
 }
