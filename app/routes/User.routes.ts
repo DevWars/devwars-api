@@ -21,4 +21,4 @@ export const UserRoute: express.Router = express
     .post('/:id/stats', UserStatsController.create)
     .get('/:id/stats/game', UserGameStatsController.forUser)
     .get('/:id/profile', UserProfileController.show)
-    .put('/:id/profile', mustOwnUser, UserProfileController.update);
+    .patch('/:id/profile', mustOwnUser, UserProfileController.update);

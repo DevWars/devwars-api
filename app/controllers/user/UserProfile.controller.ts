@@ -1,23 +1,7 @@
 import { Request, Response } from 'express';
 
 import UserProfile from '../../models/UserProfile';
-
-interface IUpdateUserProfileRequest {
-    firstName: string;
-    lastName: string;
-    dob: Date;
-    about: string;
-    forHire: boolean;
-    company: string;
-    websiteUrl: string;
-    addressOne: string;
-    addressTwo: string;
-    city: string;
-    state: string;
-    zip: string;
-    country: string;
-    skills: object;
-}
+import { IProfileRequest } from '../../request/IProfileRequest';
 
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
@@ -29,13 +13,20 @@ export async function show(request: Request, response: Response) {
 
 export async function update(request: Request, response: Response) {
     const userId = request.params.id;
-    const params = request.body as IUpdateUserProfileRequest;
+    const params : any = { ...request.body as IProfileRequest};
 
-    const user = await UserProfile.findOne(userId);
-    if (!user) return response.sendStatus(404);
+    let data : any = await UserProfile.findOne({
+        where: {
+            user: userId
+        }
+    });
 
-    Object.assign(user, params);
-    await user.save();
+    if (!data) return response.sendStatus(404);
 
-    response.json(user);
+    Object.keys(data).map(k => {
+        if (params[k]) data[k] = params[k];
+    })
+
+    data = await UserProfile.save(data);
+    return response.json(data);
 }
