@@ -118,15 +118,29 @@ export default class GameFactory {
 
     public static async createPlayers(num: number) {
         const players: any = {};
+        const users = await User.find();
 
-        for (let i = 1; i <= num; i++) {
-            let user = await UserFactory.withRole(UserRole.USER).save();
+        if (users.length > 5) {
+            for (let i = 1; i <= num; i++) {
+                const randomUserIndex = random.number({ min: 0, max: users.length - 1 });
+                const user = users[randomUserIndex];
 
-            players[user.id] = {
-                id: user.id,
-                username: user.username,
-                team: i <= num / 2 ? 0 : 1,
-            };
+                players[user.id] = {
+                    id: user.id,
+                    username: user.username,
+                    team: i <= num / 2 ? 0 : 1,
+                };
+            }
+        } else {
+            for (let i = 1; i <= num; i++) {
+                let user = await UserFactory.default().save();
+    
+                players[user.id] = {
+                    id: user.id,
+                    username: user.username,
+                    team: i <= num / 2 ? 0 : 1,
+                };
+            }
         }
         return players;
     }
