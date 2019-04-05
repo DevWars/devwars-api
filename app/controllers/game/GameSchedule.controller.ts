@@ -53,11 +53,7 @@ export async function update(request: Request, response: Response) {
         objectives: params.objectives || schedule.setup.objectives,
     };
 
-    try {
-        await schedule.save();
-    } catch (e) {
-        return response.status(500).json({ error: e.message });
-    }
+    await schedule.save();
 
     response.json(flattenSchedule(schedule));
 }
@@ -108,11 +104,7 @@ export async function create(request: Request, response: Response) {
         objectives: objectives.reduce(toIdMap, {}),
     };
 
-    try {
-        await schedule.save();
-    } catch (e) {
-        return response.status(500).json({ error: e.message });
-    }
+    await schedule.save();
 
     response.json(flattenSchedule(schedule));
 }
