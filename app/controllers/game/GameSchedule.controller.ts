@@ -28,7 +28,9 @@ export async function show(request: Request, response: Response) {
 }
 
 export async function all(request: Request, response: Response) {
-    const schedules = await GameSchedule.find();
+    const schedules = await GameSchedule.find({
+        order: { startTime: 'ASC' }
+    })
 
     response.json(schedules.map((schedule) => flattenSchedule(schedule)));
 }
