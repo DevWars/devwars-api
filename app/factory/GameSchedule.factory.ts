@@ -14,8 +14,7 @@ export default class GameScheduleFactory {
             return result;
         };
 
-        schedule.startTime =
-            process.env.NODE_ENV === 'test' ? new Date() : helpers.randomize([date.past(), date.future()]);
+        schedule.startTime = helpers.randomize([date.past(), date.future()]);
         schedule.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
         schedule.setup = {
             mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),

@@ -1,12 +1,11 @@
-import { GameStatus } from '../models/Game';
+import { GameStatus } from '../models/GameSchedule';
 
 export interface IUpdateGameRequest {
     status: GameStatus;
 
-    startTime: number;
-
-    name: string;
-    season: number;
-    theme: string;
+    mode: string;
+    objectives: object;
+    teams: object;
+    title: string;
     videoUrl: string;
 }

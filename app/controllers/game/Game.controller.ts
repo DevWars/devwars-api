@@ -37,13 +37,25 @@ export async function all(request: Request, response: Response) {
 
 export async function update(request: Request, response: Response) {
     const gameId = request.params.id;
-    const params = request.body as IUpdateGameRequest;
+    const gameRequest = request.body as IUpdateGameRequest;
 
     const game = await Game.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
-    Object.assign(game, params);
+    game.mode = gameRequest.mode;
+    game.videoUrl = gameRequest.videoUrl;
+    game.storage = {
+        ...game.storage,
+        title: gameRequest.title,
+        mode: gameRequest.mode,
+        objectives: gameRequest.objectives,
+    };
+
     await game.save();
+
+    if (game.status === GameStatus.ACTIVE) {
+        await GameService.sendGameToFirebase(game);
+    }
 
     response.json(flattenGame(game));
 }
@@ -93,7 +105,7 @@ export async function activate(request: Request, response: Response) {
     game.status = GameStatus.ACTIVE;
     await game.save();
 
-    GameService.sendGameToFirebase(game);
+    await GameService.sendGameToFirebase(game);
 
     response.json(flattenGame(game));
 }

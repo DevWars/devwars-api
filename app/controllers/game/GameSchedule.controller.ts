@@ -15,6 +15,7 @@ function flattenSchedule(schedule: GameSchedule) {
         id: schedule.id,
         createdAt: schedule.createdAt,
         updatedAt: schedule.updatedAt,
+        startTime: schedule.startTime,
         status: schedule.status,
     };
 }
@@ -43,9 +44,13 @@ export async function update(request: Request, response: Response) {
     const schedule = await GameSchedule.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
 
-    schedule.setup.title = params.title || schedule.setup.title;
     schedule.startTime = params.startTime || schedule.startTime;
-    schedule.setup.objectives = params.objectives || schedule.setup.objectives;
+    schedule.setup = {
+        ...schedule.setup,
+        mode: params.mode || schedule.setup.mode,
+        title: params.title || schedule.setup.title,
+        objectives: params.objectives || schedule.setup.objectives,
+    };
 
     try {
         await schedule.save();
