@@ -5,7 +5,6 @@ import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from '../../re
 import GameSchedule from '../../models/GameSchedule';
 import { GameStatus } from '../../models/GameSchedule';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
-import GameService from '../../services/Game.service';
 
 import { validationResult } from 'express-validator/check';
 
@@ -75,6 +74,7 @@ export async function byStatus(request: Request, response: Response) {
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
     const schedules = await gameScheduleRepository.findAllByStatus(status);
+
     response.json(schedules.map((schedule) => flattenSchedule(schedule)));
 }
 
@@ -86,11 +86,24 @@ export async function create(request: Request, response: Response) {
 
     const schedule = new GameSchedule();
 
-    schedule.startTime = new Date(params.startTime);
+    const objectives = [];
+    for (let id = 1; id <= 5; id++) {
+        objectives.push({
+            id,
+            description: '',
+            isBonus: id === 5,
+        });
+    }
+    const toIdMap = (result: any, obj: { id: number }) => {
+        result[obj.id] = obj;
+        return result;
+    };
+
+    schedule.startTime = params.startTime || schedule.startTime;
     schedule.setup = {
-        mode: params.mode,
-        title: params.title,
-        objectives: params.objectives,
+        ...schedule.setup,
+        mode: params.mode || schedule.setup.mode,
+        objectives: objectives.reduce(toIdMap, {}),
     };
 
     try {
