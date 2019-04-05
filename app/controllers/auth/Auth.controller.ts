@@ -4,7 +4,7 @@ import { getCustomRepository } from 'typeorm';
 
 import EmailVerification from '../../models/EmailVerification';
 import PasswordReset from '../../models/PasswordReset';
-import { UserRole } from '../../models/User';
+import User, { UserRole } from '../../models/User';
 
 import UserRepository from '../../repository/User.repository';
 
@@ -14,6 +14,16 @@ import { AuthService } from '../../services/Auth.service';
 import { VerificationService } from '../../services/Verification.service';
 import { hash } from '../../utils/hash';
 
+
+function flattenUser(user: User) {
+    return {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+        role: user.role,
+        avatarUrl: user.avatarUrl
+    }
+}
 export class AuthController {
     /**
      * @api {post} /auth/register Registers user
@@ -54,11 +64,15 @@ export class AuthController {
     public static async register(request: Request, response: Response) {
         const { username, email, password }: IRegistrationRequest = request.body;
 
+        // TODO: IMPORTANT add checks for them. Huge security risk. We can user validator or inside models
+        // and after should add test too
+        if (!username || !email || !password) throw new Error("params missing")
+
         const user = await AuthService.register({ username, email, password });
 
         response.cookie('auth', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
 
-        response.json(user);
+        response.json(flattenUser(user));
     }
 
     public static async reVerify(request: Request, response: Response) {
@@ -92,13 +106,14 @@ export class AuthController {
 
     public static async login(request: Request, response: Response) {
         const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByCredentials(request.body as ILoginRequest);
+        const { identifier, password } = { ...request.body as ILoginRequest };
+        const user = await userRepository.findByCredentials({ identifier });
 
         if (!user) {
             return response.status(400).send('Invalid Credentials');
         }
 
-        const passwordsMatch: boolean = await bcrypt.compare(request.body.password, user.password);
+        const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
         if (!passwordsMatch) {
             return response.status(400).send('Invalid Credentials');
@@ -107,22 +122,34 @@ export class AuthController {
 
             response.cookie('auth', token, { domain: process.env.COOKIE_DOMAIN });
 
-            response.json(user);
+            response.json(flattenUser(user));
         }
     }
 
     public static async logout(request: Request, response: Response) {
-        response.cookie('auth', null, { domain: process.env.COOKIE_DOMAIN });
+        const { auth } = request.cookies;
 
+        if (!auth) throw new Error('logout failed')
+
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findByToken(auth);
+
+        if (!user) throw new Error('logout failed')
+
+        user.token = null;
+
+        await User.save(user);
+
+        response.cookie('auth', null, { domain: process.env.COOKIE_DOMAIN });
         response.json({
             message: 'Success',
         });
     }
 
     public static async currentUser(request: Request, response: Response) {
-        const token = request.cookies.auth;
+        const { auth } = request.cookies;
         const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(token);
+        const user = await userRepository.findByToken(auth);
 
         if (!user) {
             response.status(404).send('You are not logged in');

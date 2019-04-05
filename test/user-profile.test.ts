@@ -46,7 +46,7 @@ describe('user-profile', () => {
         app = server.App();
     });
 
-    it("should update a user's settings", async () => {
+    it("PATCH - /users/:userId/profile - should update a user's settings", async () => {
         const user = await UserFactory.default().save();
         await UserProfileFactory.withUser(user).save();
 
@@ -77,7 +77,7 @@ describe('user-profile', () => {
         chai.expect(diff).to.be.eq(false);
     });
 
-    it("mod should not update another user profile", async () => {
+    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         const modo = await UserFactory.withRole(UserRole.MODERATOR).save();
 
@@ -89,7 +89,7 @@ describe('user-profile', () => {
         chai.expect(response.status).to.be.eq(401);
     });
 
-    it("mod should not update another user profile", async () => {
+    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         await UserProfileFactory.withUser(user).save();
         const admin = await UserFactory.withRole(UserRole.ADMIN).save();

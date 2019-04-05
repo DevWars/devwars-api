@@ -17,6 +17,7 @@ export class AuthService {
         user.username = request.username;
         user.password = await hash(request.password);
         user.role = UserRole.PENDING;
+        user.lastSignIn = new Date();
 
         await VerificationService.reset(user);
 
