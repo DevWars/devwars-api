@@ -4,6 +4,9 @@ import Game from '../models/Game';
 import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
+import UserFactory from './User.factory';
+import { UserRole } from '../models/User';
+
 export interface IObjective {
     id: number;
     description: string;
@@ -115,19 +118,12 @@ export default class GameFactory {
 
     public static async createPlayers(num: number) {
         const players: any = {};
-        const users = await User.find();
+        // const users = await User.find();
 
         for (let i = 1; i <= num; i++) {
-            const randomUserIndex = random.number({ min: 0, max: users.length - 1 });
-            const user = users[randomUserIndex];
-
-            players[user.id] = {
-                id: user.id,
-                username: user.username,
-                team: i <= num / 2 ? 0 : 1,
-            };
+            let user = await UserFactory.withRole(UserRole.USER);
+            players[user.id] = user;
         }
-
         return players;
     }
 

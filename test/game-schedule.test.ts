@@ -66,8 +66,11 @@ describe('game-schedule', () => {
     });
 
     it('GET - /schedules/latest - should return the last schedule created', async () => {
-        const schedule1 = await GameScheduleFactory.default().save();
-        const schedule2 = await GameScheduleFactory.default().save();
+        const date = new Date();
+        const schedule1 = await GameScheduleFactory.withTime(date).save();
+
+        const dateFutur = date.setHours(date.getHours() + 2)
+        const schedule2 = await GameScheduleFactory.withTime(new Date(dateFutur)).save();
 
         const response = await supertest(app)
             .get('/schedules/latest')

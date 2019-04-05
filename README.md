@@ -28,6 +28,10 @@ If however, you want to run our entire stack, please refer to our repo [DevWars 
 
 ---
 
+## Create the .env
+
+FIREBASE_URL=https://<Your Firebase ID>.firebaseio.com/
+
 ## Project Structure
 
 Overview

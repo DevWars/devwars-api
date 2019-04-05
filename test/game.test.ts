@@ -19,8 +19,8 @@ describe('game', () => {
     });
 
     it('POST - games - normal user fail oauth', async () => {
-        const game = await GameFactory.default();
         const user = UserFactory.withRole(UserRole.USER);
+        const game = await GameFactory.default();
 
         const response = await supertest(app)
             .post('/games')
