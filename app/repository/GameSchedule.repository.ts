@@ -23,7 +23,7 @@ export default class GameScheduleRepository extends Repository<GameSchedule> {
     }
 
     public findByGame(game: Game): Promise<GameSchedule> {
-        return GameSchedule.findOne({ where: { game }});
+        return GameSchedule.findOne({ where: { game } });
     }
 
     public async findApplicationsByUser(user: User): Promise<GameSchedule[]> {

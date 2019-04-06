@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as supertest from 'supertest';
 import { Server } from '../config/Server';
 
-import { UserFactory } from '../app/factory'
+import { UserFactory } from '../app/factory';
 import { cookieForUser } from './helpers';
 
 import './setup';
@@ -18,7 +18,7 @@ describe('oauth', () => {
         app = server.App();
     });
 
-    it('GET - auth/user - should retrieve the currrent user information', async () => {
+    it('GET - auth/user - should retrieve the current user information', async () => {
         const user = await UserFactory.default().save();
 
         const request = await supertest(app)
@@ -27,9 +27,9 @@ describe('oauth', () => {
             .send();
 
         chai.expect(request.body.id).to.be.eq(user.id);
-    })
+    });
 
-    it('GET - auth/user - should retrieve 404 because user doesnt exist', async () => {
+    it('GET - auth/user - should retrieve 404 because user does not exist', async () => {
         const user = await UserFactory.default().save();
 
         const request = await supertest(app)
@@ -38,33 +38,33 @@ describe('oauth', () => {
             .send();
 
         chai.expect(request.status).to.be.eq(404);
-    })
+    });
 
-    it('POST - auth/login - the login should faild because user doesnt exist ', async () => {
+    it('POST - auth/login - the login should faild because user does not exist ', async () => {
         const user = await UserFactory.default().save();
 
         const request = await supertest(app)
             .post('/auth/login')
             .send({
-                identifier: user.username + "test",
-                password: ""
+                identifier: user.username + 'test',
+                password: '',
             });
 
         chai.expect(request.status).to.be.eq(400);
-    })
+    });
 
-    it('POST - auth/login - the login should faild because password is not good', async () => {
+    it('POST - auth/login - the login should failed because password is not good', async () => {
         const user = await UserFactory.default().save();
 
         const request = await supertest(app)
             .post('/auth/login')
             .send({
                 identifier: user.username,
-                password: "dddd"
+                password: 'dddd',
             });
 
         chai.expect(request.status).to.be.eq(400);
-    })
+    });
 
     it('POST - auth/login - the login should return user', async () => {
         const user = await UserFactory.default().save();
@@ -73,11 +73,11 @@ describe('oauth', () => {
             .post('/auth/login')
             .send({
                 identifier: user.username,
-                password: "secret"
+                password: 'secret',
             });
 
         chai.expect(request.body.id).to.be.eq(user.id);
-    })
+    });
 
     it('POST - auth/logout - the logout should not work because no token', async () => {
         const user = await UserFactory.default().save();
@@ -87,7 +87,7 @@ describe('oauth', () => {
             .send();
 
         chai.expect(request.status).to.be.eq(500);
-    })
+    });
 
     it('POST - auth/logout - the logout should not work invalid token', async () => {
         const user = await UserFactory.default().save();
@@ -98,7 +98,7 @@ describe('oauth', () => {
             .send();
 
         chai.expect(request.status).to.be.eq(500);
-    })
+    });
 
     it('POST - auth/logout - the logout should work', async () => {
         const user = await UserFactory.default().save();
@@ -113,19 +113,18 @@ describe('oauth', () => {
         const afterUser = await User.findOne(user.id);
 
         chai.expect(afterUser.token).to.be.eq(null);
-    })
-
+    });
 
     it('POST - auth/register - should return the new user created', async () => {
         const request = await supertest(app)
             .post('/auth/register')
             .send({
-                username: "asdad",
-                email: "email@email.fr",
-                password: "secret"
+                username: 'asdad',
+                email: 'email@email.fr',
+                password: 'secret',
             });
 
         chai.expect(request.status).to.be.eq(200);
-        chai.expect(request.body.email).to.be.eq("email@email.fr");
-    })
-})
+        chai.expect(request.body.email).to.be.eq('email@email.fr');
+    });
+});

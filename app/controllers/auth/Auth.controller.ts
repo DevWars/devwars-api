@@ -14,15 +14,14 @@ import { AuthService } from '../../services/Auth.service';
 import { VerificationService } from '../../services/Verification.service';
 import { hash } from '../../utils/hash';
 
-
 function flattenUser(user: User) {
     return {
         id: user.id,
         email: user.email,
         username: user.username,
         role: user.role,
-        avatarUrl: user.avatarUrl
-    }
+        avatarUrl: user.avatarUrl,
+    };
 }
 export class AuthController {
     /**
@@ -66,7 +65,7 @@ export class AuthController {
 
         // TODO: IMPORTANT add checks for them. Huge security risk. We can user validator or inside models
         // and after should add test too
-        if (!username || !email || !password) throw new Error("params missing")
+        if (!username || !email || !password) throw new Error('params missing');
 
         const user = await AuthService.register({ username, email, password });
 
@@ -106,7 +105,7 @@ export class AuthController {
 
     public static async login(request: Request, response: Response) {
         const userRepository = await getCustomRepository(UserRepository);
-        const { identifier, password } = { ...request.body as ILoginRequest };
+        const { identifier, password } = { ...(request.body as ILoginRequest) };
         const user = await userRepository.findByCredentials({ identifier });
 
         if (!user) {
@@ -129,12 +128,12 @@ export class AuthController {
     public static async logout(request: Request, response: Response) {
         const { auth } = request.cookies;
 
-        if (!auth) throw new Error('logout failed')
+        if (!auth) throw new Error('logout failed');
 
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(auth);
 
-        if (!user) throw new Error('logout failed')
+        if (!user) throw new Error('logout failed');
 
         user.token = null;
 
