@@ -32,12 +32,12 @@ export class AuthService {
         return user.token;
     }
 
-    public static async resetPassword() {
+    public static async resetPassword(user: User) {
         const reset = await new PasswordReset().save();
 
-        // await MailService.send([user.email], 'reset-password', {
-        //     url: `${process.env.FRONT_URL}/reset-password?key=${reset.token}`,
-        //     username: user.username,
-        // });
+        await MailService.send([user.email], 'reset-password', {
+            url: `${process.env.FRONT_URL}/reset-password?key=${reset.token}`,
+            username: user.username,
+        });
     }
 }

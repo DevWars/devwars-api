@@ -13,6 +13,6 @@ export const AuthRoute: express.Router = express
     .get('/verify', asyncErrorHandler(AuthController.verify))
     .post('/re-verify', asyncErrorHandler(AuthController.reVerify))
     .post('/reset', asyncErrorHandler(AuthController.initiatePasswordReset))
-    .put('/reset', asyncErrorHandler(AuthController.resetPassword))
+    .get('/reset', asyncErrorHandler(AuthController.resetPassword))
     .post('/reset/email', mustOwnUser, asyncErrorHandler(ResetController.email))
     .put('/reset/password', mustOwnUser, asyncErrorHandler(ResetController.password));

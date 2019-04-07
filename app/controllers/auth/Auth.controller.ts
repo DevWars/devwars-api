@@ -91,7 +91,7 @@ export class AuthController {
 
         const foundToken = await EmailVerification.findOne({ where: { token: key } });
 
-        if (foundToken) {
+        if (!foundToken) {
             const { user } = foundToken;
 
             user.role = UserRole.USER;
@@ -150,9 +150,7 @@ export class AuthController {
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(auth);
 
-        if (!user) {
-            response.status(404).send('You are not logged in');
-        }
+        if (!user) response.status(404).send('You are not logged in');
 
         response.json(user);
     }
@@ -163,9 +161,9 @@ export class AuthController {
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
-        if (user) {
-            await AuthService.resetPassword();
-        }
+        if (!user) throw new Error('error when trying to reset password')
+
+        await AuthService.resetPassword(user);
 
         response.json({
             message: 'Reset password, check your email',
