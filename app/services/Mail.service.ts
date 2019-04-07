@@ -1,28 +1,41 @@
-import axios from 'axios';
-import * as mailgun from 'mailgun.js';
+// tslint:disable no-var-requires
+import * as fs from 'fs';
+import * as path from 'path';
+import * as createMailgun from 'mailgun-js';
+const mjml2html = require('mjml');
 
-export class MailService {
-    public static async send(to: string[], email: string, params: object) {
-        if (process.env.NODE_ENV === 'test') {
-            return;
-        }
+import User from '../models/User';
 
-        try {
-            const response = await axios.get('http://web:3000/mail/translate/' + email, { params });
+const mjmlOptions = { minify: true, keepComments: false };
 
-            const { html, subject } = response.data;
+export async function send(to: string, subject: string, html: string) {
+    if (process.env.NODE_ENV === 'test') return;
 
-            const client = mailgun.client({ username: 'api', key: process.env.MAILGUN_KEY });
+    try {
+        const mailgun = createMailgun({ apiKey: process.env.MAILGUN_KEY, domain: 'devwars.tv' });
 
-            client.messages.create('devwars.tv', {
-                from: 'DevWars <noreply@devwars.tv>',
-                html,
-                message: 'text/html',
-                subject,
-                to,
-            });
-        } catch (e) {
-            console.error(e);
-        }
+        mailgun.messages().send({
+            from: 'DevWars <noreply@devwars.tv>',
+            to,
+            subject,
+            html,
+        });
+    } catch (e) {
+        console.error(e);
     }
+}
+
+export async function sendWelcomeEmail(user: User, verificationUrl: string) {
+    const subject = 'Welcome to DevWars';
+
+    const filePath = path.resolve(__dirname, '../mail/welcome.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__USERNAME__/g, user.username)
+        .replace(/__URL__/g, verificationUrl);
+
+    await send(user.email, subject, output.html);
 }

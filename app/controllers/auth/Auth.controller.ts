@@ -137,7 +137,7 @@ export class AuthController {
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
-        if (!user) throw new Error('error when trying to reset password')
+        if (!user) throw new Error('error when trying to reset password');
 
         await AuthService.resetPassword(user);
 

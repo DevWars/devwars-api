@@ -1,4 +1,6 @@
-import 'dotenv/config';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import * as firebase from 'firebase-admin';
 
 // tslint:disable:no-var-requires
@@ -10,11 +12,17 @@ export default firebase.initializeApp({
 });
 
 export const pathValueAtPath = async (path: string, value: any) => {
-    return firebase.database().ref(path).set(value);
+    return firebase
+        .database()
+        .ref(path)
+        .set(value);
 };
 
 export const getValueAtPath = async (path: string) => {
-    const value = await firebase.database().ref(path).once('value');
+    const value = await firebase
+        .database()
+        .ref(path)
+        .once('value');
 
     return value.val();
 };

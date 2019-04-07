@@ -1,0 +1,20 @@
+<mjml>
+  <mj-body background-color="#090b11">
+    <mj-include path="./layouts/header.mjml"></mj-include>
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">Welcome __USERNAME__!</mj-text>
+        <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">Thanks for signing up on DevWars. To start hacking, please verify your email address by clicking the link below.</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0">
+      <mj-column>
+        <mj-button href="__URL__" background-color="#00c9ff" color="#090b11" border-radius="40px" font-family="helvetica" font-size="18px" font-weight="bold">CONFIRM EMAIL</mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="./layouts/footer.mjml"></mj-include>
+  </mj-body>
+</mjml>

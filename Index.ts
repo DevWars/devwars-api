@@ -1,13 +1,15 @@
+import * as dotenv from 'dotenv';
+dotenv.config();
+
 import * as cluster from 'cluster';
 import { cpus } from 'os';
-import { env } from 'process';
 import { config } from './config';
 import { Server } from './config/Server';
 
 import './config/S3';
 
 if (cluster.isMaster) {
-    console.log(`\n -------------------> RUN ${env.NODE_ENV} ENVIRONMENT \n`);
+    console.log(`\n -------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT \n`);
 
     for (const cpu of cpus()) {
         cluster.fork();
@@ -19,7 +21,7 @@ if (cluster.isMaster) {
         cluster.fork();
     });
 } else {
-    const port: number = Number(env.PORT) || config.PORT_APP || 8080;
+    const port: number = Number(process.env.PORT) || config.PORT_APP || 8080;
 
     new Server().Start().then((server) => {
         server.listen(port);
