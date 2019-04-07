@@ -5,7 +5,7 @@ export const DIALECT = 'postgres';
 const LOCAL_CONFIGURATION = {
     SERVER: env.SERVER || '127.0.0.1',
     PORT: Number(env.PORT_DB) || 5432,
-    DB: env.DB || 'devwars_local', // TODO: maybe here it should devwars_local
+    DB: env.DB || 'devwars_local',
     USER: env.USER_DB || 'postgres',
     PASSWORD: env.PASSWORD || 'secret',
 };
@@ -13,7 +13,7 @@ const LOCAL_CONFIGURATION = {
 const PRODUCTION_CONFIGURATION = {
     SERVER: env.SERVER || 'localhost',
     PORT: Number(env.PORT_DB) || 5432,
-    DB: env.DB || 'devwars', // TODO: maybe here it should devwars_production
+    DB: env.DB || 'devwars',
     USER: env.USER_DB || 'postgres',
     PASSWORD: env.PASSWORD || 'secret',
 };
@@ -36,5 +36,4 @@ const mask: any = {
 export const config = {
     DATABASE: mask[env.NODE_ENV] || mask.LOCAL,
     PORT_APP: 8080,
-    SECRET: 'HltH3R3',
 };

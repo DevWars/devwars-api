@@ -34,13 +34,13 @@ describe('oauth', () => {
 
         const request = await supertest(app)
             .get('/auth/user')
-            .set('Cookie', 'oauth=asdasdad')
+            .set('Cookie', 'oauth=test')
             .send();
 
         chai.expect(request.status).to.be.eq(404);
     });
 
-    it('POST - auth/login - the login should faild because user does not exist ', async () => {
+    it('POST - auth/login - the login should failed because user does not exist ', async () => {
         const user = await UserFactory.default().save();
 
         const request = await supertest(app)
@@ -94,7 +94,7 @@ describe('oauth', () => {
 
         const request = await supertest(app)
             .post('/auth/logout')
-            .set('Cookie', 'auth="skdja"')
+            .set('Cookie', 'auth=test')
             .send();
 
         chai.expect(request.status).to.be.eq(500);
@@ -119,7 +119,7 @@ describe('oauth', () => {
         const request = await supertest(app)
             .post('/auth/register')
             .send({
-                username: 'asdad',
+                username: 'test',
                 email: 'email@email.fr',
                 password: 'secret',
             });

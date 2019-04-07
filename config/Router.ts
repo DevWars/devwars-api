@@ -5,7 +5,6 @@ import { GameRoute } from '../app/routes/Game.routes';
 import { GameScheduleRoute } from '../app/routes/GameSchedule.routes';
 import { GameApplicationRoute } from '../app/routes/GameApplication.routes';
 import { HealthRoute } from '../app/routes/Health.route';
-import { JWTRoute } from '../app/routes/Jwt.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
 import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
 import { OAuthRoute } from '../app/routes/OAuth.route';
@@ -18,11 +17,6 @@ interface IROUTER {
 }
 
 export const ROUTER: IROUTER[] = [
-    {
-        handler: JWTRoute,
-        middleware: [],
-        path: '/JWT',
-    },
     {
         handler: HealthRoute,
         middleware: [],
