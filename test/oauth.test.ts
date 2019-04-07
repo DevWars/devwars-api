@@ -3,11 +3,12 @@ import * as express from 'express';
 import * as supertest from 'supertest';
 import { Server } from '../config/Server';
 
-import { UserFactory } from '../app/factory';
+import { UserFactory, EmailVerificationFactory } from '../app/factory';
 import { cookieForUser } from './helpers';
 
 import './setup';
-import User from '../app/models/User';
+import User, { UserRole } from '../app/models/User';
+import EmailVerification from '../app/models/EmailVerification';
 
 const server: Server = new Server();
 let app: express.Application;
@@ -127,4 +128,22 @@ describe('oauth', () => {
         chai.expect(request.status).to.be.eq(200);
         chai.expect(request.body.email).to.be.eq('email@email.fr');
     });
+
+    it('GET - auth/verify - it should find the token and delete it', async () => {
+        const user = await UserFactory.withRole(UserRole.USER).save();
+
+        await EmailVerificationFactory.withUser(user).save();
+
+        const request = await supertest(app)
+            .get('/auth/verify?key="secret"')
+            .send();
+
+        const checkVerifDelete = await EmailVerification.findOne({
+            where: {
+                token: 'secretToken'
+            }
+        })
+        chai.expect(checkVerifDelete).to.be.eq(undefined);
+    });
+
 });

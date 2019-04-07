@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { helpers, random } from 'faker';
-import User from '../models/User';
-import { UserRole } from '../models/User';
+import User, { UserRole } from '../models/User';
 
 export default class UserFactory {
     public static default(): User {

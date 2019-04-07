@@ -13,3 +13,5 @@ export { default as UserGameStatsFactory } from './UserGameStats.factory';
 export { default as UserProfileFactory } from './UserProfile.factory';
 
 export { default as UserStatsFactory } from './UserStats.factory';
+
+export { default as EmailVerificationFactory } from './EmailVerification.factory';
