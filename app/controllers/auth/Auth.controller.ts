@@ -24,48 +24,24 @@ function flattenUser(user: User) {
     };
 }
 export class AuthController {
-    /**
-     * @api {post} /auth/register Registers user
-     * @apiVersion 1.0.0
-     * @apiName register
-     * @apiGroup Auth
-     *
-     * @apiSuccess {Date} auth.createdAt       Time created
-     * @apiSuccess {Date} auth.updatedAt       Time updated
-     * @apiSuccess {String} auth.email         Email address
-     * @apiSuccess {String} auth.username      Username
-     * @apiSuccess {String} auth.password      Hashed Password
-     * @apiSuccess {String} auth.role          Current role of user
-     * @apiSuccess {String} auth.token         Generated user token
-     * @apiSuccess {String} auth.avatarUrl     URL for avatar image
-     * @apiSuccess {Object} auth.analytics     User analytics
-     * @apiSuccess {Object} auth.profile       User profile information
-     * @apiSuccess {Object} auth.statistics    User Coins and XP
-     *
-     * @apiSuccessExample Success-Response:
-     *     HTTP/1.1 200 OK
-     *     {
-     *       "id": 1,
-     *       "createdAt": "2018-10-21T21:45:45.000Z",
-     *       "updatedAt": "2018-10-21T21:45:45.000Z",
-     *       "email": "test@test.com"
-     *       "username": "testuser",
-     *       "password": "$2b$04$4OyBt68kkT5FyN/AFhye0OSH/fgR5MG8QlcJvT.4iSHCbsiVigXO.",
-     *       "role": "PENDING",
-     *       "token": "wmzqzhz8zzhrngipmmqqbb0229m9egiz",
-     *       "avatarUrl": null,
-     *       "analytics": null,
-     *       "profile": { about: null, forHire: null, location: null, websiteUrl: null },
-     *       "statistics": { coins: 0, xp: 0 }
-     *     }
-     */
-
     public static async register(request: Request, response: Response) {
-        const { username, email, password }: IRegistrationRequest = request.body;
+        let { username, email, password }: IRegistrationRequest = request.body;
+        username = username.trim();
+        email = email.trim();
+        password = password.trim();
 
-        // TODO: IMPORTANT add checks for them. Huge security risk. We can user validator or inside models
-        // and after should add test too
-        if (!username || !email || !password) throw new Error('params missing');
+        if (!username || !email || !password) return response.sendStatus(400);
+
+        const userRepository = await getCustomRepository(UserRepository);
+        const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
+
+        if (existingUser && existingUser.username === username) {
+            return response.status(409).json({ message: 'Username is taken' });
+        }
+
+        if (existingUser && existingUser.email === email) {
+            return response.status(409).json({ message: 'Email address is taken' });
+        }
 
         const user = await AuthService.register({ username, email, password });
 

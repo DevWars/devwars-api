@@ -1,8 +1,12 @@
+import { getManager } from 'typeorm';
 import { hash } from '../utils/hash';
 
 import PasswordReset from '../models/PasswordReset';
 import User from '../models/User';
 import { UserRole } from '../models/User';
+import UserProfile from '../models/UserProfile';
+import UserStats from '../models/UserStats';
+import UserGameStats from '../models/UserGameStats';
 
 import IRegistrationRequest from '../request/RegistrationRequest';
 import { randomString } from '../utils/random';
@@ -12,16 +16,31 @@ import { VerificationService } from './Verification.service';
 export class AuthService {
     public static async register(request: IRegistrationRequest) {
         const user = new User();
-
         user.email = request.email;
         user.username = request.username;
         user.password = await hash(request.password);
         user.role = UserRole.PENDING;
         user.lastSignIn = new Date();
 
+        const profile = new UserProfile();
+        profile.user = user;
+
+        const userStats = new UserStats();
+        userStats.user = user;
+
+        const gameStats = new UserGameStats();
+        gameStats.user = user;
+
         await VerificationService.reset(user);
 
-        return user.save();
+        await getManager().transaction(async (transactionalEntityManager) => {
+            await transactionalEntityManager.save(user);
+            await transactionalEntityManager.save(profile);
+            await transactionalEntityManager.save(userStats);
+            await transactionalEntityManager.save(gameStats);
+        });
+
+        return user;
     }
 
     public static async newToken(user: User): Promise<string> {

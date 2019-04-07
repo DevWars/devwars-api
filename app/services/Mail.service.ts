@@ -8,11 +8,11 @@ export class MailService {
         }
 
         try {
-            const response = await axios.get('http://web:3000/mail/translate/' + email, {params});
+            const response = await axios.get('http://web:3000/mail/translate/' + email, { params });
 
-            const {html, subject} = response.data;
+            const { html, subject } = response.data;
 
-            const client = mailgun.client({username: 'api', key: process.env.MAILGUN_KEY});
+            const client = mailgun.client({ username: 'api', key: process.env.MAILGUN_KEY });
 
             client.messages.create('devwars.tv', {
                 from: 'DevWars <noreply@devwars.tv>',
