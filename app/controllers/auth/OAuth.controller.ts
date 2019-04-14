@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import LinkedAccount from '../../models/LinkedAccount';
+import LinkedAccount, { Provider } from '../../models/LinkedAccount';
 import UserRepository from '../../repository/User.repository';
 import { DiscordService } from '../../services/Discord.service';
 
@@ -26,7 +26,7 @@ export class OAuthController {
 
         const linked = new LinkedAccount();
         linked.user = user;
-        linked.provider = 'DISCORD';
+        linked.provider = Provider.DISCORD;
         linked.username = discordUser.username;
         linked.providerId = discordUser.id;
 

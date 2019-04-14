@@ -40,6 +40,7 @@
         "all": true
     },
     "dependencies": {
+        "@types/qs": "^6.5.3",
         "aws-sdk": "^2.355.0",
         "axios": "^0.18.0",
         "bcrypt": "^3.0.1",
@@ -62,6 +63,7 @@
         "morgan": "^1.9.0",
         "multer": "^1.4.1",
         "pg": "^7.9.0",
+        "qs": "^6.7.0",
         "superagent": "^3.8.2",
         "token-extractor": "^0.1.6",
         "ts-node": "^7.0.0",

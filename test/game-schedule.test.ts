@@ -69,7 +69,7 @@ describe('game-schedule', () => {
         const date = new Date();
         const schedule1 = await GameScheduleFactory.withTime(date).save();
 
-        const dateFutur = date.setHours(date.getHours() + 2)
+        const dateFutur = date.setHours(date.getHours() + 2);
         const schedule2 = await GameScheduleFactory.withTime(new Date(dateFutur)).save();
 
         const response = await supertest(app)
