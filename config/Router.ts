@@ -7,7 +7,7 @@ import { GameApplicationRoute } from '../app/routes/GameApplication.routes';
 import { HealthRoute } from '../app/routes/Health.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
 import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
-import { OAuthRoute } from '../app/routes/OAuth.route';
+import { OAuthRoute } from '../app/routes/OAuth.routes';
 import { UserRoute } from '../app/routes/User.routes';
 
 interface IROUTER {
