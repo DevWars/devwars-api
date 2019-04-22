@@ -1,0 +1,25 @@
+<mjml>
+  <mj-body background-color="#090b11">
+    <mj-include path="./layouts/header.mjml"></mj-include>
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">Connect your Discord account</mj-text>
+        <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
+          Hello __USERNAME__, we recently added a new requirement to link your Discord account to your DevWars account in order to compete in future games.
+        </mj-text>
+        <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
+          Since Discord is an important part of DevWars, connecting your Discord will help us automate more of the sign up process to be faster and easier to join games.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0">
+      <mj-column>
+        <mj-button href="__URL__" background-color="#00c9ff" color="#090b11" border-radius="40px" font-family="helvetica" font-size="18px" font-weight="bold">LINK MY DISCORD</mj-button>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="./layouts/footer.mjml"></mj-include>
+  </mj-body>
+</mjml>

@@ -1,0 +1,34 @@
+<mjml>
+  <mj-body background-color="#090b11">
+    <mj-include path="./layouts/header.mjml"></mj-include>
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">New Contact</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding="0">
+      <mj-column>
+        <mj-table>
+          <tr style="border-bottom: 1px solid #ccc; text-align:left; padding:15px 0; color: #fff">
+            <th style="padding: 0 15px 0 0;">Field</th>
+            <th style="padding: 0 15px;">Response</th>
+          </tr>
+          <tr style="color: #fff">
+            <td style="padding: 0 15px 0 0;">Name</td>
+            <td style="padding: 0 15px;">__NAME__</td>
+          </tr>
+          <tr style="color: #fff">
+            <td style="padding: 0 15px 0 0;">Email</td>
+            <td style="padding: 0 15px;">__EMAIL__</td>
+          </tr>
+        </mj-table>
+        <mj-text align="left" font-weight="bold" font-size="16px" color="#fff" font-family="helvetica">Contact Message:</mj-text>
+        <mj-text align="left" line-height="160%" font-size="13px" color="#fff" font-family="helvetica">__MESSAGE__</mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="./layouts/footer.mjml"></mj-include>
+  </mj-body>
+</mjml>
