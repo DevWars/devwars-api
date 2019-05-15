@@ -39,3 +39,18 @@ export async function sendWelcomeEmail(user: User, verificationUrl: string) {
 
     await send(user.email, subject, output.html);
 }
+
+export async function sendPasswordResetEmail(user: User, resetUrl: string) {
+    const subject = 'DevWars Password Reset';
+
+    const filePath = path.resolve(__dirname, '../mail/reset-password.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__USERNAME__/g, user.username)
+        .replace(/__URL__/g, resetUrl);
+
+    await send(user.email, subject, output.html);
+}

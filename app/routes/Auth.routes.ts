@@ -1,6 +1,5 @@
 import * as express from 'express';
 import { AuthController } from '../controllers/auth/Auth.controller';
-import { ResetController } from '../controllers/user/Reset.controller';
 import { mustOwnUser } from '../middlewares/OwnsUser';
 import { asyncErrorHandler } from './handlers';
 
@@ -12,7 +11,6 @@ export const AuthRoute: express.Router = express
     .post('/register', asyncErrorHandler(AuthController.register))
     .get('/verify', asyncErrorHandler(AuthController.verify))
     .post('/re-verify', asyncErrorHandler(AuthController.reVerify))
-    .post('/reset', asyncErrorHandler(AuthController.initiatePasswordReset))
-    .get('/reset', asyncErrorHandler(AuthController.resetPassword))
-    .post('/reset/email', mustOwnUser, asyncErrorHandler(ResetController.email))
-    .put('/reset/password', mustOwnUser, asyncErrorHandler(ResetController.password));
+    .post('/forgot/password', mustOwnUser, asyncErrorHandler(AuthController.initiatePasswordReset))
+    .post('/reset/password', mustOwnUser, asyncErrorHandler(AuthController.resetPassword))
+    .post('/reset/email', mustOwnUser, asyncErrorHandler(AuthController.initiateEmailReset));

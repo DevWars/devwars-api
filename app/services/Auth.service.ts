@@ -1,5 +1,6 @@
 import { getManager } from 'typeorm';
 import { hash } from '../utils/hash';
+import { addHours } from 'date-fns';
 
 import PasswordReset from '../models/PasswordReset';
 import User from '../models/User';
@@ -10,7 +11,7 @@ import UserGameStats from '../models/UserGameStats';
 
 import IRegistrationRequest from '../request/RegistrationRequest';
 import { randomString } from '../utils/random';
-// import { MailService } from './Mail.service';
+import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
 
 export class AuthService {
@@ -52,11 +53,15 @@ export class AuthService {
     }
 
     public static async resetPassword(user: User) {
-        const reset = await new PasswordReset().save();
+        const reset = await new PasswordReset();
+        reset.expiresAt = addHours(new Date(), 6);
+        reset.token = randomString(32);
+        reset.user = user;
 
-        // await MailService.send([user.email], 'reset-password', {
-        //     url: `${process.env.FRONT_URL}/reset-password?key=${reset.token}`,
-        //     username: user.username,
-        // });
+        const resetUrl = `${process.env.FRONT_URL}/reset-password?key=${reset.token}`;
+
+        await reset.save();
+
+        await sendPasswordResetEmail(user, resetUrl);
     }
 }

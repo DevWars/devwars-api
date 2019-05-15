@@ -1,17 +1,19 @@
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
-import { getCustomRepository } from 'typeorm';
+import { getManager, getCustomRepository } from 'typeorm';
 
 import EmailVerification from '../../models/EmailVerification';
-import PasswordReset from '../../models/PasswordReset';
 import User, { UserRole } from '../../models/User';
+import PasswordReset from '../../models/PasswordReset';
 
 import UserRepository from '../../repository/User.repository';
+import PasswordResetRepository from '../../repository/PasswordReset.repository';
 
 import ILoginRequest from '../../request/ILoginRequest';
 import IRegistrationRequest from '../../request/RegistrationRequest';
 import { AuthService } from '../../services/Auth.service';
 import { VerificationService } from '../../services/Verification.service';
+import { ResetService } from '../../services/Reset.service';
 import { hash } from '../../utils/hash';
 
 function flattenUser(user: User) {
@@ -131,13 +133,38 @@ export class AuthController {
         response.json(user);
     }
 
+    public static async initiateEmailReset(request: Request, response: Response) {
+        const userRepository = await getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.params.user.id);
+        const { password, email } = request.body;
+
+        const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
+
+        if (!passwordsMatch) {
+            return response.status(400).json({
+                message: 'Password did not match',
+            });
+        }
+
+        await ResetService.resetEmail(user, email);
+
+        response.json({
+            message: 'Email reset',
+        });
+    }
+
     public static async initiatePasswordReset(request: Request, response: Response) {
         const { username_or_email } = request.body;
 
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
-        if (!user) throw new Error('error when trying to reset password');
+        if (!user) {
+            return response.status(404).json({ message: 'User not found' });
+        }
+
+        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        await passwordResetRepository.delete({ user });
 
         await AuthService.resetPassword(user);
 
@@ -149,22 +176,27 @@ export class AuthController {
     public static async resetPassword(request: Request, response: Response) {
         const { key, password } = request.query;
 
-        const reset = await PasswordReset.findOne({ where: { token: key }, relations: ['user'] });
+        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        const passwordReset = await passwordResetRepository.findByToken(key);
 
-        if (!reset) {
-            return response.status(400).json({
-                message: 'Could not reset password',
-            });
+        if (!passwordReset) {
+            return response.status(400).json({ message: 'Could not reset password' });
         }
 
-        const { user } = reset;
+        if (Date.now() < passwordReset.expiresAt.getTime()) {
+            return response.status(401).json({ message: 'Expired password reset token' });
+        }
 
+        const user = passwordReset.user;
         user.password = await hash(password);
 
-        await user.save();
+        await getManager().transaction(async (transactionalEntityManager) => {
+            await transactionalEntityManager.delete(PasswordReset, passwordReset.id);
+            await transactionalEntityManager.save(user);
+        });
 
         return response.json({
-            message: 'Password reset',
+            message: 'Password reset!',
         });
     }
 }
