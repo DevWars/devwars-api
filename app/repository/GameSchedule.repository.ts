@@ -25,20 +25,4 @@ export default class GameScheduleRepository extends Repository<GameSchedule> {
     public findByGame(game: Game): Promise<GameSchedule> {
         return GameSchedule.findOne({ where: { game } });
     }
-
-    public async findApplicationsByUser(user: User): Promise<GameSchedule[]> {
-        return GameSchedule.createQueryBuilder('game_schedule')
-            .where((qb) => {
-                const subQuery = qb
-                    .subQuery()
-                    .select('application.schedule_id')
-                    .from(GameApplication, 'application')
-                    .where('application.user_id = :user')
-                    .getSql();
-
-                return 'schedule.id in ' + subQuery;
-            })
-            .setParameter('user', user.id)
-            .getMany();
-    }
 }

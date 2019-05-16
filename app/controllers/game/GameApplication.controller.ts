@@ -2,14 +2,27 @@ import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import GameApplicationFactory from '../../factory/GameApplication.factory';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
+import GameApplicationRepository from '../../repository/GameApplication.repository';
 import UserRepository from '../../repository/User.repository';
 
+export async function mine(request: Request, response: Response) {
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findByToken(request.cookies.auth);
+
+    const gameApplicationRepository = await getCustomRepository(GameApplicationRepository);
+    const applications = await gameApplicationRepository.findByUser(user);
+
+    response.json(applications);
+}
+
 export async function apply(request: Request, response: Response) {
+    const scheduleId = request.params.schedule;
+
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(request.cookies.auth);
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findOne(request.params.schedule);
+    const schedule = await gameScheduleRepository.findOne(scheduleId);
 
     if (!schedule || !user) return response.sendStatus(404);
 
@@ -17,45 +30,32 @@ export async function apply(request: Request, response: Response) {
     return response.json(application);
 }
 
-export async function applyByUsername(request: Request, response: Response) {
+export async function resign(request: Request, response: Response) {
+    const scheduleId = request.params.schedule;
+
     const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByUsername(request.params.username);
+    const user = await userRepository.findByToken(request.cookies.auth);
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findOne(request.params.schedule);
+    const schedule = await gameScheduleRepository.findOne(scheduleId);
 
     if (!schedule || !user) return response.sendStatus(404);
 
-    const applications = await GameApplicationFactory.withScheduleAndUser(schedule, user).save();
-    return response.json(applications);
+    const gameApplicationRepository = await getCustomRepository(GameApplicationRepository);
+    const deleteApplication = await gameApplicationRepository.delete({ user, schedule });
+
+    return response.json(deleteApplication);
 }
 
 export async function findBySchedule(request: Request, response: Response) {
+    const scheduleId = request.params.schedule;
+
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findOne(request.params.schedule);
+    const schedule = await gameScheduleRepository.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
 
     const userRepository = await getCustomRepository(UserRepository);
     const applications = await userRepository.findApplicationsBySchedule(schedule);
 
     response.json(applications);
-}
-
-export async function mine(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
-
-    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
-    const applications = await gameScheduleRepository.findApplicationsByUser(user);
-
-    response.json(applications);
-}
-
-export async function entered(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
-
-    // const applications = await user.playedGames();
-
-    // response.json(applications);
 }
