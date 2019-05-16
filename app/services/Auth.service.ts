@@ -25,6 +25,7 @@ export class AuthService {
 
         const profile = new UserProfile();
         profile.user = user;
+        profile.skills = { html: 1, css: 1, js: 1 };
 
         const userStats = new UserStats();
         userStats.user = user;
