@@ -2,6 +2,7 @@ import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import GameApplicationFactory from '../../factory/GameApplication.factory';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
+import GameRepository from '../../repository/Game.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import UserRepository from '../../repository/User.repository';
 
@@ -52,6 +53,23 @@ export async function findBySchedule(request: Request, response: Response) {
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
+    if (!schedule) return response.sendStatus(404);
+
+    const userRepository = await getCustomRepository(UserRepository);
+    const applications = await userRepository.findApplicationsBySchedule(schedule);
+
+    response.json(applications);
+}
+
+export async function findByGame(request: Request, response: Response) {
+    const gameId = request.params.game;
+
+    const gameRepository = await getCustomRepository(GameRepository);
+    const game = await gameRepository.findOne(gameId);
+
+    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const schedule = await gameScheduleRepository.findByGame(game);
+
     if (!schedule) return response.sendStatus(404);
 
     const userRepository = await getCustomRepository(UserRepository);
