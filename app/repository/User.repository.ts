@@ -42,8 +42,10 @@ export default class UserRepository extends Repository<User> {
         return UserProfile.findOne({ user });
     }
 
-    public findStatsByUser(user: User): Promise<UserStats> {
-        return UserStats.findOne({ user });
+    public async findStatsByUser(user: User): Promise<any> {
+        const [stats, game] = await Promise.all([UserStats.findOne({ user }), UserGameStats.findOne({ user })]);
+
+        return { ...stats, game };
     }
 
     public findGameStatsByUser(user: User): Promise<UserGameStats> {
