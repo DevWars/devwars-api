@@ -8,6 +8,7 @@ export interface IProfileRequest {
     firstName: string;
     lastName: string;
     dob: Date;
+    gender: string;
     about: string;
     forHire: boolean;
     company: string;

@@ -19,10 +19,11 @@ import './setup';
 const server: Server = new Server();
 let app: express.Application;
 
-const settings: any | IProfileRequest = {
+const userProfileTemplate: any | IProfileRequest = {
     firstName: 'damien',
     lastName: 'test',
     dob: new Date(),
+    gender: 'M',
     about: 'i am the about me',
     forHire: true,
     company: 'Big one',
@@ -53,43 +54,43 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(user))
-            .send(settings);
+            .send(userProfileTemplate);
 
         chai.expect(response.status).to.be.eq(200);
 
         const data: any = await UserProfile.findOne({
             where: {
-                user: user.id
-            }
+                user: user.id,
+            },
         });
         let diff = false;
 
-        Object.keys(settings).map(k => {
+        Object.keys(userProfileTemplate).map((k) => {
             if (k === 'skills') {
-                if (ObjectEqual(data[k], settings[k]) === false) diff = true
+                if (ObjectEqual(data[k], userProfileTemplate[k]) === false) diff = true;
             } else if (k === 'dob') {
-                if ((new Date(data[k]).getTime() === new Date(settings[k]).getTime()) !== true) diff = true;
-            } else if (data[k] !== settings[k]) {
+                if ((new Date(data[k]).getTime() === new Date(userProfileTemplate[k]).getTime()) !== true) diff = true;
+            } else if (data[k] !== userProfileTemplate[k]) {
                 diff = true;
             }
-        })
+        });
 
         chai.expect(diff).to.be.eq(false);
     });
 
-    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
+    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         const modo = await UserFactory.withRole(UserRole.MODERATOR).save();
 
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(modo))
-            .send(settings);
+            .send(userProfileTemplate);
 
         chai.expect(response.status).to.be.eq(401);
     });
 
-    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
+    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         await UserProfileFactory.withUser(user).save();
         const admin = await UserFactory.withRole(UserRole.ADMIN).save();
@@ -97,7 +98,7 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(admin))
-            .send(settings);
+            .send(userProfileTemplate);
 
         chai.expect(response.status).to.be.eq(200);
     });
