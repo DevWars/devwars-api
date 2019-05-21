@@ -1,3 +1,5 @@
+import { Sex } from '../models/UserProfile';
+
 export interface ISkills {
     html: number;
     css: number;
@@ -8,7 +10,7 @@ export interface IProfileRequest {
     firstName: string;
     lastName: string;
     dob: Date;
-    gender: string;
+    sex: Sex;
     about: string;
     forHire: boolean;
     company: string;

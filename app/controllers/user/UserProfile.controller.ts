@@ -1,4 +1,5 @@
 import { Request, Response } from 'express';
+import * as _ from 'lodash';
 
 import UserProfile from '../../models/UserProfile';
 import { IProfileRequest } from '../../request/IProfileRequest';
@@ -13,19 +14,19 @@ export async function show(request: Request, response: Response) {
 
 export async function update(request: Request, response: Response) {
     const userId = request.params.id;
-    const params: any = { ...request.body as IProfileRequest };
+    const params: any = { ...(request.body as IProfileRequest) };
 
     let data: any = await UserProfile.findOne({
         where: {
-            user: userId
-        }
+            user: userId,
+        },
     });
 
     if (!data) return response.sendStatus(404);
 
-    Object.keys(data).map(k => {
-        if (params[k]) data[k] = params[k];
-    })
+    Object.keys(data).map((k) => {
+        if (!_.isNil(params[k])) data[k] = params[k];
+    });
 
     data = await UserProfile.save(data);
     return response.json(data);

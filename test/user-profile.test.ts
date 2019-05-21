@@ -9,7 +9,7 @@ import { IProfileRequest } from '../app/request/IProfileRequest';
 import { cookieForUser } from './helpers';
 import { UserFactory, UserProfileFactory } from '../app/factory';
 
-import UserProfile from '../app/models/UserProfile';
+import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';
 
 import { ObjectEqual } from '../app/utils/compare';
@@ -19,11 +19,11 @@ import './setup';
 const server: Server = new Server();
 let app: express.Application;
 
-const userProfileTemplate: any | IProfileRequest = {
+const userProfileSettings: any | IProfileRequest = {
     firstName: 'damien',
     lastName: 'test',
     dob: new Date(),
-    gender: 'M',
+    sex: Sex.MALE,
     about: 'i am the about me',
     forHire: true,
     company: 'Big one',
@@ -54,7 +54,7 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(user))
-            .send(userProfileTemplate);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(200);
 
@@ -63,14 +63,15 @@ describe('user-profile', () => {
                 user: user.id,
             },
         });
+
         let diff = false;
 
-        Object.keys(userProfileTemplate).map((k) => {
+        Object.keys(userProfileSettings).map((k) => {
             if (k === 'skills') {
-                if (ObjectEqual(data[k], userProfileTemplate[k]) === false) diff = true;
+                if (ObjectEqual(data[k], userProfileSettings[k]) === false) diff = true;
             } else if (k === 'dob') {
-                if ((new Date(data[k]).getTime() === new Date(userProfileTemplate[k]).getTime()) !== true) diff = true;
-            } else if (data[k] !== userProfileTemplate[k]) {
+                if ((new Date(data[k]).getTime() === new Date(userProfileSettings[k]).getTime()) !== true) diff = true;
+            } else if (data[k] !== userProfileSettings[k]) {
                 diff = true;
             }
         });
@@ -85,7 +86,7 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(modo))
-            .send(userProfileTemplate);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(401);
     });
@@ -98,7 +99,7 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(admin))
-            .send(userProfileTemplate);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(200);
     });
