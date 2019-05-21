@@ -2,6 +2,12 @@ import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
+export enum Sex {
+    MALE,
+    FEMALE,
+    OTHER,
+}
+
 @Entity('user_profile')
 export default class UserProfile extends BaseModel {
     // ------------------------------------------------------------
@@ -14,6 +20,9 @@ export default class UserProfile extends BaseModel {
 
     @Column({ nullable: true })
     public dob: Date;
+
+    @Column({ nullable: true })
+    public sex: Sex;
 
     @Column({ type: 'text', nullable: true })
     public about: string;

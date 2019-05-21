@@ -1,5 +1,5 @@
-import { name, date, random, lorem, internet, address, company } from 'faker';
-import UserProfile from '../models/UserProfile';
+import { name, date, random, lorem, helpers, internet, address, company } from 'faker';
+import UserProfile, { Sex } from '../models/UserProfile';
 
 export default class UserProfileFactory {
     public static default(): UserProfile {
@@ -8,6 +8,7 @@ export default class UserProfileFactory {
         profile.firstName = name.firstName();
         profile.lastName = name.lastName();
         profile.dob = date.past(50);
+        profile.sex = helpers.randomize([Sex.MALE, Sex.FEMALE, Sex.OTHER]);
         profile.about = lorem.paragraphs(5);
         profile.forHire = random.boolean();
         profile.company = company.companyName();

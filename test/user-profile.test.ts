@@ -9,7 +9,7 @@ import { IProfileRequest } from '../app/request/IProfileRequest';
 import { cookieForUser } from './helpers';
 import { UserFactory, UserProfileFactory } from '../app/factory';
 
-import UserProfile from '../app/models/UserProfile';
+import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';
 
 import { ObjectEqual } from '../app/utils/compare';
@@ -19,10 +19,11 @@ import './setup';
 const server: Server = new Server();
 let app: express.Application;
 
-const settings: any | IProfileRequest = {
+const userProfileSettings: any | IProfileRequest = {
     firstName: 'damien',
     lastName: 'test',
     dob: new Date(),
+    sex: Sex.MALE,
     about: 'i am the about me',
     forHire: true,
     company: 'Big one',
@@ -53,43 +54,44 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(user))
-            .send(settings);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(200);
 
         const data: any = await UserProfile.findOne({
             where: {
-                user: user.id
-            }
+                user: user.id,
+            },
         });
+
         let diff = false;
 
-        Object.keys(settings).map(k => {
+        Object.keys(userProfileSettings).map((k) => {
             if (k === 'skills') {
-                if (ObjectEqual(data[k], settings[k]) === false) diff = true
+                if (ObjectEqual(data[k], userProfileSettings[k]) === false) diff = true;
             } else if (k === 'dob') {
-                if ((new Date(data[k]).getTime() === new Date(settings[k]).getTime()) !== true) diff = true;
-            } else if (data[k] !== settings[k]) {
+                if ((new Date(data[k]).getTime() === new Date(userProfileSettings[k]).getTime()) !== true) diff = true;
+            } else if (data[k] !== userProfileSettings[k]) {
                 diff = true;
             }
-        })
+        });
 
         chai.expect(diff).to.be.eq(false);
     });
 
-    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
+    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         const modo = await UserFactory.withRole(UserRole.MODERATOR).save();
 
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(modo))
-            .send(settings);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(401);
     });
 
-    it("PATCH - /users/:userId/profile - mod should not update another user profile", async () => {
+    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const user = await UserFactory.withRole(UserRole.USER).save();
         await UserProfileFactory.withUser(user).save();
         const admin = await UserFactory.withRole(UserRole.ADMIN).save();
@@ -97,7 +99,7 @@ describe('user-profile', () => {
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(admin))
-            .send(settings);
+            .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(200);
     });
