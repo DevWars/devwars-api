@@ -1,20 +1,24 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
-import { Server } from '../config/Server';
+import { getManager, EntityManager } from 'typeorm';
+import { hacker, helpers, random } from 'faker';
 
 import { GameScheduleFactory, UserFactory } from '../app/factory';
-
-import GameSchedule from '../app/models/GameSchedule';
-import { UserRole } from '../app/models/User';
-import { GameStatus } from '../app/models/GameSchedule';
-
-import { hacker, helpers, random } from 'faker';
+import { Server } from '../config/Server';
 import { cookieForUser } from './helpers';
+
+import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
+import { UserRole } from '../app/models/User';
+
 import './setup';
 
 const server: Server = new Server();
 let app: express.Application;
+
+// used for the creation of the database transactions without the need of constantly calling into
+// get manager everytime a test needs a transaction.
+const connectionManager: EntityManager = getManager();
 
 function generateSchedule() {
     const objectives = GameScheduleFactory.createObjectives(random.number({ min: 3, max: 5 }));
@@ -31,7 +35,7 @@ function generateSchedule() {
 }
 
 describe('game-schedule', () => {
-    beforeEach(async () => {
+    before(async () => {
         await server.Start();
         app = server.App();
     });
@@ -55,8 +59,13 @@ describe('game-schedule', () => {
     });
 
     it('GET - /schedules - should retrieve all schedules', async () => {
-        const schedule1 = await GameScheduleFactory.default().save();
-        const schedul2 = await GameScheduleFactory.default().save();
+        const scheduleOne = GameScheduleFactory.default();
+        const scheduleTwo = GameScheduleFactory.default();
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(scheduleOne);
+            await transaction.save(scheduleTwo);
+        });
 
         const response = await supertest(app)
             .get('/schedules')
@@ -66,22 +75,29 @@ describe('game-schedule', () => {
     });
 
     it('GET - /schedules/latest - should return the last schedule created', async () => {
-        const date = new Date();
-        const schedule1 = await GameScheduleFactory.withTime(date).save();
+        const currentDate = new Date();
+        const futureDate = new Date();
 
-        const dateFutur = date.setHours(date.getHours() + 2);
-        const schedule2 = await GameScheduleFactory.withTime(new Date(dateFutur)).save();
+        futureDate.setHours(currentDate.getHours() + 2);
+
+        const scheduleOne = GameScheduleFactory.withTime(currentDate);
+        const scheduleTwo = GameScheduleFactory.withTime(futureDate);
+
+        await connectionManager.transaction(async (transaction) => {
+            transaction.save(scheduleTwo);
+            transaction.save(scheduleOne);
+        });
 
         const response = await supertest(app)
             .get('/schedules/latest')
             .send();
 
-        chai.expect(response.body.id).to.be.eq(schedule2.id);
+        chai.expect(response.body.id).to.be.eq(scheduleTwo.id);
     });
 
     it('POST - schedules/create - should return 403 because user cant create a schedule', async () => {
+        const user = UserFactory.withRole(UserRole.USER);
         const Schedule = generateSchedule();
-        const user = await UserFactory.withRole(UserRole.USER);
 
         const badRequest = await supertest(app)
             .post('/schedules')
@@ -92,8 +108,8 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return the schedule created because admin can', async () => {
+        const user = UserFactory.withRole(UserRole.ADMIN);
         const Schedule = generateSchedule();
-        const user = await UserFactory.withRole(UserRole.ADMIN);
 
         const goodRequest = await supertest(app)
             .post('/schedules')
@@ -105,8 +121,8 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return the schedule created because mod can', async () => {
+        const user = UserFactory.withRole(UserRole.MODERATOR);
         const Schedule = generateSchedule();
-        const user = await UserFactory.withRole(UserRole.MODERATOR);
 
         const goodRequest = await supertest(app)
             .post('/schedules')
@@ -175,7 +191,8 @@ describe('game-schedule', () => {
 
     it('PATCH - schedules/:id - should return 403 because user cant update a schedule', async () => {
         const Schedule = await GameScheduleFactory.default().save();
-        const user = await UserFactory.withRole(UserRole.USER);
+
+        const user = UserFactory.withRole(UserRole.USER);
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -190,7 +207,8 @@ describe('game-schedule', () => {
 
     it('PATCH - schedules/:id - should return the schedules update because mod', async () => {
         const Schedule = await GameScheduleFactory.default().save();
-        const user = await UserFactory.withRole(UserRole.MODERATOR);
+
+        const user = UserFactory.withRole(UserRole.MODERATOR);
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -206,7 +224,8 @@ describe('game-schedule', () => {
 
     it('PATCH - schedules/:id - should return the schedules update because admin', async () => {
         const Schedule = await GameScheduleFactory.default().save();
-        const user = await UserFactory.withRole(UserRole.MODERATOR);
+
+        const user = UserFactory.withRole(UserRole.ADMIN);
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -267,10 +286,14 @@ describe('game-schedule', () => {
     // });
 
     it('GET - schedules/status/:status - should return a list a schedules by status', async () => {
-        const schedule1 = await GameScheduleFactory.withStatus(GameStatus.ACTIVE).save();
-        const schedule2 = await GameScheduleFactory.withStatus(GameStatus.ACTIVE).save();
-        const schedule3 = await GameScheduleFactory.withStatus(GameStatus.ENDED).save();
-        const schedule4 = await GameScheduleFactory.withStatus(GameStatus.SCHEDULED).save();
+        const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
+
+        await connectionManager.transaction(async (transaction) => {
+            for (const state of gameStates) {
+                const schedule = GameScheduleFactory.withStatus(state);
+                await transaction.save(schedule);
+            }
+        });
 
         const request = await supertest(app)
             .get('/schedules/status/active')
