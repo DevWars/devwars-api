@@ -1,6 +1,7 @@
 import * as bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { getManager, getCustomRepository } from 'typeorm';
+import * as _ from 'lodash';
 
 import EmailVerification from '../../models/EmailVerification';
 import User, { UserRole } from '../../models/User';
@@ -65,19 +66,21 @@ export class AuthController {
 
     public static async verify(request: Request, response: Response) {
         const { key } = request.query;
-        const redirectUrl = `${process.env.FRONT_URL}`;
 
         const foundToken = await EmailVerification.findOne({ where: { token: key } });
 
-        if (!foundToken) {
+        if (!_.isNil(foundToken)) {
             const { user } = foundToken;
 
             user.role = UserRole.USER;
 
-            await user.save();
-            await foundToken.remove();
+            await getManager().transaction(async (transaction) => {
+                await transaction.save(user);
+                await transaction.remove(user);
+            });
         }
 
+        const redirectUrl = `${process.env.FRONT_URL}`;
         response.redirect(redirectUrl);
     }
 
