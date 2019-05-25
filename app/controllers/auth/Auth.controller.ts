@@ -67,7 +67,10 @@ export class AuthController {
     public static async verify(request: Request, response: Response) {
         const { key } = request.query;
 
-        const foundToken = await EmailVerification.findOne({ where: { token: key } });
+        const foundToken = await EmailVerification.findOne({
+            where: { token: key },
+            relations: ['user'],
+        });
 
         if (!_.isNil(foundToken)) {
             const { user } = foundToken;
@@ -75,8 +78,8 @@ export class AuthController {
             user.role = UserRole.USER;
 
             await getManager().transaction(async (transaction) => {
+                await transaction.remove(foundToken);
                 await transaction.save(user);
-                await transaction.remove(user);
             });
         }
 

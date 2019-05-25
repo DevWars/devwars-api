@@ -143,14 +143,25 @@ describe('oauth', () => {
             await transation.save(emailVerification);
         });
 
-        await supertest(app)
-            .get('/auth/verify?key="secret"')
-            .send();
-
-        const checkVerifDelete = await EmailVerification.findOne({
-            where: { token: 'secretToken' },
+        // validating that the token actually exists before attempting to verify
+        // removing the chance of having false positives.
+        const preVerifyToken = await EmailVerification.findOne({
+            where: { token: emailVerification.token },
+            relations: ['user'],
         });
 
-        chai.expect(checkVerifDelete).to.be.eq(undefined);
+        chai.should().exist(preVerifyToken);
+        chai.expect(preVerifyToken.user.id).to.be.eq(user.id);
+        chai.expect(preVerifyToken.token).to.eq(emailVerification.token);
+
+        await supertest(app)
+            .get(`/auth/verify?key=${emailVerification.token}`)
+            .send();
+
+        const checkVerifyTokenDelete = await EmailVerification.findOne({
+            where: { token: emailVerification.token },
+        });
+
+        chai.should().not.exist(checkVerifyTokenDelete);
     });
 });
