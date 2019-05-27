@@ -1,19 +1,27 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
-import { Server } from '../config/Server';
+import { getManager, EntityManager } from 'typeorm';
+import { random } from 'faker';
+import * as _ from 'lodash';
 
 import { GameFactory, UserFactory } from '../app/factory';
-import { cookieForUser } from './helpers';
 import { UserRole } from '../app/models/User';
+import { cookieForUser } from './helpers';
+import { Server } from '../config/Server';
+import Game from '../app/models/Game';
 
 import './setup';
 
 const server: Server = new Server();
 let app: express.Application;
 
+// used for the creation of the database transactions without the need of constantly calling into
+// get manager everytime a test needs a transaction.
+const connectionManager: EntityManager = getManager();
+
 describe('game', () => {
-    beforeEach(async () => {
+    before(async () => {
         await server.Start();
         app = server.App();
     });
@@ -58,9 +66,12 @@ describe('game', () => {
 
     it('GET - games', async () => {
         const game1 = await GameFactory.default();
-        await game1.save();
         const game2 = await GameFactory.default();
-        await game2.save();
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(game1);
+            await transaction.save(game2);
+        });
 
         const response = await supertest(app)
             .get('/games')
@@ -71,9 +82,12 @@ describe('game', () => {
 
     it('GET - games/latest', async () => {
         const game1 = await GameFactory.default();
-        await game1.save();
         const game2 = await GameFactory.default();
-        await game2.save();
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(game2);
+            await transaction.save(game1);
+        });
 
         const response = await supertest(app)
             .get('/games/latest')
@@ -84,11 +98,14 @@ describe('game', () => {
 
     it('GET - games/:id', async () => {
         const game1 = await GameFactory.default();
-        await game1.save();
         const game2 = await GameFactory.default();
-        await game2.save();
         const game3 = await GameFactory.default();
-        await game3.save();
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(game1);
+            await transaction.save(game2);
+            await transaction.save(game3);
+        });
 
         const response = await supertest(app)
             .get(`/games/${game2.id}`)
@@ -191,19 +208,25 @@ describe('game', () => {
     // })
 
     it('GET - games/season/:season', async () => {
-        const game1 = await GameFactory.withSeason(2);
-        await game1.save();
-        const game2 = await GameFactory.withSeason(2);
-        await game2.save();
-        const game3 = await GameFactory.withSeason(3);
-        await game3.save();
-        const game4 = await GameFactory.withSeason(1);
-        await game4.save();
+        await connectionManager.transaction(async (transaction) => {
+            const game1 = await GameFactory.withSeason(2);
+            const game2 = await GameFactory.withSeason(2);
+            const game3 = await GameFactory.withSeason(3);
+            const game4 = await GameFactory.withSeason(1);
+
+            await transaction.save(game1);
+            await transaction.save(game2);
+            await transaction.save(game3);
+            await transaction.save(game4);
+        });
+
+        const season = random.arrayElement([{ id: 1, amount: 1 }, { id: 2, amount: 2 }, { id: 3, amount: 1 }]);
 
         const response = await supertest(app)
-            .get('/games/season/2')
+            .get(`/games/season/${season.id}`)
             .send();
 
-        chai.expect(response.body.length).to.be.eq(2);
+        chai.expect(response.body.length).to.be.eq(season.amount);
+        _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
     });
 });

@@ -1,23 +1,25 @@
+import * as _ from 'lodash';
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
+import { EntityManager, getManager } from 'typeorm';
 
-import { Server } from '../config/Server';
-
-import { IProfileRequest } from '../app/request/IProfileRequest';
-
-import { cookieForUser } from './helpers';
 import { UserFactory, UserProfileFactory } from '../app/factory';
+import { IProfileRequest } from '../app/request/IProfileRequest';
+import { cookieForUser } from './helpers';
+import { Server } from '../config/Server';
 
 import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';
-
-import { ObjectEqual } from '../app/utils/compare';
 
 import './setup';
 
 const server: Server = new Server();
 let app: express.Application;
+
+// used for the creation of the database transactions without the need of constantly calling into
+// get manager everytime a test needs a transaction.
+const connectionManager: EntityManager = getManager();
 
 const userProfileSettings: any | IProfileRequest = {
     firstName: 'damien',
@@ -42,14 +44,19 @@ const userProfileSettings: any | IProfileRequest = {
 };
 
 describe('user-profile', () => {
-    beforeEach(async () => {
+    before(async () => {
         await server.Start();
         app = server.App();
     });
 
     it("PATCH - /users/:userId/profile - should update a user's settings", async () => {
-        const user = await UserFactory.default().save();
-        await UserProfileFactory.withUser(user).save();
+        const user = UserFactory.default();
+        const userProfile = UserProfileFactory.withUser(user);
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(user);
+            await transaction.save(userProfile);
+        });
 
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
@@ -58,47 +65,45 @@ describe('user-profile', () => {
 
         chai.expect(response.status).to.be.eq(200);
 
-        const data: any = await UserProfile.findOne({
-            where: {
-                user: user.id,
-            },
-        });
+        const data: any = await UserProfile.findOne({ where: { user: user.id } });
+        const filteredData = _.pick(data, Object.keys(userProfileSettings));
 
-        let diff = false;
-
-        Object.keys(userProfileSettings).map((k) => {
-            if (k === 'skills') {
-                if (ObjectEqual(data[k], userProfileSettings[k]) === false) diff = true;
-            } else if (k === 'dob') {
-                if ((new Date(data[k]).getTime() === new Date(userProfileSettings[k]).getTime()) !== true) diff = true;
-            } else if (data[k] !== userProfileSettings[k]) {
-                diff = true;
-            }
-        });
-
-        chai.expect(diff).to.be.eq(false);
+        // perform a deep equal to directly compare the two objects and
+        // all the objects nested levels until completion or invalid matching.
+        chai.expect(filteredData).to.be.deep.equal(userProfileSettings);
     });
 
     it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
-        const modo = await UserFactory.withRole(UserRole.MODERATOR).save();
+        const userModerator = UserFactory.withRole(UserRole.MODERATOR);
+        const user = UserFactory.withRole(UserRole.USER);
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(userModerator);
+            await transaction.save(user);
+        });
 
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
-            .set('cookie', await cookieForUser(modo))
+            .set('cookie', await cookieForUser(userModerator))
             .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(401);
     });
 
     it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
-        await UserProfileFactory.withUser(user).save();
-        const admin = await UserFactory.withRole(UserRole.ADMIN).save();
+        const user = UserFactory.withRole(UserRole.USER);
+        const userProfile = UserProfileFactory.withUser(user);
+        const userAdministrator = await UserFactory.withRole(UserRole.ADMIN);
+
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(user);
+            await transaction.save(userProfile);
+            await transaction.save(userAdministrator);
+        });
 
         const response = await supertest(app)
             .patch(`/users/${user.id}/profile`)
-            .set('cookie', await cookieForUser(admin))
+            .set('cookie', await cookieForUser(userAdministrator))
             .send(userProfileSettings);
 
         chai.expect(response.status).to.be.eq(200);

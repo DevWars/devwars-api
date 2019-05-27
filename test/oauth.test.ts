@@ -1,20 +1,25 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
-import { Server } from '../config/Server';
+import { getManager, EntityManager } from 'typeorm';
 
+import { Server } from '../config/Server';
 import { UserFactory, EmailVerificationFactory } from '../app/factory';
 import { cookieForUser } from './helpers';
 
-import './setup';
 import User, { UserRole } from '../app/models/User';
 import EmailVerification from '../app/models/EmailVerification';
+import './setup';
 
 const server: Server = new Server();
 let app: express.Application;
 
+// used for the creation of the database transactions without the need of constantly calling into
+// get manager everytime a test needs a transaction.
+const connectionManager: EntityManager = getManager();
+
 describe('oauth', () => {
-    beforeEach(async () => {
+    before(async () => {
         await server.Start();
         app = server.App();
     });
@@ -31,7 +36,7 @@ describe('oauth', () => {
     });
 
     it('GET - auth/user - should retrieve 404 because user does not exist', async () => {
-        const user = await UserFactory.default().save();
+        await UserFactory.default().save();
 
         const request = await supertest(app)
             .get('/auth/user')
@@ -81,7 +86,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/logout - the logout should not work because no token', async () => {
-        const user = await UserFactory.default().save();
+        await UserFactory.default().save();
 
         const request = await supertest(app)
             .post('/auth/logout')
@@ -91,7 +96,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/logout - the logout should not work invalid token', async () => {
-        const user = await UserFactory.default().save();
+        await UserFactory.default().save();
 
         const request = await supertest(app)
             .post('/auth/logout')
@@ -130,20 +135,33 @@ describe('oauth', () => {
     });
 
     it('GET - auth/verify - it should find the token and delete it', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
+        const user = UserFactory.withRole(UserRole.USER);
+        const emailVerification = EmailVerificationFactory.withUser(user);
 
-        await EmailVerificationFactory.withUser(user).save();
+        await connectionManager.transaction(async (transation) => {
+            await transation.save(user);
+            await transation.save(emailVerification);
+        });
 
-        const request = await supertest(app)
-            .get('/auth/verify?key="secret"')
+        // validating that the token actually exists before attempting to verify
+        // removing the chance of having false positives.
+        const preVerifyToken = await EmailVerification.findOne({
+            where: { token: emailVerification.token },
+            relations: ['user'],
+        });
+
+        chai.should().exist(preVerifyToken);
+        chai.expect(preVerifyToken.user.id).to.be.eq(user.id);
+        chai.expect(preVerifyToken.token).to.eq(emailVerification.token);
+
+        await supertest(app)
+            .get(`/auth/verify?key=${emailVerification.token}`)
             .send();
 
-        const checkVerifDelete = await EmailVerification.findOne({
-            where: {
-                token: 'secretToken'
-            }
-        })
-        chai.expect(checkVerifDelete).to.be.eq(undefined);
-    });
+        const checkVerifyTokenDelete = await EmailVerification.findOne({
+            where: { token: emailVerification.token },
+        });
 
+        chai.should().not.exist(checkVerifyTokenDelete);
+    });
 });
