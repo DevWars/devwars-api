@@ -4,7 +4,6 @@ import Game from '../models/Game';
 import firebase from '../utils/firebase';
 
 const firebaseGame = firebase.database().ref('game');
-const firebaseLiveGame = firebase.database().ref('liveGame');
 
 export default class GameService {
     public static async all() {
@@ -146,58 +145,5 @@ export default class GameService {
         };
 
         await firebaseGame.update(newGame);
-    }
-
-    public static async sendLiveGameToFirebase(game: any) {
-        const editors = Object.values(game.storage.editors).map((editor: any) => {
-            return {
-                team: editor.team === 0 ? 'blue' : 'red',
-                language: editor.language,
-                filename: `game.${editor.language}`,
-                locked: true,
-                hidden: false,
-                text: '',
-            };
-        });
-
-        const players = Object.values(game.storage.editors).map((editor: any) => {
-            const player = game.storage.players[editor.player];
-            if (player) {
-                return {
-                    editorId: editor.id,
-                    team: player.team === 0 ? 'blue' : 'red',
-                    language: editor.language,
-                    id: player.id,
-                    username: player.username,
-                };
-            }
-        });
-
-        const objectives = Object.values(game.storage.objectives).map((obj: any) => {
-            return {
-                description: obj.description,
-            };
-        });
-
-        const newGame = {
-            state: {
-                id: game.id,
-                mode: game.mode,
-                stage: 'setup',
-                zenTemplate: game.storage.template,
-
-                startTime: 0,
-                endTime: 0,
-
-                blueStrikes: 0,
-                redStrikes: 0,
-            },
-
-            editors,
-            players,
-            objectives,
-        };
-
-        await firebaseLiveGame.update(newGame);
     }
 }
