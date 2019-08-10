@@ -49,7 +49,7 @@ export async function addPlayer(request: Request, response: Response) {
     await game.save();
 
     if (game.status === GameStatus.ACTIVE) {
-        await GameService.setPlayersToFirebase(game);
+        await GameService.sendGamePlayersToFirebase(game);
     }
 
     response.status(201).json(flattenGame(game));
@@ -76,7 +76,7 @@ export async function removePlayer(request: Request, response: Response) {
     await game.save();
 
     if (game.status === GameStatus.ACTIVE) {
-        await GameService.setPlayersToFirebase(game);
+        await GameService.sendGamePlayersToFirebase(game);
     }
 
     response.status(201).json(flattenGame(game));

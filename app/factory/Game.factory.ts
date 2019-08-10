@@ -65,6 +65,7 @@ export default class GameFactory {
                     },
                 },
             },
+            template: game.mode === 'Zen Garden' ? '<html></html>' : '',
             meta: {},
         };
 
@@ -134,7 +135,7 @@ export default class GameFactory {
         } else {
             for (let i = 1; i <= num; i++) {
                 let user = await UserFactory.default().save();
-    
+
                 players[user.id] = {
                     id: user.id,
                     username: user.username,
