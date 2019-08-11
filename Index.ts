@@ -3,7 +3,6 @@ dotenv.config();
 
 import * as cluster from 'cluster';
 import { cpus } from 'os';
-import { config } from './config';
 import { Server } from './config/Server';
 
 import './config/S3';
@@ -21,7 +20,7 @@ if (cluster.isMaster) {
         cluster.fork();
     });
 } else {
-    const port: number = Number(process.env.PORT) || config.PORT_APP || 8080;
+    const port: number = Number(process.env.APP_PORT) || 8080;
 
     new Server().Start().then((server) => {
         server.listen(port);
