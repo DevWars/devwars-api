@@ -1,11 +1,10 @@
-import { hacker, helpers, internet, random, lorem } from 'faker';
+import { hacker, helpers, internet, random, lorem, date } from 'faker';
 
 import Game from '../models/Game';
 import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
 import UserFactory from './User.factory';
-import { UserRole } from '../models/User';
 
 export interface IObjective {
     id: number;
@@ -36,10 +35,13 @@ export default class GameFactory {
 
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
+        game.title = hacker.noun();
         game.videoUrl = helpers.randomize([null, internet.url()]);
         game.storage = {
             mode: game.mode,
-            title: hacker.noun(),
+            title: game.title,
+            startTime: date.past(20),
+            endTime: date.past(10),
             objectives: objectives.reduce(toIdMap, {}),
             players,
             editors: GameFactory.createEditors(6, Object.values(players)),

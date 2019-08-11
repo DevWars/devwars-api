@@ -69,15 +69,16 @@ export async function latest(request: Request, response: Response) {
 }
 
 export async function create(request: Request, response: Response) {
-    const { season, mode, videoUrl, storage } = request.body;
+    const { season, mode, title, videoUrl, storage } = request.body;
     const game = new Game();
 
     game.season = season;
     game.mode = mode;
+    game.title = title;
     game.videoUrl = videoUrl;
     game.storage = {
         mode,
-        title: storage.title,
+        title,
         objectives: storage.objectives || {},
         players: storage.players || {},
     };

@@ -18,10 +18,16 @@ export default class Game extends BaseModel {
     public season: number;
 
     /**
-     * Represents which game mode we are playing.
+     * Represents which game mode we are playing
      */
     @Column()
     public mode: string;
+
+    /**
+     * Name or theme of the game
+     */
+    @Column()
+    public title: string;
 
     /**
      * Link to the video recording for this game
