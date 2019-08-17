@@ -9,6 +9,7 @@ import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
 import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
 import { OAuthRoute } from '../app/routes/OAuth.routes';
 import { UserRoute } from '../app/routes/User.routes';
+import { TempRoute } from '../app/routes/Temp.routes';
 
 interface IROUTER {
     path: string;
@@ -66,5 +67,12 @@ export const ROUTER: IROUTER[] = [
         handler: UserRoute,
         middleware: [],
         path: '/users',
+    },
+
+    // TEMP: To support cookie authentication for Old Editor
+    {
+        handler: TempRoute,
+        middleware: [],
+        path: '/user',
     },
 ];
