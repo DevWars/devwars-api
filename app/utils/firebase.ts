@@ -1,10 +1,12 @@
 import * as dotenv from 'dotenv';
 dotenv.config();
 
+import * as path from 'path';
 import * as firebase from 'firebase-admin';
 
 // tslint:disable:no-var-requires
-const serviceAccount = require('../../firebase.json');
+const firebasePath = path.resolve(__dirname, '../../firebase.json');
+const serviceAccount = require(firebasePath);
 
 export default firebase.initializeApp({
     credential: firebase.credential.cert(serviceAccount),
