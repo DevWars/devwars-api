@@ -3,6 +3,7 @@ import { Request, Response } from 'express';
 import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from '../../request/IGameScheduleRequest';
 
 import GameSchedule from '../../models/GameSchedule';
+import Game from '../../models/Game';
 import { GameStatus } from '../../models/GameSchedule';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 
@@ -16,12 +17,13 @@ function flattenSchedule(schedule: GameSchedule) {
         updatedAt: schedule.updatedAt,
         startTime: schedule.startTime,
         status: schedule.status,
+        game: schedule.game,
     };
 }
 
 export async function show(request: Request, response: Response) {
     const scheduleId = request.params.id;
-    const schedule = await GameSchedule.findOne(scheduleId);
+    const schedule = await GameSchedule.findOne(scheduleId, { relations: ['game'] });
     if (!schedule) return response.sendStatus(404);
 
     response.json(flattenSchedule(schedule));
@@ -30,6 +32,7 @@ export async function show(request: Request, response: Response) {
 export async function all(request: Request, response: Response) {
     const schedules = await GameSchedule.find({
         order: { startTime: 'ASC' },
+        relations: ['game'],
     });
 
     response.json(schedules.map((schedule) => flattenSchedule(schedule)));
@@ -107,4 +110,35 @@ export async function create(request: Request, response: Response) {
     await schedule.save();
 
     response.json(flattenSchedule(schedule));
+}
+
+export async function activate(request: Request, response: Response) {
+    const schedule = request.body;
+
+    const errors = validationResult(request);
+    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
+
+    // Create the Game
+    const game = new Game();
+    game.season = schedule.season;
+    game.mode = schedule.mode;
+    game.title = schedule.title;
+    game.storage = {
+        mode: game.mode,
+        title: game.title,
+        startTime: schedule.startTime,
+        objectives: schedule.objectives || {},
+    };
+    const savedGame = await game.save();
+
+    // Update GameSchedule
+    const savedSchedule = await GameSchedule.findOne(schedule.id);
+    savedSchedule.game = savedGame;
+    savedSchedule.status = GameStatus.ACTIVE;
+    await savedSchedule.save();
+
+    // On Game.controller get applications from the Schedule
+    // - find GameSchedule with the same GameId
+
+    response.json(flattenSchedule(savedSchedule));
 }

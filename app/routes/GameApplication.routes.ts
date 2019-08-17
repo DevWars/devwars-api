@@ -9,4 +9,5 @@ export const GameApplicationRoute: express.Router = express
     .get('/game/:game', asyncErrorHandler(GameApplicationController.findByGame))
     .get('/schedule/:schedule', asyncErrorHandler(GameApplicationController.findBySchedule))
     .post('/schedule/:schedule', mustBeAuthenticated, asyncErrorHandler(GameApplicationController.apply))
-    .delete('/schedule/:schedule', mustBeAuthenticated, asyncErrorHandler(GameApplicationController.resign));
+    .delete('/schedule/:schedule', mustBeAuthenticated, asyncErrorHandler(GameApplicationController.resign))
+    .post('/game/:game/username/:username', mustBeAuthenticated, asyncErrorHandler(GameApplicationController.create));

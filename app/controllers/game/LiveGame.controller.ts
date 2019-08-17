@@ -9,7 +9,7 @@ import { GameStatus } from '../../models/GameSchedule';
 
 export async function addPlayer(request: Request, response: Response) {
     const gameId = request.params.id;
-    const { player, team, language } = request.body;
+    const { player, team } = request.body;
 
     const gameRepository = await getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
@@ -19,32 +19,83 @@ export async function addPlayer(request: Request, response: Response) {
     const schedule = await gameScheduleRepository.findByGame(game);
     if (!schedule) return response.sendStatus(404);
 
-    game.storage.players[player.id] = {
+    if (!game.storage.players) game.storage.players = {};
+    const players = game.storage.players;
+
+    const existingPlayer = players[player.id];
+    if (existingPlayer && existingPlayer.team !== team.id) {
+        response.status(409).json({ message: "Can't change player's team" });
+        return;
+    }
+    players[player.id] = {
         id: player.id,
         username: player.username,
         team: team.id,
     };
 
-    for (const editor of Object.values(game.storage.editors) as any) {
-        if (editor.language === language && editor.team === team.id) {
-            editor.player = player.id;
+    if (!game.storage.editors) game.storage.editors = {};
+    const editors = game.storage.editors;
+
+    const nextEditorId = Object.keys(editors).length;
+    for (const editor of Object.values(editors) as any) {
+        if (editor.player === player.id && editor.language === player.language) {
+            response.status(409).json({ message: 'Player already assigned to that language' });
+            return;
         }
     }
+    editors[nextEditorId] = {
+        id: nextEditorId,
+        team: team.id,
+        player: player.id,
+        language: player.language,
+    };
 
-    for (const existingPlayer of Object.values(game.storage.players) as any) {
-        let hasEditor = false;
+    game.storage.teams = {
+        0: {
+            id: 0,
+            name: 'blue',
+        },
+        1: {
+            id: 1,
+            name: 'red',
+        },
+    };
 
-        for (const editor of Object.values(game.storage.editors) as any) {
-            if (editor.player === existingPlayer.id) {
-                hasEditor = true;
-                break;
-            }
-        }
+    // if (Object.values(editors).length > 0) {
+    //     for (const { keys, value } of Object.entries(editors)) {
 
-        if (!hasEditor) {
-            delete game.storage.players[existingPlayer.id];
-        }
-    }
+    //     }
+    // }
+
+    // "editors": {
+    //     "0": {
+    //       "id": 0,
+    //       "team": 0,
+    //       "player": 2,
+    //       "language": "html"
+    //     },
+    // }
+
+    // for (const editor of Object.values(game.storage.editors) as any) {
+    //     if (editor.language === language && editor.team === team.id) {
+    //         editor.player = player.id;
+    //     }
+    // }
+
+    // for (const existingPlayer of Object.values(game.storage.players) as any) {
+    //     let hasEditor = false;
+
+    //     for (const editor of Object.values(game.storage.editors) as any) {
+    //         if (editor.player === existingPlayer.id) {
+    //             hasEditor = true;
+    //             break;
+    //         }
+    //     }
+
+    //     if (!hasEditor) {
+    //         delete game.storage.players[existingPlayer.id];
+    //     }
+    // }
 
     await game.save();
 
@@ -69,7 +120,7 @@ export async function removePlayer(request: Request, response: Response) {
 
     for (const editor of Object.values(game.storage.editors) as any) {
         if (editor.player === player.id) {
-            editor.player = null;
+            delete game.storage.editors[editor.id];
         }
     }
 

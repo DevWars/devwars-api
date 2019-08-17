@@ -5,6 +5,7 @@ import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameRepository from '../../repository/Game.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import UserRepository from '../../repository/User.repository';
+import GameApplication from '../../models/GameApplication';
 
 export async function mine(request: Request, response: Response) {
     const userRepository = await getCustomRepository(UserRepository);
@@ -76,4 +77,28 @@ export async function findByGame(request: Request, response: Response) {
     const applications = await userRepository.findApplicationsBySchedule(schedule);
 
     response.json(applications);
+}
+
+export async function create(request: Request, response: Response) {
+    const gameId = request.params.game;
+    const username = request.params.username;
+
+    const gameRepository = await getCustomRepository(GameRepository);
+    const game = await gameRepository.findOne(gameId);
+
+    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const schedule = await gameScheduleRepository.findByGame(game);
+    if (!schedule) return response.sendStatus(404);
+
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findByUsername(username);
+    if (!user) return response.sendStatus(404);
+
+    const application = new GameApplication();
+    application.schedule = schedule;
+    application.user = user;
+
+    await application.save();
+
+    response.json(application);
 }

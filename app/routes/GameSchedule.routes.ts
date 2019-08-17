@@ -4,7 +4,7 @@ import * as GameScheduleController from '../controllers/game/GameSchedule.contro
 import { mustBeRole } from '../middlewares/Auth.middleware';
 import { UserRole } from '../models/User';
 // import { createValidator, updateValidator } from './validators/GameSchedule.validator';
-import { asyncErrorHandler } from './handlers'
+import { asyncErrorHandler } from './handlers';
 
 export const GameScheduleRoute: express.Router = express
     .Router()
@@ -13,4 +13,6 @@ export const GameScheduleRoute: express.Router = express
     .get('/latest', asyncErrorHandler(GameScheduleController.latest))
     .get('/:id', asyncErrorHandler(GameScheduleController.show))
     .patch('/:id', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.update))
+    // .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.activate))
+    .post('/:id/activate', asyncErrorHandler(GameScheduleController.activate))
     .get('/status/:status', asyncErrorHandler(GameScheduleController.byStatus));

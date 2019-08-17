@@ -72,7 +72,7 @@ export class AuthController {
             relations: ['user'],
         });
 
-        if (!_.isNil(foundToken)) {
+        if (foundToken) {
             const { user } = foundToken;
 
             user.role = UserRole.USER;

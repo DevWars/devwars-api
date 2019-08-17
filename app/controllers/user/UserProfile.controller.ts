@@ -6,7 +6,8 @@ import { IProfileRequest } from '../../request/IProfileRequest';
 
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
-    const user = await UserProfile.findOne(userId);
+
+    const user = await UserProfile.findOne({ where: { user: userId } });
     if (!user) return response.sendStatus(404);
 
     response.json(user);

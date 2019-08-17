@@ -11,18 +11,19 @@ export default class GameScheduleRepository extends Repository<GameSchedule> {
             order: {
                 startTime: 'DESC',
             },
+            relations: ['game'],
         });
     }
 
     public latest(): Promise<GameSchedule> {
-        return GameSchedule.findOne({ order: { startTime: 'DESC' } });
+        return GameSchedule.findOne({ order: { startTime: 'DESC' }, relations: ['game'] });
     }
 
     public findAllByStatus(status: GameStatus): Promise<GameSchedule[]> {
-        return GameSchedule.find({ where: { status } });
+        return GameSchedule.find({ where: { status }, relations: ['game'] });
     }
 
     public findByGame(game: Game): Promise<GameSchedule> {
-        return GameSchedule.findOne({ where: { game } });
+        return GameSchedule.findOne({ where: { game }, relations: ['game'] });
     }
 }
