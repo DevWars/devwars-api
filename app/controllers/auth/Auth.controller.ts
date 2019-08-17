@@ -189,7 +189,7 @@ export class AuthController {
             return response.status(400).json({ message: 'Could not reset password' });
         }
 
-        if (Date.now() < passwordReset.expiresAt.getTime()) {
+        if (Date.now() > passwordReset.expiresAt.getTime()) {
             return response.status(401).json({ message: 'Expired password reset token' });
         }
 

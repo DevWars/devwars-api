@@ -13,6 +13,7 @@ interface ICredentials {
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
     public findByUsername(username: string): Promise<User> {
+        username = username.toLowerCase();
         return User.findOne({ where: { username } });
     }
 
@@ -30,7 +31,7 @@ export default class UserRepository extends Repository<User> {
             return byEmail;
         }
 
-        const byUsername = await this.findByUsername(request.identifier);
+        const byUsername = await this.findByUsername(request.identifier.toLowerCase());
         if (byUsername) {
             return byUsername;
         }
