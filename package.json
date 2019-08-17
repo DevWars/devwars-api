@@ -12,7 +12,7 @@
         "test:spe": "cross-env NODE_ENV=test mocha test/oauth.test.ts",
         "build": "npm run clean && tsc --outDir dist",
         "clean": "rimraf dist",
-        "copy": "cp firebase.json dist/ && cp .env dist/",
+        "copy": "cp Index.ts dist/ && cp firebase.json dist/ && cp .env dist/",
         "lint": "tslint app/**/*.ts config/**/*.ts test/**/*.ts",
         "serve-docs": "apidoc -i ./app -o ./docs && http-server docs",
         "seed": "node -r ts-node/register ./cli/Seeder.ts",
