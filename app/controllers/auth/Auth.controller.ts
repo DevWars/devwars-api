@@ -104,6 +104,8 @@ export class AuthController {
             const token = await AuthService.newToken(user);
 
             response.cookie('auth', token, { domain: process.env.COOKIE_DOMAIN });
+            // Temp for Editor
+            response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
 
             response.json(flattenUser(user));
         }
