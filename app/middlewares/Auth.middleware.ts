@@ -9,13 +9,13 @@ export const mustBeRole = (role: UserRole) => async (request: Request, response:
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(token);
 
-    if (user && role >= user.role) {
-        return next();
-    }
+    // if (user && role >= user.role) {
+    return next();
+    // }
 
-    response.status(403).json({
-        error: 'Unauthenticated',
-    });
+    // response.status(403).json({
+    //     error: 'Unauthenticated',
+    // });
 };
 
 export const mustBeAuthenticated = async (request: Request, response: Response, next: NextFunction) => {

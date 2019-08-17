@@ -14,5 +14,5 @@ export const GameScheduleRoute: express.Router = express
     .get('/:id', asyncErrorHandler(GameScheduleController.show))
     .patch('/:id', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.update))
     // .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.activate))
-    .post('/:id/activate', asyncErrorHandler(GameScheduleController.activate))
+    .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.activate))
     .get('/status/:status', asyncErrorHandler(GameScheduleController.byStatus));
