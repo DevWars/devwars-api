@@ -4,20 +4,6 @@ import { getCustomRepository } from 'typeorm';
 import { UserRole } from '../models/User';
 import UserRepository from '../repository/User.repository';
 
-export const mustBeRole = (role: UserRole) => async (request: Request, response: Response, next: NextFunction) => {
-    const token = request.cookies.auth;
-    const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(token);
-
-    // if (user && role >= user.role) {
-    return next();
-    // }
-
-    // response.status(403).json({
-    //     error: 'Unauthenticated',
-    // });
-};
-
 export const mustBeAuthenticated = async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.auth;
     const userRepository = await getCustomRepository(UserRepository);
@@ -27,7 +13,21 @@ export const mustBeAuthenticated = async (request: Request, response: Response, 
         return next();
     }
 
-    response.status(403).json({
+    response.status(401).json({
         error: 'Unauthenticated',
+    });
+};
+
+export const mustBeRole = (role: UserRole) => async (request: Request, response: Response, next: NextFunction) => {
+    const token = request.cookies.auth;
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findByToken(token);
+
+    if (user && role >= user.role) {
+        return next();
+    }
+
+    response.status(403).json({
+        error: 'Unauthorized',
     });
 };
