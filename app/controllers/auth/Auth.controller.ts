@@ -48,14 +48,14 @@ export class AuthController {
 
         const user = await AuthService.register({ username, email, password });
 
-        response.cookie('auth', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
+        response.cookie('token', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
 
         response.json(flattenUser(user));
     }
 
     public static async reVerify(request: Request, response: Response) {
         const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(request.cookies.auth);
+        const user = await userRepository.findByToken(request.cookies.token);
 
         await VerificationService.reset(user);
 
@@ -102,8 +102,6 @@ export class AuthController {
             return response.status(400).send('Invalid Credentials');
         } else {
             const token = await AuthService.newToken(user);
-            response.cookie('auth', token, { domain: process.env.COOKIE_DOMAIN });
-            // Temp for Editor
             response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
 
             user.lastSignIn = new Date();
@@ -114,12 +112,12 @@ export class AuthController {
     }
 
     public static async logout(request: Request, response: Response) {
-        const { auth } = request.cookies;
+        const { token } = request.cookies;
 
-        if (!auth) throw new Error('logout failed');
+        if (!token) throw new Error('logout failed');
 
         const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(auth);
+        const user = await userRepository.findByToken(token);
 
         if (!user) throw new Error('logout failed');
 
@@ -127,18 +125,18 @@ export class AuthController {
 
         await User.save(user);
 
-        response.cookie('auth', null, { domain: process.env.COOKIE_DOMAIN });
+        response.cookie('token', null, { domain: process.env.COOKIE_DOMAIN });
         response.json({
             message: 'Success',
         });
     }
 
     public static async currentUser(request: Request, response: Response) {
-        let { auth, token } = request.cookies;
+        let { token } = request.cookies;
 
-        if (token) auth = token;
+        if (token) token = token;
         const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(auth);
+        const user = await userRepository.findByToken(token);
 
         if (!user) response.status(404).send('You are not logged in');
 

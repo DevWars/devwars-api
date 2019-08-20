@@ -5,7 +5,7 @@ import { UserRole } from '../models/User';
 import UserRepository from '../repository/User.repository';
 
 export const mustBeAuthenticated = async (request: Request, response: Response, next: NextFunction) => {
-    const token = request.cookies.auth;
+    const token = request.cookies.token;
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(token);
 
@@ -19,7 +19,7 @@ export const mustBeAuthenticated = async (request: Request, response: Response, 
 };
 
 export const mustBeRole = (role: UserRole) => async (request: Request, response: Response, next: NextFunction) => {
-    const token = request.cookies.auth;
+    const token = request.cookies.token;
     const userRepository = await getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(token);
 

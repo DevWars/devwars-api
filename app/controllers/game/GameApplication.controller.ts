@@ -9,7 +9,7 @@ import GameApplication from '../../models/GameApplication';
 
 export async function mine(request: Request, response: Response) {
     const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
+    const user = await userRepository.findByToken(request.cookies.token);
 
     const gameApplicationRepository = await getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.findByUser(user);
@@ -21,7 +21,7 @@ export async function apply(request: Request, response: Response) {
     const scheduleId = request.params.schedule;
 
     const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
+    const user = await userRepository.findByToken(request.cookies.token);
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
@@ -36,7 +36,7 @@ export async function resign(request: Request, response: Response) {
     const scheduleId = request.params.schedule;
 
     const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
+    const user = await userRepository.findByToken(request.cookies.token);
 
     const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);

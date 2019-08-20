@@ -44,7 +44,7 @@ import UserRepository from '../../repository/User.repository';
 
 export async function mine(request: Request, response: Response) {
     const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.auth);
+    const user = await userRepository.findByToken(request.cookies.token);
 
     const activityRepository = await getCustomRepository(ActivityRepository);
     const activities = await activityRepository.findByUser(user);
