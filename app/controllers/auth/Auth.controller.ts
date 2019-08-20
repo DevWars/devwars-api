@@ -102,10 +102,12 @@ export class AuthController {
             return response.status(400).send('Invalid Credentials');
         } else {
             const token = await AuthService.newToken(user);
-
             response.cookie('auth', token, { domain: process.env.COOKIE_DOMAIN });
             // Temp for Editor
             response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
+
+            user.lastSignIn = new Date();
+            await user.save();
 
             response.json(flattenUser(user));
         }
