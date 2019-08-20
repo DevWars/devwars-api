@@ -14,9 +14,15 @@ interface IUpdateUserRequest {
     token: string;
 }
 
-function sanitizeUser(user: User) {
+function sanitizeUser(user: User, fields?: any[]) {
     delete user.password;
     delete user.token;
+
+    if (fields && fields.length > 0) {
+        for (const field of fields) {
+            delete user[field as keyof User];
+        }
+    }
 
     return user;
 }
@@ -26,7 +32,7 @@ export async function show(request: Request, response: Response) {
     const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
-    response.json(sanitizeUser(user));
+    response.json(sanitizeUser(user, ['email', 'lastSignIn', 'createdAt', 'updatedAt']));
 }
 
 export async function all(request: Request, response: Response) {

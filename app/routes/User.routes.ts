@@ -7,14 +7,16 @@ import * as UserStatsController from '../controllers/user/UserStats.controller';
 import * as UserGameStatsController from '../controllers/user/UserGameStats.controller';
 import * as UserAvatarController from '../controllers/user/UserAvatar.controller';
 
+import { UserRole } from '../models/User';
 import { mustOwnUser } from '../middlewares/OwnsUser';
+import { mustBeRole } from '../middlewares/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
 const upload = multer({ dest: 'uploads/' });
 
 export const UserRoute: express.Router = express
     .Router()
-    .get('/', asyncErrorHandler(UserController.all))
+    .get('/', mustBeRole(UserRole.ADMIN), asyncErrorHandler(UserController.all))
     .get('/:id', asyncErrorHandler(UserController.show))
     .put('/:id', mustOwnUser, asyncErrorHandler(UserController.update))
     .put('/:id/avatar', mustOwnUser, upload.single('avatar'), asyncErrorHandler(UserAvatarController.store))
