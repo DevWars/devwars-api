@@ -65,10 +65,10 @@ export class AuthController {
     }
 
     public static async verify(request: Request, response: Response) {
-        const { key } = request.query;
+        const { token } = request.query;
 
         const foundToken = await EmailVerification.findOne({
-            where: { token: key },
+            where: { token },
             relations: ['user'],
         });
 
@@ -184,10 +184,10 @@ export class AuthController {
     }
 
     public static async resetPassword(request: Request, response: Response) {
-        const { key, password } = request.query;
+        const { token, password } = request.query;
 
         const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
-        const passwordReset = await passwordResetRepository.findByToken(key);
+        const passwordReset = await passwordResetRepository.findByToken(token);
 
         if (!passwordReset) {
             return response.status(400).json({ message: 'Could not reset password' });

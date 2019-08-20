@@ -155,7 +155,7 @@ describe('oauth', () => {
         chai.expect(preVerifyToken.token).to.eq(emailVerification.token);
 
         await supertest(app)
-            .get(`/auth/verify?key=${emailVerification.token}`)
+            .get(`/auth/verify?token=${emailVerification.token}`)
             .send();
 
         const checkVerifyTokenDelete = await EmailVerification.findOne({

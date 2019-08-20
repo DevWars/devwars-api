@@ -59,7 +59,7 @@ export class AuthService {
         reset.token = randomString(32);
         reset.user = user;
 
-        const resetUrl = `${process.env.FRONT_URL}/reset-password?key=${reset.token}`;
+        const resetUrl = `${process.env.FRONT_URL}/reset-password?token=${reset.token}`;
 
         await reset.save();
 

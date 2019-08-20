@@ -14,7 +14,7 @@ export class VerificationService {
         verification.user = user;
         verification.token = randomString(64);
 
-        const verificationUrl = `${process.env.FRONT_URL}/auth/verify?key=${verification.token}`;
+        const verificationUrl = `${process.env.FRONT_URL}/auth/verify?token=${verification.token}`;
 
         await getManager().transaction(async (transactionalEntityManager) => {
             await transactionalEntityManager.save(user);
