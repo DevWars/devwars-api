@@ -132,9 +132,8 @@ export class AuthController {
     }
 
     public static async currentUser(request: Request, response: Response) {
-        let { token } = request.cookies;
+        const { token } = request.cookies;
 
-        if (token) token = token;
         const userRepository = await getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(token);
 
