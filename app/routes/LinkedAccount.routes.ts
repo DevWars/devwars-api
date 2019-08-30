@@ -1,9 +1,11 @@
 import * as express from 'express';
 import { LinkedAccountController } from '../controllers/user/LinkedAccount.controller';
 import { mustOwnUser } from '../middlewares/OwnsUser';
+import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
 export const LinkedAccountRoute: express.Router = express
     .Router()
-    .get('/:id/linked-accounts', mustOwnUser, asyncErrorHandler(LinkedAccountController.all))
-    .delete('/:id/linked-accounts/:provider', mustOwnUser, asyncErrorHandler(LinkedAccountController.remove));
+    .get('/', mustOwnUser, asyncErrorHandler(LinkedAccountController.all))
+    .get('/:provider', asyncErrorHandler(LinkedAccountController.connect))
+    .delete('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.disconnect));

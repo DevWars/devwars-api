@@ -52,9 +52,9 @@ export default class User extends BaseModel {
     @OneToMany((type) => Activity, (activities) => activities.user)
     public activities: Activity;
 
-    @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
-    public accounts: LinkedAccount;
-
     @OneToMany((type) => GameApplication, (applications) => applications.user)
     public applications: GameApplication;
+
+    @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
+    public accounts: LinkedAccount[];
 }

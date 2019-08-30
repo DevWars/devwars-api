@@ -1,19 +1,19 @@
 import EmailVerification from '../models/EmailVerification';
 import User from '../models/User';
 
-export default class EmailVerifiCationFactory {
+export default class EmailVerificationFactory {
     public static default(): EmailVerification {
-        const emailVerif = new EmailVerification();
-        emailVerif.token = "secret";
+        const emailVerification = new EmailVerification();
+        emailVerification.token = 'secret';
 
-        return emailVerif;
+        return emailVerification;
     }
 
     public static withUser(user: User): EmailVerification {
-        const emailVerif = this.default();
+        const emailVerification = this.default();
 
-        emailVerif.user = user;
+        emailVerification.user = user;
 
-        return emailVerif;
+        return emailVerification;
     }
 }

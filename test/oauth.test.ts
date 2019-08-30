@@ -138,9 +138,9 @@ describe('oauth', () => {
         const user = UserFactory.withRole(UserRole.USER);
         const emailVerification = EmailVerificationFactory.withUser(user);
 
-        await connectionManager.transaction(async (transation) => {
-            await transation.save(user);
-            await transation.save(emailVerification);
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(user);
+            await transaction.save(emailVerification);
         });
 
         // validating that the token actually exists before attempting to verify

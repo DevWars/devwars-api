@@ -7,7 +7,6 @@ import { GameApplicationRoute } from '../app/routes/GameApplication.routes';
 import { HealthRoute } from '../app/routes/Health.route';
 import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
 import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
-import { OAuthRoute } from '../app/routes/OAuth.routes';
 import { UserRoute } from '../app/routes/User.routes';
 import { TempRoute } from '../app/routes/Temp.routes';
 
@@ -54,14 +53,9 @@ export const ROUTER: IROUTER[] = [
         path: '/leaderboards',
     },
     {
-        handler: OAuthRoute,
-        middleware: [],
-        path: '/oauth',
-    },
-    {
         handler: LinkedAccountRoute,
         middleware: [],
-        path: '/users',
+        path: '/oauth',
     },
     {
         handler: UserRoute,
