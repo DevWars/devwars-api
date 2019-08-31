@@ -68,6 +68,14 @@ export async function latest(request: Request, response: Response) {
     response.json(flattenGame(game));
 }
 
+export async function active(request: Request, response: Response) {
+    const gameRepository = getCustomRepository(GameRepository);
+    const game = await gameRepository.active();
+    if (!game) return response.sendStatus(404);
+
+    response.json(flattenGame(game));
+}
+
 export async function create(request: Request, response: Response) {
     const { season, mode, title, videoUrl, storage } = request.body;
     const game = new Game();

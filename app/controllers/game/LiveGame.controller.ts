@@ -135,9 +135,13 @@ export async function removePlayer(request: Request, response: Response) {
 
 export async function end(request: Request, response: Response) {
     const gameId = request.params.id;
+
     const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
     if (!game) return response.sendStatus(404);
+
+    game.status = GameStatus.ENDED;
+    await game.save();
 
     // Get winner
     // const winner = await TeamRepository.byId(request.query.winner);
@@ -145,5 +149,5 @@ export async function end(request: Request, response: Response) {
     // await GameService.backupGame(game);
     // await GameService.endGame(game, winner);
 
-    // response.json({ game, winner });
+    response.json(game);
 }

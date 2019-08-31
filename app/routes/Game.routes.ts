@@ -11,6 +11,7 @@ export const GameRoute: express.Router = express
     .get('/', asyncErrorHandler(GameController.all))
     .post('/', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.create))
     .get('/latest', asyncErrorHandler(GameController.latest))
+    .get('/active', asyncErrorHandler(GameController.active))
     .get('/:id', asyncErrorHandler(GameController.show))
     .patch('/:id', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.update))
     .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.activate))
