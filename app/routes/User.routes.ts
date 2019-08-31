@@ -22,6 +22,7 @@ export const UserRoute: express.Router = express
     .put('/:id/avatar', mustOwnUser, upload.single('avatar'), asyncErrorHandler(UserAvatarController.store))
     .get('/:id/stats', asyncErrorHandler(UserStatsController.forUser))
     .post('/:id/stats', asyncErrorHandler(UserStatsController.create))
+    .get('/stats/coins', asyncErrorHandler(UserStatsController.getCoins))
     .get('/:id/stats/game', asyncErrorHandler(UserGameStatsController.forUser))
     .get('/:id/profile', asyncErrorHandler(UserProfileController.show))
     .patch('/:id/profile', mustOwnUser, asyncErrorHandler(UserProfileController.update));

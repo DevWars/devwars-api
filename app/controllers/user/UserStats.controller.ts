@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import UserStats from '../../models/UserStats';
 import UserRepository from '../../repository/User.repository';
+import LinkedAccount, { Provider } from '../../models/LinkedAccount';
+import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 
 export async function forUser(request: Request, response: Response) {
     const userRepository = await getCustomRepository(UserRepository);
@@ -24,4 +26,32 @@ export async function create(request: Request, response: Response) {
 
     await stats.save();
     response.json(stats);
+}
+
+export async function getCoins(request: Request, response: Response) {
+    const { twitchId } = request.query;
+    let coins = 0;
+
+    const userRepository = await getCustomRepository(UserRepository);
+    const user = await userRepository.findByToken(request.cookies.token);
+    if (user) {
+        const stats = await userRepository.findStatsByUser(user);
+        coins += stats.coins;
+    }
+
+    if (twitchId) {
+        const linkedAccountRepository = await getCustomRepository(LinkedAccountRepository);
+        const account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchId);
+
+        if (account && account.storage && account.storage.coins) {
+            coins += account.storage.coins;
+        }
+
+        if (!user && account.user) {
+            const stats = await userRepository.findStatsByUser(account.user);
+            coins += stats.coins;
+        }
+    }
+
+    response.json(coins);
 }
