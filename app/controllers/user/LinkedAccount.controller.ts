@@ -58,7 +58,37 @@ export class LinkedAccountController {
     }
 
     public static async updateTwitchCoins(request: Request, response: Response) {
-        //
+        const { twitchUser, amount } = request.body;
+
+        if (!twitchUser && !twitchUser.id && !twitchUser.username) {
+            return response.status(400).json({ message: 'User not provided' });
+        }
+
+        if (!amount) {
+            return response.status(400).json({ message: 'Amount not provided' });
+        }
+
+        const linkedAccountRepository = await getCustomRepository(LinkedAccountRepository);
+        let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
+
+        if (!account) {
+            account = new LinkedAccount();
+            account.provider = Provider.TWITCH;
+            account.providerId = twitchUser.id;
+            account.storage = {};
+        }
+
+        account.username = twitchUser.username;
+
+        if (account.storage && account.storage.coins) {
+            account.storage.coins += amount;
+        } else {
+            account.storage.coins = amount;
+        }
+
+        await account.save();
+
+        response.json(account);
     }
 
     private static async connectDiscord(request: Request, response: Response, user: User) {
@@ -77,12 +107,12 @@ export class LinkedAccountController {
 
         if (!account) {
             account = new LinkedAccount();
+            account.provider = Provider.DISCORD;
+            account.providerId = discordUser.id;
         }
 
         account.user = user;
-        account.provider = Provider.DISCORD;
         account.username = discordUser.username;
-        account.providerId = discordUser.id;
 
         await account.save();
     }

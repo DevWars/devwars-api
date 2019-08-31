@@ -19,8 +19,8 @@ export default class LinkedAccount extends BaseModel {
      * Used to store information about a linked account
      * before the account has been linked to DevWars
      */
-    @Column({ type: 'jsonb', default: {} })
-    public storage: object;
+    @Column({ type: 'jsonb' })
+    public storage: any;
 
     /**
      * Third-party account provider name
