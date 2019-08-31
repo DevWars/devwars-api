@@ -7,7 +7,7 @@ import { asyncErrorHandler } from './handlers';
 
 export const LinkedAccountRoute: express.Router = express
     .Router()
-    .get('/', mustOwnUser, asyncErrorHandler(LinkedAccountController.all))
+    .get('/', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.all))
     .get('/:provider', asyncErrorHandler(LinkedAccountController.connect))
     .delete('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.disconnect))
     .put('/twitch/coins', isTwitchBot, asyncErrorHandler(LinkedAccountController.updateTwitchCoins));
