@@ -67,24 +67,29 @@ export class AuthController {
     public static async verify(request: Request, response: Response) {
         const { token } = request.query;
 
-        const foundToken = await EmailVerification.findOne({
-            where: { token },
+        // gather the verification / user link based on the provided token in the query. ensuring to
+        // keep the relation set otherwise no user will be on the return object.
+        const verificationToken = await EmailVerification.findOne({
             relations: ['user'],
+            where: { token },
         });
 
-        if (foundToken) {
-            const { user } = foundToken;
+        // if no verification object could be found, then redirect the user back to the home page.
+        // this will happen regardless but clearly defined redirect based on failed validation check
+        // will ensure future understanding.
+        if (_.isNil(verificationToken)) return response.redirect(process.env.FRONT_URL);
 
-            user.role = UserRole.USER;
+        // update the user role, ensuring that they are now removed from the pending state and
+        // returned or setup as a standard user, then updating the database with this change.
+        const { user } = verificationToken;
+        user.role = UserRole.USER;
 
-            await getManager().transaction(async (transaction) => {
-                await transaction.remove(foundToken);
-                await transaction.save(user);
-            });
-        }
+        await getManager().transaction(async (transaction) => {
+            await transaction.remove(verificationToken);
+            await transaction.save(user);
+        });
 
-        const redirectUrl = `${process.env.FRONT_URL}`;
-        response.redirect(redirectUrl);
+        response.redirect(process.env.FRONT_URL);
     }
 
     public static async login(request: Request, response: Response) {
