@@ -27,15 +27,27 @@ function flattenUser(user: User) {
     };
 }
 export class AuthController {
+    /**
+     * Attempts to register a new user with the service, enforcing validation checks on the
+     * username, password and email provided. If all process checks complete and are valid,
+     * new/unique, then a welcome email will be sent out to introduce the new user.
+     */
     public static async register(request: Request, response: Response) {
         let { username, email, password }: IRegistrationRequest = request.body;
+
+        // if any of the provided username, email or password are empty, then return a 400 since all
+        // processes are required to ensure a correct registering process. This validation will
+        // occur before increased validation on the quality of email, username and password.
+        if (_.isNil(username) || _.isNil(email) || !_.isNil(password)) return response.sendStatus(400);
+
+        // trim out any remaining spaces on either end of the username, password or email before joi
+        // validation. Since we don't want the chance of spaces ruining the sign in process or
+        // emailing process for the authenticating user.
         username = username.trim();
-        email = email.trim();
         password = password.trim();
+        email = email.trim();
 
-        if (!username || !email || !password) return response.sendStatus(400);
-
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
 
         if (existingUser && existingUser.username === username) {
@@ -46,10 +58,14 @@ export class AuthController {
             return response.status(409).json({ message: 'Email address is taken' });
         }
 
+        // Register the user in the database, generating a new user with the default and minimal
+        // stats / settings for usage.
         const user = await AuthService.register({ username, email, password });
 
+        // Gather and bind the new token for the newly registered user, removing the need for the
+        // user to again login since they have "already" authenticated with the service with the
+        // registering process.
         response.cookie('token', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
-
         response.json(flattenUser(user));
     }
 
