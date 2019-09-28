@@ -8,7 +8,7 @@ export default class UserFactory {
 
         user.lastSignIn = new Date();
         user.email = helpers.userCard().email;
-        user.username = helpers.userCard().username;
+        user.username = helpers.userCard().username.toLowerCase();
         user.password = bcrypt.hashSync('secret', 1);
         user.role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
         user.avatarUrl = random.image();
@@ -16,12 +16,14 @@ export default class UserFactory {
         return user;
     }
 
+    /**
+     * Creates a default user with the provided username (this will be forced to lowercase)
+     * @param username The username of the default user.
+     */
     public static withUsername(username: string): User {
-        const user = this.default();
-
-        user.username = username;
-
-        return user;
+        return Object.assign(this.default(), {
+            username: username.toLowerCase(),
+        });
     }
 
     public static withRole(role: UserRole) {
