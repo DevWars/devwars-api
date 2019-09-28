@@ -98,7 +98,7 @@ export async function create(request: Request, response: Response) {
 
 export async function findAllBySeason(request: Request, response: Response) {
     const season = request.params.season;
-    const gameRepository = await getCustomRepository(GameRepository);
+    const gameRepository = getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(season);
 
     if (!games) return response.sendStatus(404);

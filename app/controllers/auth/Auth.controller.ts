@@ -45,7 +45,7 @@ export class AuthController {
         // if any of the provided username, email or password are empty, then return a 400 since all
         // processes are required to ensure a correct registering process. This validation will
         // occur before increased validation on the quality of email, username and password.
-        if (_.isNil(username) || _.isNil(email) || !_.isNil(password)) return response.sendStatus(400);
+        if (_.isNil(username) || _.isNil(email) || _.isNil(password)) return response.sendStatus(400);
 
         // trim out any remaining spaces on either end of the username, password or email before joi
         // validation. Since we don't want the chance of spaces ruining the sign in process or
