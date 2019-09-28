@@ -31,6 +31,13 @@ export class AuthController {
      * Attempts to register a new user with the service, enforcing validation checks on the
      * username, password and email provided. If all process checks complete and are valid,
      * new/unique, then a welcome email will be sent out to introduce the new user.
+     *
+     * @api {post} /register Attempts to createa a new user with the service.
+     * @apiVersion 1.0.0
+     * @apiName Register
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
      */
     public static async register(request: Request, response: Response) {
         let { username, email, password }: IRegistrationRequest = request.body;
@@ -70,7 +77,7 @@ export class AuthController {
     }
 
     public static async reVerify(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(request.cookies.token);
 
         await VerificationService.reset(user);
