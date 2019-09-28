@@ -15,7 +15,7 @@ const updateUserPasswords = async () => {
     const users = await User.find();
 
     for (const user of users) {
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
 
         await userRepository.findByUsername(user.username);
         user.password = await hash('secret');

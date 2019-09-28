@@ -4,7 +4,7 @@ import UserGameStats from '../../models/UserGameStats';
 import UserRepository from '../../repository/User.repository';
 
 export async function forUser(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findOne(request.params.id);
     if (!user) return response.sendStatus(404);
 

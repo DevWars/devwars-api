@@ -99,7 +99,7 @@ export async function create(request: Request, response: Response) {
 export async function findAllBySeason(request: Request, response: Response) {
     const season = request.params.season;
     const gameRepository = getCustomRepository(GameRepository);
-    const games = await gameRepository.findAllBySeason(season);
+    const games = await gameRepository.findAllBySeason(Number(season));
 
     if (!games) return response.sendStatus(404);
     response.json(games.map((game) => flattenGame(game)));

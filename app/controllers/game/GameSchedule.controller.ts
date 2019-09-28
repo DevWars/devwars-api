@@ -62,7 +62,7 @@ export async function update(request: Request, response: Response) {
 }
 
 export async function latest(request: Request, response: Response) {
-    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const latestSchedule = await gameScheduleRepository.latest();
     if (!latestSchedule) return response.sendStatus(404);
 
@@ -73,7 +73,7 @@ export async function byStatus(request: Request, response: Response) {
     const toEnum: string = (request.params.status || '').toUpperCase();
     const status: GameStatus = (GameStatus as any)[toEnum];
 
-    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedules = await gameScheduleRepository.findAllByStatus(status);
 
     response.json(schedules.map((schedule) => flattenSchedule(schedule)));

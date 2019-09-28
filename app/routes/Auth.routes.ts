@@ -3,9 +3,11 @@ import { AuthController } from '../controllers/auth/Auth.controller';
 import { mustOwnUser } from '../middlewares/OwnsUser';
 import { asyncErrorHandler } from './handlers';
 
+import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
+
 export const AuthRoute: express.Router = express
     .Router()
-    .get('/user', asyncErrorHandler(AuthController.currentUser))
+    .get('/user', mustBeAuthenticated, asyncErrorHandler(AuthController.currentUser))
     .post('/login', asyncErrorHandler(AuthController.login))
     .post('/logout', asyncErrorHandler(AuthController.logout))
     .post('/register', asyncErrorHandler(AuthController.register))

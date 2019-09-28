@@ -11,11 +11,11 @@ export async function addPlayer(request: Request, response: Response) {
     const gameId = request.params.id;
     const { player, team } = request.body;
 
-    const gameRepository = await getCustomRepository(GameRepository);
+    const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
-    const gameScheduleRepository = await getCustomRepository(GameScheduleRepository);
+    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
     if (!schedule) return response.sendStatus(404);
 
@@ -110,7 +110,7 @@ export async function removePlayer(request: Request, response: Response) {
     const gameId = request.params.id;
     const { player } = request.body;
 
-    const gameRepository = await getCustomRepository(GameRepository);
+    const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
 
     const gamePlayer = gameRepository.findByPlayer(player);

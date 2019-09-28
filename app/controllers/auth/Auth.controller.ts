@@ -17,6 +17,8 @@ import { VerificationService } from '../../services/Verification.service';
 import { ResetService } from '../../services/Reset.service';
 import { hash } from '../../utils/hash';
 
+import { IRequest } from '../../request/IRequest';
+
 function flattenUser(user: User) {
     return {
         id: user.id,
@@ -133,14 +135,16 @@ export class AuthController {
         // if the user does not exist by the provided credentails, then exist before continuing.
         // Ensuring that the user is aware that they are invalid and not able to login due to that
         // reason.
-        if (_.isNil(user)) return response.status(400).send('the provided username or password is not correct.');
+        if (_.isNil(user))
+            return response.status(400).json({ error: 'the provided username or password is not correct.' });
 
         // Ensure that the password provided matches the encrypted password stored in the database, this will be using
         // the salt and hash with the secret in bcrypt.
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
         // if the password does not match, ensure the user is told about the authentication failing.
-        if (!passwordsMatch) return response.status(400).send('the provided username or password is not correct.');
+        if (!passwordsMatch)
+            return response.status(400).json({ error: 'the provided username or password is not correct.' });
 
         const token = await AuthService.newToken(user);
         response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
@@ -156,7 +160,7 @@ export class AuthController {
 
         if (!token) throw new Error('logout failed');
 
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(token);
 
         if (!user) throw new Error('logout failed');
@@ -171,20 +175,24 @@ export class AuthController {
         });
     }
 
-    public static async currentUser(request: Request, response: Response) {
-        const { token } = request.cookies;
-
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(token);
-
-        if (!user) response.status(404).send('You are not logged in');
-
-        response.json(user);
+    /**
+     * Called into with a authenicated user, if valid and logged in as expected, the current
+     * authenticated user will be returned.
+     *
+     * @api {get} /auth/user Returns the current authenticated user.
+     * @apiVersion 1.0.0
+     * @apiName UserGathering
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user who is authenticated.
+     */
+    public static async currentUser(request: IRequest, response: Response) {
+        return response.json(request.user);
     }
 
-    public static async initiateEmailReset(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findOne(request.params.user.id);
+    public static async initiateEmailReset(request: IRequest, response: Response) {
+        const userRepository = getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.user.id);
         const { password, email } = request.body;
 
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
@@ -205,14 +213,14 @@ export class AuthController {
     public static async initiatePasswordReset(request: Request, response: Response) {
         const { username_or_email } = request.body;
 
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
         if (!user) {
             return response.status(404).json({ message: 'User not found' });
         }
 
-        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         await passwordResetRepository.delete({ user });
 
         await AuthService.resetPassword(user);
@@ -225,7 +233,7 @@ export class AuthController {
     public static async resetPassword(request: Request, response: Response) {
         const { token, password } = request.query;
 
-        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         const passwordReset = await passwordResetRepository.findByToken(token);
 
         if (!passwordReset) {

@@ -52,7 +52,7 @@ export class AuthService {
      * @param user The user who is getting the new token.
      */
     public static async newToken(user: User): Promise<string> {
-        user.token = jwt.sign({ id: user.id }, 'secret');
+        user.token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: '7d' });
         await user.save();
         return user.token;
     }
@@ -64,14 +64,19 @@ export class AuthService {
      */
     public static VerifyAuthenticationToken(token: string): { id: string } | null {
         try {
-            return jwt.verify(token, 'seceret') as { id: string };
+            return jwt.verify(token, process.env.SECRET) as { id: string };
         } catch (error) {
             return null;
         }
     }
 
+    /**
+     * Generates a reset token for the user to reset there given password, sending a new reset
+     * email. They have 6 hours from the current server time to change the password.
+     * @param user The user of the password being reset.
+     */
     public static async resetPassword(user: User) {
-        const reset = await new PasswordReset();
+        const reset = new PasswordReset();
         reset.expiresAt = addHours(new Date(), 6);
         reset.token = randomCryptoString();
         reset.user = user;

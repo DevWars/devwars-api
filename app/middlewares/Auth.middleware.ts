@@ -1,12 +1,13 @@
 import { NextFunction, Request, Response } from 'express';
-import { getCustomRepository, InsertQueryBuilder } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
 import { UserRole } from '../models/User';
 import UserRepository from '../repository/User.repository';
 import { AuthService } from '../services/Auth.service';
+import { IRequest } from '../request/IRequest';
 
-export const mustBeAuthenticated = async (request: Request, response: Response, next: NextFunction) => {
+export const mustBeAuthenticated = async (request: IRequest, response: Response, next: NextFunction) => {
     const token = request.cookies.token;
 
     // if the token was not not provided then return that the given user is not authenticated.
@@ -24,7 +25,7 @@ export const mustBeAuthenticated = async (request: Request, response: Response, 
     if (_.isNil(user) || user.token !== token)
         return response.status(401).json({ error: 'invalid or no authentication token was provided' });
 
-    request.params.user = user;
+    request.user = user;
     return next();
 };
 
