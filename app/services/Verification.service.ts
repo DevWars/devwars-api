@@ -20,7 +20,7 @@ export class VerificationService {
         verification.token = randomCryptoString();
         verification.user = user;
 
-        const verificationUrl = `${process.env.FRONT_URL}/auth/verify?token=${verification.token}`;
+        const verificationUrl = `${process.env.API_URL}/auth/verify?token=${verification.token}`;
 
         await getManager().transaction(async (transactionalEntityManager) => {
             await transactionalEntityManager.save(user);
