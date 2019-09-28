@@ -128,7 +128,9 @@ export default class GameService {
     }
 
     public static async sendGameToFirebase(game: any) {
-        await this.sendGamePlayersToFirebase(game);
+        if (game.editor) {
+            await this.sendGamePlayersToFirebase(game);
+        }
 
         const objectives = Object.values(game.storage.objectives).map((obj: any) => {
             return {
