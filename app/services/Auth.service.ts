@@ -14,6 +14,8 @@ import { randomCryptoString } from '../utils/random';
 import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
 
+import * as jwt from 'jsonwebtoken';
+
 export class AuthService {
     public static async register(request: IRegistrationRequest) {
         const user = new User();
@@ -45,12 +47,27 @@ export class AuthService {
         return user;
     }
 
+    /**
+     * Generates a new JWT token that will be used for the authorization of the user.
+     * @param user The user who is getting the new token.
+     */
     public static async newToken(user: User): Promise<string> {
-        user.token = randomCryptoString();
-
+        user.token = jwt.sign({ id: user.id }, 'secret');
         await user.save();
-
         return user.token;
+    }
+
+    /**
+     * Verifies a given authentication token, if the token fails to verify, then it will be thrown,
+     * otherwise will return a decoded object. That will contain the database id of the given user.
+     * @param token The token that is being verified.
+     */
+    public static VerifyAuthenticationToken(token: string): { id: string } | null {
+        try {
+            return jwt.verify(token, 'seceret') as { id: string };
+        } catch (error) {
+            return null;
+        }
     }
 
     public static async resetPassword(user: User) {

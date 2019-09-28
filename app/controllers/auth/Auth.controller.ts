@@ -115,28 +115,40 @@ export class AuthController {
         response.redirect(process.env.FRONT_URL);
     }
 
+    /**
+     *
+     * @api {post} /login Attempts to authenticate the provided user into the system.
+     * @apiVersion 1.0.0
+     * @apiName Login
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
+     */
     public static async login(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
         const { identifier, password } = { ...(request.body as ILoginRequest) };
+
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier });
 
-        if (!user) {
-            return response.status(400).send('Invalid Credentials');
-        }
+        // if the user does not exist by the provided credentails, then exist before continuing.
+        // Ensuring that the user is aware that they are invalid and not able to login due to that
+        // reason.
+        if (_.isNil(user)) return response.status(400).send('the provided username or password is not correct.');
 
+        // Ensure that the password provided matches the encrypted password stored in the database, this will be using
+        // the salt and hash with the secret in bcrypt.
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
-        if (!passwordsMatch) {
-            return response.status(400).send('Invalid Credentials');
-        } else {
-            const token = await AuthService.newToken(user);
-            response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
+        // if the password does not match, ensure the user is told about the authentication failing.
+        if (!passwordsMatch) return response.status(400).send('the provided username or password is not correct.');
 
-            user.lastSignIn = new Date();
-            await user.save();
+        const token = await AuthService.newToken(user);
+        response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
 
-            response.json(flattenUser(user));
-        }
+        user.lastSignIn = new Date();
+        await user.save();
+
+        response.json(flattenUser(user));
     }
 
     public static async logout(request: Request, response: Response) {

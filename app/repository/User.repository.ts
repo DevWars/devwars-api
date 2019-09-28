@@ -17,6 +17,14 @@ export default class UserRepository extends Repository<User> {
         return User.findOne({ where: { username } });
     }
 
+    /**
+     * Finds a given user by there id.
+     * @param id The id of the user being found.
+     */
+    public async findById(id: any): Promise<User> {
+        return await User.findOne({ where: { id } });
+    }
+
     public findByEmail(email: string): Promise<User> {
         return User.findOne({ where: { email } });
     }
