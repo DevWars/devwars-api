@@ -9,7 +9,13 @@ import User from '../models/User';
 const mjmlOptions = { minify: true, keepComments: false };
 
 export async function send(to: string, subject: string, html: string) {
+    // we don't care about anything going on in testing, so just return out early before we attempt
+    // to send anymore emails.
     if (process.env.NODE_ENV === 'test') return;
+
+    // if we are in development of the application, we would want to look to log out the details as
+    // these could be used for testing valiation links, and email information in developemtn.
+    if (process.env.NODE_ENV === 'development') return console.log({ to, subject, html });
 
     try {
         const mailgun = createMailgun({ apiKey: process.env.MAILGUN_KEY, domain: 'devwars.tv' });

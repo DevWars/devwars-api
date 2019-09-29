@@ -78,15 +78,26 @@ export class AuthController {
         response.json(flattenUser(user));
     }
 
-    public static async reVerify(request: Request, response: Response) {
-        const userRepository = getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(request.cookies.token);
+    /**
+     * Goes through the verification process once again with the authenticated user with the system.
+     * Only if the user is not already verified.
+     *
+     * @api {post} /auth/reverify Sends out a users verification email.
+     * @apiVersion 1.0.0
+     * @apiName Reverify
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
+     */
+    public static async reVerify(request: IRequest, response: Response) {
+        // if the user is not in the pending state, return out early stating that its complete with
+        // the status of already being verified. This is a edge case which is unlikely to be done
+        // through standard user interaction.
+        if (request.user.role !== UserRole.PENDING)
+            return response.json({ message: `${request.user.username} is already verified` });
 
-        await VerificationService.reset(user);
-
-        response.json({
-            message: 'Resent',
-        });
+        await VerificationService.reset(request.user);
+        return response.json({ message: 'Resent' });
     }
 
     public static async verify(request: Request, response: Response) {

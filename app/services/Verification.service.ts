@@ -1,10 +1,12 @@
-import { getManager } from 'typeorm';
+import { getManager, getCustomRepository } from 'typeorm';
 import EmailVerification from '../models/EmailVerification';
 import User from '../models/User';
 import { UserRole } from '../models/User';
 
-import { randomCryptoString } from '../utils/random';
+import { randomString } from '../utils/random';
 import { sendWelcomeEmail } from './Mail.service';
+
+import EmailVerificationRepository from '../repository/EmailVerification.repository';
 
 export class VerificationService {
     /**
@@ -14,10 +16,13 @@ export class VerificationService {
      * @param user The user whois getting there verification progresss reset.
      */
     public static async reset(user: User) {
+        const emailRepository = getCustomRepository(EmailVerificationRepository);
+        await emailRepository.removeForUser(user);
+
         user.role = UserRole.PENDING;
 
         const verification = new EmailVerification();
-        verification.token = randomCryptoString();
+        verification.token = randomString(256);
         verification.user = user;
 
         const verificationUrl = `${process.env.API_URL}/auth/verify?token=${verification.token}`;
