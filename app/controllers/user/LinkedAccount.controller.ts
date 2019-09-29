@@ -82,23 +82,24 @@ export class LinkedAccountController {
     }
 
     private static async connectDiscord(request: Request, response: Response, user: User) {
+        // gather a given access token for the code that was returned back from discord, completing
+        // the linkage and authorization process with discord.
         const token = await DiscordService.accessTokenForCode(request.query.code);
-        if (!token) {
-            return response.status(400).json({ message: 'Missing token' });
-        }
+        if (_.isNil(token)) return response.status(400).json({ error: 'could not gather access token for discord.' });
 
+        // Attempt to gather the relatd users account information for the tiven token, this is what
+        // will be used to link the accounts up with discord.
         const discordUser = await DiscordService.discordUserForToken(token);
-        if (!discordUser) {
-            return response.status(403).json({ message: 'Discord user not found' });
-        }
+        if (_.isNil(discordUser)) return response.status(403).json({ error: 'Discord user not found.' });
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
         let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
 
-        if (!account) {
+        if (_.isNil(account)) {
             account = new LinkedAccount();
             account.provider = Provider.DISCORD;
             account.providerId = discordUser.id;
+            account.storage = {};
         }
 
         account.user = user;
