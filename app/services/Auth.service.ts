@@ -10,7 +10,7 @@ import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
 
 import IRegistrationRequest from '../request/RegistrationRequest';
-import { randomCryptoString } from '../utils/random';
+import { randomString } from '../utils/random';
 import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
 
@@ -78,7 +78,7 @@ export class AuthService {
     public static async resetPassword(user: User) {
         const reset = new PasswordReset();
         reset.expiresAt = addHours(new Date(), 6);
-        reset.token = randomCryptoString();
+        reset.token = randomString(256);
         reset.user = user;
 
         const resetUrl = `${process.env.FRONT_URL}/reset-password?token=${reset.token}`;
