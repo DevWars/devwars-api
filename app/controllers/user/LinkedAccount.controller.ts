@@ -29,22 +29,38 @@ export class LinkedAccountController {
         response.redirect(`${process.env.FRONT_URL}/settings/connections`);
     }
 
+    /**
+     * @api {delete} /oauth/:provider Deletes a linked account from teh given user
+     * @apiName DeleteLinkedAccounst
+     * @apiGroup LinkedAccounts
+     * @apiDescription Called into when a user is diconnecting a linked account from there profile.
+     * e.g removing a link between discord.
+     *
+     * @apiParam {string} The name of the provider who is being removed.
+     *
+     * @apiSuccess {json} The linked account that was removed.
+     * @apiError ProviderNotFound The provider is not a valid provider.
+     * @apiError NoAccountLinkFound No link account between user and provider.
+     */
     public static async disconnect(request: IRequest, response: Response) {
         const provider = request.params.provider.toUpperCase();
 
-        if (!(provider in Provider)) {
-            return response.status(400).json({ message: `${provider} is not a valid Provider` });
-        }
+        // if the given provider is not valid, then return out with a response to the user that the
+        // given provider is not empty.
+        if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid provider` });
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
         const account = await linkedAccountRepository.findByUserIdAndProvider(request.user.id, provider);
 
-        if (_.isNil(account)) return response.sendStatus(404);
+        // if no link between the given account and the given sevice, let the user know of said link
+        // that that it does not exist.
+        if (_.isNil(account)) {
+            const error = `no linked account between user ${request.user.username} and provider ${provider}}`;
+            return response.sendStatus(404).send({ error });
+        }
 
-        account.user = null;
-        await account.save();
-
-        response.json(account);
+        await account.remove();
+        return response.json(account);
     }
 
     public static async updateTwitchCoins(request: Request, response: Response) {
