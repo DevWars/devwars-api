@@ -27,7 +27,7 @@ describe('game', () => {
     });
 
     it('POST - games - normal user fail oauth', async () => {
-        const user = UserFactory.withRole(UserRole.USER);
+        const user = await UserFactory.withRole(UserRole.USER).save();
         const game = await GameFactory.default();
 
         const response = await supertest(app)
@@ -39,8 +39,8 @@ describe('game', () => {
     });
 
     it('POST - games - mod user ok oauth', async () => {
+        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
         const game = await GameFactory.default();
-        const user = UserFactory.withRole(UserRole.MODERATOR);
 
         const response = await supertest(app)
             .post('/games')
@@ -52,8 +52,8 @@ describe('game', () => {
     });
 
     it('POST - games - admin user ok oauth', async () => {
+        const user = await UserFactory.withRole(UserRole.ADMIN).save();
         const game = await GameFactory.default();
-        const user = UserFactory.withRole(UserRole.ADMIN);
 
         const response = await supertest(app)
             .post('/games')
@@ -115,7 +115,7 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - normal user failed', async () => {
-        const user = UserFactory.withRole(UserRole.USER);
+        const user = await UserFactory.withRole(UserRole.USER).save();
         const game = await GameFactory.default();
         await game.save();
 
@@ -128,7 +128,7 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - mod user fail because not found', async () => {
-        const user = UserFactory.withRole(UserRole.MODERATOR);
+        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
         const game = await GameFactory.default();
         await game.save();
 
@@ -141,7 +141,7 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - mod user', async () => {
-        const user = UserFactory.withRole(UserRole.MODERATOR);
+        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
         const game = await GameFactory.withMode('Blitz');
         await game.save();
 
@@ -156,7 +156,7 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - admin user', async () => {
-        const user = UserFactory.withRole(UserRole.ADMIN);
+        const user = await UserFactory.withRole(UserRole.ADMIN).save();
         const game = await GameFactory.withMode('Blitz');
         await game.save();
 
@@ -172,7 +172,7 @@ describe('game', () => {
 
     // TODO: need finish end method in controller
     // it('POST - games/:id/end - normal user ', async () => {
-    //     const user = UserFactory.withRole(UserRole.USER);
+    //     const user = await UserFactory.withRole(UserRole.USER).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
@@ -184,7 +184,7 @@ describe('game', () => {
     // })
 
     // it('POST - games/:id/end - mod user ', async () => {
-    //     const user = UserFactory.withRole(UserRole.MODERATOR);
+    //     const user = await UserFactory.withRole(UserRole.MODERATOR).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
@@ -196,7 +196,7 @@ describe('game', () => {
     // })
 
     // it('POST - games/:id/end - admin user ', async () => {
-    //     const user = UserFactory.withRole(UserRole.ADMIN);
+    //     const user = await UserFactory.withRole(UserRole.ADMIN).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
     //     const response = await supertest(app)
