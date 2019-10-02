@@ -16,8 +16,8 @@ import './setup';
 const server: Server = new Server();
 let app: express.Application;
 
-// used for the creation of the database transactions without the need of constantly calling into
-// get manager everytime a test needs a transaction.
+// Used for the creation of the database transactions without the need of constantly calling into
+// get manager every time a test needs a transaction.
 const connectionManager: EntityManager = getManager();
 
 function generateSchedule() {

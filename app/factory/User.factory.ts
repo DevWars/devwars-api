@@ -8,7 +8,7 @@ export default class UserFactory {
 
         user.lastSignIn = new Date();
         user.email = helpers.userCard().email;
-        user.username = helpers.userCard().username.toLowerCase();
+        user.username = helpers.userCard().username;
         user.password = bcrypt.hashSync('secret', 1);
         user.role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
         user.avatarUrl = random.image();
@@ -22,7 +22,7 @@ export default class UserFactory {
      */
     public static withUsername(username: string): User {
         return Object.assign(this.default(), {
-            username: username.toLowerCase(),
+            username,
         });
     }
 

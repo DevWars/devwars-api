@@ -68,7 +68,7 @@ describe('user-profile', () => {
         const data: any = await UserProfile.findOne({ where: { user: user.id } });
         const filteredData = _.pick(data, Object.keys(userProfileSettings));
 
-        // perform a deep equal to directly compare the two objects and
+        // Perform a deep equal to directly compare the two objects and
         // all the objects nested levels until completion or invalid matching.
         chai.expect(filteredData).to.be.deep.equal(userProfileSettings);
     });
@@ -93,7 +93,7 @@ describe('user-profile', () => {
     it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const user = UserFactory.withRole(UserRole.USER);
         const userProfile = UserProfileFactory.withUser(user);
-        const userAdministrator = await UserFactory.withRole(UserRole.ADMIN);
+        const userAdministrator = UserFactory.withRole(UserRole.ADMIN);
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);

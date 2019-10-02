@@ -10,10 +10,10 @@ import { IRequest } from '../request/IRequest';
 export const mustBeAuthenticated = async (request: IRequest, response: Response, next: NextFunction) => {
     const token = request.cookies.token;
 
-    // if the token was not not provided then return that the given user is not authenticated.
+    // If the token was not not provided then return that the given user is not authenticated.
     if (_.isNil(token)) return response.status(401).json({ error: 'invalid or no authentication token was provided' });
 
-    // decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
+    // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
     const decodedToken = AuthService.VerifyAuthenticationToken(token);
 
     if (_.isNil(decodedToken))

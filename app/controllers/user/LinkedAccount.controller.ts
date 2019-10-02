@@ -81,7 +81,6 @@ export class LinkedAccountController {
             account = new LinkedAccount();
             account.provider = Provider.TWITCH;
             account.providerId = twitchUser.id;
-            account.storage = {};
         }
 
         account.username = twitchUser.username;
@@ -115,7 +114,6 @@ export class LinkedAccountController {
             account = new LinkedAccount();
             account.provider = Provider.DISCORD;
             account.providerId = discordUser.id;
-            account.storage = {};
         }
 
         account.user = user;

@@ -4,5 +4,9 @@
         "prettyhtml": {
             "tabWidth": 4
         }
-    }
+    },
+    "cSpell.words": [
+        "devwars",
+        "typeorm"
+    ]
 }

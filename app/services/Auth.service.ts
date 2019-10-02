@@ -52,7 +52,7 @@ export class AuthService {
      * @param user The user who is getting the new token.
      */
     public static async newToken(user: User): Promise<string> {
-        user.token = jwt.sign({ id: user.id }, process.env.SECRET, { expiresIn: '7d' });
+        user.token = jwt.sign({ id: user.id }, process.env.AUTH_SECRET, { expiresIn: '7d' });
         await user.save();
         return user.token;
     }
@@ -64,7 +64,7 @@ export class AuthService {
      */
     public static VerifyAuthenticationToken(token: string): { id: string } | null {
         try {
-            return jwt.verify(token, process.env.SECRET) as { id: string };
+            return jwt.verify(token, process.env.AUTH_SECRET) as { id: string };
         } catch (error) {
             return null;
         }

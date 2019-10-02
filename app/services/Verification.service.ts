@@ -13,7 +13,7 @@ export class VerificationService {
      * Generates a new random verification token that is stored in the database with the user
      * getting a verification link sent. Verification token will be removed once the user clicks the
      * validation link, inturn calling into the verify endpoint.
-     * @param user The user whois getting there verification progresss reset.
+     * @param user The user who is getting their verification progress reset.
      */
     public static async reset(user: User) {
         const emailRepository = getCustomRepository(EmailVerificationRepository);

@@ -125,7 +125,7 @@ describe('oauth', () => {
         const request = await supertest(app)
             .post('/auth/register')
             .send({
-                username: 'test',
+                username: 'test_user',
                 email: 'email@email.fr',
                 password: 'secret',
             });
@@ -143,8 +143,8 @@ describe('oauth', () => {
             await transaction.save(emailVerification);
         });
 
-        // validating that the token actually exists before attempting to verify
-        // removing the chance of having false positives.
+        // Validating that the token actually exists before attempting to verify removing the chance
+        // of having false positives.
         const preVerifyToken = await EmailVerification.findOne({
             where: { token: emailVerification.token },
             relations: ['user'],

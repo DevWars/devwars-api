@@ -63,7 +63,7 @@ export async function update(request: Request, response: Response) {
 }
 
 /**
- * Returns the latest game that is in the queue for devwars, this could of already occured but
+ * Returns the latest game that is in the queue for devwars, this could of already occurred but
  * otherwise would be the latest of the games.
  */
 export async function latest(request: Request, response: Response) {

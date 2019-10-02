@@ -15,7 +15,6 @@ interface ICredentials {
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
     public findByUsername(username: string): Promise<User> {
-        username = username.toLowerCase();
         return User.findOne({ where: { username } });
     }
 
@@ -42,13 +41,12 @@ export default class UserRepository extends Repository<User> {
      */
     public async findByCredentials(request: ICredentials): Promise<User> {
         const byEmail = await this.findByEmail(request.identifier);
-
         if (!_.isNil(byEmail)) return byEmail;
 
-        // username is forced to be lowercase, this must be enforced
-        const byUsername = await this.findByUsername(request.identifier.toLowerCase());
+        // Username is forced to be lowercase, this must be enforced
+        const byUsername = await this.findByUsername(request.identifier);
 
-        // falling back to the username, this could be undefined but should be handled by the
+        // Falling back to the username, this could be undefined but should be handled by the
         // calling operation and not here.
         return byUsername;
     }
