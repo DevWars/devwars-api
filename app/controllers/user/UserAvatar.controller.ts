@@ -4,7 +4,7 @@ import UserRepository from '../../repository/User.repository';
 import { AvatarService } from '../../services/Avatar.service';
 
 export async function store(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(request.cookies.token);
 
     try {

@@ -14,6 +14,8 @@ import { randomString } from '../utils/random';
 import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
 
+import * as jwt from 'jsonwebtoken';
+
 export class AuthService {
     public static async register(request: IRegistrationRequest) {
         const user = new User();
@@ -45,18 +47,38 @@ export class AuthService {
         return user;
     }
 
+    /**
+     * Generates a new JWT token that will be used for the authorization of the user.
+     * @param user The user who is getting the new token.
+     */
     public static async newToken(user: User): Promise<string> {
-        user.token = randomString(32);
-
+        user.token = jwt.sign({ id: user.id }, process.env.AUTH_SECRET, { expiresIn: '7d' });
         await user.save();
-
         return user.token;
     }
 
+    /**
+     * Verifies a given authentication token, if the token fails to verify, then it will be thrown,
+     * otherwise will return a decoded object. That will contain the database id of the given user.
+     * @param token The token that is being verified.
+     */
+    public static VerifyAuthenticationToken(token: string): { id: string } | null {
+        try {
+            return jwt.verify(token, process.env.AUTH_SECRET) as { id: string };
+        } catch (error) {
+            return null;
+        }
+    }
+
+    /**
+     * Generates a reset token for the user to reset there given password, sending a new reset
+     * email. They have 6 hours from the current server time to change the password.
+     * @param user The user of the password being reset.
+     */
     public static async resetPassword(user: User) {
-        const reset = await new PasswordReset();
+        const reset = new PasswordReset();
         reset.expiresAt = addHours(new Date(), 6);
-        reset.token = randomString(32);
+        reset.token = randomString(256);
         reset.user = user;
 
         const resetUrl = `${process.env.FRONT_URL}/reset-password?token=${reset.token}`;

@@ -1,7 +1,6 @@
 import { Request, Response } from 'express';
 
 export class HealthController {
-
     /**
      * @api {get} /health Health status of server
      * @apiVersion 1.0.0
@@ -16,10 +15,7 @@ export class HealthController {
      *       "status": "Healthy",
      *     }
      */
-
     public static index(request: Request, response: Response) {
-        response
-            .status(200)
-            .json({status: 'Healthy'});
+        response.status(200).json({ status: 'Healthy' });
     }
 }

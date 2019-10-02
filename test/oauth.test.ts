@@ -35,15 +35,15 @@ describe('oauth', () => {
         chai.expect(request.body.id).to.be.eq(user.id);
     });
 
-    it('GET - auth/user - should retrieve 404 because user does not exist', async () => {
+    it('GET - auth/user - should retrieve 401 because user does not exist / not authorized', async () => {
         await UserFactory.default().save();
 
         const request = await supertest(app)
             .get('/auth/user')
-            .set('Cookie', 'oauth=test')
+            .set('Cookie', 'token=test')
             .send();
 
-        chai.expect(request.status).to.be.eq(404);
+        chai.expect(request.status).to.be.eq(401);
     });
 
     it('POST - auth/login - the login should failed because user does not exist ', async () => {
@@ -100,7 +100,7 @@ describe('oauth', () => {
 
         const request = await supertest(app)
             .post('/auth/logout')
-            .set('Cookie', 'auth=test')
+            .set('Cookie', 'token=test')
             .send();
 
         chai.expect(request.status).to.be.eq(500);
@@ -125,7 +125,7 @@ describe('oauth', () => {
         const request = await supertest(app)
             .post('/auth/register')
             .send({
-                username: 'test',
+                username: 'test_user',
                 email: 'email@email.fr',
                 password: 'secret',
             });
@@ -143,8 +143,8 @@ describe('oauth', () => {
             await transaction.save(emailVerification);
         });
 
-        // validating that the token actually exists before attempting to verify
-        // removing the chance of having false positives.
+        // Validating that the token actually exists before attempting to verify removing the chance
+        // of having false positives.
         const preVerifyToken = await EmailVerification.findOne({
             where: { token: emailVerification.token },
             relations: ['user'],

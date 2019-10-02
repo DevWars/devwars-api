@@ -6,7 +6,7 @@ import UserRepository from '../repository/User.repository';
 
 export const mustOwnUser = async (request: Request, response: Response, next: NextFunction) => {
     const token = request.cookies.token;
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(token);
 
     const requestedUserId = Number(request.params.id);

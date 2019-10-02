@@ -1,23 +1,55 @@
 import * as express from 'express';
-import * as GameController from '../controllers/game/Game.controller';
-import * as LiveGameController from '../controllers/game/LiveGame.controller';
-import { mustBeRole } from '../middlewares/Auth.middleware';
-import { isTwitchBot } from '../middlewares/isTwitchBot.middleware';
-import { UserRole } from '../models/User';
-// import { createValidator } from '../routes/validators/Game.validator';
-import { asyncErrorHandler } from './handlers';
 
-export const GameRoute: express.Router = express
-    .Router()
-    .get('/', asyncErrorHandler(GameController.all))
-    .post('/', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.create))
-    .get('/latest', asyncErrorHandler(GameController.latest))
-    .get('/active', asyncErrorHandler(GameController.active))
-    .get('/:id', asyncErrorHandler(GameController.show))
-    .patch('/:id', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.update))
-    .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameController.activate))
-    .post('/:id/end', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(LiveGameController.end))
-    .post('/:id/end/bot', isTwitchBot, asyncErrorHandler(LiveGameController.end))
-    .post('/:id/player', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(LiveGameController.addPlayer))
-    .delete('/:id/player', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(LiveGameController.removePlayer))
-    .get('/season/:season', asyncErrorHandler(GameController.findAllBySeason));
+import * as LiveGameController from '../controllers/game/LiveGame.controller';
+import * as GameController from '../controllers/game/Game.controller';
+
+import { mustBeRole, mustBeAuthenticated } from '../middlewares/Auth.middleware';
+import { isTwitchBot } from '../middlewares/isTwitchBot.middleware';
+
+import { asyncErrorHandler } from './handlers';
+import { UserRole } from '../models/User';
+
+const GameRoute: express.Router = express.Router();
+
+GameRoute.get('/', asyncErrorHandler(GameController.all));
+
+GameRoute.post('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], asyncErrorHandler(GameController.create));
+GameRoute.get('/latest', asyncErrorHandler(GameController.latest));
+GameRoute.get('/active', asyncErrorHandler(GameController.active));
+GameRoute.get('/:id', asyncErrorHandler(GameController.show));
+
+GameRoute.patch(
+    '/:id',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(GameController.update)
+);
+
+GameRoute.post(
+    '/:id/activate',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(GameController.activate)
+);
+
+GameRoute.post(
+    '/:id/end',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(LiveGameController.end)
+);
+
+GameRoute.post('/:id/end/bot', isTwitchBot, asyncErrorHandler(LiveGameController.end));
+
+GameRoute.post(
+    '/:id/player',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(LiveGameController.addPlayer)
+);
+
+GameRoute.delete(
+    '/:id/player',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(LiveGameController.removePlayer)
+);
+
+GameRoute.get('/season/:season', asyncErrorHandler(GameController.findAllBySeason));
+
+export { GameRoute };

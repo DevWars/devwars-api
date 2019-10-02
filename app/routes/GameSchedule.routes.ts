@@ -1,18 +1,37 @@
 import * as express from 'express';
 import * as GameScheduleController from '../controllers/game/GameSchedule.controller';
 
-import { mustBeRole } from '../middlewares/Auth.middleware';
+import { mustBeRole, mustBeAuthenticated } from '../middlewares/Auth.middleware';
 import { UserRole } from '../models/User';
-// import { createValidator, updateValidator } from './validators/GameSchedule.validator';
 import { asyncErrorHandler } from './handlers';
 
-export const GameScheduleRoute: express.Router = express
-    .Router()
-    .get('/', asyncErrorHandler(GameScheduleController.all))
-    .post('/', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.create))
-    .get('/latest', asyncErrorHandler(GameScheduleController.latest))
-    .get('/:id', asyncErrorHandler(GameScheduleController.show))
-    .patch('/:id', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.update))
-    // .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.activate))
-    .post('/:id/activate', mustBeRole(UserRole.MODERATOR), asyncErrorHandler(GameScheduleController.activate))
-    .get('/status/:status', asyncErrorHandler(GameScheduleController.byStatus));
+const GameScheduleRoute: express.Router = express.Router();
+GameScheduleRoute.get('/', asyncErrorHandler(GameScheduleController.all));
+
+GameScheduleRoute.post(
+    '/',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(GameScheduleController.create)
+);
+
+GameScheduleRoute.get('/latest', asyncErrorHandler(GameScheduleController.latest));
+GameScheduleRoute.get('/:id', asyncErrorHandler(GameScheduleController.show));
+
+GameScheduleRoute.patch(
+    '/:id',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(GameScheduleController.update)
+);
+
+// GameScheduleRoute.post('/:id/activate', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+// asyncErrorHandler(GameScheduleController.activate))
+
+GameScheduleRoute.post(
+    '/:id/activate',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(GameScheduleController.activate)
+);
+
+GameScheduleRoute.get('/status/:status', asyncErrorHandler(GameScheduleController.byStatus));
+
+export { GameScheduleRoute };

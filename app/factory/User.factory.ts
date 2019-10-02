@@ -16,12 +16,14 @@ export default class UserFactory {
         return user;
     }
 
+    /**
+     * Creates a default user with the provided username (this will be forced to lowercase)
+     * @param username The username of the default user.
+     */
     public static withUsername(username: string): User {
-        const user = this.default();
-
-        user.username = username;
-
-        return user;
+        return Object.assign(this.default(), {
+            username,
+        });
     }
 
     public static withRole(role: UserRole) {

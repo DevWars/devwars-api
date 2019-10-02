@@ -23,8 +23,8 @@ const generateConstantUsers = async () => {
         const user = UserFactory.withUsername(`test-${role}`);
         user.role = (UserRole as any)[role.toUpperCase()];
 
-        await connectionManager.transaction(async (transcation) => {
-            await transcation.save(user);
+        await connectionManager.transaction(async (transaction) => {
+            await transaction.save(user);
 
             const profile = UserProfileFactory.default();
             const stats = UserStatsFactory.default();
@@ -32,8 +32,8 @@ const generateConstantUsers = async () => {
             profile.user = user;
             stats.user = user;
 
-            await transcation.save(profile);
-            await transcation.save(stats);
+            await transaction.save(profile);
+            await transaction.save(stats);
         });
     }
 };
@@ -64,7 +64,7 @@ const generateBasicUsers = async () => {
 };
 
 const generateGames = async () => {
-    const userRepository = await typeorm.getCustomRepository(UserRepository);
+    const userRepository = typeorm.getCustomRepository(UserRepository);
 
     for (let i = 1; i <= 50; i++) {
         await connectionManager.transaction(async (transaction) => {
@@ -82,8 +82,8 @@ const generateGames = async () => {
 };
 
 const generateApplications = async () => {
-    const gameScheduleRepository = await typeorm.getCustomRepository(GameScheduleRepository);
-    const userRepository = await typeorm.getCustomRepository(UserRepository);
+    const gameScheduleRepository = typeorm.getCustomRepository(GameScheduleRepository);
+    const userRepository = typeorm.getCustomRepository(UserRepository);
 
     for (let i = 1; i <= 25; i++) {
         const schedule = await gameScheduleRepository.findOne(i);

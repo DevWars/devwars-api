@@ -16,8 +16,8 @@ import './setup';
 const server: Server = new Server();
 let app: express.Application;
 
-// used for the creation of the database transactions without the need of constantly calling into
-// get manager everytime a test needs a transaction.
+// Used for the creation of the database transactions without the need of constantly calling into
+// get manager every time a test needs a transaction.
 const connectionManager: EntityManager = getManager();
 
 function generateSchedule() {
@@ -96,7 +96,7 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return 403 because user cant create a schedule', async () => {
-        const user = UserFactory.withRole(UserRole.USER);
+        const user = await UserFactory.withRole(UserRole.USER).save();
         const Schedule = generateSchedule();
 
         const badRequest = await supertest(app)
@@ -108,7 +108,7 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return the schedule created because admin can', async () => {
-        const user = UserFactory.withRole(UserRole.ADMIN);
+        const user = await UserFactory.withRole(UserRole.ADMIN).save();
         const Schedule = generateSchedule();
 
         const goodRequest = await supertest(app)
@@ -116,12 +116,14 @@ describe('game-schedule', () => {
             .set('Cookie', await cookieForUser(user))
             .send(Schedule);
 
+        chai.expect(goodRequest.status).to.be.equal(200);
+
         const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
         chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
     });
 
     it('POST - schedules/create - should return the schedule created because mod can', async () => {
-        const user = UserFactory.withRole(UserRole.MODERATOR);
+        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
         const Schedule = generateSchedule();
 
         const goodRequest = await supertest(app)
@@ -192,7 +194,7 @@ describe('game-schedule', () => {
     it('PATCH - schedules/:id - should return 403 because user cant update a schedule', async () => {
         const Schedule = await GameScheduleFactory.default().save();
 
-        const user = UserFactory.withRole(UserRole.USER);
+        const user = await UserFactory.withRole(UserRole.USER).save();
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -208,7 +210,7 @@ describe('game-schedule', () => {
     it('PATCH - schedules/:id - should return the schedules update because mod', async () => {
         const Schedule = await GameScheduleFactory.default().save();
 
-        const user = UserFactory.withRole(UserRole.MODERATOR);
+        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -225,7 +227,7 @@ describe('game-schedule', () => {
     it('PATCH - schedules/:id - should return the schedules update because admin', async () => {
         const Schedule = await GameScheduleFactory.default().save();
 
-        const user = UserFactory.withRole(UserRole.ADMIN);
+        const user = await UserFactory.withRole(UserRole.ADMIN).save();
         const updateDatas = {
             title: 'helloWorld',
         };

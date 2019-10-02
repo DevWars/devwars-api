@@ -48,7 +48,7 @@ export async function update(request: Request, response: Response) {
     const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const existingUsername = await userRepository.findByUsername(params.username);
     if (existingUsername && existingUsername.id !== user.id) {
         return response.status(409).send({ message: 'Username already taken' });

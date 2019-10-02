@@ -14,7 +14,7 @@ export const createValidator = [
     check('startTime')
         .exists()
         .custom((value: any) => {
-            let check = new Date(value);
+            const check = new Date(value);
             if (typeof check.getMonth !== 'function') {
                 throw new Error('the startTime must be date format');
             }
@@ -29,7 +29,7 @@ export const createValidator = [
             if (typeof objectives !== 'object') throw new Error('objectives must be an object');
 
             // if any errors find
-            for (let obj in objectives) {
+            for (const obj in objectives) {
                 if (Joi.validate(objectives[obj], objectiveSchema).error) {
                     throw new Error('objectives dont have the good template');
                 }
@@ -46,7 +46,7 @@ export const updateValidator = [
     check('startTime')
         .optional()
         .custom((value: any) => {
-            let check = new Date(value);
+            const check = new Date(value);
             if (typeof check.getMonth !== 'function') {
                 throw new Error('the startTime must be date format');
             }
@@ -58,7 +58,7 @@ export const updateValidator = [
             if (typeof objectives !== 'object') throw new Error('objectives must be an object');
 
             // if any errors find
-            for (let obj in objectives) {
+            for (const obj in objectives) {
                 if (Joi.validate(objectives[obj], objectiveSchema).error) {
                     throw new Error('objectives dont have the good template');
                 }

@@ -4,5 +4,5 @@ const Joi = require('@hapi/joi');
 export const createValidator = [
     check('season')
         .exists()
-        .isInt()
-]
+        .isInt(),
+];

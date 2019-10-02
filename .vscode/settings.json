@@ -1,8 +1,0 @@
-{
-    "editor.formatOnSave": true,
-    "vetur.format.defaultFormatterOptions": {
-        "prettyhtml": {
-            "tabWidth": 4
-        }
-    }
-}

@@ -6,7 +6,7 @@ import LinkedAccount, { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 
 export async function forUser(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findOne(request.params.id);
     if (!user) return response.sendStatus(404);
 
@@ -16,7 +16,7 @@ export async function forUser(request: Request, response: Response) {
 }
 
 export async function create(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findOne(request.params.id);
     if (!user) return response.sendStatus(400);
 
@@ -32,7 +32,7 @@ export async function getCoins(request: Request, response: Response) {
     const { twitchId } = request.query;
     let coins = 0;
 
-    const userRepository = await getCustomRepository(UserRepository);
+    const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(request.cookies.token);
     if (user) {
         const stats = await userRepository.findStatsByUser(user);
@@ -40,7 +40,7 @@ export async function getCoins(request: Request, response: Response) {
     }
 
     if (twitchId) {
-        const linkedAccountRepository = await getCustomRepository(LinkedAccountRepository);
+        const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
         const account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchId);
 
         if (account && account.storage && account.storage.coins) {

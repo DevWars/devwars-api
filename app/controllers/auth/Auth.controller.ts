@@ -17,6 +17,8 @@ import { VerificationService } from '../../services/Verification.service';
 import { ResetService } from '../../services/Reset.service';
 import { hash } from '../../utils/hash';
 
+import { IRequest } from '../../request/IRequest';
+
 function flattenUser(user: User) {
     return {
         id: user.id,
@@ -27,15 +29,37 @@ function flattenUser(user: User) {
     };
 }
 export class AuthController {
+    /**
+     * Attempts to register a new user with the service, enforcing validation checks on the
+     * username, password and email provided. If all process checks complete and are valid,
+     * new/unique, then a welcome email will be sent out to introduce the new user.
+     *
+     * @api {post} /register Attempts to creates a new user with the service.
+     * @apiVersion 1.0.0
+     * @apiName Register
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
+     */
     public static async register(request: Request, response: Response) {
         let { username, email, password }: IRegistrationRequest = request.body;
-        username = username.trim();
-        email = email.trim();
-        password = password.trim();
 
+        // If any of the provided username, email or password are empty, then return a 400 since all
+        // processes are required to ensure a correct registering process. This validation will
+        // occur before increased validation on the quality of email, username and password.
         if (!username || !email || !password) return response.sendStatus(400);
 
-        const userRepository = await getCustomRepository(UserRepository);
+        // Temp: until we add proper validation limits, follow up with tests.
+        if (username.length < 5 || password.length < 5 || !email.includes('@')) return response.sendStatus(400);
+
+        // Trim out any remaining spaces on either end of the username, password or email before joi
+        // validation. Since we don't want the chance of spaces ruining the sign in process or
+        // emailing process for the authenticating user.
+        username = username.trim();
+        password = password.trim();
+        email = email.trim();
+
+        const userRepository = getCustomRepository(UserRepository);
         const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
 
         if (existingUser && existingUser.username === username) {
@@ -46,69 +70,102 @@ export class AuthController {
             return response.status(409).json({ message: 'Email address is taken' });
         }
 
+        // Register the user in the database, generating a new user with the default and minimal
+        // stats / settings for usage.
         const user = await AuthService.register({ username, email, password });
 
+        // Gather and bind the new token for the newly registered user, removing the need for the
+        // user to again login since they have "already" authenticated with the service with the
+        // registering process.
         response.cookie('token', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
-
         response.json(flattenUser(user));
     }
 
-    public static async reVerify(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(request.cookies.token);
+    /**
+     * @api {post} /auth/reverify Sends out a users verification email.
+     * @apiDescription Goes through the verification process once again with the authenticated user
+     * with the system. Only if the user is not already verified.
+     * @apiVersion 1.0.0
+     * @apiName Reverify
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
+     */
+    public static async reVerify(request: IRequest, response: Response) {
+        // If the user is not in the pending state, return out early stating that its complete with
+        // the status of already being verified. This is a edge case which is unlikely to be done
+        // through standard user interaction.
+        if (request.user.role !== UserRole.PENDING)
+            return response.json({ message: `${request.user.username} is already verified` });
 
-        await VerificationService.reset(user);
-
-        response.json({
-            message: 'Resent',
-        });
+        await VerificationService.reset(request.user);
+        return response.json({ message: 'Resent' });
     }
 
     public static async verify(request: Request, response: Response) {
         const { token } = request.query;
 
-        const foundToken = await EmailVerification.findOne({
-            where: { token },
+        // Gather the verification / user link based on the provided token in the query. ensuring to
+        // keep the relation set otherwise no user will be on the return object.
+        const verificationToken = await EmailVerification.findOne({
             relations: ['user'],
+            where: { token },
         });
 
-        if (foundToken) {
-            const { user } = foundToken;
+        // If no verification object could be found, then redirect the user back to the home page.
+        // this will happen regardless but clearly defined redirect based on failed validation check
+        // will ensure future understanding.
+        if (_.isNil(verificationToken)) return response.redirect(process.env.FRONT_URL);
 
-            user.role = UserRole.USER;
+        // Update the user role, ensuring that they are now removed from the pending state and
+        // returned or setup as a standard user, then updating the database with this change.
+        const { user } = verificationToken;
+        user.role = UserRole.USER;
 
-            await getManager().transaction(async (transaction) => {
-                await transaction.remove(foundToken);
-                await transaction.save(user);
-            });
-        }
+        await getManager().transaction(async (transaction) => {
+            await transaction.remove(verificationToken);
+            await transaction.save(user);
+        });
 
-        const redirectUrl = `${process.env.FRONT_URL}`;
-        response.redirect(redirectUrl);
+        response.redirect(process.env.FRONT_URL);
     }
 
+    /**
+     *
+     * @api {post} /login Attempts to authenticate the provided user into the system.
+     * @apiVersion 1.0.0
+     * @apiName Login
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user of the newly created account.
+     */
     public static async login(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
         const { identifier, password } = { ...(request.body as ILoginRequest) };
+
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier });
 
-        if (!user) {
-            return response.status(400).send('Invalid Credentials');
-        }
+        // If the user does not exist by the provided credentials, then exist before continuing.
+        // Ensuring that the user is aware that they are invalid and not able to login due to that
+        // reason.
+        if (_.isNil(user))
+            return response.status(400).json({ error: 'the provided username or password is not correct.' });
 
+        // Ensure that the password provided matches the encrypted password stored in the database, this will be using
+        // the salt and hash with the secret in bcrypt.
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
-        if (!passwordsMatch) {
-            return response.status(400).send('Invalid Credentials');
-        } else {
-            const token = await AuthService.newToken(user);
-            response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
+        // If the password does not match, ensure the user is told about the authentication failing.
+        if (!passwordsMatch)
+            return response.status(400).json({ error: 'the provided username or password is not correct.' });
 
-            user.lastSignIn = new Date();
-            await user.save();
+        const token = await AuthService.newToken(user);
+        response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
 
-            response.json(flattenUser(user));
-        }
+        user.lastSignIn = new Date();
+        await user.save();
+
+        response.json(flattenUser(user));
     }
 
     public static async logout(request: Request, response: Response) {
@@ -116,7 +173,7 @@ export class AuthController {
 
         if (!token) throw new Error('logout failed');
 
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByToken(token);
 
         if (!user) throw new Error('logout failed');
@@ -131,20 +188,24 @@ export class AuthController {
         });
     }
 
-    public static async currentUser(request: Request, response: Response) {
-        const { token } = request.cookies;
-
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findByToken(token);
-
-        if (!user) response.status(404).send('You are not logged in');
-
-        response.json(user);
+    /**
+     * Called into with a authenticated user, if valid and logged in as expected, the current
+     * authenticated user will be returned.
+     *
+     * @api {get} /auth/user Returns the current authenticated user.
+     * @apiVersion 1.0.0
+     * @apiName UserGathering
+     * @apiGroup Authentication
+     *
+     * @apiSuccess {User} user The user who is authenticated.
+     */
+    public static async currentUser(request: IRequest, response: Response) {
+        return response.json(request.user);
     }
 
-    public static async initiateEmailReset(request: Request, response: Response) {
-        const userRepository = await getCustomRepository(UserRepository);
-        const user = await userRepository.findOne(request.params.user.id);
+    public static async initiateEmailReset(request: IRequest, response: Response) {
+        const userRepository = getCustomRepository(UserRepository);
+        const user = await userRepository.findOne(request.user.id);
         const { password, email } = request.body;
 
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
@@ -165,14 +226,14 @@ export class AuthController {
     public static async initiatePasswordReset(request: Request, response: Response) {
         const { username_or_email } = request.body;
 
-        const userRepository = await getCustomRepository(UserRepository);
+        const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
         if (!user) {
             return response.status(404).json({ message: 'User not found' });
         }
 
-        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         await passwordResetRepository.delete({ user });
 
         await AuthService.resetPassword(user);
@@ -185,7 +246,7 @@ export class AuthController {
     public static async resetPassword(request: Request, response: Response) {
         const { token, password } = request.query;
 
-        const passwordResetRepository = await getCustomRepository(PasswordResetRepository);
+        const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         const passwordReset = await passwordResetRepository.findByToken(token);
 
         if (!passwordReset) {

@@ -15,9 +15,9 @@ export class DiscordService {
             client_secret: process.env.DISCORD_SECRET,
             code,
             grant_type: 'authorization_code',
-            redirect_uri: `${process.env.ROOT_URL}/oauth/discord`,
+            redirect_uri: `${process.env.API_URL}/oauth/discord`,
             scope: 'identify',
-        }
+        };
 
         try {
             const response = await axios({
@@ -25,9 +25,9 @@ export class DiscordService {
                 url: tokenEndpoint,
                 data: stringify(params),
                 headers: {
-                    'content-type': 'application/x-www-form-urlencoded'
-                }
-            })
+                    'content-type': 'application/x-www-form-urlencoded',
+                },
+            });
 
             return response.data.access_token;
         } catch (e) {
@@ -46,9 +46,9 @@ export class DiscordService {
                 },
             });
 
-            const {id, username} = response.data;
+            const { id, username } = response.data;
 
-            return {id: id as string, username: username as string};
+            return { id: id as string, username: username as string };
         } catch (e) {
             return null;
         }

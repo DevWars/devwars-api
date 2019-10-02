@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import ActivityRepository from '../../repository/Activity.repository';
-import UserRepository from '../../repository/User.repository';
+import { IRequest } from '../../request/IRequest';
 
 /**
  * @api {get} /activity/:user Get activities from user
@@ -42,12 +42,9 @@ import UserRepository from '../../repository/User.repository';
  *     ]
  */
 
-export async function mine(request: Request, response: Response) {
-    const userRepository = await getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.token);
-
-    const activityRepository = await getCustomRepository(ActivityRepository);
-    const activities = await activityRepository.findByUser(user);
+export async function mine(request: IRequest, response: Response) {
+    const activityRepository = getCustomRepository(ActivityRepository);
+    const activities = await activityRepository.findByUser(request.user);
 
     response.json(activities);
 }

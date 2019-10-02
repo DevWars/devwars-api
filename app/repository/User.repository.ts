@@ -6,6 +6,8 @@ import UserGameStats from '../models/UserGameStats';
 import GameSchedule from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 
+import * as _ from 'lodash';
+
 interface ICredentials {
     identifier: string;
 }
@@ -13,8 +15,15 @@ interface ICredentials {
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
     public findByUsername(username: string): Promise<User> {
-        username = username.toLowerCase();
         return User.findOne({ where: { username } });
+    }
+
+    /**
+     * Finds a given user by there id.
+     * @param id The id of the user being found.
+     */
+    public async findById(id: any): Promise<User> {
+        return await User.findOne({ where: { id } });
     }
 
     public findByEmail(email: string): Promise<User> {
@@ -25,18 +34,21 @@ export default class UserRepository extends Repository<User> {
         return User.findOne({ where: { token } });
     }
 
+    /**
+     *  Attempts to find a given user by the email address or the username. If found the whole user
+     *  object is returned otherwise null.
+     *  @param request The requesting information for the given user.
+     */
     public async findByCredentials(request: ICredentials): Promise<User> {
         const byEmail = await this.findByEmail(request.identifier);
-        if (byEmail) {
-            return byEmail;
-        }
+        if (!_.isNil(byEmail)) return byEmail;
 
-        const byUsername = await this.findByUsername(request.identifier.toLowerCase());
-        if (byUsername) {
-            return byUsername;
-        }
+        // Username is forced to be lowercase, this must be enforced
+        const byUsername = await this.findByUsername(request.identifier);
 
-        return undefined;
+        // Falling back to the username, this could be undefined but should be handled by the
+        // calling operation and not here.
+        return byUsername;
     }
 
     public findProfileByUser(user: User): Promise<UserProfile> {
