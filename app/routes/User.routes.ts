@@ -21,8 +21,7 @@ export const UserRoute: express.Router = express
     .put('/:id', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(UserController.update))
     .put(
         '/:id/avatar',
-        [mustBeAuthenticated, mustOwnUser],
-        upload.single('avatar'),
+        [mustBeAuthenticated, mustOwnUser, upload.single('avatar')],
         asyncErrorHandler(UserAvatarController.store)
     )
     .get('/:id/stats', asyncErrorHandler(UserStatsController.forUser))

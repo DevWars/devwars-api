@@ -13,7 +13,7 @@ export const mustOwnUser = async (request: IRequest, response: Response, next: N
     // Ensure that the requesting user is the entity they are also trying to perform the following
     // request on. For example: you can only update your own profile and not others (unless your a admin).
     if (request.user.id !== requestedUserId && request.user.role !== UserRole.ADMIN) {
-        return response.sendStatus(401).json({
+        return response.status(401).json({
             message: 'Unauthorized, you can only perform this action on yourself.',
         });
     }
