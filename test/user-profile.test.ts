@@ -49,7 +49,7 @@ describe('user-profile', () => {
         app = server.App();
     });
 
-    it("PATCH - /users/:userId/profile - should update a user's settings", async () => {
+    it.only("PATCH - /users/:userId/profile - should update a user's settings", async () => {
         const user = UserFactory.default();
         const userProfile = UserProfileFactory.withUser(user);
 
@@ -73,7 +73,7 @@ describe('user-profile', () => {
         chai.expect(filteredData).to.be.deep.equal(userProfileSettings);
     });
 
-    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
+    it.only('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
         const userModerator = UserFactory.withRole(UserRole.MODERATOR);
         const user = UserFactory.withRole(UserRole.USER);
 
