@@ -63,11 +63,11 @@ export class AuthController {
         const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
 
         if (existingUser && existingUser.username === username) {
-            return response.status(409).json({ message: 'Username is taken' });
+            return response.status(409).json({ error: 'Username is taken' });
         }
 
         if (existingUser && existingUser.email === email) {
-            return response.status(409).json({ message: 'Email address is taken' });
+            return response.status(409).json({ error: 'Email address is taken' });
         }
 
         // Register the user in the database, generating a new user with the default and minimal
@@ -183,9 +183,7 @@ export class AuthController {
         await User.save(user);
 
         response.cookie('token', null, { domain: process.env.COOKIE_DOMAIN });
-        response.json({
-            message: 'Success',
-        });
+        return response.json({ message: 'Success' });
     }
 
     /**
@@ -209,18 +207,11 @@ export class AuthController {
         const { password, email } = request.body;
 
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
-
-        if (!passwordsMatch) {
-            return response.status(400).json({
-                message: 'Password did not match',
-            });
-        }
+        if (!passwordsMatch) return response.status(400).json({ error: 'Password did not match' });
 
         await ResetService.resetEmail(user, email);
 
-        response.json({
-            message: 'Email reset',
-        });
+        return response.json({ message: 'Email reset' });
     }
 
     public static async initiatePasswordReset(request: Request, response: Response) {
@@ -229,9 +220,7 @@ export class AuthController {
         const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
-        if (!user) {
-            return response.status(404).json({ message: 'User not found' });
-        }
+        if (!user) return response.status(404).json({ error: 'User not found' });
 
         const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         await passwordResetRepository.delete({ user });
@@ -250,11 +239,11 @@ export class AuthController {
         const passwordReset = await passwordResetRepository.findByToken(token);
 
         if (!passwordReset) {
-            return response.status(400).json({ message: 'Could not reset password' });
+            return response.status(400).json({ error: 'Could not reset password' });
         }
 
         if (Date.now() > passwordReset.expiresAt.getTime()) {
-            return response.status(401).json({ message: 'Expired password reset token' });
+            return response.status(401).json({ error: 'Expired password reset token' });
         }
 
         const user = passwordReset.user;
@@ -265,8 +254,6 @@ export class AuthController {
             await transactionalEntityManager.save(user);
         });
 
-        return response.json({
-            message: 'Password reset!',
-        });
+        return response.json({ message: 'Password reset!' });
     }
 }

@@ -6,6 +6,6 @@ export const asyncErrorHandler = (fn: any) => (req: Request, res: Response, next
             return res.sendStatus(500);
         }
 
-        res.status(500).json({ message: err.message, stack: err.stack });
+        res.status(500).json({ error: err.message, stack: err.stack });
     });
 };

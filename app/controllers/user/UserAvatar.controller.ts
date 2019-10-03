@@ -1,19 +1,14 @@
-import { Request, Response } from 'express';
-import { getCustomRepository } from 'typeorm';
-import UserRepository from '../../repository/User.repository';
+import { Response } from 'express';
+
 import { AvatarService } from '../../services/Avatar.service';
+import { IRequest } from '../../request/IRequest';
 
-export async function store(request: Request, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(request.cookies.token);
-
+export async function store(request: IRequest, response: Response) {
     try {
-        await AvatarService.updateAvatarForUser(user, request.file.path);
+        await AvatarService.updateAvatarForUser(request.user, request.file.path);
     } catch (e) {
-        response.json({
-            error: "We couldn't upload your avatar",
-        });
+        return response.status(400).json({ error: "We couldn't upload your avatar" });
     }
 
-    response.json(user);
+    return response.json(request.user);
 }

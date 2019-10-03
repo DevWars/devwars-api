@@ -48,14 +48,12 @@ export class Server {
         this.app.use(methodOverride());
         this.app.use(cookieParser());
 
-        this.app.use(
-            (req, res, next): void => {
-                res.header('Access-Control-Allow-Origin', '*');
-                res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
-                res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE,OPTIONS');
-                next();
-            }
-        );
+        this.app.use((req, res, next): void => {
+            res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE,OPTIONS');
+            next();
+        });
 
         this.app.use(morgan('combined'));
         this.app.use(
@@ -65,12 +63,10 @@ export class Server {
             })
         );
 
-        this.app.use(
-            (err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-                err.status = 404;
-                next(err);
-            }
-        );
+        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
+            err.status = 404;
+            next(err);
+        });
     }
 
     private ConfigurationRouter(): void {
@@ -78,35 +74,20 @@ export class Server {
             this.app.use(route.path, route.middleware, route.handler);
         }
 
-        this.app.use(
-            (req: express.Request, res: express.Response, next: express.NextFunction): void => {
-                res.status(404);
-                res.json({
-                    error: 'Not found',
-                });
-                next();
-            }
-        );
+        this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+            return res.status(404).json({ error: 'Not found' });
+        });
 
-        this.app.use(
-            (err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-                if (err.name === 'UnauthorizedError') {
-                    res.status(401).json({
-                        error: 'Please send a valid Token...',
-                    });
-                }
-                next();
+        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            if (err.name === 'UnauthorizedError') {
+                return res.status(401).json({ error: 'Please send a valid Token...' });
             }
-        );
 
-        this.app.use(
-            (err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-                res.status(err.status || 500);
-                res.json({
-                    error: err.message,
-                });
-                next();
-            }
-        );
+            return next();
+        });
+
+        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
+            return res.status(err.status || 500).json({ error: err.message });
+        });
     }
 }

@@ -8,8 +8,5 @@ export async function leaderboards(request: Request, response: Response) {
         .offset(request.query.page || 0)
         .getMany();
 
-    response.json({
-        count: await User.count(),
-        users,
-    });
+    return response.json({ count: await User.count(), users });
 }

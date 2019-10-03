@@ -19,8 +19,7 @@ export class LinkedAccountController {
     public static async connect(request: IRequest, response: Response) {
         const provider = request.params.provider.toUpperCase();
 
-        if (!(provider in Provider))
-            return response.status(400).json({ message: `${provider} is not a valid Provider` });
+        if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid Provider` });
 
         if (provider === Provider.DISCORD) {
             await LinkedAccountController.connectDiscord(request, response, request.user);
@@ -67,11 +66,11 @@ export class LinkedAccountController {
         const { twitchUser, amount } = request.body;
 
         if (!twitchUser && !twitchUser.id && !twitchUser.username) {
-            return response.status(400).json({ message: 'User not provided' });
+            return response.status(400).json({ error: 'User not provided' });
         }
 
         if (!amount) {
-            return response.status(400).json({ message: 'Amount not provided' });
+            return response.status(400).json({ error: 'Amount not provided' });
         }
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
