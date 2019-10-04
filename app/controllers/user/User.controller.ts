@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import User from '../../models/User';
 import { UserRole } from '../../models/User';
 import UserRepository from '../../repository/User.repository';
+import { AuthService } from '../../services/Auth.service';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -14,31 +15,18 @@ interface IUpdateUserRequest {
     token: string;
 }
 
-function sanitizeUser(user: User, fields?: any[]) {
-    delete user.password;
-    delete user.token;
-
-    if (fields && fields.length > 0) {
-        for (const field of fields) {
-            delete user[field as keyof User];
-        }
-    }
-
-    return user;
-}
-
 export async function show(request: Request, response: Response) {
     const userId = request.params.id;
     const user = await User.findOne(userId);
     if (!user) return response.sendStatus(404);
 
-    response.json(sanitizeUser(user, ['email', 'lastSignIn', 'createdAt', 'updatedAt']));
+    response.json(AuthService.sanitizeUser(user, ['email', 'lastSignIn', 'createdAt', 'updatedAt']));
 }
 
 export async function all(request: Request, response: Response) {
     const users = await User.find();
 
-    response.json(users.map((user) => sanitizeUser(user)));
+    response.json(users.map((user) => AuthService.sanitizeUser(user)));
 }
 
 export async function update(request: Request, response: Response) {

@@ -87,4 +87,22 @@ export class AuthService {
 
         await sendPasswordResetEmail(user, resetUrl);
     }
+
+    /**
+     * Removes a collection of properties from the user object including the token and password.
+     * @param user The user object that is being sanitized
+     * @param fields The fields (not including password, token) that is also being removed.
+     */
+    public static sanitizeUser(user: User, fields?: any[]) {
+        delete user.password;
+        delete user.token;
+
+        if (fields && fields.length > 0) {
+            for (const field of fields) {
+                delete user[field as keyof User];
+            }
+        }
+
+        return user;
+    }
 }
