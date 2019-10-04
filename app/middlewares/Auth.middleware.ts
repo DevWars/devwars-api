@@ -25,6 +25,9 @@ export const mustBeAuthenticated = async (request: IRequest, response: Response,
     if (_.isNil(user) || user.token !== token)
         return response.status(401).json({ error: 'invalid or no authentication token was provided' });
 
+    delete user.token;
+    delete user.password;
+
     request.user = user;
     return next();
 };
