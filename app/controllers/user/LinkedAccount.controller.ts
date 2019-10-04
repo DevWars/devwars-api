@@ -29,15 +29,16 @@ export class LinkedAccountController {
     }
 
     /**
-     * @api {delete} /oauth/:provider Deletes a linked account from teh given user
-     * @apiName DeleteLinkedAccounst
-     * @apiGroup LinkedAccounts
+     * @api {delete} /oauth/:provider Deletes a linked account from the given user
      * @apiDescription Called into when a user is diconnecting a linked account from there profile.
      * e.g removing a link between discord.
+     * @apiName DeleteLinkedAccounst
+     * @apiGroup LinkedAccounts
      *
-     * @apiParam {string} The name of the provider who is being removed.
+     * @apiParam {string} Provider The name of the provider who is being removed.
      *
-     * @apiSuccess {json} The linked account that was removed.
+     * @apiSuccess {json} LinkedAccount The linked account that was removed.
+     *
      * @apiError ProviderNotFound The provider is not a valid provider.
      * @apiError NoAccountLinkFound No link account between user and provider.
      */
