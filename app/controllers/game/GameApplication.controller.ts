@@ -7,7 +7,6 @@ import GameApplicationRepository from '../../repository/GameApplication.reposito
 import GameRepository from '../../repository/Game.repository';
 import UserRepository from '../../repository/User.repository';
 
-import { AuthService } from '../../services/Auth.service';
 import GameApplication from '../../models/GameApplication';
 import { IRequest } from '../../request/IRequest';
 import * as _ from 'lodash';
@@ -65,7 +64,7 @@ import * as _ from 'lodash';
  * ]
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
- * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided gam id.
+ * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
 export async function mine(request: IRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
@@ -75,8 +74,8 @@ export async function mine(request: IRequest, response: Response) {
 }
 
 /**
- * @api {post} /applications/schedule/:scheduleId Applys the current user to the scheduled game.
- * @apiDescription Applys the current authenticated user to the given schedule by creating a game
+ * @api {post} /applications/schedule/:scheduleId Applies the current user to the scheduled game.
+ * @apiDescription Applies the current authenticated user to the given schedule by creating a game
  * application. The game application is return returned to the applying user. Containing the
  * schedule and user.
  * @apiVersion 1.0.0
@@ -120,19 +119,16 @@ export async function mine(request: IRequest, response: Response) {
  * }
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
- * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided gam id.
+ * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
 export async function apply(request: IRequest, response: Response) {
     const scheduleId = request.params.schedule;
 
-    // Ensure that if the schedule id route was not setup correctly and the given id was null or
-    // undefined, return out and warn the user of the given action.
     if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
 
-    // If a schedule does not exit by the provided id, ensure that we let the user.
     if (_.isNil(schedule))
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
@@ -140,10 +136,7 @@ export async function apply(request: IRequest, response: Response) {
 
     const application = await GameApplicationFactory.withScheduleAndUser(schedule, request.user).save();
 
-    // Ensure to sanitize the requesting user, removing the token and password from the user object
-    // before returning it to the requesting user.
-    application.user = AuthService.sanitizeUser(application.user);
-
+    application.user.sanitize();
     return response.json(application);
 }
 
@@ -160,27 +153,21 @@ export async function apply(request: IRequest, response: Response) {
  * @apiSuccess OK
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
- * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided gam id.
+ * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
 export async function resign(request: IRequest, response: Response) {
     const scheduleId = request.params.schedule;
 
-    // Ensure that if the schedule id route was not setup correctly and the given id was null or
-    // undefined, return out and warn the user of the given action.
     if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
 
-    // If a schedule does not exit by the provided id, ensure that we let the user.
     if (_.isNil(schedule))
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
         });
 
-    // Perform the deletion of the record that links a given user to a given game, removing the
-    // users application. This will not care if the given user does not have a application already
-    // the result will be the same.
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     await gameApplicationRepository.delete({ user: request.user, schedule });
 
@@ -190,8 +177,7 @@ export async function resign(request: IRequest, response: Response) {
 /**
  * @api {get} /applications/schedule/:scheduleId Gather a list of users applications by a schedule.
  * @apiDescription Finds a list of game applications for a given game schedule, sending back the
- * list of users information for a given game, this will  be used for the assignment process of a
- * given game. The game must exist for any game applications to also exist.
+ * list of users information.
  * @apiVersion 1.0.0
  * @apiName GameApplicationsBySchedule
  * @apiGroup Applications
@@ -215,32 +201,26 @@ export async function resign(request: IRequest, response: Response) {
  *  }]
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
- * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided gam id.
+ * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
 export async function findBySchedule(request: Request, response: Response) {
     const scheduleId = request.params.schedule;
 
-    // Ensure that if the schedule id route was not setup correctly and the given id was null or
-    // undefined, return out and warn the user of the given action.
     if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
 
-    // If a schedule does not exit by the provided id, ensure that we let the user.
     if (_.isNil(schedule))
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
         });
 
     const userRepository = getCustomRepository(UserRepository);
-    let applications = await userRepository.findApplicationsBySchedule(schedule);
+    const applications = await userRepository.findApplicationsBySchedule(schedule);
 
-    // Once we get the applications back from the given schedule, all private user information will
-    // exist on the objects. Mapping through the sanitizer will remove key information and the
-    // additional provided fields.
-    const sanizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications = applications.map((user) => AuthService.sanitizeUser(user, sanizationFields));
+    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
+    applications.forEach((app) => app.sanitize(...sanitizationFields));
 
     response.json(applications);
 }
@@ -248,8 +228,7 @@ export async function findBySchedule(request: Request, response: Response) {
 /**
  * @api {get} /applications/game/:gameId Gather a list of users applications by a game.
  * @apiDescription Finds a list of game applications for a given game, sending back the list of
- * users information for a given game, this will  be used for the assignment process of a given
- * game. The game must exist for any game applications to also exist.
+ * users information.
  * @apiVersion 1.0.0
  * @apiName GameApplicationsByGame
  * @apiGroup Applications
@@ -257,8 +236,7 @@ export async function findBySchedule(request: Request, response: Response) {
  * @apiParam {number} GameId The id of the given game to gather applications from.
  *
  * @apiSuccess {User[]} Applications A list of users applications for a given game id.
- * @apiSuccessExample Success-Response:
- * HTTP/1.1 200 OK
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
  * [{
  *      "id": 1,
  *      "username": "test-admin",
@@ -273,22 +251,18 @@ export async function findBySchedule(request: Request, response: Response) {
  *  }]
  *
  * @apiError GameIdNotDefined Invalid game id provided.
- * @apiError GameDoesNotExist A game does not exist by the provided gam id.
- * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided gam id.
+ * @apiError GameDoesNotExist A game does not exist by the provided game id.
+ * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  *
  */
 export async function findByGame(request: Request, response: Response) {
     const gameId = request.params.game;
 
-    // Ensure that if the game id route was not setup correctly and the given game id was null or
-    // undefined, return out and warn the user of the given action.
     if (_.isNil(gameId)) return response.status(400).json({ error: 'Invalid game id provided.' });
 
     const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
 
-    // If a game does not exit by the provided id, ensure that we let the current moderator /
-    // administrator aware. Likely to occur with out to date UI or direct api queries.
     if (_.isNil(game)) return response.status(404).json({ error: 'A game does not exist by the provided game id.' });
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
@@ -300,13 +274,10 @@ export async function findByGame(request: Request, response: Response) {
         });
 
     const userRepository = getCustomRepository(UserRepository);
-    let applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
+    const applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
 
-    // Once we get the applications back from the given schedule, all private user information will
-    // exist on the objects. Mapping through the sanitizer will remove key information and the
-    // additional provided fields.
-    const sanizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications = applications.map((user) => AuthService.sanitizeUser(user, sanizationFields));
+    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
+    applications.forEach((app) => app.sanitize(...sanitizationFields));
 
     response.json(applications);
 }
