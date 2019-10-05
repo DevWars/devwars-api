@@ -75,7 +75,7 @@ export class Server {
         }
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-            return res.status(404).json({ error: 'Not found' });
+            return res.status(404).json({ error: 'Not found.' });
         });
 
         this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

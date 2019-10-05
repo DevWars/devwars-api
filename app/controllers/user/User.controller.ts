@@ -4,7 +4,8 @@ import { Request, Response } from 'express';
 import User from '../../models/User';
 import { UserRole } from '../../models/User';
 import UserRepository from '../../repository/User.repository';
-import { AuthService } from '../../services/Auth.service';
+
+import { isNil } from 'lodash';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -16,17 +17,20 @@ interface IUpdateUserRequest {
 }
 
 export async function show(request: Request, response: Response) {
-    const userId = request.params.id;
-    const user = await User.findOne(userId);
-    if (!user) return response.sendStatus(404);
+    const user = await User.findOne(request.params.id);
 
-    response.json(AuthService.sanitizeUser(user, ['email', 'lastSignIn', 'createdAt', 'updatedAt']));
+    if (isNil(user)) return response.status(404).json({ error: 'User does not exist by the provided id.' });
+    user.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
+
+    return response.json(user);
 }
 
 export async function all(request: Request, response: Response) {
     const users = await User.find();
 
-    response.json(users.map((user) => AuthService.sanitizeUser(user)));
+    users.forEach((element) => element.sanitize());
+
+    return response.json(users);
 }
 
 export async function update(request: Request, response: Response) {

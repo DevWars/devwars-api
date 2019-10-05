@@ -13,7 +13,7 @@ export async function send(to: string, subject: string, html: string) {
     // to send anymore emails.
     if (process.env.NODE_ENV === 'test') return;
 
-    // if we are in development of the application, we would want to look to log out the details as
+    // If we are in development of the application, we would want to look to log out the details as
     // these could be used for testing validation links, and email information in development.
     if (process.env.NODE_ENV === 'development') return console.log({ to, subject, html });
 

@@ -63,11 +63,11 @@ export class AuthController {
         const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
 
         if (existingUser && existingUser.username === username) {
-            return response.status(409).json({ error: 'Username is taken' });
+            return response.status(409).json({ error: 'Username is taken.' });
         }
 
         if (existingUser && existingUser.email === email) {
-            return response.status(409).json({ error: 'Email address is taken' });
+            return response.status(409).json({ error: 'Email address is taken.' });
         }
 
         // Register the user in the database, generating a new user with the default and minimal
@@ -149,7 +149,7 @@ export class AuthController {
         // Ensuring that the user is aware that they are invalid and not able to login due to that
         // reason.
         if (_.isNil(user))
-            return response.status(400).json({ error: 'the provided username or password is not correct.' });
+            return response.status(400).json({ error: 'The provided username or password is not correct.' });
 
         // Ensure that the password provided matches the encrypted password stored in the database, this will be using
         // the salt and hash with the secret in bcrypt.
@@ -157,7 +157,7 @@ export class AuthController {
 
         // If the password does not match, ensure the user is told about the authentication failing.
         if (!passwordsMatch)
-            return response.status(400).json({ error: 'the provided username or password is not correct.' });
+            return response.status(400).json({ error: 'The provided username or password is not correct.' });
 
         const token = await AuthService.newToken(user);
         response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
@@ -207,11 +207,11 @@ export class AuthController {
         const { password, email } = request.body;
 
         const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
-        if (!passwordsMatch) return response.status(400).json({ error: 'Password did not match' });
+        if (!passwordsMatch) return response.status(400).json({ error: 'Password did not match.' });
 
         await ResetService.resetEmail(user, email);
 
-        return response.json({ message: 'Email reset' });
+        return response.json({ message: 'Email reset.' });
     }
 
     public static async initiatePasswordReset(request: Request, response: Response) {
@@ -220,16 +220,14 @@ export class AuthController {
         const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
 
-        if (!user) return response.status(404).json({ error: 'User not found' });
+        if (!user) return response.status(404).json({ error: 'User not found.' });
 
         const passwordResetRepository = getCustomRepository(PasswordResetRepository);
         await passwordResetRepository.delete({ user });
 
         await AuthService.resetPassword(user);
 
-        response.json({
-            message: 'Reset password, check your email',
-        });
+        return response.json({ message: 'Reset password, check your email.' });
     }
 
     public static async resetPassword(request: Request, response: Response) {

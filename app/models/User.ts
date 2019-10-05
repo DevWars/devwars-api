@@ -7,6 +7,8 @@ import UserStats from './UserStats';
 import EmailVerification from './EmailVerification';
 import GameApplication from './GameApplication';
 
+import { isNil, isArray } from 'lodash';
+
 export enum UserRole {
     PENDING = 'PENDING',
     USER = 'USER',
@@ -57,4 +59,20 @@ export default class User extends BaseModel {
 
     @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
     public accounts: LinkedAccount[];
+
+    /**
+     * Removes a collection of properties from the current user.
+     * @param fields The fields (not including password, token) that is also being removed.
+     */
+    public sanitize(...fields: string[]) {
+        if (isNil(fields) || !isArray(fields)) fields = [];
+
+        fields.push('password', 'token');
+
+        // remove all the properties specified in the fields list. Ensuring to also delete the users
+        // password and token regardless if the user also specified it in the fields listings.
+        for (const field of fields) {
+            delete this[field as keyof User];
+        }
+    }
 }

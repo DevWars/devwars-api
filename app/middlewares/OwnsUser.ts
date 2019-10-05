@@ -5,7 +5,7 @@ import { UserRole } from '../models/User';
 
 /**
  *  mustOwnUser ensures that the current authenticated is the same entity as the one the following
- *  request is being performed on. e.g updating there own profile but not owners.
+ *  request is being performed on. e.g updating their own profile but not owners.
  */
 export const mustOwnUser = async (request: IRequest, response: Response, next: NextFunction) => {
     const requestedUserId = Number(request.params.id);

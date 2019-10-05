@@ -33,6 +33,9 @@ describe('oauth', () => {
             .send();
 
         chai.expect(request.body.id).to.be.eq(user.id);
+
+        chai.expect(!request.body.password).to.equal(true);
+        chai.expect(!request.body.token).to.equal(true);
     });
 
     it('GET - auth/user - should retrieve 401 because user does not exist / not authorized', async () => {
@@ -83,6 +86,9 @@ describe('oauth', () => {
             });
 
         chai.expect(request.body.id).to.be.eq(user.id);
+
+        chai.expect(!request.body.password).to.equal(true);
+        chai.expect(!request.body.token).to.equal(true);
     });
 
     it('POST - auth/logout - the logout should not work because no token', async () => {
@@ -132,6 +138,9 @@ describe('oauth', () => {
 
         chai.expect(request.status).to.be.eq(200);
         chai.expect(request.body.email).to.be.eq('email@email.fr');
+
+        chai.expect(!request.body.password).to.equal(true);
+        chai.expect(!request.body.token).to.equal(true);
     });
 
     it('GET - auth/verify - it should find the token and delete it', async () => {
