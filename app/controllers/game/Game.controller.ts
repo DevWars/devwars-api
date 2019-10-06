@@ -72,7 +72,7 @@ export async function latest(request: Request, response: Response) {
 
     // ensure that if we don't have any future games, (meaning that there are no games in the
     // database at all) that we let the user know that no games exist..
-    if (_.isNil(game)) return response.sendStatus(404).json({ error: 'currently no future games exist' });
+    if (_.isNil(game)) return response.status(404).json({ error: 'Currently no future games exist.' });
 
     return response.json(flattenGame(game));
 }

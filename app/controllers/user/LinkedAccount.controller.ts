@@ -19,8 +19,7 @@ export class LinkedAccountController {
     public static async connect(request: IRequest, response: Response) {
         const provider = request.params.provider.toUpperCase();
 
-        if (!(provider in Provider))
-            return response.status(400).json({ message: `${provider} is not a valid Provider` });
+        if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid.` });
 
         if (provider === Provider.DISCORD) {
             await LinkedAccountController.connectDiscord(request, response, request.user);
@@ -47,7 +46,7 @@ export class LinkedAccountController {
 
         // if the given provider is not valid, then return out with a response to the user that the
         // given provider is not empty.
-        if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid provider` });
+        if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid.` });
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
         const account = await linkedAccountRepository.findByUserIdAndProvider(request.user.id, provider);
@@ -67,11 +66,11 @@ export class LinkedAccountController {
         const { twitchUser, amount } = request.body;
 
         if (!twitchUser && !twitchUser.id && !twitchUser.username) {
-            return response.status(400).json({ message: 'User not provided' });
+            return response.status(400).json({ error: 'User not provided.' });
         }
 
         if (!amount) {
-            return response.status(400).json({ message: 'Amount not provided' });
+            return response.status(400).json({ error: 'Amount not provided.' });
         }
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
@@ -100,9 +99,9 @@ export class LinkedAccountController {
         // gather a given access token for the code that was returned back from discord, completing
         // the linkage and authorization process with discord.
         const token = await DiscordService.accessTokenForCode(request.query.code);
-        if (_.isNil(token)) return response.status(400).json({ error: 'could not gather access token for discord.' });
+        if (_.isNil(token)) return response.status(400).json({ error: 'Could not gather access token for discord.' });
 
-        // Attempt to gather the relatd users account information for the tiven token, this is what
+        // Attempt to gather the related users account information for the given token, this is what
         // will be used to link the accounts up with discord.
         const discordUser = await DiscordService.discordUserForToken(token);
         if (_.isNil(discordUser)) return response.status(403).json({ error: 'Discord user not found.' });

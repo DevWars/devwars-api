@@ -18,11 +18,15 @@ export const UserRoute: express.Router = express
     .Router()
     .get('/', [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)], asyncErrorHandler(UserController.all))
     .get('/:id', asyncErrorHandler(UserController.show))
-    .put('/:id', mustOwnUser, asyncErrorHandler(UserController.update))
-    .put('/:id/avatar', mustOwnUser, upload.single('avatar'), asyncErrorHandler(UserAvatarController.store))
+    .put('/:id', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(UserController.update))
+    .put(
+        '/:id/avatar',
+        [mustBeAuthenticated, mustOwnUser, upload.single('avatar')],
+        asyncErrorHandler(UserAvatarController.store)
+    )
     .get('/:id/stats', asyncErrorHandler(UserStatsController.forUser))
     .post('/:id/stats', asyncErrorHandler(UserStatsController.create))
     .get('/stats/coins', asyncErrorHandler(UserStatsController.getCoins))
     .get('/:id/stats/game', asyncErrorHandler(UserGameStatsController.forUser))
     .get('/:id/profile', asyncErrorHandler(UserProfileController.show))
-    .patch('/:id/profile', mustOwnUser, asyncErrorHandler(UserProfileController.update));
+    .patch('/:id/profile', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(UserProfileController.update));

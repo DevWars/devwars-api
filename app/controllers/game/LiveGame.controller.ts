@@ -24,7 +24,7 @@ export async function addPlayer(request: Request, response: Response) {
 
     const existingPlayer = players[player.id];
     if (existingPlayer && existingPlayer.team !== team.id) {
-        response.status(409).json({ message: "Can't change player's team" });
+        response.status(409).json({ error: "Can't change player's team." });
         return;
     }
     players[player.id] = {
@@ -39,7 +39,7 @@ export async function addPlayer(request: Request, response: Response) {
     const nextEditorId = Object.keys(editors).length;
     for (const editor of Object.values(editors) as any) {
         if (editor.player === player.id && editor.language === player.language) {
-            response.status(409).json({ message: 'Player already assigned to that language' });
+            response.status(409).json({ error: 'Player already assigned to that language.' });
             return;
         }
     }
