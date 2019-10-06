@@ -12,7 +12,7 @@ const dbConfig = {
 
 let connection: Promise<Connection>;
 connection = createConnection({
-    entities: [__dirname + '/../app/models/*.ts'],
+    entities: [__dirname + '/../app/models/*{.ts,.js}'],
     type: 'postgres',
     database: dbConfig.NAME,
     host: dbConfig.HOST,
