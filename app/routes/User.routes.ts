@@ -28,5 +28,5 @@ export const UserRoute: express.Router = express
     .post('/:id/stats', asyncErrorHandler(UserStatsController.create))
     .get('/stats/coins', asyncErrorHandler(UserStatsController.getCoins))
     .get('/:id/stats/game', asyncErrorHandler(UserGameStatsController.forUser))
-    .get('/:id/profile', asyncErrorHandler(UserProfileController.show))
+    .get('/:id/profile', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(UserProfileController.show))
     .patch('/:id/profile', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(UserProfileController.update));
