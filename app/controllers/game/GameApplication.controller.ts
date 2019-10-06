@@ -148,7 +148,7 @@ export async function apply(request: IRequest, response: Response) {
  * @apiName GameApplicationResignBySchedule
  * @apiGroup Applications
  *
- *  @apiParam {number} ScheduleId The id of the schedule being resigned from.
+ * @apiParam {number} ScheduleId The id of the schedule being resigned from.
  *
  * @apiSuccess OK
  *
@@ -258,20 +258,19 @@ export async function findBySchedule(request: Request, response: Response) {
 export async function findByGame(request: Request, response: Response) {
     const gameId = request.params.game;
 
-    if (_.isNil(gameId)) return response.status(400).json({ error: 'Invalid game id provided.' });
+    if (_.isNil(gameId)) response.status(400).json({ error: 'Invalid game id provided.' });
 
     const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
 
-    if (_.isNil(game)) return response.status(404).json({ error: 'A game does not exist by the provided game id.' });
+    if (_.isNil(game)) {
+        response.status(404).json({ error: 'A game does not exist by the provided game id.' });
+    }
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
 
-    if (_.isNil(schedule))
-        return response.sendStatus(404).json({
-            error: 'A game schedule does not exist for the given id.',
-        });
+    if (_.isNil(schedule)) response.json([]);
 
     const userRepository = getCustomRepository(UserRepository);
     const applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
@@ -291,13 +290,12 @@ export async function create(request: IRequest, response: Response) {
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
-
-    if (_.isNil(schedule)) return response.sendStatus(404);
+    if (_.isNil(schedule)) response.sendStatus(404);
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByUsername(username);
 
-    if (_.isNil(user)) return response.sendStatus(404);
+    if (_.isNil(user)) response.sendStatus(404);
 
     const application = new GameApplication();
     application.schedule = schedule;
