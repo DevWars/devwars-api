@@ -70,7 +70,7 @@ export async function mine(request: IRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.findByUser(request.user);
 
-    response.json(applications);
+    return response.json(applications);
 }
 
 /**
@@ -123,16 +123,17 @@ export async function mine(request: IRequest, response: Response) {
  */
 export async function apply(request: IRequest, response: Response) {
     const scheduleId = request.params.schedule;
-
-    if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    if (_.isNil(scheduleId)) {
+        return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    }
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
-
-    if (_.isNil(schedule))
+    if (_.isNil(schedule)) {
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
         });
+    }
 
     const application = await GameApplicationFactory.withScheduleAndUser(schedule, request.user).save();
 
@@ -157,16 +158,17 @@ export async function apply(request: IRequest, response: Response) {
  */
 export async function resign(request: IRequest, response: Response) {
     const scheduleId = request.params.schedule;
-
-    if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    if (_.isNil(scheduleId)) {
+        return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    }
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
-
-    if (_.isNil(schedule))
+    if (_.isNil(schedule)) {
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
         });
+    }
 
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     await gameApplicationRepository.delete({ user: request.user, schedule });
@@ -205,12 +207,12 @@ export async function resign(request: IRequest, response: Response) {
  */
 export async function findBySchedule(request: Request, response: Response) {
     const scheduleId = request.params.schedule;
-
-    if (_.isNil(scheduleId)) return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    if (_.isNil(scheduleId)) {
+        return response.status(400).json({ error: 'Invalid schedule id provided.' });
+    }
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findOne(scheduleId);
-
     if (_.isNil(schedule))
         return response.sendStatus(404).json({
             error: 'A game schedule does not exist for the given id.',
@@ -222,7 +224,7 @@ export async function findBySchedule(request: Request, response: Response) {
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
     applications.forEach((app) => app.sanitize(...sanitizationFields));
 
-    response.json(applications);
+    return response.json(applications);
 }
 
 /**
@@ -257,20 +259,19 @@ export async function findBySchedule(request: Request, response: Response) {
  */
 export async function findByGame(request: Request, response: Response) {
     const gameId = request.params.game;
-
-    if (_.isNil(gameId)) response.status(400).json({ error: 'Invalid game id provided.' });
+    if (_.isNil(gameId)) {
+        return response.status(400).json({ error: 'Invalid game id provided.' });
+    }
 
     const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.findOne(gameId);
-
     if (_.isNil(game)) {
-        response.status(404).json({ error: 'A game does not exist by the provided game id.' });
+        return response.status(404).json({ error: 'A game does not exist by the provided game id.' });
     }
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
-
-    if (_.isNil(schedule)) response.json([]);
+    if (_.isNil(schedule)) return response.json([]);
 
     const userRepository = getCustomRepository(UserRepository);
     const applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
@@ -278,7 +279,7 @@ export async function findByGame(request: Request, response: Response) {
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
     applications.forEach((app) => app.sanitize(...sanitizationFields));
 
-    response.json(applications);
+    return response.json(applications);
 }
 
 export async function create(request: IRequest, response: Response) {
@@ -290,12 +291,11 @@ export async function create(request: IRequest, response: Response) {
 
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedule = await gameScheduleRepository.findByGame(game);
-    if (_.isNil(schedule)) response.sendStatus(404);
+    if (_.isNil(schedule)) return response.sendStatus(404);
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByUsername(username);
-
-    if (_.isNil(user)) response.sendStatus(404);
+    if (_.isNil(user)) return response.sendStatus(404);
 
     const application = new GameApplication();
     application.schedule = schedule;
