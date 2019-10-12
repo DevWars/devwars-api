@@ -219,7 +219,6 @@ export class AuthController {
 
         const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findByCredentials({ identifier: username_or_email });
-
         if (!user) return response.status(404).json({ error: 'User not found.' });
 
         const passwordResetRepository = getCustomRepository(PasswordResetRepository);
