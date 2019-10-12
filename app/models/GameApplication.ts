@@ -7,7 +7,7 @@ import User from './User';
 
 @Entity('game_application')
 export default class GameApplication extends BaseModel {
-    @ManyToOne((type) => GameSchedule, (schedule) => schedule.applications)
+    @ManyToOne((type) => GameSchedule, (schedule) => schedule.applications, { onDelete: 'CASCADE' })
     public schedule: GameSchedule;
 
     @ManyToOne((type) => User, (user) => user.applications)

@@ -24,6 +24,12 @@ GameRoute.patch(
     asyncErrorHandler(GameController.update)
 );
 
+GameRoute.delete(
+    '/:id',
+    [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)],
+    asyncErrorHandler(GameController.remove)
+);
+
 GameRoute.post(
     '/:id/activate',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],

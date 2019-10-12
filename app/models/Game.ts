@@ -50,6 +50,6 @@ export default class Game extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @OneToOne((type) => GameSchedule)
+    @OneToOne((type) => GameSchedule, { cascade: true })
     public schedule: GameSchedule;
 }

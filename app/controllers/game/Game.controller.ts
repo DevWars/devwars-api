@@ -127,3 +127,14 @@ export async function activate(request: Request, response: Response) {
 
     response.json(flattenGame(game));
 }
+
+export async function remove(request: Request, response: Response) {
+    const gameId = request.params.id;
+
+    const game = await Game.findOne(gameId);
+    if (!game) return response.sendStatus(404);
+
+    await game.remove();
+
+    return response.json(flattenGame(game));
+}
