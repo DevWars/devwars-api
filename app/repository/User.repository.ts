@@ -14,10 +14,6 @@ interface ICredentials {
 
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
-    public findByUsername(username: string): Promise<User> {
-        return User.findOne({ where: { username } });
-    }
-
     /**
      * Finds a given user by there id.
      * @param id The id of the user being found.
@@ -27,7 +23,15 @@ export default class UserRepository extends Repository<User> {
     }
 
     public findByEmail(email: string): Promise<User> {
-        return User.findOne({ where: { email } });
+        return User.createQueryBuilder()
+            .where('LOWER(email) = LOWER(:email)', { email })
+            .getOne();
+    }
+
+    public findByUsername(username: string): Promise<User> {
+        return User.createQueryBuilder()
+            .where('LOWER(username) = LOWER(:username)', { username })
+            .getOne();
     }
 
     public findByToken(token: string): Promise<User> {
