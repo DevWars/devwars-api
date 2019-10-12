@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm';
+import { getManager, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
 import { flattenGame } from './Game.controller';
@@ -140,8 +140,18 @@ export async function end(request: Request, response: Response) {
     const game = await gameRepository.findOne(gameId);
     if (!game) return response.sendStatus(404);
 
+    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
+    const schedule = await gameScheduleRepository.findByGame(game);
+    if (schedule) {
+        schedule.status = GameStatus.ENDED;
+    }
+
     game.status = GameStatus.ENDED;
-    await game.save();
+
+    await getManager().transaction(async (transaction) => {
+        await transaction.save(schedule);
+        await transaction.save(game);
+    });
 
     // Get winner
     // const winner = await TeamRepository.byId(request.query.winner);
