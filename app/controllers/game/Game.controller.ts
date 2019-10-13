@@ -87,22 +87,25 @@ export async function active(request: Request, response: Response) {
 
 export async function create(request: Request, response: Response) {
     const { season, mode, title, videoUrl, storage } = request.body;
+
     const game = new Game();
 
-    game.season = season;
     game.mode = mode;
     game.title = title;
+    game.season = season;
     game.videoUrl = videoUrl;
-    game.storage = {
-        mode,
-        title,
-        objectives: storage.objectives || {},
-        players: storage.players || {},
-    };
+    game.storage = { mode, title, objectives: {}, players: {} };
+
+    if (!_.isNil(storage) && !_.isNil(storage.objectives)) {
+        game.storage.objectives = storage.objectives;
+    }
+
+    if (!_.isNil(storage) && !_.isNil(storage.players)) {
+        game.storage.players = storage.players;
+    }
 
     await game.save();
-
-    response.status(201).json(flattenGame(game));
+    return response.status(201).json(flattenGame(game));
 }
 
 export async function findAllBySeason(request: Request, response: Response) {

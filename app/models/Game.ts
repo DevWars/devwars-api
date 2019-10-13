@@ -44,7 +44,7 @@ export default class Game extends BaseModel {
     /**
      * Big json object with all game information
      */
-    @Column({ type: 'jsonb' })
+    @Column({ type: 'jsonb', default: {} })
     public storage: any;
 
     // ------------------------------------------------------------
