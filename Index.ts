@@ -7,7 +7,7 @@ import { Server } from './config/Server';
 
 import './config/S3';
 
-if (cluster.isMaster) {
+if (cluster.isMaster && process.env.NODE_ENV === 'production') {
     console.log(`\n -------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT \n`);
 
     for (const cpu of cpus()) {
