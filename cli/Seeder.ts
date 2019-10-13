@@ -1,33 +1,33 @@
 import * as typeorm from 'typeorm';
 
-import GameApplicationFactory from '../app/factory/GameApplication.factory';
-import GameScheduleFactory from '../app/factory/GameSchedule.factory';
-import UserProfileFactory from '../app/factory/UserProfile.factory';
-import UserStatsFactory from '../app/factory/UserStats.factory';
-import GameFactory from '../app/factory/Game.factory';
-import UserFactory from '../app/factory/User.factory';
+import GameApplicationSeeding from '../app/seeding/GameApplication.seeding';
+import GameScheduleSeeding from '../app/seeding/GameSchedule.seeding';
+import UserProfileSeeding from '../app/seeding/UserProfile.seeding';
+import UserStatsSeeding from '../app/seeding/UserStats.seeding';
+import GameSeeding from '../app/seeding/Game.seeding';
+import UserSeeding from '../app/seeding/User.seeding';
 
 import { Connection } from '../config/Database';
 import { UserRole } from '../app/models/User';
 
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
-import UserGameStatsFactory from '../app/factory/UserGameStats.factory';
+import UserGameStatsSeeding from '../app/seeding/UserGameStats.seeding';
 import UserRepository from '../app/repository/User.repository';
-import ActivityFactory from '../app/factory/Activity.factory';
+import ActivitySeeding from '../app/seeding/Activity.seeding';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
 
 const generateConstantUsers = async () => {
     for (const role of ['admin', 'moderator', 'user']) {
-        const user = UserFactory.withUsername(`test-${role}`);
+        const user = UserSeeding.withUsername(`test-${role}`);
         user.role = (UserRole as any)[role.toUpperCase()];
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);
 
-            const profile = UserProfileFactory.default();
-            const stats = UserStatsFactory.default();
+            const profile = UserProfileSeeding.default();
+            const stats = UserStatsSeeding.default();
 
             profile.user = user;
             stats.user = user;
@@ -43,9 +43,9 @@ const generateBasicUsers = async () => {
 
     for (let i = 4; i <= 100; i++) {
         await connectionManager.transaction(async (transaction) => {
-            const profile = UserProfileFactory.default();
-            const stats = UserStatsFactory.default();
-            const user = UserFactory.default();
+            const profile = UserProfileSeeding.default();
+            const stats = UserStatsSeeding.default();
+            const user = UserSeeding.default();
 
             await transaction.save(user);
 
@@ -56,7 +56,7 @@ const generateBasicUsers = async () => {
             await transaction.save(stats);
 
             for (let j = 1; j <= 25; j++) {
-                const activity = ActivityFactory.withUser(user);
+                const activity = ActivitySeeding.withUser(user);
                 await transaction.save(activity);
             }
         });
@@ -68,9 +68,9 @@ const generateGames = async () => {
 
     for (let i = 1; i <= 50; i++) {
         await connectionManager.transaction(async (transaction) => {
-            const gameStats = UserGameStatsFactory.default();
-            const schedule = GameScheduleFactory.default();
-            schedule.game = await GameFactory.default();
+            const gameStats = UserGameStatsSeeding.default();
+            const schedule = GameScheduleSeeding.default();
+            schedule.game = await GameSeeding.default();
 
             await transaction.save(schedule.game);
             await transaction.save(schedule);
@@ -89,7 +89,7 @@ const generateApplications = async () => {
         const schedule = await gameScheduleRepository.findOne(i);
         const user = await userRepository.findOne(i);
 
-        const application = GameApplicationFactory.withScheduleAndUser(schedule, user);
+        const application = GameApplicationSeeding.withScheduleAndUser(schedule, user);
         await connection.manager.save(application);
     }
 };

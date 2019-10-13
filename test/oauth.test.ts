@@ -4,7 +4,7 @@ import * as supertest from 'supertest';
 import { getManager, EntityManager } from 'typeorm';
 
 import { Server } from '../config/Server';
-import { UserFactory, EmailVerificationFactory } from '../app/factory';
+import { UserSeeding, EmailVerificationSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import User, { UserRole } from '../app/models/User';
@@ -25,7 +25,7 @@ describe('oauth', () => {
     });
 
     it('GET - auth/user - should retrieve the current user information', async () => {
-        const user = await UserFactory.default().save();
+        const user = await UserSeeding.default().save();
 
         const request = await supertest(app)
             .get('/auth/user')
@@ -39,7 +39,7 @@ describe('oauth', () => {
     });
 
     it('GET - auth/user - should retrieve 401 because user does not exist / not authorized', async () => {
-        await UserFactory.default().save();
+        await UserSeeding.default().save();
 
         const request = await supertest(app)
             .get('/auth/user')
@@ -50,7 +50,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/login - the login should failed because user does not exist ', async () => {
-        const user = await UserFactory.default().save();
+        const user = await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/login')
@@ -63,7 +63,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/login - the login should failed because password is not good', async () => {
-        const user = await UserFactory.default().save();
+        const user = await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/login')
@@ -76,7 +76,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/login - the login should return user', async () => {
-        const user = await UserFactory.default().save();
+        const user = await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/login')
@@ -92,7 +92,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/logout - the logout should not work because no token', async () => {
-        await UserFactory.default().save();
+        await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/logout')
@@ -102,7 +102,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/logout - the logout should not work invalid token', async () => {
-        await UserFactory.default().save();
+        await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/logout')
@@ -113,7 +113,7 @@ describe('oauth', () => {
     });
 
     it('POST - auth/logout - the logout should work', async () => {
-        const user = await UserFactory.default().save();
+        const user = await UserSeeding.default().save();
 
         const request = await supertest(app)
             .post('/auth/logout')
@@ -144,8 +144,8 @@ describe('oauth', () => {
     });
 
     it('GET - auth/verify - it should find the token and delete it', async () => {
-        const user = UserFactory.withRole(UserRole.USER);
-        const emailVerification = EmailVerificationFactory.withUser(user);
+        const user = UserSeeding.withRole(UserRole.USER);
+        const emailVerification = EmailVerificationSeeding.withUser(user);
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);

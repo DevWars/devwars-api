@@ -5,7 +5,7 @@ import { getManager, EntityManager } from 'typeorm';
 import { random } from 'faker';
 import * as _ from 'lodash';
 
-import { GameFactory, UserFactory } from '../app/factory';
+import { GameSeeding, UserSeeding } from '../app/seeding';
 import { UserRole } from '../app/models/User';
 import { cookieForUser } from './helpers';
 import { Server } from '../config/Server';
@@ -27,8 +27,8 @@ describe('game', () => {
     });
 
     it('POST - games - normal user fail oauth', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
-        const game = await GameFactory.default();
+        const user = await UserSeeding.withRole(UserRole.USER).save();
+        const game = await GameSeeding.default();
 
         const response = await supertest(app)
             .post('/games')
@@ -39,8 +39,8 @@ describe('game', () => {
     });
 
     it('POST - games - mod user ok oauth', async () => {
-        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
-        const game = await GameFactory.default();
+        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+        const game = await GameSeeding.default();
 
         const response = await supertest(app)
             .post('/games')
@@ -52,8 +52,8 @@ describe('game', () => {
     });
 
     it('POST - games - admin user ok oauth', async () => {
-        const user = await UserFactory.withRole(UserRole.ADMIN).save();
-        const game = await GameFactory.default();
+        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+        const game = await GameSeeding.default();
 
         const response = await supertest(app)
             .post('/games')
@@ -65,8 +65,8 @@ describe('game', () => {
     });
 
     it('GET - games', async () => {
-        const game1 = await GameFactory.default();
-        const game2 = await GameFactory.default();
+        const game1 = await GameSeeding.default();
+        const game2 = await GameSeeding.default();
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(game1);
@@ -81,8 +81,8 @@ describe('game', () => {
     });
 
     it('GET - games/latest', async () => {
-        const game1 = await GameFactory.default();
-        const game2 = await GameFactory.default();
+        const game1 = await GameSeeding.default();
+        const game2 = await GameSeeding.default();
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(game2);
@@ -97,9 +97,9 @@ describe('game', () => {
     });
 
     it('GET - games/:id', async () => {
-        const game1 = await GameFactory.default();
-        const game2 = await GameFactory.default();
-        const game3 = await GameFactory.default();
+        const game1 = await GameSeeding.default();
+        const game2 = await GameSeeding.default();
+        const game3 = await GameSeeding.default();
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(game1);
@@ -115,8 +115,8 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - normal user failed', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
-        const game = await GameFactory.default();
+        const user = await UserSeeding.withRole(UserRole.USER).save();
+        const game = await GameSeeding.default();
         await game.save();
 
         const response = await supertest(app)
@@ -128,8 +128,8 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - mod user fail because not found', async () => {
-        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
-        const game = await GameFactory.default();
+        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+        const game = await GameSeeding.default();
         await game.save();
 
         const response = await supertest(app)
@@ -141,8 +141,8 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - mod user', async () => {
-        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
-        const game = await GameFactory.withMode('Blitz');
+        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+        const game = await GameSeeding.withMode('Blitz');
         await game.save();
 
         const response = await supertest(app)
@@ -156,8 +156,8 @@ describe('game', () => {
     });
 
     it('PATCH - games/:id - admin user', async () => {
-        const user = await UserFactory.withRole(UserRole.ADMIN).save();
-        const game = await GameFactory.withMode('Blitz');
+        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+        const game = await GameSeeding.withMode('Blitz');
         await game.save();
 
         const response = await supertest(app)
@@ -209,10 +209,10 @@ describe('game', () => {
 
     it('GET - games/season/:season', async () => {
         await connectionManager.transaction(async (transaction) => {
-            const game1 = await GameFactory.withSeason(2);
-            const game2 = await GameFactory.withSeason(2);
-            const game3 = await GameFactory.withSeason(3);
-            const game4 = await GameFactory.withSeason(1);
+            const game1 = await GameSeeding.withSeason(2);
+            const game2 = await GameSeeding.withSeason(2);
+            const game3 = await GameSeeding.withSeason(3);
+            const game4 = await GameSeeding.withSeason(1);
 
             await transaction.save(game1);
             await transaction.save(game2);

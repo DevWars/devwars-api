@@ -4,7 +4,7 @@ import * as express from 'express';
 import * as supertest from 'supertest';
 import { EntityManager, getManager } from 'typeorm';
 
-import { UserFactory, UserProfileFactory } from '../app/factory';
+import { UserSeeding, UserProfileSeeding } from '../app/seeding';
 import { IProfileRequest } from '../app/request/IProfileRequest';
 import { cookieForUser } from './helpers';
 import { Server } from '../config/Server';
@@ -50,8 +50,8 @@ describe('user-profile', () => {
     });
 
     it("PATCH - /users/:userId/profile - should update a user's settings", async () => {
-        const user = UserFactory.default();
-        const userProfile = UserProfileFactory.withUser(user);
+        const user = UserSeeding.default();
+        const userProfile = UserProfileSeeding.withUser(user);
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);
@@ -74,8 +74,8 @@ describe('user-profile', () => {
     });
 
     it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
-        const userModerator = UserFactory.withRole(UserRole.MODERATOR);
-        const user = UserFactory.withRole(UserRole.USER);
+        const userModerator = UserSeeding.withRole(UserRole.MODERATOR);
+        const user = UserSeeding.withRole(UserRole.USER);
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(userModerator);
@@ -91,9 +91,9 @@ describe('user-profile', () => {
     });
 
     it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
-        const user = UserFactory.withRole(UserRole.USER);
-        const userProfile = UserProfileFactory.withUser(user);
-        const userAdministrator = UserFactory.withRole(UserRole.ADMIN);
+        const user = UserSeeding.withRole(UserRole.USER);
+        const userProfile = UserProfileSeeding.withUser(user);
+        const userAdministrator = UserSeeding.withRole(UserRole.ADMIN);
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);

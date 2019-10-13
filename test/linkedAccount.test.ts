@@ -5,14 +5,14 @@ import { isNil } from 'lodash';
 
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
-import { UserFactory } from '../app/factory';
+import { UserSeeding } from '../app/seeding';
 import { Server } from '../config/Server';
 
 const server: Server = new Server();
 let agent: any;
 
 async function createDefaultAccountWithTwitch() {
-    const user = UserFactory.default();
+    const user = UserSeeding.default();
     await user.save();
 
     const linkedAccount = LinkedAccount.default(user, user.username, Provider.TWITCH, `${user.username}1`);
@@ -27,7 +27,7 @@ describe('Linked Account - Twitch', () => {
         agent = supertest.agent(server.App());
     });
 
-    describe('POST - /oauth/twitch/coins - Updating Coins', () => {
+    describe('PUT - /oauth/twitch/coins - Updating Coins', () => {
         const coinsRoute = '/oauth/twitch/coins';
 
         it('Should not pass if the API_KEY is empty or not valid', async () => {

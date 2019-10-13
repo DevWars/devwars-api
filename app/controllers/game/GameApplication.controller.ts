@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
-import GameApplicationFactory from '../../factory/GameApplication.factory';
+import GameApplicationSeeding from '../../seeding/GameApplication.seeding';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import GameRepository from '../../repository/Game.repository';
@@ -135,7 +135,7 @@ export async function apply(request: IRequest, response: Response) {
         });
     }
 
-    const application = await GameApplicationFactory.withScheduleAndUser(schedule, request.user).save();
+    const application = await GameApplicationSeeding.withScheduleAndUser(schedule, request.user).save();
     return response.json(application);
 }
 

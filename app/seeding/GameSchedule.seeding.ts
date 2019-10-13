@@ -2,13 +2,13 @@ import { date, hacker, helpers, random, lorem } from 'faker';
 
 import GameSchedule from '../models/GameSchedule';
 import { GameStatus } from '../models/GameSchedule';
-import { IObjective } from '../factory/Game.factory';
+import { IObjective } from './Game.seeding';
 
-export default class GameScheduleFactory {
+export default class GameScheduleSeeding {
     public static default(): GameSchedule {
         const schedule = new GameSchedule();
 
-        const objectives = GameScheduleFactory.createObjectives(random.number({ min: 3, max: 5 }));
+        const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
         const toIdMap = (result: any, obj: { id: number }) => {
             result[obj.id] = obj;
             return result;
