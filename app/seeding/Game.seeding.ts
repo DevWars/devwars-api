@@ -136,7 +136,7 @@ export default class GameSeeding {
             }
         } else {
             for (let i = 1; i <= num; i++) {
-                let user = await UserSeeding.default().save();
+                const user = await UserSeeding.default().save();
 
                 players[user.id] = {
                     id: user.id,

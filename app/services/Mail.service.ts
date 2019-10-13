@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
+
 const mjml2html = require('mjml');
 
 import User from '../models/User';

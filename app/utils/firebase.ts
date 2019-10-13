@@ -13,17 +13,17 @@ export default firebase.initializeApp({
     databaseURL: process.env.FIREBASE_URL,
 });
 
-export const pathValueAtPath = async (path: string, value: any) => {
+export const pathValueAtPath = async (reference: string, value: any) => {
     return firebase
         .database()
-        .ref(path)
+        .ref(reference)
         .set(value);
 };
 
-export const getValueAtPath = async (path: string) => {
+export const getValueAtPath = async (reference: string) => {
     const value = await firebase
         .database()
-        .ref(path)
+        .ref(reference)
         .once('value');
 
     return value.val();

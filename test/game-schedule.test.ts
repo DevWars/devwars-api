@@ -177,7 +177,8 @@ describe('game-schedule', () => {
     //     chai.expect(request.status).to.be.eq(422);
     // });
 
-    // it('POST - schedules/create -  should return 422 because objectives should be an object of objects', async () => {
+    // it('POST - schedules/create -
+    // should return 422 because objectives should be an object of objects', async () => {
     //     let Schedule = generateSchedule();
     //     const user = await UserFactory.withRole(UserRole.ADMIN);
     //     // @ts-ignore
