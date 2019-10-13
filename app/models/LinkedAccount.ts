@@ -9,15 +9,6 @@ export enum Provider {
 
 @Entity('linked_account')
 export default class LinkedAccount extends BaseModel {
-    public static default(user?: User, linkUsername?: string, provider?: string, providerId?: string): LinkedAccount {
-        return Object.assign(new LinkedAccount(), {
-            username: linkUsername,
-            storage: {},
-            providerId,
-            provider,
-            user,
-        });
-    }
     /**
      * Given username from provider
      */
@@ -49,4 +40,21 @@ export default class LinkedAccount extends BaseModel {
     @ManyToOne((type) => User, (user) => user.accounts)
     @JoinTable()
     public user: User;
+
+    /**
+     * Creates a new instance of a linked account model.
+     * @param user The user who is the owner of the linked account.
+     * @param linkUsername The username of the linked account.
+     * @param provider The provider of the linked account (twitch, discord).
+     * @param providerId The users id of the given linked account.
+     */
+    constructor(user?: User, linkUsername?: string, provider?: string, providerId?: string) {
+        super();
+
+        this.user = user;
+        this.username = linkUsername;
+        this.provider = provider;
+        this.providerId = providerId;
+        this.storage = {};
+    }
 }

@@ -15,7 +15,7 @@ async function createDefaultAccountWithTwitch() {
     const user = UserSeeding.default();
     await user.save();
 
-    const linkedAccount = LinkedAccount.default(user, user.username, Provider.TWITCH, `${user.username}1`);
+    const linkedAccount = new LinkedAccount(user, user.username, Provider.TWITCH, `${user.username}1`);
     await linkedAccount.save();
 
     return linkedAccount;

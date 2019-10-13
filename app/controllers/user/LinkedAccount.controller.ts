@@ -82,7 +82,7 @@ export class LinkedAccountController {
         let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
 
         if (_.isNil(account)) {
-            account = LinkedAccount.default(null, twitchUser.username, Provider.TWITCH, twitchUser.id);
+            account = new LinkedAccount(null, twitchUser.username, Provider.TWITCH, twitchUser.id);
         }
 
         if (_.isNil(account.storage.coins)) account.storage.coins = 0;
@@ -107,7 +107,7 @@ export class LinkedAccountController {
         let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
 
         if (_.isNil(account)) {
-            account = LinkedAccount.default(user, discordUser.username, Provider.DISCORD, discordUser.id);
+            account = new LinkedAccount(user, discordUser.username, Provider.DISCORD, discordUser.id);
         }
 
         account.user = user;
