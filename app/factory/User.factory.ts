@@ -4,14 +4,12 @@ import User, { UserRole } from '../models/User';
 
 export default class UserFactory {
     public static default(): User {
-        const user = new User();
+        const usersHelperCard = helpers.userCard();
 
-        user.lastSignIn = new Date();
-        user.email = helpers.userCard().email;
-        user.username = helpers.userCard().username;
-        user.password = bcrypt.hashSync('secret', 1);
-        user.role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
+        const role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
+        const user = new User(usersHelperCard.username, bcrypt.hashSync('secret', 1), usersHelperCard.email, role);
         user.avatarUrl = random.image();
+        user.lastSignIn = new Date();
 
         return user;
     }
@@ -30,7 +28,6 @@ export default class UserFactory {
         const user = this.default();
 
         user.role = role;
-
         return user;
     }
 }

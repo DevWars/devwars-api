@@ -62,4 +62,14 @@ export default class UserProfile extends BaseModel {
     @OneToOne((type) => User)
     @JoinColumn()
     public user: User;
+
+    /**
+     * Creates a new instance of the UserProfile model.
+     * @param user The user who owns the UserProfile model.
+     */
+    constructor(user?: User) {
+        super();
+
+        this.user = user;
+    }
 }

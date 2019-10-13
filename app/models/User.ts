@@ -61,6 +61,22 @@ export default class User extends BaseModel {
     public accounts: LinkedAccount[];
 
     /**
+     * Creates a new instance of the user model.
+     * @param username The username of the user.
+     * @param password The already hashed password of the user.
+     * @param email The email of the user.
+     * @param role The role of the user.
+     */
+    constructor(username?: string, password?: string, email?: string, role?: UserRole) {
+        super();
+
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+    }
+
+    /**
      * Removes a collection of properties from the current user.
      * @param fields The fields (not including password, token) that is also being removed.
      */
