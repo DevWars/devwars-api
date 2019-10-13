@@ -9,6 +9,15 @@ export enum Provider {
 
 @Entity('linked_account')
 export default class LinkedAccount extends BaseModel {
+    public static default(user?: User, linkUsername?: string, provider?: string, providerId?: string): LinkedAccount {
+        return Object.assign(new LinkedAccount(), {
+            username: linkUsername,
+            storage: {},
+            providerId,
+            provider,
+            user,
+        });
+    }
     /**
      * Given username from provider
      */

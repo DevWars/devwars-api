@@ -30,9 +30,9 @@ export class LinkedAccountController {
 
     /**
      * @api {delete} /oauth/:provider Deletes a linked account from the given user
-     * @apiDescription Called into when a user is diconnecting a linked account from there profile.
+     * @apiDescription Called into when a user is disconnecting a linked account from there profile.
      * e.g removing a link between discord.
-     * @apiName DeleteLinkedAccounst
+     * @apiName DeleteLinkedAccount
      * @apiGroup LinkedAccounts
      *
      * @apiParam {string} Provider The name of the provider who is being removed.
@@ -66,34 +66,30 @@ export class LinkedAccountController {
     public static async updateTwitchCoins(request: Request, response: Response) {
         const { twitchUser, amount } = request.body;
 
-        if (!twitchUser && !twitchUser.id && !twitchUser.username) {
+        if (_.isNil(twitchUser) || _.isNil(twitchUser.id) || _.isNil(twitchUser.username)) {
             return response.status(400).json({ error: 'User not provided.' });
         }
 
-        if (!amount) {
+        if (_.isNil(amount)) {
             return response.status(400).json({ error: 'Amount not provided.' });
+        }
+
+        if (!_.isNumber(amount) || _.isNaN(amount)) {
+            return response.status(400).json({ error: 'Amount provided is not a valid number.' });
         }
 
         const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
         let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
 
-        if (!account) {
-            account = new LinkedAccount();
-            account.provider = Provider.TWITCH;
-            account.providerId = twitchUser.id;
+        if (_.isNil(account)) {
+            account = LinkedAccount.default(null, twitchUser.username, Provider.TWITCH, twitchUser.id);
         }
 
-        account.username = twitchUser.username;
-
-        if (account.storage && account.storage.coins) {
-            account.storage.coins += amount;
-        } else {
-            account.storage.coins = amount;
-        }
+        if (_.isNil(account.storage.coins)) account.storage.coins = 0;
+        account.storage.coins += amount;
 
         await account.save();
-
-        response.json(account);
+        return response.json(account);
     }
 
     private static async connectDiscord(request: Request, response: Response, user: User) {
@@ -111,9 +107,7 @@ export class LinkedAccountController {
         let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
 
         if (_.isNil(account)) {
-            account = new LinkedAccount();
-            account.provider = Provider.DISCORD;
-            account.providerId = discordUser.id;
+            account = LinkedAccount.default(user, discordUser.username, Provider.DISCORD, discordUser.id);
         }
 
         account.user = user;
