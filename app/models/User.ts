@@ -64,15 +64,28 @@ export default class User extends BaseModel {
      * Removes a collection of properties from the current user.
      * @param fields The fields (not including password, token) that is also being removed.
      */
-    public sanitize(...fields: string[]) {
+    public sanitize(...fields: string[]): User {
         if (isNil(fields) || !isArray(fields)) fields = [];
 
         fields.push('password', 'token');
+        const user = { ...this };
 
         // remove all the properties specified in the fields list. Ensuring to also delete the users
         // password and token regardless if the user also specified it in the fields listings.
         for (const field of fields) {
-            delete this[field as keyof User];
+            delete user[field as keyof User];
         }
+
+        return user;
+    }
+
+    public toJSON(): User {
+        const user = { ...this };
+
+        for (const field of ['token', 'password']) {
+            delete user[field as keyof User];
+        }
+
+        return user;
     }
 }

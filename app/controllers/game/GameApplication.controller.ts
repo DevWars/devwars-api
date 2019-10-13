@@ -136,8 +136,6 @@ export async function apply(request: IRequest, response: Response) {
     }
 
     const application = await GameApplicationFactory.withScheduleAndUser(schedule, request.user).save();
-
-    application.user.sanitize();
     return response.json(application);
 }
 
@@ -219,12 +217,12 @@ export async function findBySchedule(request: Request, response: Response) {
         });
 
     const userRepository = getCustomRepository(UserRepository);
-    const applications = await userRepository.findApplicationsBySchedule(schedule);
+    let users = await userRepository.findApplicationsBySchedule(schedule);
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications.forEach((app) => app.sanitize(...sanitizationFields));
+    users = users.map((app) => app.sanitize(...sanitizationFields));
 
-    return response.json(applications);
+    return response.json(users);
 }
 
 /**
@@ -274,12 +272,12 @@ export async function findByGame(request: Request, response: Response) {
     if (_.isNil(schedule)) return response.json([]);
 
     const userRepository = getCustomRepository(UserRepository);
-    const applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
+    let users = (await userRepository.findApplicationsBySchedule(schedule)) || [];
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications.forEach((app) => app.sanitize(...sanitizationFields));
+    users = users.map((app) => app.sanitize(...sanitizationFields));
 
-    return response.json(applications);
+    return response.json(users);
 }
 
 export async function create(request: IRequest, response: Response) {
