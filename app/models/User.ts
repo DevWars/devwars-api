@@ -61,18 +61,47 @@ export default class User extends BaseModel {
     public accounts: LinkedAccount[];
 
     /**
+     * Creates a new instance of the user model.
+     * @param username The username of the user.
+     * @param password The already hashed password of the user.
+     * @param email The email of the user.
+     * @param role The role of the user.
+     */
+    constructor(username?: string, password?: string, email?: string, role?: UserRole) {
+        super();
+
+        this.username = username;
+        this.password = password;
+        this.email = email;
+        this.role = role;
+    }
+
+    /**
      * Removes a collection of properties from the current user.
      * @param fields The fields (not including password, token) that is also being removed.
      */
-    public sanitize(...fields: string[]) {
+    public sanitize(...fields: string[]): User {
         if (isNil(fields) || !isArray(fields)) fields = [];
 
         fields.push('password', 'token');
+        const user = { ...this };
 
         // remove all the properties specified in the fields list. Ensuring to also delete the users
         // password and token regardless if the user also specified it in the fields listings.
         for (const field of fields) {
-            delete this[field as keyof User];
+            delete user[field as keyof User];
         }
+
+        return user;
+    }
+
+    public toJSON(): User {
+        const user = { ...this };
+
+        for (const field of ['token', 'password']) {
+            delete user[field as keyof User];
+        }
+
+        return user;
     }
 }

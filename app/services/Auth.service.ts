@@ -18,22 +18,16 @@ import * as jwt from 'jsonwebtoken';
 
 export class AuthService {
     public static async register(request: IRegistrationRequest) {
-        const user = new User();
-        user.email = request.email;
-        user.username = request.username;
-        user.password = await hash(request.password);
-        user.role = UserRole.PENDING;
+        const { username, email, password } = request;
+
+        const user = new User(username, await hash(password), email, UserRole.PENDING);
         user.lastSignIn = new Date();
 
-        const profile = new UserProfile();
-        profile.user = user;
+        const profile = new UserProfile(user);
         profile.skills = { html: 1, css: 1, js: 1 };
 
-        const userStats = new UserStats();
-        userStats.user = user;
-
-        const gameStats = new UserGameStats();
-        gameStats.user = user;
+        const userStats = new UserStats(user);
+        const gameStats = new UserGameStats(user);
 
         await VerificationService.reset(user);
 
@@ -76,11 +70,7 @@ export class AuthService {
      * @param user The user of the password being reset.
      */
     public static async resetPassword(user: User) {
-        const reset = new PasswordReset();
-        reset.expiresAt = addHours(new Date(), 6);
-        reset.token = randomString(256);
-        reset.user = user;
-
+        const reset = new PasswordReset(user, randomString(256), addHours(new Date(), 6));
         const resetUrl = `${process.env.FRONT_URL}/reset-password?token=${reset.token}`;
 
         await reset.save();

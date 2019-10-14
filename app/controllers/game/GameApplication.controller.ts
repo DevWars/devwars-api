@@ -1,7 +1,7 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
-import GameApplicationFactory from '../../factory/GameApplication.factory';
+import GameApplicationSeeding from '../../seeding/GameApplication.seeding';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import GameRepository from '../../repository/Game.repository';
@@ -135,9 +135,7 @@ export async function apply(request: IRequest, response: Response) {
         });
     }
 
-    const application = await GameApplicationFactory.withScheduleAndUser(schedule, request.user).save();
-
-    application.user.sanitize();
+    const application = await GameApplicationSeeding.withScheduleAndUser(schedule, request.user).save();
     return response.json(application);
 }
 
@@ -219,12 +217,12 @@ export async function findBySchedule(request: Request, response: Response) {
         });
 
     const userRepository = getCustomRepository(UserRepository);
-    const applications = await userRepository.findApplicationsBySchedule(schedule);
+    let users = await userRepository.findApplicationsBySchedule(schedule);
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications.forEach((app) => app.sanitize(...sanitizationFields));
+    users = users.map((app) => app.sanitize(...sanitizationFields));
 
-    return response.json(applications);
+    return response.json(users);
 }
 
 /**
@@ -274,12 +272,12 @@ export async function findByGame(request: Request, response: Response) {
     if (_.isNil(schedule)) return response.json([]);
 
     const userRepository = getCustomRepository(UserRepository);
-    const applications = (await userRepository.findApplicationsBySchedule(schedule)) || [];
+    let users = (await userRepository.findApplicationsBySchedule(schedule)) || [];
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    applications.forEach((app) => app.sanitize(...sanitizationFields));
+    users = users.map((app) => app.sanitize(...sanitizationFields));
 
-    return response.json(applications);
+    return response.json(users);
 }
 
 export async function create(request: IRequest, response: Response) {

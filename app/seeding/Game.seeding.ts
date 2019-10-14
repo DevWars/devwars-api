@@ -4,7 +4,7 @@ import Game from '../models/Game';
 import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
-import UserFactory from './User.factory';
+import UserSeeding from './User.seeding';
 
 export interface IObjective {
     id: number;
@@ -12,11 +12,11 @@ export interface IObjective {
     isBonus: boolean;
 }
 
-export default class GameFactory {
+export default class GameSeeding {
     public static async default() {
         const game = new Game();
 
-        const objectives = GameFactory.createObjectives(random.number({ min: 3, max: 5 }));
+        const objectives = GameSeeding.createObjectives(random.number({ min: 3, max: 5 }));
 
         const toIdMap = (result: any, obj: { id: number }) => {
             result[obj.id] = obj;
@@ -28,7 +28,7 @@ export default class GameFactory {
             return result;
         };
 
-        const players = await GameFactory.createPlayers(6);
+        const players = await GameSeeding.createPlayers(6);
 
         // TEMPORARY: Remove once Editor refactor is completed
         game.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
@@ -44,7 +44,7 @@ export default class GameFactory {
             endTime: date.past(10),
             objectives: objectives.reduce(toIdMap, {}),
             players,
-            editors: GameFactory.createEditors(6, Object.values(players)),
+            editors: GameSeeding.createEditors(6, Object.values(players)),
             teams: {
                 0: {
                     id: 0,
@@ -93,7 +93,7 @@ export default class GameFactory {
     }
 
     public static async withMode(mode: string) {
-        const game = await GameFactory.default();
+        const game = await GameSeeding.default();
 
         game.mode = mode;
 
@@ -101,7 +101,7 @@ export default class GameFactory {
     }
 
     public static async withSeason(season: number) {
-        const game = await GameFactory.default();
+        const game = await GameSeeding.default();
         game.season = season;
         return game;
     }
@@ -136,7 +136,7 @@ export default class GameFactory {
             }
         } else {
             for (let i = 1; i <= num; i++) {
-                let user = await UserFactory.default().save();
+                const user = await UserSeeding.default().save();
 
                 players[user.id] = {
                     id: user.id,

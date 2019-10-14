@@ -20,15 +20,13 @@ export async function show(request: Request, response: Response) {
     const user = await User.findOne(request.params.id);
 
     if (isNil(user)) return response.status(404).json({ error: 'User does not exist by the provided id.' });
-    user.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
+    const sanitizedUser = user.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
 
-    return response.json(user);
+    return response.json(sanitizedUser);
 }
 
 export async function all(request: Request, response: Response) {
     const users = await User.find();
-
-    users.forEach((element) => element.sanitize());
 
     return response.json(users);
 }

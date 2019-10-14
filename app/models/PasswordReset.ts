@@ -15,4 +15,18 @@ export default class PasswordReset extends BaseModel {
     @OneToOne((type) => User)
     @JoinColumn()
     public user: User;
+
+    /**
+     * Creates a new instance of the password reset model.
+     * @param user The user of the password reset process.
+     * @param token The associated verification token of the reset process.
+     * @param expiresAt When the password reset process will expire.
+     */
+    constructor(user?: User, token?: string, expiresAt?: Date) {
+        super();
+
+        this.user = user;
+        this.token = token;
+        this.expiresAt = expiresAt;
+    }
 }

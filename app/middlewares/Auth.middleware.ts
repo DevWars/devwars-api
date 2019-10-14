@@ -28,8 +28,7 @@ export const mustBeAuthenticated = async (request: IRequest, response: Response,
     // Ensure that the user is correctly sanitized to remove the token, password and other core
     // properties. Since this is the current authenticated user, there is no need to remove any more
     // additional properties.
-    request.user = user;
-    request.user.sanitize();
+    request.user = user.toJSON();
 
     return next();
 };

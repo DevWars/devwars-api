@@ -2,7 +2,7 @@ import GameSchedule from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 import User from '../models/User';
 
-export default class GameApplicationFactory {
+export default class GameApplicationSeeding {
     public static default(): GameApplication {
         const schedule = new GameApplication();
 

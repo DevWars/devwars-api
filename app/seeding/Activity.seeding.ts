@@ -2,7 +2,7 @@ import { random } from 'faker';
 import Activity from '../models/Activity';
 import User from '../models/User';
 
-export default class ActivityFactory {
+export default class ActivitySeeding {
     public static default(): Activity {
         const activity = new Activity();
 

@@ -17,4 +17,14 @@ export default class UserGameStats extends BaseModel {
     @OneToOne((type) => User)
     @JoinColumn()
     public user: User;
+
+    /**
+     * Creates a new instance of the UserGameStats model.
+     * @param user The user who owns the UserGameStats model.
+     */
+    constructor(user?: User) {
+        super();
+
+        this.user = user;
+    }
 }

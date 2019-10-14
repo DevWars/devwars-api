@@ -1,7 +1,7 @@
 import EmailVerification from '../models/EmailVerification';
 import User from '../models/User';
 
-export default class EmailVerificationFactory {
+export default class EmailVerificationSeeding {
     public static default(): EmailVerification {
         const emailVerification = new EmailVerification();
         emailVerification.token = 'secret';

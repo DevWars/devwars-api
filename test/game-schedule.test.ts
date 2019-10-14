@@ -4,7 +4,7 @@ import * as supertest from 'supertest';
 import { getManager, EntityManager } from 'typeorm';
 import { hacker, helpers, random } from 'faker';
 
-import { GameScheduleFactory, UserFactory } from '../app/factory';
+import { GameScheduleSeeding, UserSeeding } from '../app/seeding';
 import { Server } from '../config/Server';
 import { cookieForUser } from './helpers';
 
@@ -21,7 +21,7 @@ let app: express.Application;
 const connectionManager: EntityManager = getManager();
 
 function generateSchedule() {
-    const objectives = GameScheduleFactory.createObjectives(random.number({ min: 3, max: 5 }));
+    const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
     const toIdMap = (result: any, obj: { id: number }) => {
         result[obj.id] = obj;
         return result;
@@ -41,7 +41,7 @@ describe('game-schedule', () => {
     });
 
     it('GET - /schedules/:id - should retrieve the schedule', async () => {
-        const schedule = await GameScheduleFactory.default().save();
+        const schedule = await GameScheduleSeeding.default().save();
 
         const response = await supertest(app)
             .get(`/schedules/${schedule.id}`)
@@ -59,8 +59,8 @@ describe('game-schedule', () => {
     });
 
     it('GET - /schedules - should retrieve all schedules', async () => {
-        const scheduleOne = GameScheduleFactory.default();
-        const scheduleTwo = GameScheduleFactory.default();
+        const scheduleOne = GameScheduleSeeding.default();
+        const scheduleTwo = GameScheduleSeeding.default();
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(scheduleOne);
@@ -80,8 +80,8 @@ describe('game-schedule', () => {
 
         futureDate.setHours(currentDate.getHours() + 2);
 
-        const scheduleOne = GameScheduleFactory.withTime(currentDate);
-        const scheduleTwo = GameScheduleFactory.withTime(futureDate);
+        const scheduleOne = GameScheduleSeeding.withTime(currentDate);
+        const scheduleTwo = GameScheduleSeeding.withTime(futureDate);
 
         await connectionManager.transaction(async (transaction) => {
             transaction.save(scheduleTwo);
@@ -96,7 +96,7 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return 403 because user cant create a schedule', async () => {
-        const user = await UserFactory.withRole(UserRole.USER).save();
+        const user = await UserSeeding.withRole(UserRole.USER).save();
         const Schedule = generateSchedule();
 
         const badRequest = await supertest(app)
@@ -108,7 +108,7 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return the schedule created because admin can', async () => {
-        const user = await UserFactory.withRole(UserRole.ADMIN).save();
+        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
         const Schedule = generateSchedule();
 
         const goodRequest = await supertest(app)
@@ -123,7 +123,7 @@ describe('game-schedule', () => {
     });
 
     it('POST - schedules/create - should return the schedule created because mod can', async () => {
-        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
+        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
         const Schedule = generateSchedule();
 
         const goodRequest = await supertest(app)
@@ -177,7 +177,8 @@ describe('game-schedule', () => {
     //     chai.expect(request.status).to.be.eq(422);
     // });
 
-    // it('POST - schedules/create -  should return 422 because objectives should be an object of objects', async () => {
+    // it('POST - schedules/create -
+    // should return 422 because objectives should be an object of objects', async () => {
     //     let Schedule = generateSchedule();
     //     const user = await UserFactory.withRole(UserRole.ADMIN);
     //     // @ts-ignore
@@ -192,9 +193,9 @@ describe('game-schedule', () => {
     // });
 
     it('PATCH - schedules/:id - should return 403 because user cant update a schedule', async () => {
-        const Schedule = await GameScheduleFactory.default().save();
+        const Schedule = await GameScheduleSeeding.default().save();
 
-        const user = await UserFactory.withRole(UserRole.USER).save();
+        const user = await UserSeeding.withRole(UserRole.USER).save();
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -208,9 +209,9 @@ describe('game-schedule', () => {
     });
 
     it('PATCH - schedules/:id - should return the schedules update because mod', async () => {
-        const Schedule = await GameScheduleFactory.default().save();
+        const Schedule = await GameScheduleSeeding.default().save();
 
-        const user = await UserFactory.withRole(UserRole.MODERATOR).save();
+        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -225,9 +226,9 @@ describe('game-schedule', () => {
     });
 
     it('PATCH - schedules/:id - should return the schedules update because admin', async () => {
-        const Schedule = await GameScheduleFactory.default().save();
+        const Schedule = await GameScheduleSeeding.default().save();
 
-        const user = await UserFactory.withRole(UserRole.ADMIN).save();
+        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
         const updateDatas = {
             title: 'helloWorld',
         };
@@ -292,7 +293,7 @@ describe('game-schedule', () => {
 
         await connectionManager.transaction(async (transaction) => {
             for (const state of gameStates) {
-                const schedule = GameScheduleFactory.withStatus(state);
+                const schedule = GameScheduleSeeding.withStatus(state);
                 await transaction.save(schedule);
             }
         });
