@@ -30,7 +30,7 @@ export default class GameService {
     //         const path = `game/${game.id}/${player.team}/${language}`;
 
     //         const editor = editorGame.editors[player.editorId];
-    //         console.log(editor);
+    //         logger.info(editor);
 
     //         if (!editor) {
     //             continue;

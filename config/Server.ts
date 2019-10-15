@@ -3,10 +3,11 @@ import * as cookieParser from 'cookie-parser';
 import * as cors from 'cors';
 import * as express from 'express';
 import * as http from 'http';
-import * as methodOverride from 'method-override';
 import * as morgan from 'morgan';
+
 import { Connection } from './Database';
 import { ROUTER } from './Router';
+import logger from '../app/utils/logger';
 
 export class Server {
     private static async ConnectDB(): Promise<any> {
@@ -15,8 +16,7 @@ export class Server {
         try {
             await connection.synchronize();
         } catch (e) {
-            console.log(e);
-            console.log("Couldn't synchronize database");
+            logger.error(`Could not synchronize database, error=${e}`);
         }
 
         return connection;
@@ -30,12 +30,11 @@ export class Server {
         this.server = http.createServer(this.app);
     }
 
-    public Start(): Promise<http.Server> {
-        return Server.ConnectDB().then(() => {
-            this.ExpressConfiguration();
-            this.ConfigurationRouter();
-            return this.server;
-        });
+    public async Start(): Promise<http.Server> {
+        await Server.ConnectDB();
+        this.ExpressConfiguration();
+        this.ConfigurationRouter();
+        return this.server;
     }
 
     public App(): express.Application {
@@ -44,8 +43,7 @@ export class Server {
 
     private ExpressConfiguration(): void {
         this.app.use(bodyParser.urlencoded({ extended: true }));
-        this.app.use(bodyParser.json({ limit: '50mb' }));
-        this.app.use(methodOverride());
+        this.app.use(bodyParser.json({ limit: '10mb' }));
         this.app.use(cookieParser());
 
         this.app.use((req, res, next): void => {
@@ -55,13 +53,21 @@ export class Server {
             next();
         });
 
-        this.app.use(morgan('combined'));
-        this.app.use(
-            cors({
-                credentials: true,
-                origin: process.env.FRONT_URL || 'http://localhost:3000',
-            })
-        );
+        const routeLogging = morgan('combined', {
+            stream: {
+                write: (text: string) => {
+                    logger.info(text.replace(/\n$/, ''));
+                },
+            },
+        });
+
+        const corOptions = cors({
+            credentials: true,
+            origin: process.env.FRONT_URL || 'http://localhost:3000',
+        });
+
+        this.app.use(routeLogging);
+        this.app.use(corOptions);
 
         this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
             err.status = 404;

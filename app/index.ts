@@ -1,4 +1,6 @@
 import * as dotenv from 'dotenv';
+import logger from './utils/logger';
+
 dotenv.config();
 
 import * as cluster from 'cluster';
@@ -8,15 +10,15 @@ import { Server } from '../config/Server';
 import '../config/S3';
 
 if (cluster.isMaster && process.env.NODE_ENV === 'production') {
-    console.log(`\n -------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT \n`);
+    logger.info(`\n -------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT \n`);
 
     for (const cpu of cpus()) {
         cluster.fork();
     }
 
     cluster.on('exit', (worker, code, signal) => {
-        console.log('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
-        console.log('Starting a new worker');
+        logger.info('Worker ' + worker.process.pid + ' died with code: ' + code + ', and signal: ' + signal);
+        logger.info('Starting a new worker');
         cluster.fork();
     });
 } else {
@@ -45,7 +47,7 @@ if (cluster.isMaster && process.env.NODE_ENV === 'production') {
         });
 
         server.on('listening', () => {
-            console.log('Server is running in process ' + process.pid + ' listening on PORT ' + port + '\n');
+            logger.info('Server is running in process ' + process.pid + ' listening on PORT ' + port + '\n');
         });
     });
 }

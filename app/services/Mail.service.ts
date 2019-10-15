@@ -2,6 +2,7 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
+import logger from '../utils/logger';
 
 const mjml2html = require('mjml');
 
@@ -16,7 +17,7 @@ export async function send(to: string, subject: string, html: string) {
 
     // If we are in development of the application, we would want to look to log out the details as
     // these could be used for testing validation links, and email information in development.
-    if (process.env.NODE_ENV === 'development') return console.log({ to, subject, html });
+    if (process.env.NODE_ENV === 'development') return logger.info({ to, subject, html });
 
     try {
         const mailgun = createMailgun({ apiKey: process.env.MAILGUN_KEY, domain: 'devwars.tv' });
