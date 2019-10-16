@@ -1,6 +1,6 @@
 import * as express from 'express';
-import * as GameApplicationController from '../controllers/game/GameApplication.controller';
-import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
+import * as GameApplicationController from '../controllers/game/gameApplication.controller';
+import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
 export const GameApplicationRoute: express.Router = express

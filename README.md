@@ -39,7 +39,7 @@ Overview
     ├── app                           - Main App
     |   ├── controllers                 - HTTP Layer (Handles incoming requests)
     |   ├── factory                     - Factories for all of our models (Helps with testing)
-    |   ├── middlewares                 - HTTP Middleware (Useful shorthand for guarding requests)
+    |   ├── middleware                 - HTTP Middleware (Useful shorthand for guarding requests)
     |   ├── models                      - All of the domain in DevWars
     |   ├── repository                  - Data Access Layer (How we fetch our data)
     |   ├── request                     - Structures for complicated request models

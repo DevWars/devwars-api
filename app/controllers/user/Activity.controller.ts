@@ -1,4 +1,4 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import ActivityRepository from '../../repository/Activity.repository';
 import { IRequest } from '../../request/IRequest';
@@ -41,10 +41,9 @@ import { IRequest } from '../../request/IRequest';
  *       }
  *     ]
  */
-
 export async function mine(request: IRequest, response: Response) {
     const activityRepository = getCustomRepository(ActivityRepository);
     const activities = await activityRepository.findByUser(request.user);
 
-    response.json(activities);
+    return response.json(activities);
 }

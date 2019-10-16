@@ -1,14 +1,12 @@
 import * as typeorm from 'typeorm';
 import { getCustomRepository } from 'typeorm';
 
-import { Connection } from '../config/Database';
-import { UserRole } from '../app/models/User';
-import User from '../app/models/User';
+import { Connection } from '../app/services/connection.service';
 import UserRepository from '../app/repository/User.repository';
 import { hash } from '../app/utils/hash';
+import User from '../app/models/User';
 
 let connection: typeorm.Connection;
-let connectionManager: typeorm.EntityManager;
 
 // Converts all user passwords to "secret" (for development use)
 const updateUserPasswords = async () => {
@@ -26,7 +24,6 @@ const updateUserPasswords = async () => {
 
 (async () => {
     connection = await Connection;
-    connectionManager = typeorm.getManager(connection.name);
 
     console.log('Updating user passwords');
     await updateUserPasswords();

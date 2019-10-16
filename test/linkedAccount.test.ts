@@ -6,9 +6,9 @@ import { isNil } from 'lodash';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
 import { UserSeeding } from '../app/seeding';
-import { Server } from '../config/Server';
+import ServerService from '../app/services/server.service';
 
-const server: Server = new Server();
+const server: ServerService = new ServerService();
 let agent: any;
 
 async function createDefaultAccountWithTwitch() {

@@ -1,9 +1,9 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
-import { Server } from '../config/Server';
+import ServerService from '../app/services/server.service';
 
-const server: Server = new Server();
+const server: ServerService = new ServerService();
 let app: express.Application;
 
 describe('Health', () => {
