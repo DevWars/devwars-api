@@ -8,8 +8,8 @@ import * as UserGameStatsController from '../controllers/user/UserGameStats.cont
 import * as UserAvatarController from '../controllers/user/UserAvatar.controller';
 
 import { UserRole } from '../models/User';
-import { mustOwnUser } from '../middlewares/OwnsUser';
-import { mustBeRole, mustBeAuthenticated } from '../middlewares/Auth.middleware';
+import { mustOwnUser } from '../middleware/OwnsUser';
+import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
 const upload = multer({ dest: 'uploads/' });

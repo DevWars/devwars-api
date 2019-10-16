@@ -1,6 +1,8 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
+import * as _ from 'lodash';
+
 import { getManager, EntityManager } from 'typeorm';
 import { hacker, helpers, random } from 'faker';
 
@@ -119,6 +121,8 @@ describe('game-schedule', () => {
         chai.expect(goodRequest.status).to.be.equal(200);
 
         const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
+
+        chai.expect(!_.isNil(ScheduleCreated) && !_.isNil(ScheduleCreated.setup)).to.be.eq(true);
         chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
     });
 
