@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as supertest from 'supertest';
 import { getManager, EntityManager } from 'typeorm';
 
-import { Server } from '../config/Server';
+import ServerService from '../app/services/server.service';
 import { UserSeeding, EmailVerificationSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
@@ -11,7 +11,7 @@ import User, { UserRole } from '../app/models/User';
 import EmailVerification from '../app/models/EmailVerification';
 import './setup';
 
-const server: Server = new Server();
+const server: ServerService = new ServerService();
 let app: express.Application;
 
 // used for the creation of the database transactions without the need of constantly calling into

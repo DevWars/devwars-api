@@ -7,7 +7,7 @@ import UserStatsSeeding from '../app/seeding/UserStats.seeding';
 import GameSeeding from '../app/seeding/Game.seeding';
 import UserSeeding from '../app/seeding/User.seeding';
 
-import { Connection } from '../config/Database';
+import { Connection } from '../app/services/connection.service';
 import { UserRole } from '../app/models/User';
 
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
