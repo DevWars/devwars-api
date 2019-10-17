@@ -166,19 +166,9 @@ export async function login(request: Request, response: Response) {
     response.json(flattenUser(user));
 }
 
-export async function logout(request: Request, response: Response) {
-    const { token } = request.cookies;
-
-    if (!token) throw new Error('logout failed');
-
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findByToken(token);
-
-    if (!user) throw new Error('logout failed');
-
-    user.token = null;
-
-    await User.save(user);
+export async function logout(request: IRequest, response: Response) {
+    request.user.token = null;
+    await User.save(request.user);
 
     response.cookie('token', null, { domain: process.env.COOKIE_DOMAIN });
     return response.json({ message: 'Success' });

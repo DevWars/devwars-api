@@ -2,12 +2,11 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
+
 import logger from '../utils/logger';
-
-const mjml2html = require('mjml');
-
 import User from '../models/User';
 
+const mjml2html = require('mjml');
 const mjmlOptions = { minify: true, keepComments: false };
 
 export async function send(to: string, subject: string, html: string) {
@@ -28,8 +27,8 @@ export async function send(to: string, subject: string, html: string) {
             subject,
             html,
         });
-    } catch (e) {
-        console.error(e);
+    } catch (error) {
+        logger.error(`error sending an email, ${error}`);
     }
 }
 

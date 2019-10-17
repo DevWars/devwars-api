@@ -1,6 +1,8 @@
 import axios from 'axios';
 import { stringify } from 'qs';
 
+import logger from '../utils/logger';
+
 export interface IDiscordUser {
     id: string;
     username: string;
@@ -30,8 +32,8 @@ export class DiscordService {
             });
 
             return response.data.access_token;
-        } catch (e) {
-            console.error(e);
+        } catch (error) {
+            logger.error(`error performing discord lookup, ${error}`);
             return null;
         }
     }

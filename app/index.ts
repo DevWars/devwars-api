@@ -23,11 +23,11 @@ const handleServerError = (error: any) => {
 
     switch (error.code) {
         case 'EACCES':
-            console.error('Port requires elevated privileges');
+            logger.error('Port requires elevated privileges');
             process.exit(1);
             break;
         case 'EADDRINUSE':
-            console.error('Port is already in use');
+            logger.error('Port is already in use');
             process.exit(1);
             break;
         default:
@@ -36,17 +36,17 @@ const handleServerError = (error: any) => {
 };
 
 const handleListening = (name: string, version: string, port: number) => () => {
-    console.log(`${name} | version: ${version} | process: ${process.pid} | port: ${port} | ${process.env.NODE_ENV}`);
+    logger.info(`${name} | version: ${version} | process: ${process.pid} | port: ${port} | ${process.env.NODE_ENV}`);
 };
 
 if (process.env.NODE_ENV === 'production' && cluster.isMaster) {
-    console.log(`\n-------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT\n`);
+    logger.debug(`\n-------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT\n`);
 
     for (const cpu of cpus()) cluster.fork();
 
     cluster.on('exit', (worker, code, signal) => {
-        console.log(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);
-        console.log('Starting a new worker');
+        logger.info(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);
+        logger.info('Starting a new worker');
         cluster.fork();
     });
 } else {

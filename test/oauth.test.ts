@@ -94,22 +94,19 @@ describe('oauth', () => {
     it('POST - auth/logout - the logout should not work because no token', async () => {
         await UserSeeding.default().save();
 
-        const request = await supertest(app)
+        await supertest(app)
             .post('/auth/logout')
-            .send();
-
-        chai.expect(request.status).to.be.eq(500);
+            .send()
+            .expect(401);
     });
 
     it('POST - auth/logout - the logout should not work invalid token', async () => {
         await UserSeeding.default().save();
 
-        const request = await supertest(app)
+        await supertest(app)
             .post('/auth/logout')
             .set('Cookie', 'token=test')
-            .send();
-
-        chai.expect(request.status).to.be.eq(500);
+            .expect(401);
     });
 
     it('POST - auth/logout - the logout should work', async () => {
@@ -123,7 +120,6 @@ describe('oauth', () => {
         chai.expect(request.status).to.be.eq(200);
 
         const afterUser = await User.findOne(user.id);
-
         chai.expect(afterUser.token).to.be.eq(null);
     });
 

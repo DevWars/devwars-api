@@ -4,9 +4,10 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as http from 'http';
 import * as morgan from 'morgan';
-import { Routes } from '../routes';
 
 import * as Connection from './Connection.service';
+import logger from '../utils/logger';
+import { Routes } from '../routes';
 
 export default class ServerService {
     public static async ConnectToDatabase() {
