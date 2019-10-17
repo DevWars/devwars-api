@@ -1,10 +1,10 @@
 import * as express from 'express';
 
-import { AuthController } from '../controllers/auth/Auth.controller';
-import { mustOwnUser } from '../middlewares/OwnsUser';
-import { asyncErrorHandler } from './handlers';
+import * as AuthController from '../controllers/authentication/authentication.controller';
+import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 
-import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
+import { mustOwnUser } from '../middleware/OwnsUser';
+import { asyncErrorHandler } from './handlers';
 
 export const AuthRoute: express.Router = express
     .Router()

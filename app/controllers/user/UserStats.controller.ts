@@ -25,7 +25,7 @@ export async function create(request: Request, response: Response) {
     Object.assign(stats, request.body);
 
     await stats.save();
-    response.json(stats);
+    return response.json(stats);
 }
 
 export async function getCoins(request: Request, response: Response) {
@@ -53,5 +53,5 @@ export async function getCoins(request: Request, response: Response) {
         }
     }
 
-    response.json(coins);
+    return response.json(coins);
 }

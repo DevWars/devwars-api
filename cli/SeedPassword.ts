@@ -1,12 +1,12 @@
 import { getCustomRepository, Connection as typeConnection } from 'typeorm';
 
+import { Connection } from '../app/services/connection.service';
 import UserRepository from '../app/repository/User.repository';
 import { Connection } from '../config/Database';
 import { hash } from '../app/utils/hash';
-import logger from '../app/utils/logger';
 import User from '../app/models/User';
 
-let connection: typeConnection;
+let connection: typeorm.Connection;
 
 // Converts all user passwords to "secret" (for development use)
 const updateUserPasswords = async () => {

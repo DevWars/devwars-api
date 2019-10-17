@@ -8,12 +8,12 @@ import * as _ from 'lodash';
 import { GameSeeding, UserSeeding } from '../app/seeding';
 import { UserRole } from '../app/models/User';
 import { cookieForUser } from './helpers';
-import { Server } from '../config/Server';
+import ServerService from '../app/services/server.service';
 import Game from '../app/models/Game';
 
 import './setup';
 
-const server: Server = new Server();
+const server: ServerService = new ServerService();
 let app: express.Application;
 
 // Used for the creation of the database transactions without the need of constantly calling into

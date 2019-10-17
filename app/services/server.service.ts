@@ -4,22 +4,19 @@ import * as cors from 'cors';
 import * as express from 'express';
 import * as http from 'http';
 import * as morgan from 'morgan';
+import { Routes } from '../routes';
 
-import { Connection } from './Database';
-import { ROUTER } from './Router';
-import logger from '../app/utils/logger';
+import * as Connection from './Connection.service';
 
-export class Server {
-    private static async ConnectDB(): Promise<any> {
-        const connection = await Connection;
-
+export default class ServerService {
+    public static async ConnectToDatabase() {
         try {
+            const connection = await Connection.Connection;
+            await connection.query('select 1+1 as answer');
             await connection.synchronize();
         } catch (e) {
             logger.error(`Could not synchronize database, error=${e}`);
         }
-
-        return connection;
     }
 
     private readonly app: express.Application;
@@ -30,13 +27,12 @@ export class Server {
         this.server = http.createServer(this.app);
     }
 
-    public async Start(): Promise<http.Server> {
-        await Server.ConnectDB();
+    public async Start() {
+        await ServerService.ConnectToDatabase();
         this.ExpressConfiguration();
         this.ConfigurationRouter();
         return this.server;
     }
-
     public App(): express.Application {
         return this.app;
     }
@@ -76,20 +72,12 @@ export class Server {
     }
 
     private ConfigurationRouter(): void {
-        for (const route of ROUTER) {
+        for (const route of Routes) {
             this.app.use(route.path, route.middleware, route.handler);
         }
 
         this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
             return res.status(404).json({ error: 'Not found.' });
-        });
-
-        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            if (err.name === 'UnauthorizedError') {
-                return res.status(401).json({ error: 'Please send a valid Token...' });
-            }
-
-            return next();
         });
 
         this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {

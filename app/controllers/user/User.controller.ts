@@ -27,7 +27,6 @@ export async function show(request: Request, response: Response) {
 
 export async function all(request: Request, response: Response) {
     const users = await User.find();
-
     return response.json(users);
 }
 
@@ -47,5 +46,5 @@ export async function update(request: Request, response: Response) {
     Object.assign(user, params);
     await user.save();
 
-    response.json(user);
+    return response.json(user);
 }

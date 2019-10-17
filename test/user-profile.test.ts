@@ -7,14 +7,14 @@ import { EntityManager, getManager } from 'typeorm';
 import { UserSeeding, UserProfileSeeding } from '../app/seeding';
 import { IProfileRequest } from '../app/request/IProfileRequest';
 import { cookieForUser } from './helpers';
-import { Server } from '../config/Server';
+import ServerService from '../app/services/server.service';
 
 import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';
 
 import './setup';
 
-const server: Server = new Server();
+const server: ServerService = new ServerService();
 let app: express.Application;
 
 // used for the creation of the database transactions without the need of constantly calling into

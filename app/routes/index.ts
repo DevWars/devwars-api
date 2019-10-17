@@ -1,22 +1,22 @@
 import * as express from 'express';
-import { ActivityRoute } from '../app/routes/Activity.routes';
-import { AuthRoute } from '../app/routes/Auth.routes';
-import { GameRoute } from '../app/routes/Game.routes';
-import { GameScheduleRoute } from '../app/routes/GameSchedule.routes';
-import { GameApplicationRoute } from '../app/routes/GameApplication.routes';
-import { HealthRoute } from '../app/routes/Health.route';
-import { LeaderboardRoute } from '../app/routes/Leaderboard.route';
-import { LinkedAccountRoute } from '../app/routes/LinkedAccount.routes';
-import { UserRoute } from '../app/routes/User.routes';
-import { TempRoute } from '../app/routes/Temp.routes';
+import { ActivityRoute } from './Activity.routes';
+import { AuthRoute } from './Auth.routes';
+import { GameRoute } from './Game.routes';
+import { GameScheduleRoute } from './GameSchedule.routes';
+import { GameApplicationRoute } from './GameApplication.routes';
+import { HealthRoute } from './Health.route';
+import { LeaderboardRoute } from './Leaderboard.route';
+import { LinkedAccountRoute } from './LinkedAccount.routes';
+import { UserRoute } from './User.routes';
+import { TempRoute } from './Temp.routes';
 
-interface IROUTER {
+interface IRoute {
     path: string;
     middleware: any[];
     handler: express.Router;
 }
 
-export const ROUTER: IROUTER[] = [
+export const Routes: IRoute[] = [
     {
         handler: HealthRoute,
         middleware: [],

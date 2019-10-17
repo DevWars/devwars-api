@@ -1,10 +1,10 @@
 import * as express from 'express';
 
-import * as LiveGameController from '../controllers/game/LiveGame.controller';
-import * as GameController from '../controllers/game/Game.controller';
+import * as LiveGameController from '../controllers/game/liveGame.controller';
+import * as GameController from '../controllers/game/game.controller';
 
-import { mustBeRole, mustBeAuthenticated } from '../middlewares/Auth.middleware';
-import { isTwitchBot } from '../middlewares/isTwitchBot.middleware';
+import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
+import { isTwitchBot } from '../middleware/isTwitchBot.middleware';
 
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';

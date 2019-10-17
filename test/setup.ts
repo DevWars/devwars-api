@@ -1,4 +1,4 @@
-import { Connection } from '../config/Database';
+import { Connection } from '../app/services/connection.service';
 
 afterEach(async () => {
     await (await Connection).synchronize(true);

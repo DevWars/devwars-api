@@ -1,7 +1,8 @@
 import * as express from 'express';
-import { LinkedAccountController } from '../controllers/user/LinkedAccount.controller';
-import { mustBeAuthenticated } from '../middlewares/Auth.middleware';
-import { isTwitchBot } from '../middlewares/isTwitchBot.middleware';
+
+import * as LinkedAccountController from '../controllers/user/LinkedAccount.controller';
+import { mustBeAuthenticated } from '../middleware/Auth.middleware';
+import { isTwitchBot } from '../middleware/isTwitchBot.middleware';
 import { asyncErrorHandler } from './handlers';
 
 export const LinkedAccountRoute: express.Router = express

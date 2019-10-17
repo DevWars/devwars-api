@@ -10,7 +10,7 @@ export async function show(request: Request, response: Response) {
     const user = await UserProfile.findOne({ where: { user: userId } });
     if (!user) return response.sendStatus(404);
 
-    response.json(user);
+    return response.json(user);
 }
 
 export async function update(request: Request, response: Response) {
