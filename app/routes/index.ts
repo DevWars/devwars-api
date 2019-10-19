@@ -4,7 +4,7 @@ import { AuthRoute } from './Auth.routes';
 import { GameRoute } from './Game.routes';
 import { GameScheduleRoute } from './GameSchedule.routes';
 import { GameApplicationRoute } from './GameApplication.routes';
-import { HealthRoutes } from './health.routes';
+import { HealthRoute } from './health.routes';
 import { LeaderboardRoute } from './Leaderboard.route';
 import { LinkedAccountRoute } from './LinkedAccount.routes';
 import { UserRoute } from './User.routes';
@@ -19,7 +19,7 @@ interface IRoute {
 export const Routes: IRoute[] = [
 
     {
-        handler: HealthRoutes,
+        handler: HealthRoute,
         middleware: [],
         path: '/',
     },

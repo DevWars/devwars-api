@@ -3,8 +3,8 @@ import * as express from 'express';
 import * as HealthController from '../controllers/Health.controller';
 import { asyncErrorHandler } from './handlers';
 
-const HealthRoutes = express.Router();
+const HealthRoute = express.Router();
 
-HealthRoutes.get('/health', asyncErrorHandler(HealthController.index));
+HealthRoute.get('/health', asyncErrorHandler(HealthController.index));
 
-export { HealthRoutes };
+export { HealthRoute };

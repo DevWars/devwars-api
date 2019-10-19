@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import { NextFunction, Request, Response } from 'express';
 import logger from '../../utils/logger';
 
 /**
@@ -17,9 +17,9 @@ export const asyncErrorHandler = (func: any) => async (request: Request, respons
         // gather internal information about the system. But during development, ignore this and
         // send back the error and the stack that caused it.
         if (process.env.NODE_ENV === 'production') {
-            return response.sendStatus(500).json({ message: 'Internal server error, something went wrong.' });
+            return response.sendStatus(500).json({ error: 'Internal server error, something went wrong.' });
         }
 
-        return response.status(500).json({ message: error.message, stack: error.stack });
+        return response.status(500).json({ error: error.message, stack: error.stack });
     }
 };
