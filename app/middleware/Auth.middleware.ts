@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
@@ -46,5 +46,7 @@ export const mustBeRole = (role: UserRole) => async (request: IRequest, response
 
     // Otherwise ensure that the user is made aware that they are not meeting the minimal
     // requirements of the role.
-    return response.status(403).json({ error: "Unauthorized, you currently don't meet the minimal role requirement." });
+    return response.status(403).json({
+        error: 'Unauthorized, you currently don\'t meet the minimal role requirement.',
+    });
 };

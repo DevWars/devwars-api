@@ -9,7 +9,7 @@
         "experimentalDecorators": true,
         "baseUrl": ".",
         "paths": {
-            "*": ["node_modules/*", "app/types/*"]
+            "*": ["app/types/*"]
         }
     },
     "exclude": ["node_modules"]

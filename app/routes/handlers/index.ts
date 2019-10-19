@@ -20,6 +20,6 @@ export const asyncErrorHandler = (func: any) => async (request: Request, respons
             return response.sendStatus(500).json({ message: 'Internal server error, something went wrong.' });
         }
 
-        response.status(500).json({ message: error.message, stack: error.stack });
+        return response.status(500).json({ message: error.message, stack: error.stack });
     }
 };

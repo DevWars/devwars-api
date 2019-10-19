@@ -5,11 +5,13 @@ import * as express from 'express';
 import * as http from 'http';
 import * as morgan from 'morgan';
 
+import * as errorController from '../controllers/error.controller';
 import * as Connection from './Connection.service';
 import logger from '../utils/logger';
 import { Routes } from '../routes';
 
 export default class ServerService {
+
     public static async ConnectToDatabase() {
         try {
             const connection = await Connection.Connection;
@@ -28,23 +30,22 @@ export default class ServerService {
         this.server = http.createServer(this.app);
     }
 
-    public async Start() {
+    public App = (): express.Application => this.app;
+
+    public async Start(): Promise<http.Server> {
         await ServerService.ConnectToDatabase();
         this.ExpressConfiguration();
         this.ConfigurationRouter();
         return this.server;
     }
-    public App(): express.Application {
-        return this.app;
-    }
 
     private ExpressConfiguration(): void {
         this.app.use(bodyParser.urlencoded({ extended: true }));
-        this.app.use(bodyParser.json({ limit: '10mb' }));
+        this.app.use(bodyParser.json({ limit: '1mb' }));
         this.app.use(cookieParser());
 
+
         this.app.use((req, res, next): void => {
-            res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
             res.header('Access-Control-Allow-Methods', 'GET,PUT,PATCH,POST,DELETE,OPTIONS');
             next();
@@ -65,11 +66,6 @@ export default class ServerService {
 
         this.app.use(routeLogging);
         this.app.use(corOptions);
-
-        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction): void => {
-            err.status = 404;
-            next(err);
-        });
     }
 
     private ConfigurationRouter(): void {
@@ -77,12 +73,7 @@ export default class ServerService {
             this.app.use(route.path, route.middleware, route.handler);
         }
 
-        this.app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
-            return res.status(404).json({ error: 'Not found.' });
-        });
-
-        this.app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
-            return res.status(err.status || 500).json({ error: err.message });
-        });
+        this.app.use(errorController.handleError);
+        this.app.use(errorController.handleMissing);
     }
 }

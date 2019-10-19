@@ -2,7 +2,7 @@
     "watch": ["**/*.ts"],
     "ext": "ts",
     "ignore": ["./test/*.ts"],
-    "exec": "node --inspect -r ts-node/register ./app/index.ts",
+    "exec": "node --inspect -r ts-node/register ./app/index.ts --transpile-only",
     "env": {
         "NODE_ENV": "development"
     }
