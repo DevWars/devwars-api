@@ -1,19 +1,20 @@
 import * as typeorm from 'typeorm';
 
 import GameApplicationSeeding from '../app/seeding/GameApplication.seeding';
+import UserGameStatsSeeding from '../app/seeding/UserGameStats.seeding';
 import GameScheduleSeeding from '../app/seeding/GameSchedule.seeding';
 import UserProfileSeeding from '../app/seeding/UserProfile.seeding';
 import UserStatsSeeding from '../app/seeding/UserStats.seeding';
+import ActivitySeeding from '../app/seeding/Activity.seeding';
 import GameSeeding from '../app/seeding/Game.seeding';
 import UserSeeding from '../app/seeding/User.seeding';
 
 import { Connection } from '../app/services/connection.service';
 import { UserRole } from '../app/models/User';
+import logger from '../app/utils/logger';
 
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
-import UserGameStatsSeeding from '../app/seeding/UserGameStats.seeding';
 import UserRepository from '../app/repository/User.repository';
-import ActivitySeeding from '../app/seeding/Activity.seeding';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -98,19 +99,19 @@ const generateApplications = async () => {
     connection = await Connection;
     connectionManager = typeorm.getManager(connection.name);
 
-    console.log('Seeding database');
-    console.log('Synchronizing database, dropTablesBeforeSync = true');
+    logger.info('Seeding database');
+    logger.info('Synchronizing database, dropTablesBeforeSync = true');
     await connection.synchronize(true);
 
-    console.log('Generating basic users');
+    logger.info('Generating basic users');
     await generateBasicUsers();
 
-    console.log('Generating games');
+    logger.info('Generating games');
     await generateGames();
 
-    console.log('Generating applications');
+    logger.info('Generating applications');
     await generateApplications();
 
-    console.log('Seeding complete');
+    logger.info('Seeding complete');
     await connection.close();
 })();

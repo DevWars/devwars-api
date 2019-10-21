@@ -8,12 +8,12 @@ import { asyncErrorHandler } from './handlers';
 
 export const AuthRoute: express.Router = express
     .Router()
-    .get('/user', mustBeAuthenticated, asyncErrorHandler(AuthController.currentUser))
+    .get('/user', [mustBeAuthenticated], asyncErrorHandler(AuthController.currentUser))
     .post('/login', asyncErrorHandler(AuthController.login))
-    .post('/logout', asyncErrorHandler(AuthController.logout))
+    .post('/logout', [mustBeAuthenticated], asyncErrorHandler(AuthController.logout))
     .post('/register', asyncErrorHandler(AuthController.register))
     .get('/verify', asyncErrorHandler(AuthController.verify))
-    .post('/reverify', mustBeAuthenticated, asyncErrorHandler(AuthController.reVerify))
+    .post('/reverify', [mustBeAuthenticated], asyncErrorHandler(AuthController.reVerify))
     .post('/forgot/password', asyncErrorHandler(AuthController.initiatePasswordReset))
     .post('/reset/password', asyncErrorHandler(AuthController.resetPassword))
     .post('/reset/email', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(AuthController.initiateEmailReset));
