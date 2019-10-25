@@ -1,7 +1,7 @@
 import * as chai from 'chai';
 import * as express from 'express';
 import * as supertest from 'supertest';
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 
 const server: ServerService = new ServerService();
 let app: express.Application;

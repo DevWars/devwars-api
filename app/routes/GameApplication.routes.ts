@@ -1,5 +1,5 @@
 import * as express from 'express';
-import * as GameApplicationController from '../controllers/game/gameApplication.controller';
+import * as GameApplicationController from '../controllers/game/GameApplication.controller';
 import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 

@@ -1,6 +1,6 @@
 import { getCustomRepository, Connection as typeConnection } from 'typeorm';
 
-import { Connection } from '../app/services/connection.service';
+import { Connection } from '../app/services/Connection.service';
 import UserRepository from '../app/repository/User.repository';
 import { hash } from '../app/utils/hash';
 import logger from '../app/utils/logger';

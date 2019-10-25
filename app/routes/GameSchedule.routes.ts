@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import * as GameScheduleController from '../controllers/game/gameSchedule.controller';
+import * as GameScheduleController from '../controllers/game/GameSchedule.controller';
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';

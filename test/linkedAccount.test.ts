@@ -6,7 +6,7 @@ import { isNil } from 'lodash';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
 import { UserSeeding } from '../app/seeding';
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 
 const server: ServerService = new ServerService();
 let agent: any;

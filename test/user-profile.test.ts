@@ -7,7 +7,7 @@ import { EntityManager, getManager } from 'typeorm';
 import { UserSeeding, UserProfileSeeding } from '../app/seeding';
 import { IProfileRequest } from '../app/request/IProfileRequest';
 import { cookieForUser } from './helpers';
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 
 import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';

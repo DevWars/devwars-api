@@ -12,7 +12,7 @@
         "test": "cross-env NODE_ENV=test mocha test/**/*.test.ts",
         "test:break": "cross-env NODE_ENV=test mocha --inspect-brk test/**/*.test.ts",
         "build": "npm run clean && npm run copy && tsc --outDir dist",
-        "copy": "copyfiles ./firebase.json ./.env ./**/*.mjml dist/",
+        "copy": "copyfiles ./firebase.json ./.env ./package.json ./**/*.mjml dist/",
         "clean": "rimraf dist",
         "lint": "tslint app/**/*.ts config/**/*.ts test/**/*.ts",
         "serve-docs": "apidoc -i ./app -o ./docs && http-server docs",

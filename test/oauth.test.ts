@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as supertest from 'supertest';
 import { getManager, EntityManager } from 'typeorm';
 
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 import { UserSeeding, EmailVerificationSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 

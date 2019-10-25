@@ -1,7 +1,7 @@
 import { getManager, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
-import { flattenGame } from './game.controller';
+import { flattenGame } from './Game.controller';
 import GameRepository from '../../repository/Game.repository';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameService from '../../services/Game.service';

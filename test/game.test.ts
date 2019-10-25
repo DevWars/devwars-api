@@ -8,7 +8,7 @@ import * as _ from 'lodash';
 import { GameSeeding, UserSeeding } from '../app/seeding';
 import { UserRole } from '../app/models/User';
 import { cookieForUser } from './helpers';
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 import Game from '../app/models/Game';
 
 import './setup';
