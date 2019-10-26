@@ -7,7 +7,7 @@ import { getManager, EntityManager } from 'typeorm';
 import { hacker, helpers, random } from 'faker';
 
 import { GameScheduleSeeding, UserSeeding } from '../app/seeding';
-import ServerService from '../app/services/server.service';
+import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
 import GameSchedule, { GameStatus } from '../app/models/GameSchedule';

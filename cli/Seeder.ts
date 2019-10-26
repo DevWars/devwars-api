@@ -9,7 +9,7 @@ import ActivitySeeding from '../app/seeding/Activity.seeding';
 import GameSeeding from '../app/seeding/Game.seeding';
 import UserSeeding from '../app/seeding/User.seeding';
 
-import { Connection } from '../app/services/connection.service';
+import { Connection } from '../app/services/Connection.service';
 import { UserRole } from '../app/models/User';
 import logger from '../app/utils/logger';
 

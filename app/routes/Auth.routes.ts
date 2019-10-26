@@ -1,6 +1,6 @@
 import * as express from 'express';
 
-import * as AuthController from '../controllers/authentication/authentication.controller';
+import * as AuthController from '../controllers/authentication/Authentication.controller';
 import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 
 import { mustOwnUser } from '../middleware/OwnsUser';

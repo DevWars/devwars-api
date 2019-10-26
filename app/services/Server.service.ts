@@ -11,7 +11,6 @@ import logger from '../utils/logger';
 import { Routes } from '../routes';
 
 export default class ServerService {
-
     public static async ConnectToDatabase() {
         try {
             const connection = await Connection.Connection;
@@ -43,7 +42,6 @@ export default class ServerService {
         this.app.use(bodyParser.urlencoded({ extended: true }));
         this.app.use(bodyParser.json({ limit: '1mb' }));
         this.app.use(cookieParser());
-
 
         this.app.use((req, res, next): void => {
             res.header('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type, Authorization');
