@@ -41,15 +41,15 @@ const logger = winston.createLogger({
     levels: logLevels.levels,
     format: combine(timestamp(), splat(), myFormat),
     transports: [
-        new winston.transports.File({ filename: './logs/error.log', level: 'warn', maxsize: 2e+6, maxFiles: 3 }),
-        new winston.transports.File({ filename: './logs/all.log', maxsize: 2e+6, maxFiles: 3 }),
+        new winston.transports.File({ filename: './logs/error.log', level: 'warn', maxsize: 2e6, maxFiles: 3 }),
+        new winston.transports.File({ filename: './logs/all.log', maxsize: 2e6, maxFiles: 3 }),
     ],
 });
 
 logger.add(
     new winston.transports.Console({
         format: combine(timestamp(), colorize(), splat(), myFormat),
-    }),
+    })
 );
 
 export default logger;

@@ -91,19 +91,15 @@ export async function register(request: Request, response: Response) {
  * @apiSuccess {User} user The user of the newly created account.
  */
 export async function reverify(request: IRequest, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(request.user.id);
-    if (!user) return response.status(404).json({ error: 'User not found.' });
-
     // If the user is not in the pending state, return out early stating that its complete with
     // the status of already being verified. This is a edge case which is unlikely to be done
     // through standard user interaction.
-    if (user.role !== UserRole.PENDING) {
-        return response.json({ message: `${user.username} is already verified` });
+    if (request.user.role !== UserRole.PENDING) {
+        return response.json({ message: `${request.user.username} is already verified` });
     }
 
-    await VerificationService.reset(user);
-    return response.json({ message: 'Resent' });
+    await VerificationService.reset(request.user);
+    return response.json({ message: 'Resent verification email.' });
 }
 
 export async function verify(request: Request, response: Response) {

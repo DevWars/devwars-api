@@ -28,7 +28,7 @@ export const mustBeAuthenticated = async (request: IRequest, response: Response,
     // Ensure that the user is correctly sanitized to remove the token, password and other core
     // properties. Since this is the current authenticated user, there is no need to remove any more
     // additional properties.
-    request.user = user.toJSON();
+    request.user = user;
 
     return next();
 };
@@ -47,6 +47,6 @@ export const mustBeRole = (role: UserRole) => async (request: IRequest, response
     // Otherwise ensure that the user is made aware that they are not meeting the minimal
     // requirements of the role.
     return response.status(403).json({
-        error: 'Unauthorized, you currently don\'t meet the minimal role requirement.',
+        error: "Unauthorized, you currently don't meet the minimal role requirement.",
     });
 };

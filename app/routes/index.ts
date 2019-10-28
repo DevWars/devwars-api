@@ -17,7 +17,6 @@ interface IRoute {
 }
 
 export const Routes: IRoute[] = [
-
     {
         handler: HealthRoute,
         middleware: [],
