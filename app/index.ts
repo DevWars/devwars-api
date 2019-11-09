@@ -1,7 +1,7 @@
 import * as dotenv from 'dotenv';
-import logger from './utils/logger';
-
 dotenv.config();
+
+import logger from './utils/logger';
 
 import * as cluster from 'cluster';
 import { cpus } from 'os';
@@ -11,8 +11,6 @@ import { config } from '../config';
 
 // tslint:disable-next-line: no-var-requires
 const project = require('../package');
-
-dotenv.config();
 
 /**
  * Called when a error occurring within the http server.

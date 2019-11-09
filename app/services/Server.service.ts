@@ -52,7 +52,7 @@ export default class ServerService {
         const routeLogging = morgan('combined', {
             stream: {
                 write: (text: string) => {
-                    logger.info(text.replace(/\n$/, ''));
+                    logger.verbose(text.replace(/\n$/, ''));
                 },
             },
         });
