@@ -1,26 +1,18 @@
 import { getManager, getCustomRepository } from 'typeorm';
-import { Request, Response } from 'express';
+import { Response } from 'express';
+import { isNil } from 'lodash';
 
-import { flattenGame } from './Game.controller';
+import { IGameRequest, IRequest } from '../../request/IRequest';
 import GameRepository from '../../repository/Game.repository';
-import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import GameService from '../../services/Game.service';
 import { GameStatus } from '../../models/GameSchedule';
+import { flattenGame } from './Game.controller';
 
-export async function addPlayer(request: Request, response: Response) {
-    const gameId = request.params.id;
+export async function addPlayer(request: IRequest & IGameRequest, response: Response) {
     const { player, team } = request.body;
 
-    const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findByGame(game);
-    if (!schedule) return response.sendStatus(404);
-
-    if (!game.storage.players) game.storage.players = {};
-    const players = game.storage.players;
+    if (!request.game.storage.players) request.game.storage.players = {};
+    const players = request.game.storage.players;
 
     const existingPlayer = players[player.id];
     if (existingPlayer && existingPlayer.team !== team.id) {
@@ -33,8 +25,8 @@ export async function addPlayer(request: Request, response: Response) {
         team: team.id,
     };
 
-    if (!game.storage.editors) game.storage.editors = {};
-    const editors = game.storage.editors;
+    if (!request.game.storage.editors) request.game.storage.editors = {};
+    const editors = request.game.storage.editors;
 
     const nextEditorId = Object.keys(editors).length;
     for (const editor of Object.values(editors) as any) {
@@ -50,7 +42,7 @@ export async function addPlayer(request: Request, response: Response) {
         language: player.language,
     };
 
-    game.storage.teams = {
+    request.game.storage.teams = {
         0: {
             id: 0,
             name: 'blue',
@@ -61,103 +53,44 @@ export async function addPlayer(request: Request, response: Response) {
         },
     };
 
-    // if (Object.values(editors).length > 0) {
-    //     for (const { keys, value } of Object.entries(editors)) {
+    await request.game.save();
 
-    //     }
-    // }
-
-    // "editors": {
-    //     "0": {
-    //       "id": 0,
-    //       "team": 0,
-    //       "player": 2,
-    //       "language": "html"
-    //     },
-    // }
-
-    // for (const editor of Object.values(game.storage.editors) as any) {
-    //     if (editor.language === language && editor.team === team.id) {
-    //         editor.player = player.id;
-    //     }
-    // }
-
-    // for (const existingPlayer of Object.values(game.storage.players) as any) {
-    //     let hasEditor = false;
-
-    //     for (const editor of Object.values(game.storage.editors) as any) {
-    //         if (editor.player === existingPlayer.id) {
-    //             hasEditor = true;
-    //             break;
-    //         }
-    //     }
-
-    //     if (!hasEditor) {
-    //         delete game.storage.players[existingPlayer.id];
-    //     }
-    // }
-
-    await game.save();
-
-    if (game.status === GameStatus.ACTIVE) {
-        await GameService.sendGamePlayersToFirebase(game);
+    if (request.game.status === GameStatus.ACTIVE) {
+        await GameService.sendGamePlayersToFirebase(request.game);
     }
 
-    response.status(201).json(flattenGame(game));
+    return response.status(201).json(flattenGame(request.game));
 }
 
-export async function removePlayer(request: Request, response: Response) {
-    const gameId = request.params.id;
+export async function removePlayer(request: IRequest & IGameRequest, response: Response) {
     const { player } = request.body;
 
     const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.findOne(gameId);
-
     const gamePlayer = gameRepository.findByPlayer(player);
     if (!gamePlayer) return response.sendStatus(404);
 
-    delete game.storage.players[player.id];
+    delete request.game.storage.players[player.id];
 
-    for (const editor of Object.values(game.storage.editors) as any) {
+    for (const editor of Object.values(request.game.storage.editors) as any) {
         if (editor.player === player.id) {
-            delete game.storage.editors[editor.id];
+            delete request.game.storage.editors[editor.id];
         }
     }
 
-    await game.save();
+    await request.game.save();
 
-    if (game.status === GameStatus.ACTIVE) {
-        await GameService.sendGamePlayersToFirebase(game);
-    }
-
-    response.status(201).json(flattenGame(game));
+    if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);
+    return response.status(201).json(flattenGame(request.game));
 }
 
-export async function end(request: Request, response: Response) {
-    const gameId = request.params.id;
-
-    const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findByGame(game);
-    if (schedule) {
-        schedule.status = GameStatus.ENDED;
-    }
-
-    game.status = GameStatus.ENDED;
+export async function end(request: IRequest & IGameRequest, response: Response) {
+    if (isNil(request.game.schedule)) request.game.status = GameStatus.ENDED;
+    request.game.status = GameStatus.ENDED;
 
     await getManager().transaction(async (transaction) => {
-        await transaction.save(schedule);
-        await transaction.save(game);
+        await transaction.save(request.game.schedule);
+        await transaction.save(request.game);
     });
 
-    // Get winner
-    // const winner = await TeamRepository.byId(request.query.winner);
-
-    // await GameService.backupGame(game);
-    // await GameService.endGame(game, winner);
-
-    response.json(game);
+    return response.json(flattenGame(request.game));
 }
