@@ -17,7 +17,7 @@ export const registrationSchema = Joi.object().keys({
         .required(),
 
     // password is required
-    // password must be a min length of 5 and upper limit of 128.
+    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)
@@ -38,7 +38,7 @@ export const loginSchema = Joi.object().keys({
     ).required(),
 
     // password is required
-    // password must be a min length of 5 and upper limit of 128.
+    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)
@@ -70,7 +70,27 @@ export const resetPasswordSchema = Joi.object().keys({
     token: Joi.string().required(),
 
     // password is required
-    // password must be a min length of 5 and upper limit of 128.
+    // password must meet the min and max requirements
+    password: Joi.string()
+        .min(constants.PASSWORD_MIN_LENGTH)
+        .max(constants.PASSWORD_MAX_LENGTH)
+        .required(),
+});
+
+/**
+ * The reset password schema for when a password is being updated. It must contain a valid
+ * token (which will be validated by the endpoint) and a valid password that meets the
+ * system requirements
+ */
+export const resetEmailSchema = Joi.object().keys({
+    // email is required
+    // email must be a non-empty valid email
+    email: Joi.string()
+        .email()
+        .required(),
+
+    // password is required
+    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)

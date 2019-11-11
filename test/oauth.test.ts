@@ -309,4 +309,69 @@ describe('oauth', () => {
                 });
         });
     });
+
+    describe.only('POST - /auth/reset/email - Resetting a email.', () => {
+        const resetEmailRoute = '/auth/reset/email';
+        let user: User;
+        let token: string;
+
+        beforeEach(async () => {
+            user = await UserSeeding.default().save();
+            token = await cookieForUser(user);
+        });
+
+        it('Should reject when the password is not in the body', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .set('Cookie', token)
+                .send({ email: 'updated@example.com' })
+                .expect(400);
+        });
+
+        it('Should reject when the email is not in the body', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .set('Cookie', token)
+                .send({ password: 'secret' })
+                .expect(400);
+        });
+
+        it('Should reject if the new email address is not a valid email', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .set('Cookie', token)
+                .send({ password: 'secret', email: 'invalidemail@sample' })
+                .expect(400);
+        });
+
+        it('Should reject if the user is not authenticated', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .send({ password: 'secret', email: 'valid@sample.com' })
+                .expect(401);
+        });
+
+        it('Should reject if the password is invalid', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .set('Cookie', token)
+                .send({ password: 'secret1', email: 'valid@sample.com' })
+                .expect(400, { error: 'Password did not match.' });
+        });
+
+        it('Should accept a valid updated email address.', async () => {
+            await agent
+                .post(resetEmailRoute)
+                .set('Cookie', token)
+                .send({ password: 'secret', email: 'valid@sample.com' })
+                .expect(200, { message: 'Email reset.' });
+
+            const userRepository = getCustomRepository(UserRepository);
+            const updatedUser = await userRepository.findById(user.id);
+
+            chai.expect(_.isNil(updatedUser)).not.equal(true);
+            chai.expect(updatedUser.email).not.equal(user.password);
+            chai.expect(updatedUser.email).equal('valid@sample.com');
+        });
+    });
 });
