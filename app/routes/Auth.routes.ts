@@ -5,13 +5,15 @@ import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middl
 
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
+import { registrationSchema } from './validators/register.validator';
+import { bodyValidation } from './validators';
 
 export const AuthRoute: express.Router = express
     .Router()
     .get('/user', [mustBeAuthenticated], asyncErrorHandler(AuthController.currentUser))
     .post('/login', asyncErrorHandler(AuthController.login))
     .post('/logout', [mustBeAuthenticated], asyncErrorHandler(AuthController.logout))
-    .post('/register', asyncErrorHandler(AuthController.register))
+    .post('/register', [bodyValidation(registrationSchema)], asyncErrorHandler(AuthController.register))
     .get('/verify', asyncErrorHandler(AuthController.verify))
     .post('/reverify', [mustBeAuthenticated], asyncErrorHandler(AuthController.reverify))
     .post('/forgot/password', asyncErrorHandler(AuthController.initiatePasswordReset))

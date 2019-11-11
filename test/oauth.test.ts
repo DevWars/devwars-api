@@ -129,7 +129,7 @@ describe('oauth', () => {
             .send({
                 username: 'test_user',
                 email: 'email@email.fr',
-                password: 'secret',
+                password: 'secretpassword',
             });
 
         chai.expect(request.status).to.be.eq(200);
