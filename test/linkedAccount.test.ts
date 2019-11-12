@@ -3,10 +3,12 @@ import * as supertest from 'supertest';
 import { getCustomRepository } from 'typeorm';
 import { isNil } from 'lodash';
 
+import { Connection } from '../app/services/Connection.service';
+import ServerService from '../app/services/Server.service';
+
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
 import { UserSeeding } from '../app/seeding';
-import ServerService from '../app/services/Server.service';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -24,6 +26,10 @@ async function createDefaultAccountWithTwitch() {
 describe('Linked Account - Twitch', () => {
     before(async () => {
         await server.Start();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
         agent = supertest.agent(server.App());
     });
 

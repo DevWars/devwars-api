@@ -1,20 +1,21 @@
-import * as chai from 'chai';
-import * as express from 'express';
+import { getManager, EntityManager, getCustomRepository } from 'typeorm';
 import * as supertest from 'supertest';
-import { getManager, EntityManager } from 'typeorm';
 import { random } from 'faker';
+import * as chai from 'chai';
 import * as _ from 'lodash';
 
-import { GameSeeding, UserSeeding } from '../app/seeding';
-import { UserRole } from '../app/models/User';
-import { cookieForUser } from './helpers';
+import GameRepository from '../app/repository/Game.repository';
+import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
+
+import { GameSeeding, UserSeeding } from '../app/seeding';
+import { cookieForUser } from './helpers';
+
+import { UserRole } from '../app/models/User';
 import Game from '../app/models/Game';
 
-import './setup';
-
 const server: ServerService = new ServerService();
-let app: express.Application;
+let agent: any;
 
 // Used for the creation of the database transactions without the need of constantly calling into
 // get manager every time a test needs a transaction.
@@ -23,31 +24,39 @@ const connectionManager: EntityManager = getManager();
 describe('game', () => {
     before(async () => {
         await server.Start();
-        app = server.App();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
+        agent = supertest.agent(server.App());
+    });
+
+    afterEach(async () => {
+        const gameRepository = getCustomRepository(GameRepository);
+        await gameRepository.delete({});
     });
 
     it('POST - games - normal user fail oauth', async () => {
         const user = await UserSeeding.withRole(UserRole.USER).save();
         const game = await GameSeeding.default();
 
-        const response = await supertest(app)
+        await agent
             .post('/games')
             .set('Cookie', await cookieForUser(user))
-            .send(game);
-
-        chai.expect(response.status).to.be.eq(403);
+            .send(game)
+            .expect(403);
     });
 
     it('POST - games - mod user ok oauth', async () => {
         const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
         const game = await GameSeeding.default();
 
-        const response = await supertest(app)
+        const response = await agent
             .post('/games')
             .set('Cookie', await cookieForUser(user))
-            .send(game);
+            .send(game)
+            .expect(201);
 
-        chai.expect(response.status).to.be.eq(201);
         chai.expect(response.body.mode).to.be.eq(game.mode);
     });
 
@@ -55,7 +64,7 @@ describe('game', () => {
         const user = await UserSeeding.withRole(UserRole.ADMIN).save();
         const game = await GameSeeding.default();
 
-        const response = await supertest(app)
+        const response = await agent
             .post('/games')
             .set('Cookie', await cookieForUser(user))
             .send(game);
@@ -73,10 +82,7 @@ describe('game', () => {
             await transaction.save(game2);
         });
 
-        const response = await supertest(app)
-            .get('/games')
-            .send();
-
+        const response = await agent.get('/games').send();
         chai.expect(response.body.length).to.be.equal(2);
     });
 
@@ -89,10 +95,7 @@ describe('game', () => {
             await transaction.save(game1);
         });
 
-        const response = await supertest(app)
-            .get('/games/latest')
-            .send();
-
+        const response = await agent.get('/games/latest').send();
         chai.expect(response.body.id).to.be.eq(game2.id);
     });
 
@@ -107,9 +110,7 @@ describe('game', () => {
             await transaction.save(game3);
         });
 
-        const response = await supertest(app)
-            .get(`/games/${game2.id}`)
-            .send();
+        const response = await agent.get(`/games/${game2.id}`).send();
 
         chai.expect(response.body.id).to.be.eq(game2.id);
     });
@@ -119,7 +120,7 @@ describe('game', () => {
         const game = await GameSeeding.default();
         await game.save();
 
-        const response = await supertest(app)
+        const response = await agent
             .patch(`/games/${game.id}`)
             .set('Cookie', await cookieForUser(user))
             .send();
@@ -132,7 +133,7 @@ describe('game', () => {
         const game = await GameSeeding.default();
         await game.save();
 
-        const response = await supertest(app)
+        const response = await agent
             .patch('/games/3')
             .set('Cookie', await cookieForUser(user))
             .send();
@@ -145,7 +146,7 @@ describe('game', () => {
         const game = await GameSeeding.withMode('Blitz');
         await game.save();
 
-        const response = await supertest(app)
+        const response = await agent
             .patch(`/games/${game.id}`)
             .set('Cookie', await cookieForUser(user))
             .send({
@@ -160,7 +161,7 @@ describe('game', () => {
         const game = await GameSeeding.withMode('Blitz');
         await game.save();
 
-        const response = await supertest(app)
+        const response = await agent
             .patch(`/games/${game.id}`)
             .set('Cookie', await cookieForUser(user))
             .send({
@@ -175,7 +176,7 @@ describe('game', () => {
     //     const user = await UserFactory.withRole(UserRole.USER).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
-    //     const response = await supertest(app)
+    //     const response = await agent
     //         .patch(`/games/${game.id}/end`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send()
@@ -187,7 +188,7 @@ describe('game', () => {
     //     const user = await UserFactory.withRole(UserRole.MODERATOR).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
-    //     const response = await supertest(app)
+    //     const response = await agent
     //         .patch(`/games/${game.id}/end`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send()
@@ -199,7 +200,7 @@ describe('game', () => {
     //     const user = await UserFactory.withRole(UserRole.ADMIN).save();
     //     const game = await GameFactory.withMode('Blitz').save();
 
-    //     const response = await supertest(app)
+    //     const response = await agent
     //         .patch(`/games/${game.id}/end`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send()
@@ -220,11 +221,13 @@ describe('game', () => {
             await transaction.save(game4);
         });
 
-        const season = random.arrayElement([{ id: 1, amount: 1 }, { id: 2, amount: 2 }, { id: 3, amount: 1 }]);
+        const season = random.arrayElement([
+            { id: 1, amount: 1 },
+            { id: 2, amount: 2 },
+            { id: 3, amount: 1 },
+        ]);
 
-        const response = await supertest(app)
-            .get(`/games/season/${season.id}`)
-            .send();
+        const response = await agent.get(`/games/season/${season.id}`).send();
 
         chai.expect(response.body.length).to.be.eq(season.amount);
         _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));

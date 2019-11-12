@@ -1,21 +1,20 @@
-import * as _ from 'lodash';
-import * as chai from 'chai';
-import * as express from 'express';
-import * as supertest from 'supertest';
 import { EntityManager, getManager } from 'typeorm';
+import * as supertest from 'supertest';
+import * as express from 'express';
+import * as chai from 'chai';
+import * as _ from 'lodash';
 
 import { UserSeeding, UserProfileSeeding } from '../app/seeding';
 import { IProfileRequest } from '../app/request/IProfileRequest';
-import { cookieForUser } from './helpers';
+import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
+import { cookieForUser } from './helpers';
 
 import UserProfile, { Sex } from '../app/models/UserProfile';
 import { UserRole } from '../app/models/User';
 
-import './setup';
-
 const server: ServerService = new ServerService();
-let app: express.Application;
+let agent: any;
 
 // used for the creation of the database transactions without the need of constantly calling into
 // get manager everytime a test needs a transaction.
@@ -46,7 +45,11 @@ const userProfileSettings: any | IProfileRequest = {
 describe('user-profile', () => {
     before(async () => {
         await server.Start();
-        app = server.App();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
+        agent = supertest.agent(server.App());
     });
 
     it("PATCH - /users/:userId/profile - should update a user's settings", async () => {
@@ -58,12 +61,11 @@ describe('user-profile', () => {
             await transaction.save(userProfile);
         });
 
-        const response = await supertest(app)
+        await agent
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(user))
-            .send(userProfileSettings);
-
-        chai.expect(response.status).to.be.eq(200);
+            .send(userProfileSettings)
+            .expect(200);
 
         const data: any = await UserProfile.findOne({ where: { user: user.id } });
         const filteredData = _.pick(data, Object.keys(userProfileSettings));
@@ -82,12 +84,11 @@ describe('user-profile', () => {
             await transaction.save(user);
         });
 
-        const response = await supertest(app)
+        await agent
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(userModerator))
-            .send(userProfileSettings);
-
-        chai.expect(response.status).to.be.eq(403);
+            .send(userProfileSettings)
+            .expect(401);
     });
 
     it('PATCH - /users/:userId/profile - admin should update another user profile', async () => {
@@ -101,11 +102,10 @@ describe('user-profile', () => {
             await transaction.save(userAdministrator);
         });
 
-        const response = await supertest(app)
+        await agent
             .patch(`/users/${user.id}/profile`)
             .set('cookie', await cookieForUser(userAdministrator))
-            .send(userProfileSettings);
-
-        chai.expect(response.status).to.be.eq(200);
+            .send(userProfileSettings)
+            .expect(200);
     });
 });

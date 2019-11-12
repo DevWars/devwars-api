@@ -2,17 +2,18 @@ import { getManager, EntityManager, getCustomRepository } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
+import { addHours } from 'date-fns';
 
-import ServerService from '../app/services/Server.service';
 import { UserSeeding, EmailVerificationSeeding } from '../app/seeding';
+import { Connection } from '../app/services/Connection.service';
+import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
-import User, { UserRole } from '../app/models/User';
 import EmailVerification from '../app/models/EmailVerification';
-import './setup';
-import PasswordResetRepository from '../app/repository/PasswordReset.repository';
 import PasswordReset from '../app/models/PasswordReset';
-import { addHours } from 'date-fns';
+import User, { UserRole } from '../app/models/User';
+
+import PasswordResetRepository from '../app/repository/PasswordReset.repository';
 import UserRepository from '../app/repository/User.repository';
 
 const server: ServerService = new ServerService();
@@ -25,6 +26,10 @@ const connectionManager: EntityManager = getManager();
 describe('oauth', () => {
     before(async () => {
         await server.Start();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
         agent = supertest.agent(server.App());
     });
 
@@ -245,75 +250,69 @@ describe('oauth', () => {
     });
 
     describe('POST - /auth/reset/password - Resetting a password.', () => {
-        const forgotPasswordRoute = '/auth/reset/password';
-
-        let passwordReset: PasswordReset;
-        let user: User;
-
-        beforeEach(async () => {
-            user = await UserSeeding.default().save();
-            passwordReset = new PasswordReset(user, 'token', addHours(new Date(), 1));
-            await passwordReset.save();
-        });
+        const resetPasswordRoute = '/auth/reset/password';
 
         it('Should reject when the token is not provided in the query', async () => {
-            await agent.post(`${forgotPasswordRoute}?token=&password=password`).expect(400);
+            await agent.post(`${resetPasswordRoute}?token=&password=password`).expect(400);
         });
 
         it('Should reject if the new password is not provided in the query', async () => {
-            await agent.post(`${forgotPasswordRoute}?token=token&password=`).expect(400);
+            await agent.post(`${resetPasswordRoute}?token=token&password=`).expect(400);
         });
 
         it('Should reject if the new password is not valid to the systems specification', async () => {
-            await agent.post(`${forgotPasswordRoute}?token=token&password=bad`).expect(400);
+            await agent.post(`${resetPasswordRoute}?token=token&password=bad`).expect(400);
         });
 
         it('Should reject if the password reset does not exist by the token', async () => {
             await agent
-                .post(`${forgotPasswordRoute}?token=notexist&password=goodpassword`)
+                .post(`${resetPasswordRoute}?token=notexist&password=goodpassword`)
                 .expect(400, { error: 'Could not reset password' });
         });
 
         it('Should reject if the password reset expired', async () => {
-            const passwordRepository = getCustomRepository(PasswordResetRepository);
-            await passwordRepository.delete({ user });
-
+            const user = await UserSeeding.default().save();
             const updatedPasswordReset = new PasswordReset(user, 'tokenupdated', addHours(new Date(), -1));
             await updatedPasswordReset.save();
 
             await agent
-                .post(`${forgotPasswordRoute}?token=tokenupdated&password=goodpassword`)
+                .post(`${resetPasswordRoute}?token=tokenupdated&password=goodpassword`)
                 .expect(401, { error: 'Expired password reset token' });
         });
 
         it('Should be accepted if all parameters are valid and the token is not expired.', async () => {
+            const newUser = await UserSeeding.default().save();
+            const updatedPasswordReset = new PasswordReset(newUser, 'thetoken', addHours(new Date(), 1));
+            await updatedPasswordReset.save();
+
             await agent
-                .post(`${forgotPasswordRoute}?token=token&password=goodpassword`)
+                .post(`${resetPasswordRoute}?token=thetoken&password=updatedpassword`)
+                .send()
                 .expect(200, { message: 'Password reset!' });
 
             const userRepository = getCustomRepository(UserRepository);
-            const updatedUser = await userRepository.findById(user.id);
+            const updatedUser = await userRepository.findById(newUser.id);
 
             chai.expect(_.isNil(updatedUser)).not.equal(true);
-            chai.expect(updatedUser.password).not.equal(user.password);
+            chai.expect(updatedUser.password).not.equal(newUser.password);
 
             await agent
                 .post('/auth/login')
-                .send({ identifier: user.username, password: 'goodpassword' })
+                .send({ identifier: newUser.username, password: 'updatedpassword' })
                 .expect(200, {
-                    id: user.id,
-                    email: user.email,
-                    username: user.username,
-                    role: user.role,
-                    avatarUrl: user.avatarUrl,
+                    id: newUser.id,
+                    email: newUser.email,
+                    username: newUser.username,
+                    role: newUser.role,
+                    avatarUrl: newUser.avatarUrl,
                 });
         });
     });
 
-    describe.only('POST - /auth/reset/email - Resetting a email.', () => {
+    describe('POST - /auth/reset/email - Resetting a email.', () => {
         const resetEmailRoute = '/auth/reset/email';
-        let user: User;
         let token: string;
+        let user: User;
 
         beforeEach(async () => {
             user = await UserSeeding.default().save();

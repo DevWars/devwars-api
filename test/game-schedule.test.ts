@@ -1,22 +1,21 @@
-import * as chai from 'chai';
-import * as express from 'express';
+import { getManager, EntityManager, getCustomRepository } from 'typeorm';
+import { hacker, helpers, random } from 'faker';
 import * as supertest from 'supertest';
+import * as chai from 'chai';
 import * as _ from 'lodash';
 
-import { getManager, EntityManager } from 'typeorm';
-import { hacker, helpers, random } from 'faker';
+import { Connection } from '../app/services/Connection.service';
+import ServerService from '../app/services/Server.service';
 
 import { GameScheduleSeeding, UserSeeding } from '../app/seeding';
-import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
 import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
 import { UserRole } from '../app/models/User';
-
-import './setup';
+import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 
 const server: ServerService = new ServerService();
-let app: express.Application;
+let agent: any;
 
 // Used for the creation of the database transactions without the need of constantly calling into
 // get manager every time a test needs a transaction.
@@ -39,24 +38,27 @@ function generateSchedule() {
 describe('game-schedule', () => {
     before(async () => {
         await server.Start();
-        app = server.App();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
+        agent = supertest.agent(server.App());
+    });
+
+    afterEach(async () => {
+        const scheduleRepository = getCustomRepository(GameScheduleRepository);
+        await scheduleRepository.delete({});
     });
 
     it('GET - /schedules/:id - should retrieve the schedule', async () => {
         const schedule = await GameScheduleSeeding.default().save();
-
-        const response = await supertest(app)
-            .get(`/schedules/${schedule.id}`)
-            .send();
+        const response = await agent.get(`/schedules/${schedule.id}`).send();
 
         chai.expect(response.body.id).to.be.eq(schedule.id);
     });
 
     it('GET - /schedules/:id - should return 404 because no schedule found', async () => {
-        const response = await supertest(app)
-            .get('/schedules/3')
-            .send();
-
+        const response = await agent.get('/schedules/3').send();
         chai.expect(response.status).to.be.eq(404);
     });
 
@@ -69,10 +71,7 @@ describe('game-schedule', () => {
             await transaction.save(scheduleTwo);
         });
 
-        const response = await supertest(app)
-            .get('/schedules')
-            .send();
-
+        const response = await agent.get('/schedules').send();
         chai.expect(response.body.length).to.be.equal(2);
     });
 
@@ -90,9 +89,7 @@ describe('game-schedule', () => {
             transaction.save(scheduleOne);
         });
 
-        const response = await supertest(app)
-            .get('/schedules/latest')
-            .send();
+        const response = await agent.get('/schedules/latest').send();
 
         chai.expect(response.body.id).to.be.eq(scheduleTwo.id);
     });
@@ -101,7 +98,7 @@ describe('game-schedule', () => {
         const user = await UserSeeding.withRole(UserRole.USER).save();
         const Schedule = generateSchedule();
 
-        const badRequest = await supertest(app)
+        const badRequest = await agent
             .post('/schedules')
             .set('Cookie', await cookieForUser(user))
             .send(Schedule);
@@ -113,7 +110,7 @@ describe('game-schedule', () => {
         const user = await UserSeeding.withRole(UserRole.ADMIN).save();
         const Schedule = generateSchedule();
 
-        const goodRequest = await supertest(app)
+        const goodRequest = await agent
             .post('/schedules')
             .set('Cookie', await cookieForUser(user))
             .send(Schedule);
@@ -130,7 +127,7 @@ describe('game-schedule', () => {
         const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
         const Schedule = generateSchedule();
 
-        const goodRequest = await supertest(app)
+        const goodRequest = await agent
             .post('/schedules')
             .set('Cookie', await cookieForUser(user))
             .send(Schedule);
@@ -145,7 +142,7 @@ describe('game-schedule', () => {
     //     // @ts-ignore
     //     Schedule.title = 2222;
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .post('/schedules')
     //         .set('Cookie', await cookieForUser(user))
     //         .send(Schedule);
@@ -159,7 +156,7 @@ describe('game-schedule', () => {
     //     // @ts-ignore
     //     Schedule.startTime = "kljlk";
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .post('/schedules')
     //         .set('Cookie', await cookieForUser(user))
     //         .send(Schedule);
@@ -173,7 +170,7 @@ describe('game-schedule', () => {
     //     // @ts-ignore
     //     Schedule.mode = 'fail mode';
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .post('/schedules')
     //         .set('Cookie', await cookieForUser(user))
     //         .send(Schedule);
@@ -188,7 +185,7 @@ describe('game-schedule', () => {
     //     // @ts-ignore
     //     Schedule.objectives = "undefined";
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .post('/schedules')
     //         .set('Cookie', await cookieForUser(user))
     //         .send(Schedule);
@@ -204,7 +201,7 @@ describe('game-schedule', () => {
             title: 'helloWorld',
         };
 
-        const request = await supertest(app)
+        const request = await agent
             .patch(`/schedules/${Schedule.id}`)
             .set('Cookie', await cookieForUser(user))
             .send(updateDatas);
@@ -220,7 +217,7 @@ describe('game-schedule', () => {
             title: 'helloWorld',
         };
 
-        const request = await supertest(app)
+        const request = await agent
             .patch(`/schedules/${Schedule.id}`)
             .set('Cookie', await cookieForUser(user))
             .send(updateDatas);
@@ -237,7 +234,7 @@ describe('game-schedule', () => {
             title: 'helloWorld',
         };
 
-        const request = await supertest(app)
+        const request = await agent
             .patch(`/schedules/${Schedule.id}`)
             .set('Cookie', await cookieForUser(user))
             .send(updateDatas);
@@ -253,7 +250,7 @@ describe('game-schedule', () => {
     //         title: 222,
     //     };
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .patch(`/schedules/${Schedule.id}`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send(updateDatas);
@@ -268,7 +265,7 @@ describe('game-schedule', () => {
     //         startTime: "lakdjlkdjs",
     //     };
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .patch(`/schedules/${Schedule.id}`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send(updateDatas);
@@ -284,7 +281,7 @@ describe('game-schedule', () => {
     //         objectives: "adadssd",
     //     };
 
-    //     const request = await supertest(app)
+    //     const request = await agent
     //         .patch(`/schedules/${Schedule.id}`)
     //         .set('Cookie', await cookieForUser(user))
     //         .send(updateDatas);
@@ -302,9 +299,7 @@ describe('game-schedule', () => {
             }
         });
 
-        const request = await supertest(app)
-            .get('/schedules/status/active')
-            .send();
+        const request = await agent.get('/schedules/status/active').send();
 
         chai.expect(request.body).to.have.lengthOf(2);
     });
