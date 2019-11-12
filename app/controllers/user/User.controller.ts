@@ -1,11 +1,12 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
+import { isNil } from 'lodash';
 
 import User from '../../models/User';
 import { UserRole } from '../../models/User';
 import UserRepository from '../../repository/User.repository';
-
-import { isNil } from 'lodash';
+import { IRequest } from '../../request/IRequest';
+import { hash } from '../../utils/hash';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -30,21 +31,23 @@ export async function all(request: Request, response: Response) {
     return response.json(users);
 }
 
-export async function update(request: Request, response: Response) {
-    const userId = request.params.id;
+export async function update(request: IRequest, response: Response) {
     const params = request.body as IUpdateUserRequest;
-
-    const user = await User.findOne(userId);
-    if (!user) return response.sendStatus(404);
 
     const userRepository = getCustomRepository(UserRepository);
     const existingUsername = await userRepository.findByUsername(params.username);
-    if (existingUsername && existingUsername.id !== user.id) {
-        return response.status(409).send({ message: 'Username already taken' });
+
+    if (!isNil(existingUsername) && existingUsername.id !== request.user.id) {
+        return response.status(409).send({
+            message: 'The provided username already exists for a registered user.',
+        });
     }
 
-    Object.assign(user, params);
-    await user.save();
+    // Ensure to encrypt the updated password if it has been specified.
+    if (!isNil(params.password)) params.password = await hash(params.password);
 
-    return response.json(user);
+    Object.assign(request.user, params);
+    await request.user.save();
+
+    return response.json(request.user);
 }

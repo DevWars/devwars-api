@@ -4,9 +4,9 @@ import * as authValidator from './validators/authentication.validator';
 import * as AuthController from '../controllers/authentication/Authentication.controller';
 import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 
+import { bodyValidation, queryValidation } from './validators';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
-import { bodyValidation, queryValidation } from './validators';
 
 const AuthRoute: express.Router = express.Router();
 
