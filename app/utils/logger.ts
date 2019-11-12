@@ -1,5 +1,8 @@
 import * as fs from 'fs';
+import * as dotenv from 'dotenv';
 import * as winston from 'winston';
+
+dotenv.config();
 
 const { colorize, combine, timestamp, printf, splat } = winston.format;
 
@@ -42,13 +45,19 @@ const logger = winston.createLogger({
     format: combine(timestamp(), splat(), myFormat),
     transports: [
         new winston.transports.File({ filename: './logs/error.log', level: 'warn', maxsize: 2e6, maxFiles: 3 }),
-        new winston.transports.File({ filename: './logs/all.log', maxsize: 2e6, maxFiles: 3 }),
+        new winston.transports.File({
+            filename: './logs/all.log',
+            level: process.env.LOG_LEVEL || 'info',
+            maxsize: 2e6,
+            maxFiles: 3,
+        }),
     ],
 });
 
 logger.add(
     new winston.transports.Console({
         format: combine(timestamp(), colorize(), splat(), myFormat),
+        level: process.env.LOG_LEVEL || 'info',
     })
 );
 

@@ -7,6 +7,7 @@ import Game from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
+import { IGameRequest, IRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
 
@@ -23,12 +24,8 @@ export function flattenGame(game: Game) {
     };
 }
 
-export async function show(request: Request, response: Response) {
-    const gameId = request.params.id;
-    const game = await Game.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    response.json(flattenGame(game));
+export async function show(request: IGameRequest, response: Response) {
+    return response.json(flattenGame(request.game));
 }
 
 export async function all(request: Request, response: Response) {
@@ -37,13 +34,10 @@ export async function all(request: Request, response: Response) {
     response.json(games.map((game) => flattenGame(game)));
 }
 
-export async function update(request: Request, response: Response) {
-    const gameId = request.params.id;
+export async function update(request: IRequest & IGameRequest, response: Response) {
     const gameRequest = request.body as IUpdateGameRequest;
 
-    const game = await Game.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
+    const game = request.game;
     game.mode = gameRequest.mode;
     game.videoUrl = gameRequest.videoUrl;
     game.storage = {
@@ -59,7 +53,7 @@ export async function update(request: Request, response: Response) {
         await GameService.sendGameToFirebase(game);
     }
 
-    response.json(flattenGame(game));
+    return response.json(flattenGame(game));
 }
 
 /**
@@ -80,12 +74,17 @@ export async function latest(request: Request, response: Response) {
 export async function active(request: Request, response: Response) {
     const gameRepository = getCustomRepository(GameRepository);
     const game = await gameRepository.active();
-    if (!game) return response.sendStatus(404);
 
-    response.json(flattenGame(game));
+    if (_.isNil(game)) {
+        return response.status(404).send({
+            error: 'There currently is no active game.',
+        });
+    }
+
+    return response.json(flattenGame(game));
 }
 
-export async function create(request: Request, response: Response) {
+export async function create(request: IRequest, response: Response) {
     const { season, mode, title, videoUrl, storage } = request.body;
 
     const game = new Game();
@@ -117,27 +116,15 @@ export async function findAllBySeason(request: Request, response: Response) {
     response.json(games.map((game) => flattenGame(game)));
 }
 
-export async function activate(request: Request, response: Response) {
-    const gameId = request.params.id;
+export async function activate(request: IRequest & IGameRequest, response: Response) {
+    request.game.status = GameStatus.ACTIVE;
+    await request.game.save();
 
-    const game = await Game.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    game.status = GameStatus.ACTIVE;
-    await game.save();
-
-    await GameService.sendGameToFirebase(game);
-
-    response.json(flattenGame(game));
+    await GameService.sendGameToFirebase(request.game);
+    return response.json(flattenGame(request.game));
 }
 
-export async function remove(request: Request, response: Response) {
-    const gameId = request.params.id;
-
-    const game = await Game.findOne(gameId);
-    if (!game) return response.sendStatus(404);
-
-    await game.remove();
-
-    return response.json(flattenGame(game));
+export async function remove(request: IRequest & IGameRequest, response: Response) {
+    await request.game.remove();
+    return response.json(flattenGame(request.game));
 }

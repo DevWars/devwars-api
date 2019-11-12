@@ -1,9 +1,5 @@
-import * as dotenv from 'dotenv';
-
 import { config, DIALECT } from '../../config';
 import { Connection, createConnection } from 'typeorm';
-
-dotenv.config();
 
 let connection: Promise<Connection>;
 connection = createConnection({

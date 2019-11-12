@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import GameSchedule from './GameSchedule';
 
@@ -50,6 +50,7 @@ export default class Game extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @OneToOne((type) => GameSchedule, { cascade: true })
+    @JoinColumn()
+    @OneToOne(() => GameSchedule, { cascade: true })
     public schedule: GameSchedule;
 }

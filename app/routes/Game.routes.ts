@@ -6,6 +6,7 @@ import * as GameController from '../controllers/game/Game.controller';
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { isTwitchBot } from '../middleware/isTwitchBot.middleware';
 
+import { bindGameFromParam } from '../middleware/GameApplication.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
 
@@ -16,39 +17,43 @@ GameRoute.get('/', asyncErrorHandler(GameController.all));
 GameRoute.post('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], asyncErrorHandler(GameController.create));
 GameRoute.get('/latest', asyncErrorHandler(GameController.latest));
 GameRoute.get('/active', asyncErrorHandler(GameController.active));
-GameRoute.get('/:id', asyncErrorHandler(GameController.show));
+GameRoute.get('/:game', [bindGameFromParam], asyncErrorHandler(GameController.show));
 
 GameRoute.patch(
-    '/:id',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:game',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
     asyncErrorHandler(GameController.update)
 );
 
-GameRoute.delete('/:id', [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)], asyncErrorHandler(GameController.remove));
+GameRoute.delete(
+    '/:game',
+    [mustBeAuthenticated, mustBeRole(UserRole.ADMIN), bindGameFromParam],
+    asyncErrorHandler(GameController.remove)
+);
 
 GameRoute.post(
-    '/:id/activate',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:game/activate',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
     asyncErrorHandler(GameController.activate)
 );
 
 GameRoute.post(
-    '/:id/end',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:game/end',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
     asyncErrorHandler(LiveGameController.end)
 );
 
-GameRoute.post('/:id/end/bot', isTwitchBot, asyncErrorHandler(LiveGameController.end));
+GameRoute.post('/:game/end/bot', [isTwitchBot, bindGameFromParam], asyncErrorHandler(LiveGameController.end));
 
 GameRoute.post(
-    '/:id/player',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:game/player',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
     asyncErrorHandler(LiveGameController.addPlayer)
 );
 
 GameRoute.delete(
-    '/:id/player',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:game/player',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
     asyncErrorHandler(LiveGameController.removePlayer)
 );
 
