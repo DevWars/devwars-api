@@ -171,43 +171,6 @@ describe('game', () => {
         chai.expect(response.body.mode).to.be.eq('Classic');
     });
 
-    // TODO: need finish end method in controller
-    // it('POST - games/:id/end - normal user ', async () => {
-    //     const user = await UserFactory.withRole(UserRole.USER).save();
-    //     const game = await GameFactory.withMode('Blitz').save();
-
-    //     const response = await agent
-    //         .patch(`/games/${game.id}/end`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send()
-
-    //     chai.expect(response.status).to.be.eq(403);
-    // })
-
-    // it('POST - games/:id/end - mod user ', async () => {
-    //     const user = await UserFactory.withRole(UserRole.MODERATOR).save();
-    //     const game = await GameFactory.withMode('Blitz').save();
-
-    //     const response = await agent
-    //         .patch(`/games/${game.id}/end`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send()
-
-    //     chai.expect(response.status).to.be.eq(200);
-    // })
-
-    // it('POST - games/:id/end - admin user ', async () => {
-    //     const user = await UserFactory.withRole(UserRole.ADMIN).save();
-    //     const game = await GameFactory.withMode('Blitz').save();
-
-    //     const response = await agent
-    //         .patch(`/games/${game.id}/end`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send()
-
-    //     chai.expect(response.status).to.be.eq(200);
-    // })
-
     it('GET - games/season/:season', async () => {
         await connectionManager.transaction(async (transaction) => {
             const game1 = await GameSeeding.withSeason(2);

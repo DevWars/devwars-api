@@ -23,7 +23,7 @@ let agent: any;
 // get manager everytime a test needs a transaction.
 const connectionManager: EntityManager = getManager();
 
-describe('oauth', () => {
+describe('Authentication', () => {
     before(async () => {
         await server.Start();
         await (await Connection).synchronize(true);

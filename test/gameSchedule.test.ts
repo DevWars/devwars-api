@@ -136,63 +136,6 @@ describe('game-schedule', () => {
         chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
     });
 
-    // it('POST - schedules/create - should return 422 because title should be a string', async () => {
-    //     let Schedule = generateSchedule();
-    //     const user = await UserFactory.withRole(UserRole.ADMIN);
-    //     // @ts-ignore
-    //     Schedule.title = 2222;
-
-    //     const request = await agent
-    //         .post('/schedules')
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(Schedule);
-
-    //     chai.expect(request.status).to.be.eq(422);
-    // });
-
-    // it('POST - schedules/create - should return 500 because of date analyze fail here', async () => {
-    //     let Schedule = generateSchedule();
-    //     const user = await UserFactory.withRole(UserRole.ADMIN);
-    //     // @ts-ignore
-    //     Schedule.startTime = "kljlk";
-
-    //     const request = await agent
-    //         .post('/schedules')
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(Schedule);
-
-    //     chai.expect(request.status).to.be.eq(500);
-    // });
-
-    // it('POST - schedules/create -  should return 422 because mode should be in a special range if not', async () => {
-    //     let Schedule = generateSchedule();
-    //     const user = await UserFactory.withRole(UserRole.ADMIN);
-    //     // @ts-ignore
-    //     Schedule.mode = 'fail mode';
-
-    //     const request = await agent
-    //         .post('/schedules')
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(Schedule);
-
-    //     chai.expect(request.status).to.be.eq(422);
-    // });
-
-    // it('POST - schedules/create -
-    // should return 422 because objectives should be an object of objects', async () => {
-    //     let Schedule = generateSchedule();
-    //     const user = await UserFactory.withRole(UserRole.ADMIN);
-    //     // @ts-ignore
-    //     Schedule.objectives = "undefined";
-
-    //     const request = await agent
-    //         .post('/schedules')
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(Schedule);
-
-    //     chai.expect(request.status).to.be.eq(422);
-    // });
-
     it('PATCH - schedules/:id - should return 403 because user cant update a schedule', async () => {
         const Schedule = await GameScheduleSeeding.default().save();
 
@@ -242,52 +185,6 @@ describe('game-schedule', () => {
         const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
         chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateDatas.title);
     });
-
-    // it('PATCH - schedules/:id - should return 422 because title should be string', async () => {
-    //     const Schedule = await GameScheduleFactory.default().save();
-    //     const user = await UserFactory.withRole(UserRole.MODERATOR);
-    //     const updateDatas = {
-    //         title: 222,
-    //     };
-
-    //     const request = await agent
-    //         .patch(`/schedules/${Schedule.id}`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(updateDatas);
-
-    //     chai.expect(request.status).to.be.eq(422);
-    // });
-
-    // it('PATCH - schedules/:id - should return 500 because date analyze', async () => {
-    //     const Schedule = await GameScheduleFactory.default().save();
-    //     const user = await UserFactory.withRole(UserRole.MODERATOR);
-    //     const updateDatas = {
-    //         startTime: "lakdjlkdjs",
-    //     };
-
-    //     const request = await agent
-    //         .patch(`/schedules/${Schedule.id}`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(updateDatas);
-
-    //     chai.expect(request.status).to.be.eq(500);
-    // });
-
-    // it('PATCH - schedules/:id - should return 422 because objectives should be an objects of objects', async () => {
-    //     const Schedule = await GameScheduleFactory.default().save();
-    //     const user = await UserFactory.withRole(UserRole.MODERATOR);
-    //     const updateDatas = {
-    //         // @ts-ignore
-    //         objectives: "adadssd",
-    //     };
-
-    //     const request = await agent
-    //         .patch(`/schedules/${Schedule.id}`)
-    //         .set('Cookie', await cookieForUser(user))
-    //         .send(updateDatas);
-
-    //     chai.expect(request.status).to.be.eq(422);
-    // });
 
     it('GET - schedules/status/:status - should return a list a schedules by status', async () => {
         const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
