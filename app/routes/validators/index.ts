@@ -23,6 +23,23 @@ async function validator(
 }
 
 /**
+ * Tests a schema to a given content, if the schema passes, the result will be a empty string
+ * otherwise the error message generated.
+ * @param content The content being tested against the schema.
+ * @param schema The schema being tested.
+ */
+export async function testSchemaValidation(content: any, schema: Joi.ObjectSchema): Promise<string> {
+    try {
+        await schema.validateAsync(content);
+        return null;
+    } catch (error) {
+        return `${map(error.details, ({ message }) => message.replace(/['"]/g, '')).join(
+            ' and '
+        )}, please check your content and try again`;
+    }
+}
+
+/**
  * Applies and performs a joi validation on the request body based on the passed schema. If the
  * validation passes, the next function will be called, otherwise a formatted error message will
  * be returned with the provided status code (defaulting to 400 if not specified).

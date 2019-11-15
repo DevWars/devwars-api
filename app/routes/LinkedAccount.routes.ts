@@ -5,13 +5,20 @@ import { mustBeAuthenticated, mustBeRole } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
 
-export const LinkedAccountRoute: express.Router = express
-    .Router()
-    .get('/', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.all))
-    .get('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.connect))
-    .delete('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.disconnect))
-    .put(
-        '/twitch/coins',
-        mustBeRole(UserRole.ADMIN, true),
-        asyncErrorHandler(LinkedAccountController.updateTwitchCoins)
-    );
+import { bodyValidation } from './validators';
+import { updateTwitchCoinsSchema } from './validators/linkedAccount.validator';
+
+const LinkedAccountRoute: express.Router = express.Router();
+
+LinkedAccountRoute.get('/', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.all));
+LinkedAccountRoute.get('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.connect));
+LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, asyncErrorHandler(LinkedAccountController.disconnect));
+
+LinkedAccountRoute.put(
+    '/twitch/coins',
+    mustBeRole(UserRole.ADMIN, true),
+    [bodyValidation(updateTwitchCoinsSchema)],
+    asyncErrorHandler(LinkedAccountController.updateTwitchCoins)
+);
+
+export { LinkedAccountRoute };
