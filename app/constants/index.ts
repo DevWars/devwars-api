@@ -33,3 +33,10 @@ export const STATS_LEVEL_MAX_AMOUNT = Infinity;
 // etc.
 export const TWITCH_COINS_MIN_UPDATE = -1000000;
 export const TWITCH_COINS_MAX_UPDATE = 1000000;
+
+// Game creation title min and max lengths.
+export const GAME_TITLE_MIN_LENGTH = 5;
+export const GAME_TITLE_MAX_LENGTH = 124;
+
+// The minimum number the game season can currently be in.
+export const GAME_SEASON_MIN = 1;

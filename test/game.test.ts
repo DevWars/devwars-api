@@ -82,7 +82,11 @@ describe('game', () => {
             await transaction.save(game2);
         });
 
-        const response = await agent.get('/games').send();
+        const response = await agent
+            .get('/games')
+            .send()
+            .expect(200);
+
         chai.expect(response.body.length).to.be.equal(2);
     });
 
@@ -95,8 +99,12 @@ describe('game', () => {
             await transaction.save(game1);
         });
 
-        const response = await agent.get('/games/latest').send();
-        chai.expect(response.body.id).to.be.eq(game2.id);
+        const response = await agent
+            .get('/games/latest')
+            .send()
+            .expect(200);
+
+        chai.expect(response.body.id).to.equal(game2.id);
     });
 
     it('GET - games/:id', async () => {
@@ -110,9 +118,12 @@ describe('game', () => {
             await transaction.save(game3);
         });
 
-        const response = await agent.get(`/games/${game2.id}`).send();
+        const response = await agent
+            .get(`/games/${game2.id}`)
+            .send()
+            .expect(200);
 
-        chai.expect(response.body.id).to.be.eq(game2.id);
+        chai.expect(response.body.id).to.equal(game2.id);
     });
 
     it('PATCH - games/:id - normal user failed', async () => {
@@ -120,12 +131,11 @@ describe('game', () => {
         const game = await GameSeeding.default();
         await game.save();
 
-        const response = await agent
+        await agent
             .patch(`/games/${game.id}`)
             .set('Cookie', await cookieForUser(user))
-            .send();
-
-        chai.expect(response.status).to.be.eq(403);
+            .send()
+            .expect(403);
     });
 
     it('PATCH - games/:id - mod user fail because not found', async () => {
@@ -133,12 +143,11 @@ describe('game', () => {
         const game = await GameSeeding.default();
         await game.save();
 
-        const response = await agent
+        await agent
             .patch('/games/3')
             .set('Cookie', await cookieForUser(user))
-            .send();
-
-        chai.expect(response.status).to.be.eq(404);
+            .send()
+            .expect(404);
     });
 
     it('PATCH - games/:id - mod user', async () => {
@@ -151,7 +160,8 @@ describe('game', () => {
             .set('Cookie', await cookieForUser(user))
             .send({
                 mode: 'Classic',
-            });
+            })
+            .expect(200);
 
         chai.expect(response.body.mode).to.be.eq('Classic');
     });
@@ -166,7 +176,8 @@ describe('game', () => {
             .set('Cookie', await cookieForUser(user))
             .send({
                 mode: 'Classic',
-            });
+            })
+            .expect(200);
 
         chai.expect(response.body.mode).to.be.eq('Classic');
     });
@@ -190,7 +201,10 @@ describe('game', () => {
             { id: 3, amount: 1 },
         ]);
 
-        const response = await agent.get(`/games/season/${season.id}`).send();
+        const response = await agent
+            .get(`/games/season/${season.id}`)
+            .send()
+            .expect(200);
 
         chai.expect(response.body.length).to.be.eq(season.amount);
         _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));

@@ -8,19 +8,26 @@ import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { bindGameFromParam } from '../middleware/GameApplication.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
+import { bodyValidation } from './validators';
+import { createGameSchema, PatchGameSchema } from './validators/game.validator';
 
 const GameRoute: express.Router = express.Router();
 
 GameRoute.get('/', asyncErrorHandler(GameController.all));
 
-GameRoute.post('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], asyncErrorHandler(GameController.create));
+GameRoute.post(
+    '/',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bodyValidation(createGameSchema)],
+    asyncErrorHandler(GameController.create)
+);
+
 GameRoute.get('/latest', asyncErrorHandler(GameController.latest));
 GameRoute.get('/active', asyncErrorHandler(GameController.active));
 GameRoute.get('/:game', [bindGameFromParam], asyncErrorHandler(GameController.show));
 
 GameRoute.patch(
     '/:game',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam, bodyValidation(PatchGameSchema)],
     asyncErrorHandler(GameController.update)
 );
 
