@@ -49,7 +49,7 @@ export const mustBeRole = (role?: UserRole, bot: boolean = false) => async (
 
     // If the authorized user does meet the minimal requirement of the role or greater, then the
     // request can continue as expected.
-    if (!_.isNil(request.user) && role >= request.user.role) return next();
+    if (!_.isNil(request.user) && !_.isNil(role) && role >= request.user.role) return next();
 
     // Otherwise ensure that the user is made aware that they are not meeting the minimal
     // requirements of the role.
