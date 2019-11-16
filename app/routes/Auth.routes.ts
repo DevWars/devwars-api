@@ -1,10 +1,10 @@
 import * as express from 'express';
 
 import * as AuthController from '../controllers/authentication/Authentication.controller';
-import { mustBeAuthenticated } from '../middleware/Auth.middleware';
+import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 
-import { mustOwnUser } from '../middleware/OwnsUser';
 import { asyncErrorHandler } from './handlers';
+import { UserRole } from '../models/User';
 
 export const AuthRoute: express.Router = express
     .Router()
@@ -16,4 +16,8 @@ export const AuthRoute: express.Router = express
     .post('/reverify', [mustBeAuthenticated], asyncErrorHandler(AuthController.reverify))
     .post('/forgot/password', asyncErrorHandler(AuthController.initiatePasswordReset))
     .post('/reset/password', asyncErrorHandler(AuthController.resetPassword))
-    .post('/reset/email', [mustBeAuthenticated, mustOwnUser], asyncErrorHandler(AuthController.initiateEmailReset));
+    .post(
+        '/reset/email',
+        [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR)],
+        asyncErrorHandler(AuthController.initiateEmailReset)
+    );

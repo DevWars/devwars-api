@@ -33,20 +33,42 @@ export const mustBeAuthenticated = async (request: IRequest, response: Response,
     return next();
 };
 
-/**
- * Ensures that the requesting authorized user is at the provided minimal role before continuing the
- * request. This ensures that if a moderator role is required, then the request will not continue
- * otherwise.
- * @param role The minimal role the current authorized requesting user must be at.
- */
-export const mustBeRole = (role: UserRole) => async (request: IRequest, response: Response, next: NextFunction) => {
+export const mustBeRole = (role?: UserRole, bot: boolean = false) => async (
+    request: IRequest,
+    response: Response,
+    next: NextFunction
+) => {
+    // If the requesting user must be a bot, ensure they are a bot, if they can only be a bot and
+    // failed the check, ensure that we fail the request. Otherwise continue to role validation.
+    if (bot && !_.isNil(request.body.apiKey)) {
+        const apiKey = request.body.apiKey;
+        if (apiKey === process.env.API_KEY) return next();
+    }
+
+    if (_.isNil(role) && bot) return response.status(403).send({ message: 'Unauthorized, invalid api key specified.' });
+
     // If the authorized user does meet the minimal requirement of the role or greater, then the
     // request can continue as expected.
-    if (role >= request.user.role) return next();
+    if (!_.isNil(request.user) && role >= request.user.role) return next();
 
     // Otherwise ensure that the user is made aware that they are not meeting the minimal
     // requirements of the role.
-    return response.status(403).json({
-        error: "Unauthorized, you currently don't meet the minimal role requirement.",
-    });
+    return response.status(403).json({ error: "Unauthorized, you currently don't meet the minimal requirement." });
+};
+
+/**
+ *  mustOwnUser ensures that the current authenticated is the same entity as the one the following
+ *  request is being performed on. e.g updating their own profile but not owners.
+ */
+export const mustBeRoleOrOwner = (role?: UserRole, bot: boolean = false) => async (
+    request: IRequest,
+    response: Response,
+    next: NextFunction
+) => {
+    const requestedUserId = Number(request.params.id);
+
+    // Ensure that the requesting user is the entity they are also trying to perform the following
+    // request on. For example: you can only update your own profile and not others (unless your a admin).
+    if (!_.isNil(request.user) && request.user.id === requestedUserId) return next();
+    return mustBeRole(role, bot)(request, response, next);
 };
