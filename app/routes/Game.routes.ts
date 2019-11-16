@@ -3,13 +3,19 @@ import * as express from 'express';
 import * as LiveGameController from '../controllers/game/LiveGame.controller';
 import * as GameController from '../controllers/game/Game.controller';
 
+import { bindGameFromGameParam } from '../middleware/GameApplication.middleware';
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 
-import { bindGameFromParam } from '../middleware/GameApplication.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
+
+import {
+    createGameSchema,
+    PatchGameSchema,
+    addGamePlayerSchema,
+    removeGamePlayerSchema,
+} from './validators/game.validator';
 import { bodyValidation } from './validators';
-import { createGameSchema, PatchGameSchema } from './validators/game.validator';
 
 const GameRoute: express.Router = express.Router();
 
@@ -23,47 +29,52 @@ GameRoute.post(
 
 GameRoute.get('/latest', asyncErrorHandler(GameController.latest));
 GameRoute.get('/active', asyncErrorHandler(GameController.active));
-GameRoute.get('/:game', [bindGameFromParam], asyncErrorHandler(GameController.show));
+GameRoute.get('/:game', [bindGameFromGameParam], asyncErrorHandler(GameController.show));
 
 GameRoute.patch(
     '/:game',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam, bodyValidation(PatchGameSchema)],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam, bodyValidation(PatchGameSchema)],
     asyncErrorHandler(GameController.update)
 );
 
 GameRoute.delete(
     '/:game',
-    [mustBeAuthenticated, mustBeRole(UserRole.ADMIN), bindGameFromParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.ADMIN), bindGameFromGameParam],
     asyncErrorHandler(GameController.remove)
 );
 
 GameRoute.post(
     '/:game/activate',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
     asyncErrorHandler(GameController.activate)
 );
 
 GameRoute.post(
     '/:game/end',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
     asyncErrorHandler(LiveGameController.end)
 );
 
 GameRoute.post(
     '/:game/end/bot',
-    [mustBeRole(null, true), bindGameFromParam],
+    [mustBeRole(null, true), bindGameFromGameParam],
     asyncErrorHandler(LiveGameController.end)
 );
 
 GameRoute.post(
     '/:game/player',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam, bodyValidation(addGamePlayerSchema)],
     asyncErrorHandler(LiveGameController.addPlayer)
 );
 
 GameRoute.delete(
     '/:game/player',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromParam],
+    [
+        mustBeAuthenticated,
+        mustBeRole(UserRole.MODERATOR),
+        bindGameFromGameParam,
+        bodyValidation(removeGamePlayerSchema),
+    ],
     asyncErrorHandler(LiveGameController.removePlayer)
 );
 

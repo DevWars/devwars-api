@@ -11,7 +11,11 @@ import GameRepository from '../repository/Game.repository';
  * gathered and bound to the request. Allowing future requests that implement this interface to
  * pull the schedule from the request object.
  */
-export const bindGameScheduleFromParam = async (request: IScheduleRequest, response: Response, next: NextFunction) => {
+export const bindGameScheduleFromScheduleParam = async (
+    request: IScheduleRequest,
+    response: Response,
+    next: NextFunction
+) => {
     const { schedule: scheduleId } = request.params;
 
     if (_.isNil(scheduleId)) {
@@ -36,7 +40,7 @@ export const bindGameScheduleFromParam = async (request: IScheduleRequest, respo
  * gathered and bound to the request. Allowing future requests that implement this interface to
  * pull the schedule from the request object.
  */
-export const bindGameFromParam = async (request: IGameRequest, response: Response, next: NextFunction) => {
+export const bindGameFromGameParam = async (request: IGameRequest, response: Response, next: NextFunction) => {
     const { game: gameId } = request.params;
 
     if (_.isNil(gameId)) {

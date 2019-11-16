@@ -31,8 +31,7 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
     const nextEditorId = Object.keys(editors).length;
     for (const editor of Object.values(editors) as any) {
         if (editor.player === player.id && editor.language === player.language) {
-            response.status(409).json({ error: 'Player already assigned to that language.' });
-            return;
+            return response.status(409).json({ error: 'Player already assigned to that language.' });
         }
     }
     editors[nextEditorId] = {
@@ -64,10 +63,6 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
 
 export async function removePlayer(request: IRequest & IGameRequest, response: Response) {
     const { player } = request.body;
-
-    const gameRepository = getCustomRepository(GameRepository);
-    const gamePlayer = gameRepository.findByPlayer(player);
-    if (!gamePlayer) return response.sendStatus(404);
 
     delete request.game.storage.players[player.id];
 

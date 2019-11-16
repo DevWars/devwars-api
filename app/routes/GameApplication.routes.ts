@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import * as GameApplicationController from '../controllers/game/GameApplication.controller';
-import { bindGameFromParam, bindGameScheduleFromParam } from '../middleware/GameApplication.middleware';
+import { bindGameFromGameParam, bindGameScheduleFromScheduleParam } from '../middleware/GameApplication.middleware';
 import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
@@ -15,31 +15,31 @@ GameApplicationRoute.get(
 
 GameApplicationRoute.get(
     '/game/:game',
-    [bindGameFromParam],
+    [bindGameFromGameParam],
     asyncErrorHandler(GameApplicationController.findUserApplicationsByGame)
 );
 
 GameApplicationRoute.get(
     '/schedule/:schedule',
-    [bindGameScheduleFromParam],
+    [bindGameScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.findApplicationsBySchedule)
 );
 
 GameApplicationRoute.post(
     '/schedule/:schedule',
-    [mustBeAuthenticated, bindGameScheduleFromParam],
+    [mustBeAuthenticated, bindGameScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.applyToSchedule)
 );
 
 GameApplicationRoute.delete(
     '/schedule/:schedule',
-    [mustBeAuthenticated, bindGameScheduleFromParam],
+    [mustBeAuthenticated, bindGameScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.resignFromSchedule)
 );
 
 GameApplicationRoute.post(
     '/game/:game/username/:username',
-    [mustBeAuthenticated, bindGameFromParam],
+    [mustBeAuthenticated, bindGameFromGameParam],
     asyncErrorHandler(GameApplicationController.createGameSchedule)
 );
 

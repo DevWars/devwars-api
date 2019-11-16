@@ -35,7 +35,7 @@ export default class GameSeeding {
 
         game.season = random.number({ min: 1, max: 3 });
         game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
-        game.title = hacker.noun();
+        game.title = hacker.noun() + hacker.noun();
         game.videoUrl = helpers.randomize([undefined, internet.url()]);
         game.storage = {
             mode: game.mode,

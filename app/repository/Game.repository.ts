@@ -15,8 +15,4 @@ export default class GameRepository extends Repository<Game> {
     public findAllBySeason(season: number): Promise<Game[]> {
         return Game.find({ where: { season } });
     }
-
-    public findByPlayer(player: object): Promise<Game> {
-        return Game.findOne({ where: { players: player } });
-    }
 }
