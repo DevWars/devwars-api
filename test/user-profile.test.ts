@@ -87,10 +87,10 @@ describe('user-profile', () => {
             .set('cookie', await cookieForUser(userModerator))
             .send(userProfileSettings);
 
-        chai.expect(response.status).to.be.eq(401);
+        chai.expect(response.status).to.be.eq(403);
     });
 
-    it('PATCH - /users/:userId/profile - mod should not update another user profile', async () => {
+    it('PATCH - /users/:userId/profile - admin should update another user profile', async () => {
         const user = UserSeeding.withRole(UserRole.USER);
         const userProfile = UserProfileSeeding.withUser(user);
         const userAdministrator = UserSeeding.withRole(UserRole.ADMIN);

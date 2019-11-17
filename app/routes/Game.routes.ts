@@ -4,7 +4,6 @@ import * as LiveGameController from '../controllers/game/LiveGame.controller';
 import * as GameController from '../controllers/game/Game.controller';
 
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
-import { isTwitchBot } from '../middleware/isTwitchBot.middleware';
 
 import { bindGameFromParam } from '../middleware/GameApplication.middleware';
 import { asyncErrorHandler } from './handlers';
@@ -43,7 +42,11 @@ GameRoute.post(
     asyncErrorHandler(LiveGameController.end)
 );
 
-GameRoute.post('/:game/end/bot', [isTwitchBot, bindGameFromParam], asyncErrorHandler(LiveGameController.end));
+GameRoute.post(
+    '/:game/end/bot',
+    [mustBeRole(null, true), bindGameFromParam],
+    asyncErrorHandler(LiveGameController.end)
+);
 
 GameRoute.post(
     '/:game/player',
