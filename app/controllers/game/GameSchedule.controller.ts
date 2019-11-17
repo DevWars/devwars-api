@@ -7,8 +7,6 @@ import Game from '../../models/Game';
 import { GameStatus } from '../../models/GameSchedule';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 
-import { validationResult } from 'express-validator/check';
-
 function flattenSchedule(schedule: GameSchedule) {
     return {
         ...schedule.setup,
@@ -41,9 +39,6 @@ export async function all(request: Request, response: Response) {
 export async function update(request: Request, response: Response) {
     const scheduleId = request.params.id;
     const params = { ...(request.body as IUpdateGameScheduleRequest) };
-
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
 
     const schedule = await GameSchedule.findOne(scheduleId);
     if (!schedule) return response.sendStatus(404);
@@ -80,9 +75,6 @@ export async function byStatus(request: Request, response: Response) {
 }
 
 export async function create(request: Request, response: Response) {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
-
     const params = { ...(request.body as ICreateGameScheduleRequest) };
 
     const schedule = new GameSchedule();
@@ -114,9 +106,6 @@ export async function create(request: Request, response: Response) {
 
 export async function activate(request: Request, response: Response) {
     const schedule = request.body;
-
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
 
     // Create the Game
     const game = new Game();
