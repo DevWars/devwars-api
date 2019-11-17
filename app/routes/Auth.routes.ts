@@ -37,7 +37,7 @@ AuthRoute.post(
 
 AuthRoute.post(
     '/reset/email',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bodyValidation(authValidator.resetEmailSchema)],
+    [mustBeAuthenticated, bodyValidation(authValidator.resetEmailSchema)],
     asyncErrorHandler(AuthController.initiateEmailReset)
 );
 

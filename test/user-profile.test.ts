@@ -124,7 +124,7 @@ describe('user-profile', () => {
                 .patch(`/users/${localUser.id}/profile`)
                 .set('cookie', await cookieForUser(userModerator))
                 .send(userProfileSettings)
-                .expect(401);
+                .expect(403);
         });
 
         it('Administrators should be able to update another user profile', async () => {
