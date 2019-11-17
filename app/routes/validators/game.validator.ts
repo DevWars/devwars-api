@@ -23,7 +23,7 @@ export const createGameSchema = Joi.object().keys({
 
     // video url is not required
     // The link to the post recording.
-    videoUrl: Joi.string(),
+    videoUrl: Joi.string().allow(null),
 
     // status is not required
     // the status of the game, default ot scheduled.
@@ -32,7 +32,7 @@ export const createGameSchema = Joi.object().keys({
     // storage is not required.
     // storage is additional json information that is stored but will be replaced regardless of the
     // content sent, so just allow it.
-    storage: Joi.object(),
+    storage: Joi.object().allow(null),
 });
 
 export const PatchGameSchema = Joi.object().keys({
@@ -52,7 +52,7 @@ export const PatchGameSchema = Joi.object().keys({
 
     // video url is not required
     // The link to the post recording.
-    videoUrl: Joi.string(),
+    videoUrl: Joi.string().allow(null),
 
     // status is not required
     // the status of the game, default ot scheduled.
@@ -61,7 +61,7 @@ export const PatchGameSchema = Joi.object().keys({
     // storage is not required.
     // storage is additional json information that is stored but will be replaced regardless of the
     // content sent, so just allow it.
-    storage: Joi.object(),
+    storage: Joi.object().allow(null),
 });
 
 export const addGamePlayerSchema = Joi.object().keys({
@@ -81,7 +81,8 @@ export const addGamePlayerSchema = Joi.object().keys({
             // language is the devwars username language (css, html, js).
             language: Joi.string().required(),
         })
-        .required(),
+        .required()
+        .unknown(true),
 
     // Team is required
     // The team gaining the player.
@@ -91,7 +92,8 @@ export const addGamePlayerSchema = Joi.object().keys({
             // The id of the team who is getting a new player.
             id: Joi.alternatives(Joi.string(), Joi.number()).required(),
         })
-        .required(),
+        .required()
+        .unknown(true),
 });
 
 export const removeGamePlayerSchema = Joi.object().keys({
@@ -103,5 +105,6 @@ export const removeGamePlayerSchema = Joi.object().keys({
             // The id of the user who is being added.
             id: Joi.alternatives(Joi.string(), Joi.number()).required(),
         })
-        .required(),
+        .required()
+        .unknown(true),
 });

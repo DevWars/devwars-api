@@ -79,7 +79,7 @@ export async function removePlayer(request: IRequest & IGameRequest, response: R
 }
 
 export async function end(request: IRequest & IGameRequest, response: Response) {
-    if (isNil(request.game.schedule)) request.game.status = GameStatus.ENDED;
+    if (!isNil(request.game.schedule)) request.game.schedule.status = GameStatus.ENDED;
     request.game.status = GameStatus.ENDED;
 
     await getManager().transaction(async (transaction) => {

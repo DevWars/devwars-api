@@ -33,74 +33,78 @@ export const statsSchema = Joi.object().keys({
 
 // No part of the user profile is required, but they do have there enforced types. Not meeting the
 // types if specified will result in the schema validation failing.
-export const profileSchema = Joi.object().keys({
-    // firstName is not required
-    firstName: Joi.string(),
+export const profileSchema = Joi.object()
+    .keys({
+        // firstName is not required
+        firstName: Joi.string(),
 
-    // lastName is not required
-    lastName: Joi.string(),
+        // lastName is not required
+        lastName: Joi.string(),
 
-    // dob is not required
-    dob: Joi.date(),
+        // dob is not required
+        dob: Joi.date(),
 
-    // sex is not required
-    // sex must be a valid Sex
-    sex: Joi.string().valid(...Object.values(Sex)),
+        // sex is not required
+        // sex must be a valid Sex
+        sex: Joi.string().valid(...Object.values(Sex)),
 
-    // about is not required
-    about: Joi.string(),
+        // about is not required
+        about: Joi.string(),
 
-    // forHire is not required
-    forHire: Joi.boolean(),
+        // forHire is not required
+        forHire: Joi.boolean(),
 
-    // company is not required
-    company: Joi.string(),
+        // company is not required
+        company: Joi.string(),
 
-    // websiteUrl is not required
-    websiteUrl: Joi.string(),
+        // websiteUrl is not required
+        websiteUrl: Joi.string(),
 
-    // addressOne is not required
-    addressOne: Joi.string(),
+        // addressOne is not required
+        addressOne: Joi.string(),
 
-    // addressTwo is not required
-    addressTwo: Joi.string(),
+        // addressTwo is not required
+        addressTwo: Joi.string(),
 
-    // city is not required
-    city: Joi.string(),
+        // city is not required
+        city: Joi.string(),
 
-    // state is not required
-    state: Joi.string(),
+        // state is not required
+        state: Joi.string(),
 
-    // zip is not required
-    zip: Joi.string(),
+        // zip is not required
+        zip: Joi.string(),
 
-    // country is not required
-    country: Joi.string(),
+        // country is not required
+        country: Joi.string(),
 
-    // skills is not required
-    skills: Joi.object(),
-});
+        // skills is not required
+        skills: Joi.object(),
+    })
+    .unknown(true);
 
-export const updateUserSchema = Joi.object().keys({
-    // lastSigned is not required
-    lastSigned: Joi.date(),
+export const updateUserSchema = Joi.object()
+    .keys({
+        // lastSigned is not required
+        lastSigned: Joi.date(),
 
-    // email is not required
-    email: Joi.string().email(),
+        // email is not required
+        email: Joi.string().email(),
 
-    // username is not required
-    username: Joi.string(),
+        // username is not required
+        username: Joi.string(),
 
-    // password is not required
-    // password must meet the min and max requirements
-    password: Joi.string()
-        .min(constants.PASSWORD_MIN_LENGTH)
-        .max(constants.PASSWORD_MAX_LENGTH),
+        // password is not required
+        // password must meet the min and max requirements
+        password: Joi.string()
+            .min(constants.PASSWORD_MIN_LENGTH)
+            .max(constants.PASSWORD_MAX_LENGTH),
 
-    // role is not required
-    // role must be a valid UserRole
-    role: Joi.string().valid(...Object.values(UserRole)),
+        // role is not required
+        // role must be a valid UserRole
+        role: Joi.string().valid(...Object.values(UserRole)),
 
-    // username is not required
-    token: Joi.string(),
-});
+        // username is not required
+        token: Joi.string(),
+    })
+    .unknown(true);

@@ -222,12 +222,8 @@ export async function findApplicationsBySchedule(request: IScheduleRequest, resp
  *
  */
 export async function findUserApplicationsByGame(request: IGameRequest, response: Response) {
-    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findByGame(request.game);
-    if (_.isNil(schedule)) return response.json([]);
-
     const userRepository = getCustomRepository(UserRepository);
-    let users = (await userRepository.findApplicationsBySchedule(schedule)) || [];
+    let users = (await userRepository.findApplicationsBySchedule(request.game.schedule)) || [];
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
     users = users.map((app) => app.sanitize(...sanitizationFields));

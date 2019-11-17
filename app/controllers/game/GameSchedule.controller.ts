@@ -99,29 +99,27 @@ export async function create(request: Request, response: Response) {
 }
 
 export async function activate(request: IScheduleRequest, response: Response) {
-    const schedule = request.schedule;
+    const schedule = request.body;
 
     // Create the Game
     const game = new Game();
-    game.season = schedule.setup.season;
-    game.mode = schedule.setup.mode;
-    game.title = schedule.setup.title;
+
+    game.schedule = request.schedule;
+    game.season = request.schedule.setup.season || schedule.season;
+    game.mode = request.schedule.setup.mode || schedule.mode;
+    game.title = request.schedule.setup.title || schedule.title;
     game.storage = {
         mode: game.mode,
         title: game.title,
-        startTime: schedule.startTime,
-        objectives: schedule.setup.objectives || {},
+        startTime: request.schedule.setup.startTime || schedule.startTime,
+        objectives: request.schedule.setup.objectives || schedule.objectives || {},
     };
 
-    const savedGame = await game.save();
+    await game.save();
 
     // Update GameSchedule
-    request.schedule.game = savedGame;
     request.schedule.status = GameStatus.ACTIVE;
     await request.schedule.save();
-
-    // On Game.controller get applications from the Schedule
-    // - find GameSchedule with the same GameId
 
     return response.json(flattenSchedule(request.schedule));
 }
