@@ -30,12 +30,12 @@ function generateSchedule() {
     return {
         startTime: new Date(),
         mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
-        title: hacker.noun(),
+        title: `${hacker.noun()} ${hacker.noun()}`,
         objectives: objectives.reduce(toIdMap, {}),
     };
 }
 
-describe('game-schedule', () => {
+describe('Game-Schedule', () => {
     before(async () => {
         await server.Start();
         await (await Connection).synchronize(true);
@@ -50,154 +50,170 @@ describe('game-schedule', () => {
         await scheduleRepository.delete({});
     });
 
-    it('GET - /schedules/:id - should retrieve the schedule', async () => {
-        const schedule = await GameScheduleSeeding.default().save();
-        const response = await agent.get(`/schedules/${schedule.id}`).send();
+    describe('GET - /schedules - Gathering all schedules', () => {
+        it('Should retrieve all schedules', async () => {
+            const scheduleOne = GameScheduleSeeding.default();
+            const scheduleTwo = GameScheduleSeeding.default();
 
-        chai.expect(response.body.id).to.be.eq(schedule.id);
+            await connectionManager.transaction(async (transaction) => {
+                await transaction.save(scheduleOne);
+                await transaction.save(scheduleTwo);
+            });
+
+            const response = await agent.get('/schedules').send();
+            chai.expect(response.body.length).to.be.equal(2);
+        });
     });
 
-    it('GET - /schedules/:id - should return 404 because no schedule found', async () => {
-        const response = await agent.get('/schedules/3').send();
-        chai.expect(response.status).to.be.eq(404);
+    describe('GET - /schedules/latest - Gathering the latest game schedule', () => {
+        it('Should return the last schedule created', async () => {
+            const currentDate = new Date();
+            const futureDate = new Date();
+
+            futureDate.setHours(currentDate.getHours() + 2);
+
+            const scheduleOne = GameScheduleSeeding.withTime(currentDate);
+            const scheduleTwo = GameScheduleSeeding.withTime(futureDate);
+
+            await connectionManager.transaction(async (transaction) => {
+                transaction.save(scheduleTwo);
+                transaction.save(scheduleOne);
+            });
+
+            const response = await agent
+                .get('/schedules/latest')
+                .send()
+                .expect(200);
+
+            chai.expect(response.body.id).to.be.eq(scheduleTwo.id);
+        });
     });
 
-    it('GET - /schedules - should retrieve all schedules', async () => {
-        const scheduleOne = GameScheduleSeeding.default();
-        const scheduleTwo = GameScheduleSeeding.default();
+    describe('GET - /schedules/:id - Gathering a single game schedule', () => {
+        it('Should retrieve the schedule if specified', async () => {
+            const schedule = await GameScheduleSeeding.default().save();
 
-        await connectionManager.transaction(async (transaction) => {
-            await transaction.save(scheduleOne);
-            await transaction.save(scheduleTwo);
+            const response = await agent.get(`/schedules/${schedule.id}`).expect(200);
+            chai.expect(response.body.id).to.be.eq(schedule.id);
         });
 
-        const response = await agent.get('/schedules').send();
-        chai.expect(response.body.length).to.be.equal(2);
+        it('Should return 404 because no schedule is found', async () => {
+            await agent
+                .get('/schedules/3')
+                .send()
+                .expect(404);
+        });
     });
 
-    it('GET - /schedules/latest - should return the last schedule created', async () => {
-        const currentDate = new Date();
-        const futureDate = new Date();
+    describe('POST - /schedules - Creating a new game schedule', () => {
+        it('Should return 403 because user cant create a schedule.', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            const Schedule = generateSchedule();
 
-        futureDate.setHours(currentDate.getHours() + 2);
-
-        const scheduleOne = GameScheduleSeeding.withTime(currentDate);
-        const scheduleTwo = GameScheduleSeeding.withTime(futureDate);
-
-        await connectionManager.transaction(async (transaction) => {
-            transaction.save(scheduleTwo);
-            transaction.save(scheduleOne);
+            await agent
+                .post('/schedules')
+                .set('Cookie', await cookieForUser(user))
+                .send(Schedule)
+                .expect(403);
         });
 
-        const response = await agent.get('/schedules/latest').send();
+        it('Should return the schedule created because admin can create.', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const Schedule = generateSchedule();
 
-        chai.expect(response.body.id).to.be.eq(scheduleTwo.id);
-    });
+            const goodRequest = await agent
+                .post('/schedules')
+                .set('Cookie', await cookieForUser(user))
+                .send(Schedule)
+                .expect(200);
 
-    it('POST - schedules/create - should return 403 because user cant create a schedule', async () => {
-        const user = await UserSeeding.withRole(UserRole.USER).save();
-        const Schedule = generateSchedule();
+            const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
 
-        const badRequest = await agent
-            .post('/schedules')
-            .set('Cookie', await cookieForUser(user))
-            .send(Schedule);
-
-        chai.expect(badRequest.status).to.be.eq(403);
-    });
-
-    it('POST - schedules/create - should return the schedule created because admin can', async () => {
-        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-        const Schedule = generateSchedule();
-
-        const goodRequest = await agent
-            .post('/schedules')
-            .set('Cookie', await cookieForUser(user))
-            .send(Schedule);
-
-        chai.expect(goodRequest.status).to.be.equal(200);
-
-        const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
-
-        chai.expect(!_.isNil(ScheduleCreated) && !_.isNil(ScheduleCreated.setup)).to.be.eq(true);
-        chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
-    });
-
-    it('POST - schedules/create - should return the schedule created because mod can', async () => {
-        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-        const Schedule = generateSchedule();
-
-        const goodRequest = await agent
-            .post('/schedules')
-            .set('Cookie', await cookieForUser(user))
-            .send(Schedule);
-
-        const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
-        chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
-    });
-
-    it('PATCH - schedules/:id - should return 403 because user cant update a schedule', async () => {
-        const Schedule = await GameScheduleSeeding.default().save();
-
-        const user = await UserSeeding.withRole(UserRole.USER).save();
-        const updateDatas = {
-            title: 'helloWorld',
-        };
-
-        const request = await agent
-            .patch(`/schedules/${Schedule.id}`)
-            .set('Cookie', await cookieForUser(user))
-            .send(updateDatas);
-
-        chai.expect(request.status).to.be.eq(403);
-    });
-
-    it('PATCH - schedules/:id - should return the schedules update because mod', async () => {
-        const Schedule = await GameScheduleSeeding.default().save();
-
-        const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-        const updateDatas = {
-            title: 'helloWorld',
-        };
-
-        const request = await agent
-            .patch(`/schedules/${Schedule.id}`)
-            .set('Cookie', await cookieForUser(user))
-            .send(updateDatas);
-
-        const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
-        chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateDatas.title);
-    });
-
-    it('PATCH - schedules/:id - should return the schedules update because admin', async () => {
-        const Schedule = await GameScheduleSeeding.default().save();
-
-        const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-        const updateDatas = {
-            title: 'helloWorld',
-        };
-
-        const request = await agent
-            .patch(`/schedules/${Schedule.id}`)
-            .set('Cookie', await cookieForUser(user))
-            .send(updateDatas);
-
-        const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
-        chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateDatas.title);
-    });
-
-    it('GET - schedules/status/:status - should return a list a schedules by status', async () => {
-        const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
-
-        await connectionManager.transaction(async (transaction) => {
-            for (const state of gameStates) {
-                const schedule = GameScheduleSeeding.withStatus(state);
-                await transaction.save(schedule);
-            }
+            chai.expect(!_.isNil(ScheduleCreated) && !_.isNil(ScheduleCreated.setup)).to.be.eq(true);
+            chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
         });
 
-        const request = await agent.get('/schedules/status/active').send();
+        it('should return the schedule created because moderator can create.', async () => {
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const Schedule = generateSchedule();
 
-        chai.expect(request.body).to.have.lengthOf(2);
+            const goodRequest = await agent
+                .post('/schedules')
+                .set('Cookie', await cookieForUser(user))
+                .send(Schedule)
+                .expect(200);
+
+            const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
+            chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
+        });
+    });
+
+    describe('PATCH - /schedules/:id - updating a existing game schedule', () => {
+        it('Should return 403 because user cant update a schedule', async () => {
+            const Schedule = await GameScheduleSeeding.default().save();
+
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            const updateData = {
+                title: 'helloWorld',
+            };
+
+            const request = await agent
+                .patch(`/schedules/${Schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .send(updateData);
+
+            chai.expect(request.status).to.be.eq(403);
+        });
+
+        it('Should return the schedules update because mod', async () => {
+            const Schedule = await GameScheduleSeeding.default().save();
+
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const updateData = {
+                title: 'helloWorld',
+            };
+
+            const request = await agent
+                .patch(`/schedules/${Schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .send(updateData);
+
+            const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
+            chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateData.title);
+        });
+
+        it('Should return the schedules update because admin', async () => {
+            const Schedule = await GameScheduleSeeding.default().save();
+
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const updateData = {
+                title: 'helloWorld',
+            };
+
+            const request = await agent
+                .patch(`/schedules/${Schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .send(updateData);
+
+            const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
+            chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateData.title);
+        });
+    });
+
+    describe('GET - /schedules/status/:status - Gathering schedules by status', () => {
+        it('Should return a list a schedules by status', async () => {
+            const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
+
+            await connectionManager.transaction(async (transaction) => {
+                for (const state of gameStates) {
+                    const schedule = GameScheduleSeeding.withStatus(state);
+                    await transaction.save(schedule);
+                }
+            });
+
+            const request = await agent.get('/schedules/status/active').send();
+
+            chai.expect(request.body).to.have.lengthOf(2);
+        });
     });
 });

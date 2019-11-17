@@ -1,7 +1,8 @@
 import * as express from 'express';
 
 import * as GameApplicationController from '../controllers/game/GameApplication.controller';
-import { bindGameFromGameParam, bindGameScheduleFromScheduleParam } from '../middleware/GameApplication.middleware';
+import { bindGameFromGameParam } from '../middleware/GameApplication.middleware';
+import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middleware';
 import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 
@@ -21,19 +22,19 @@ GameApplicationRoute.get(
 
 GameApplicationRoute.get(
     '/schedule/:schedule',
-    [bindGameScheduleFromScheduleParam],
+    [bindScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.findApplicationsBySchedule)
 );
 
 GameApplicationRoute.post(
     '/schedule/:schedule',
-    [mustBeAuthenticated, bindGameScheduleFromScheduleParam],
+    [mustBeAuthenticated, bindScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.applyToSchedule)
 );
 
 GameApplicationRoute.delete(
     '/schedule/:schedule',
-    [mustBeAuthenticated, bindGameScheduleFromScheduleParam],
+    [mustBeAuthenticated, bindScheduleFromScheduleParam],
     asyncErrorHandler(GameApplicationController.resignFromSchedule)
 );
 

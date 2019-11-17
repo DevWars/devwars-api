@@ -40,3 +40,11 @@ export const GAME_TITLE_MAX_LENGTH = 124;
 
 // The minimum number the game season can currently be in.
 export const GAME_SEASON_MIN = 1;
+
+// The minimal and max title length when creating a new game schedule.
+export const GAME_SCHEDULE_TITLE_MIN_LENGTH = 5;
+export const GAME_SCHEDULE_TITLE_MAX_LENGTH = 124;
+
+// The min and max length of a given description of a objective of the game.
+export const GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MIN_LENGTH = 5;
+export const GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MAX_LENGTH = 124;
