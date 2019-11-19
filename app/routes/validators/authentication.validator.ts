@@ -10,6 +10,7 @@ export const registrationSchema = Joi.object().keys({
     username: Joi.string()
         .min(constants.USERNAME_MIN_LENGTH)
         .max(constants.USERNAME_MAX_LENGTH)
+        .regex(constants.USERNAME_REGEX)
         .required(),
 
     password: Joi.string()
@@ -43,6 +44,7 @@ export const forgotPasswordSchema = Joi.object().keys({
         Joi.string()
             .min(constants.USERNAME_MIN_LENGTH)
             .max(constants.USERNAME_MAX_LENGTH)
+            .regex(constants.USERNAME_REGEX)
             .required()
     ).required(),
 });

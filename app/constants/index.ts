@@ -1,7 +1,10 @@
 // The minimum and maximum length a new/existing users username must respect for
 // the user to be registered or authorized with the site.
-export const USERNAME_MIN_LENGTH = 5;
-export const USERNAME_MAX_LENGTH = 28;
+export const USERNAME_MIN_LENGTH = 4;
+export const USERNAME_MAX_LENGTH = 25;
+
+// Does not allow special characters in the beginning or end of username
+export const USERNAME_REGEX = /^[a-zA-Z0-9.-][A-z0-9.-_]{2,23}[a-zA-Z0-9.-]$/;
 
 // Username limits in regards for twitch when processing requests that is directly related to the
 // twitch username. e.g updating twitch coins.

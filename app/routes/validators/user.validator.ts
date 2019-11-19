@@ -63,7 +63,11 @@ export const updateUserSchema = Joi.object()
 
         email: Joi.string().email().optional(),
 
-        username: Joi.string().optional(),
+        username: Joi.string()
+            .min(constants.USERNAME_MIN_LENGTH)
+            .max(constants.USERNAME_MAX_LENGTH)
+            .regex(constants.USERNAME_REGEX)
+            .optional(),
 
         password: Joi.string()
             .min(constants.PASSWORD_MIN_LENGTH)

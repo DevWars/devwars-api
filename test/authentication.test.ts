@@ -20,7 +20,7 @@ const server: ServerService = new ServerService();
 let agent: any;
 
 // used for the creation of the database transactions without the need of constantly calling into
-// get manager everytime a test needs a transaction.
+// get manager every time a test needs a transaction.
 const connectionManager: EntityManager = getManager();
 
 describe('Authentication', () => {
@@ -153,7 +153,29 @@ describe('Authentication', () => {
             chai.expect(!request.body.password).to.equal(true);
             chai.expect(!request.body.token).to.equal(true);
         });
+
+        it('Should not allow invalid username formats', async () => {
+            async function registerInvalidUser(username: string) {
+                return agent.post('/auth/register').send({ username, email: 'invalid@email.fr', password: 'secretpassword' }).expect(400);
+            }
+
+            // Spaces aren't allowed
+            await registerInvalidUser('user name');
+
+            // Special characters cannot be at the beginning/end
+            await registerInvalidUser('_username_');
+
+            // Only support periods, hyphens and underscores
+            await registerInvalidUser('user($?*)name');
+
+            // Username too short
+            await registerInvalidUser('123');
+
+            // Username too long
+            await registerInvalidUser('12345678901234567890123456');
+        });
     });
+
 
     describe('POST - /auth/verify - Verifying emails with the system', () => {
         it('Should find the token and delete it', async () => {
