@@ -43,14 +43,6 @@ function flattenUser(user: User) {
 export async function register(request: Request, response: Response) {
     let { username, email, password }: IRegistrationRequest = request.body;
 
-    // If any of the provided username, email or password are empty, then return a 400 since all
-    // processes are required to ensure a correct registering process. This validation will
-    // occur before increased validation on the quality of email, username and password.
-    if (!username || !email || !password) return response.sendStatus(400);
-
-    // Temp: until we add proper validation limits, follow up with tests.
-    if (username.length < 5 || password.length < 5 || !email.includes('@')) return response.sendStatus(400);
-
     // Trim out any remaining spaces on either end of the username, password or email before joi
     // validation. Since we don't want the chance of spaces ruining the sign in process or
     // emailing process for the authenticating user.
@@ -62,11 +54,11 @@ export async function register(request: Request, response: Response) {
     const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
 
     if (existingUser && existingUser.username === username) {
-        return response.status(409).json({ error: 'Username is taken.' });
+        return response.status(409).json({ error: 'A user already exists with the provided username.' });
     }
 
     if (existingUser && existingUser.email === email) {
-        return response.status(409).json({ error: 'Email address is taken.' });
+        return response.status(409).json({ error: 'A user already exists with the provided email.' });
     }
 
     // Register the user in the database, generating a new user with the default and minimal

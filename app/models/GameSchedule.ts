@@ -27,6 +27,10 @@ export default class GameSchedule extends BaseModel {
     @OneToOne(() => Game, { onDelete: 'CASCADE' })
     public game: Game;
 
-    @OneToMany(() => GameApplication, (applications) => applications.schedule, { cascade: true })
+    @OneToMany(
+        () => GameApplication,
+        (applications) => applications.schedule,
+        { cascade: true }
+    )
     public applications: GameApplication;
 }

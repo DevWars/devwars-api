@@ -6,8 +6,7 @@ import GameSchedule from '../../models/GameSchedule';
 import Game from '../../models/Game';
 import { GameStatus } from '../../models/GameSchedule';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
-
-import { validationResult } from 'express-validator/check';
+import { IScheduleRequest } from '../../request/IRequest';
 
 function flattenSchedule(schedule: GameSchedule) {
     return {
@@ -21,12 +20,8 @@ function flattenSchedule(schedule: GameSchedule) {
     };
 }
 
-export async function show(request: Request, response: Response) {
-    const scheduleId = request.params.id;
-    const schedule = await GameSchedule.findOne(scheduleId, { relations: ['game'] });
-    if (!schedule) return response.sendStatus(404);
-
-    response.json(flattenSchedule(schedule));
+export async function show(request: IScheduleRequest, response: Response) {
+    return response.json(flattenSchedule(request.schedule));
 }
 
 export async function all(request: Request, response: Response) {
@@ -35,30 +30,23 @@ export async function all(request: Request, response: Response) {
         relations: ['game'],
     });
 
-    response.json(schedules.map((schedule) => flattenSchedule(schedule)));
+    return response.json(schedules.map((schedule) => flattenSchedule(schedule)));
 }
 
-export async function update(request: Request, response: Response) {
-    const scheduleId = request.params.id;
+export async function update(request: IScheduleRequest, response: Response) {
     const params = { ...(request.body as IUpdateGameScheduleRequest) };
 
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
-
-    const schedule = await GameSchedule.findOne(scheduleId);
-    if (!schedule) return response.sendStatus(404);
-
-    schedule.startTime = params.startTime || schedule.startTime;
-    schedule.setup = {
-        ...schedule.setup,
-        mode: params.mode || schedule.setup.mode,
-        title: params.title || schedule.setup.title,
-        objectives: params.objectives || schedule.setup.objectives,
+    request.schedule.startTime = params.startTime || request.schedule.startTime;
+    request.schedule.setup = {
+        ...request.schedule.setup,
+        mode: params.mode || request.schedule.setup.mode,
+        title: params.title || request.schedule.setup.title,
+        objectives: params.objectives || request.schedule.setup.objectives,
     };
 
-    await schedule.save();
+    await request.schedule.save();
 
-    response.json(flattenSchedule(schedule));
+    return response.json(flattenSchedule(request.schedule));
 }
 
 export async function latest(request: Request, response: Response) {
@@ -66,7 +54,7 @@ export async function latest(request: Request, response: Response) {
     const latestSchedule = await gameScheduleRepository.latest();
     if (!latestSchedule) return response.sendStatus(404);
 
-    response.json(flattenSchedule(latestSchedule));
+    return response.json(flattenSchedule(latestSchedule));
 }
 
 export async function byStatus(request: Request, response: Response) {
@@ -76,18 +64,15 @@ export async function byStatus(request: Request, response: Response) {
     const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
     const schedules = await gameScheduleRepository.findAllByStatus(status);
 
-    response.json(schedules.map((schedule) => flattenSchedule(schedule)));
+    return response.json(schedules.map((schedule) => flattenSchedule(schedule)));
 }
 
 export async function create(request: Request, response: Response) {
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
-
     const params = { ...(request.body as ICreateGameScheduleRequest) };
 
     const schedule = new GameSchedule();
-
     const objectives = [];
+
     for (let id = 1; id <= 5; id++) {
         objectives.push({
             id,
@@ -101,44 +86,40 @@ export async function create(request: Request, response: Response) {
     };
 
     schedule.startTime = params.startTime || schedule.startTime;
+
     schedule.setup = {
         ...schedule.setup,
         mode: params.mode || schedule.setup.mode,
         objectives: objectives.reduce(toIdMap, {}),
+        title: params.title || schedule.setup.title,
     };
 
     await schedule.save();
-
-    response.json(flattenSchedule(schedule));
+    return response.json(flattenSchedule(schedule));
 }
 
-export async function activate(request: Request, response: Response) {
+export async function activate(request: IScheduleRequest, response: Response) {
     const schedule = request.body;
-
-    const errors = validationResult(request);
-    if (!errors.isEmpty()) return response.status(422).json({ errors: errors.array() });
 
     // Create the Game
     const game = new Game();
-    game.season = schedule.season;
-    game.mode = schedule.mode;
-    game.title = schedule.title;
+
+    game.schedule = request.schedule;
+    game.season = request.schedule.setup.season || schedule.season;
+    game.mode = request.schedule.setup.mode || schedule.mode;
+    game.title = request.schedule.setup.title || schedule.title;
     game.storage = {
         mode: game.mode,
         title: game.title,
-        startTime: schedule.startTime,
-        objectives: schedule.objectives || {},
+        startTime: request.schedule.setup.startTime || schedule.startTime,
+        objectives: request.schedule.setup.objectives || schedule.objectives || {},
     };
-    const savedGame = await game.save();
+
+    await game.save();
 
     // Update GameSchedule
-    const savedSchedule = await GameSchedule.findOne(schedule.id);
-    savedSchedule.game = savedGame;
-    savedSchedule.status = GameStatus.ACTIVE;
-    await savedSchedule.save();
+    request.schedule.status = GameStatus.ACTIVE;
+    await request.schedule.save();
 
-    // On Game.controller get applications from the Schedule
-    // - find GameSchedule with the same GameId
-
-    response.json(flattenSchedule(savedSchedule));
+    return response.json(flattenSchedule(request.schedule));
 }

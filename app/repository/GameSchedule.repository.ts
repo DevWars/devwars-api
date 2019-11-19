@@ -15,6 +15,17 @@ export default class GameScheduleRepository extends Repository<GameSchedule> {
         });
     }
 
+    /**
+     *  Returns a given game schedule by the identifier, ensuring that the identifier is a number
+     *  before attempting to gather. Additionally gathers the related game if it exists.
+     *  @param identifier The identifier of the game schedule being found.
+     */
+    public async findById(identifier: string | number): Promise<GameSchedule> {
+        if (isNaN(Number(identifier))) return null;
+
+        return GameSchedule.findOne({ where: { id: identifier }, relations: ['game'] });
+    }
+
     public latest(): Promise<GameSchedule> {
         return GameSchedule.findOne({ order: { startTime: 'DESC' }, relations: ['game'] });
     }

@@ -62,18 +62,6 @@ export async function disconnect(request: IRequest, response: Response) {
 export async function updateTwitchCoins(request: Request, response: Response) {
     const { twitchUser, amount } = request.body;
 
-    if (_.isNil(twitchUser) || _.isNil(twitchUser.id) || _.isNil(twitchUser.username)) {
-        return response.status(400).json({ error: 'User not provided.' });
-    }
-
-    if (_.isNil(amount)) {
-        return response.status(400).json({ error: 'Amount not provided.' });
-    }
-
-    if (!_.isNumber(amount) || _.isNaN(amount)) {
-        return response.status(400).json({ error: 'Amount provided is not a valid number.' });
-    }
-
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
 

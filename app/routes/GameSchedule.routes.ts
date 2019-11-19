@@ -4,6 +4,9 @@ import * as GameScheduleController from '../controllers/game/GameSchedule.contro
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
+import { bodyValidation } from './validators';
+import { createGameScheduleSchema, updateGameScheduleSchema } from './validators/gameSchedule.validator';
+import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middleware';
 
 const GameScheduleRoute: express.Router = express.Router();
 
@@ -11,16 +14,21 @@ GameScheduleRoute.get('/', asyncErrorHandler(GameScheduleController.all));
 
 GameScheduleRoute.post(
     '/',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bodyValidation(createGameScheduleSchema)],
     asyncErrorHandler(GameScheduleController.create)
 );
 
 GameScheduleRoute.get('/latest', asyncErrorHandler(GameScheduleController.latest));
-GameScheduleRoute.get('/:id', asyncErrorHandler(GameScheduleController.show));
+GameScheduleRoute.get('/:schedule', [bindScheduleFromScheduleParam], asyncErrorHandler(GameScheduleController.show));
 
 GameScheduleRoute.patch(
-    '/:id',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:schedule',
+    [
+        mustBeAuthenticated,
+        mustBeRole(UserRole.MODERATOR),
+        bindScheduleFromScheduleParam,
+        bodyValidation(updateGameScheduleSchema),
+    ],
     asyncErrorHandler(GameScheduleController.update)
 );
 
@@ -28,8 +36,8 @@ GameScheduleRoute.patch(
 // asyncErrorHandler(GameScheduleController.activate))
 
 GameScheduleRoute.post(
-    '/:id/activate',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    '/:schedule/activate',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
     asyncErrorHandler(GameScheduleController.activate)
 );
 

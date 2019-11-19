@@ -3,10 +3,15 @@ import * as supertest from 'supertest';
 import { getCustomRepository } from 'typeorm';
 import { isNil } from 'lodash';
 
+import { Connection } from '../app/services/Connection.service';
+import ServerService from '../app/services/Server.service';
+
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
+
+import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';
+import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding } from '../app/seeding';
-import ServerService from '../app/services/Server.service';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -24,6 +29,10 @@ async function createDefaultAccountWithTwitch() {
 describe('Linked Account - Twitch', () => {
     before(async () => {
         await server.Start();
+        await (await Connection).synchronize(true);
+    });
+
+    beforeEach(() => {
         agent = supertest.agent(server.App());
     });
 
@@ -54,7 +63,7 @@ describe('Linked Account - Twitch', () => {
             await agent
                 .put(coinsRoute)
                 .send(requestBody)
-                .expect(400, { error: 'Amount not provided.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
 
         it('Should not allow updating twitch coins if the amount is not a number.', async () => {
@@ -67,7 +76,7 @@ describe('Linked Account - Twitch', () => {
             await agent
                 .put(coinsRoute)
                 .send(requestBody)
-                .expect(400, { error: 'Amount provided is not a valid number.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
 
         it('Should not allow updating twitch coins if the twitch user is not specified.', async () => {
@@ -79,14 +88,14 @@ describe('Linked Account - Twitch', () => {
             await agent
                 .put(coinsRoute)
                 .send(requestBody)
-                .expect(400, { error: 'User not provided.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
 
             requestBody.twitchUser = {};
 
             await agent
                 .put(coinsRoute)
                 .send(requestBody)
-                .expect(400, { error: 'User not provided.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
 
         it('Should not allow updating twitch coins if the twitch user is not valid.', async () => {
@@ -98,12 +107,12 @@ describe('Linked Account - Twitch', () => {
             await agent
                 .put(coinsRoute)
                 .send(Object.assign(requestBody, { twitchUser: { id: 'id' } }))
-                .expect(400, { error: 'User not provided.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
 
             await agent
                 .put(coinsRoute)
                 .send(Object.assign(requestBody, { twitchUser: { username: 'username' } }))
-                .expect(400, { error: 'User not provided.' });
+                .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
 
         it('Should allow updating twitch coins if the twitch user is valid.', async () => {

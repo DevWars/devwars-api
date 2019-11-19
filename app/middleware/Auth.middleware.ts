@@ -11,19 +11,19 @@ export const mustBeAuthenticated = async (request: IRequest, response: Response,
     const token = request.cookies.token;
 
     // If the token was not not provided then return that the given user is not authenticated.
-    if (_.isNil(token)) return response.status(401).json({ error: 'Invalid or no authentication token was provided.' });
+    if (_.isNil(token)) return response.status(401).json({ error: 'Authentication token was not provided.' });
 
     // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
     const decodedToken = AuthService.VerifyAuthenticationToken(token);
 
     if (_.isNil(decodedToken))
-        return response.status(401).json({ error: 'Invalid or no authentication token was provided.' });
+        return response.status(401).json({ error: 'Invalid authentication token was provided.' });
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findById(decodedToken.id);
 
     if (_.isNil(user) || user.token !== token)
-        return response.status(401).json({ error: 'Invalid or no authentication token was provided.' });
+        return response.status(401).json({ error: 'Expired authentication token was provided.' });
 
     // Ensure that the user is correctly sanitized to remove the token, password and other core
     // properties. Since this is the current authenticated user, there is no need to remove any more

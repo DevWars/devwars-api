@@ -1,23 +1,44 @@
 import * as express from 'express';
 
+import * as authValidator from './validators/authentication.validator';
 import * as AuthController from '../controllers/authentication/Authentication.controller';
 import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 
+import { bodyValidation, queryValidation } from './validators';
 import { asyncErrorHandler } from './handlers';
 import { UserRole } from '../models/User';
 
-export const AuthRoute: express.Router = express
-    .Router()
-    .get('/user', [mustBeAuthenticated], asyncErrorHandler(AuthController.currentUser))
-    .post('/login', asyncErrorHandler(AuthController.login))
-    .post('/logout', [mustBeAuthenticated], asyncErrorHandler(AuthController.logout))
-    .post('/register', asyncErrorHandler(AuthController.register))
-    .get('/verify', asyncErrorHandler(AuthController.verify))
-    .post('/reverify', [mustBeAuthenticated], asyncErrorHandler(AuthController.reverify))
-    .post('/forgot/password', asyncErrorHandler(AuthController.initiatePasswordReset))
-    .post('/reset/password', asyncErrorHandler(AuthController.resetPassword))
-    .post(
-        '/reset/email',
-        [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR)],
-        asyncErrorHandler(AuthController.initiateEmailReset)
-    );
+const AuthRoute: express.Router = express.Router();
+
+AuthRoute.get('/user', [mustBeAuthenticated], asyncErrorHandler(AuthController.currentUser));
+AuthRoute.post('/login', [bodyValidation(authValidator.loginSchema)], asyncErrorHandler(AuthController.login));
+AuthRoute.post('/logout', [mustBeAuthenticated], asyncErrorHandler(AuthController.logout));
+
+AuthRoute.post(
+    '/register',
+    [bodyValidation(authValidator.registrationSchema)],
+    asyncErrorHandler(AuthController.register)
+);
+
+AuthRoute.get('/verify', asyncErrorHandler(AuthController.verify));
+AuthRoute.post('/reverify', [mustBeAuthenticated], asyncErrorHandler(AuthController.reverify));
+
+AuthRoute.post(
+    '/forgot/password',
+    [bodyValidation(authValidator.forgotPasswordSchema)],
+    asyncErrorHandler(AuthController.initiatePasswordReset)
+);
+
+AuthRoute.post(
+    '/reset/password',
+    [queryValidation(authValidator.resetPasswordSchema)],
+    asyncErrorHandler(AuthController.resetPassword)
+);
+
+AuthRoute.post(
+    '/reset/email',
+    [mustBeAuthenticated, bodyValidation(authValidator.resetEmailSchema)],
+    asyncErrorHandler(AuthController.initiateEmailReset)
+);
+
+export { AuthRoute };
