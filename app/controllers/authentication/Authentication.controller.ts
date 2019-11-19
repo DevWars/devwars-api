@@ -42,10 +42,6 @@ function flattenUser(user: User) {
  */
 export async function register(request: Request, response: Response) {
     let { username, email, password }: IRegistrationRequest = request.body;
-
-    // Trim out any remaining spaces on either end of the username, password or email before joi
-    // validation. Since we don't want the chance of spaces ruining the sign in process or
-    // emailing process for the authenticating user.
     username = username.trim();
     password = password.trim();
     email = email.trim();

@@ -3,21 +3,15 @@ import * as Joi from '@hapi/joi';
 import * as constants from '../../constants';
 
 export const registrationSchema = Joi.object().keys({
-    // email is required
-    // email must be a valid email string
     email: Joi.string()
         .email()
         .required(),
 
-    // username is required
-    // username must a min length of 5 and upper limit of 28.
     username: Joi.string()
         .min(constants.USERNAME_MIN_LENGTH)
         .max(constants.USERNAME_MAX_LENGTH)
         .required(),
 
-    // password is required
-    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)
@@ -25,8 +19,6 @@ export const registrationSchema = Joi.object().keys({
 });
 
 export const loginSchema = Joi.object().keys({
-    // identifier is required
-    // The identifier must be a valid email or username.
     identifier: Joi.alternatives(
         Joi.string()
             .email()
@@ -37,8 +29,6 @@ export const loginSchema = Joi.object().keys({
             .required()
     ).required(),
 
-    // password is required
-    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)
@@ -46,8 +36,6 @@ export const loginSchema = Joi.object().keys({
 });
 
 export const forgotPasswordSchema = Joi.object().keys({
-    // username or email is required
-    // The username or email must be a valid email or username.
     username_or_email: Joi.alternatives(
         Joi.string()
             .email()
@@ -65,12 +53,8 @@ export const forgotPasswordSchema = Joi.object().keys({
  * system requirements
  */
 export const resetPasswordSchema = Joi.object().keys({
-    // token is required
-    // token must be a non-empty valid string
     token: Joi.string().required(),
 
-    // password is required
-    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)
@@ -83,14 +67,10 @@ export const resetPasswordSchema = Joi.object().keys({
  * system requirements
  */
 export const resetEmailSchema = Joi.object().keys({
-    // email is required
-    // email must be a non-empty valid email
     email: Joi.string()
         .email()
         .required(),
 
-    // password is required
-    // password must meet the min and max requirements
     password: Joi.string()
         .min(constants.PASSWORD_MIN_LENGTH)
         .max(constants.PASSWORD_MAX_LENGTH)

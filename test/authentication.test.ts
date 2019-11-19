@@ -120,17 +120,19 @@ describe('Authentication', () => {
         it('Should logout correctly with valid login', async () => {
             const user = await UserSeeding.default().save();
 
-            const loginRequest = await agent.post('/auth/login').send({
-                identifier: user.username,
-                password: 'secret',
-            });
-
             const request = await agent
-                .post('/auth/logout')
-                .set('Cookie', loginRequest)
-                .send();
+                .post('/auth/login')
+                .send({
+                    identifier: user.username,
+                    password: 'secret',
+                })
+                .expect(200);
 
-            chai.expect(request.status).to.be.eq(200);
+            await agent
+                .post('/auth/logout')
+                .set('Cookie', ...request.header['set-cookie'])
+                .send()
+                .expect(200);
 
             const afterUser = await User.findOne(user.id);
             chai.expect(afterUser.token).to.be.eq(null);

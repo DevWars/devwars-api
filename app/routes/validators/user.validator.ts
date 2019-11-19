@@ -5,106 +5,73 @@ import { Sex } from '../../models/UserProfile';
 import { UserRole } from '../../models/User';
 
 export const statsSchema = Joi.object().keys({
-    // coins is required
-    // coins must meet the min and max requirements
     coins: Joi.number()
         .min(constants.STATS_COINS_MIN_AMOUNT)
         .max(constants.STATS_COINS_MAX_AMOUNT)
         .required(),
 
-    // xp is required
-    // xp must meet the min and max requirements
     xp: Joi.number()
         .min(constants.STATS_XP_MIN_AMOUNT)
         .max(constants.STATS_XP_MAX_AMOUNT)
         .required(),
 
-    // level is required
-    // level must meet the min and max requirements
     level: Joi.number()
         .min(constants.STATS_LEVEL_MIN_AMOUNT)
         .max(constants.STATS_LEVEL_MAX_AMOUNT)
         .required(),
 
-    // twitchId is not required
-    // Twitch id must be a valid number based on the users twitch id.
-    twitchId: Joi.number(),
+    twitchId: Joi.number().optional(),
 });
 
-// No part of the user profile is required, but they do have there enforced types. Not meeting the
-// types if specified will result in the schema validation failing.
 export const profileSchema = Joi.object()
     .keys({
-        // firstName is not required
-        firstName: Joi.string(),
+        firstName: Joi.string().optional(),
 
-        // lastName is not required
-        lastName: Joi.string(),
+        lastName: Joi.string().optional(),
 
-        // dob is not required
-        dob: Joi.date(),
+        dob: Joi.date().optional(),
 
-        // sex is not required
-        // sex must be a valid Sex
-        sex: Joi.string().valid(...Object.values(Sex)),
+        sex: Joi.string().valid(...Object.values(Sex)).optional(),
 
-        // about is not required
-        about: Joi.string(),
+        about: Joi.string().optional(),
 
-        // forHire is not required
-        forHire: Joi.boolean(),
+        forHire: Joi.boolean().optional(),
 
-        // company is not required
-        company: Joi.string(),
+        company: Joi.string().optional(),
 
-        // websiteUrl is not required
-        websiteUrl: Joi.string(),
+        websiteUrl: Joi.string().optional(),
 
-        // addressOne is not required
-        addressOne: Joi.string(),
+        addressOne: Joi.string().optional(),
 
-        // addressTwo is not required
-        addressTwo: Joi.string(),
+        addressTwo: Joi.string().optional(),
 
-        // city is not required
-        city: Joi.string(),
+        city: Joi.string().optional(),
 
-        // state is not required
-        state: Joi.string(),
+        state: Joi.string().optional(),
 
-        // zip is not required
-        zip: Joi.string(),
+        zip: Joi.string().optional(),
 
-        // country is not required
-        country: Joi.string(),
+        country: Joi.string().optional(),
 
-        // skills is not required
-        skills: Joi.object(),
+        skills: Joi.object().optional(),
     })
     .unknown(true);
 
 export const updateUserSchema = Joi.object()
     .keys({
-        // lastSigned is not required
-        lastSigned: Joi.date(),
+        lastSigned: Joi.date().optional(),
 
-        // email is not required
-        email: Joi.string().email(),
+        email: Joi.string().email().optional(),
 
-        // username is not required
-        username: Joi.string(),
+        username: Joi.string().optional(),
 
-        // password is not required
-        // password must meet the min and max requirements
         password: Joi.string()
             .min(constants.PASSWORD_MIN_LENGTH)
-            .max(constants.PASSWORD_MAX_LENGTH),
+            .max(constants.PASSWORD_MAX_LENGTH)
+            .optional(),
 
-        // role is not required
-        // role must be a valid UserRole
-        role: Joi.string().valid(...Object.values(UserRole)),
+        role: Joi.string().valid(...Object.values(UserRole)).optional(),
 
-        // username is not required
-        token: Joi.string(),
+        token: Joi.string().optional(),
     })
     .unknown(true);
