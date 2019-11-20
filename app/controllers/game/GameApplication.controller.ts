@@ -240,21 +240,14 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
         });
     }
 
-    const authenticatedUsername = request.user.username.toLowerCase();
-    const requestUsername = (request.params.username || '').toLowerCase();
-
-    if (authenticatedUsername !== requestUsername && request.user.role < UserRole.MODERATOR) {
-        return response.status(401).send({
-            error: 'You can only apply yourself for a game application.',
-        });
-    }
+    const { username } = request.params;
 
     const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findByUsername(requestUsername);
+    const user = await userRepository.findByUsername(username);
 
     if (_.isNil(user)) {
         return response.status(404).send({
-            error: `A user does not exist by the provided username '${requestUsername}'`,
+            error: `A user does not exist by the provided username '${username}'`,
         });
     }
 

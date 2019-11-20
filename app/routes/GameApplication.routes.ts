@@ -3,8 +3,9 @@ import * as express from 'express';
 import * as GameApplicationController from '../controllers/game/GameApplication.controller';
 import { bindGameFromGameParam } from '../middleware/GameApplication.middleware';
 import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middleware';
-import { mustBeAuthenticated } from '../middleware/Auth.middleware';
+import { mustBeAuthenticated, mustBeRole } from '../middleware/Auth.middleware';
 import { asyncErrorHandler } from './handlers';
+import { UserRole } from '../models/User';
 
 const GameApplicationRoute: express.Router = express.Router();
 
@@ -40,7 +41,7 @@ GameApplicationRoute.delete(
 
 GameApplicationRoute.post(
     '/game/:game/username/:username',
-    [mustBeAuthenticated, bindGameFromGameParam],
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
     asyncErrorHandler(GameApplicationController.createGameSchedule)
 );
 
