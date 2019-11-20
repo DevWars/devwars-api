@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany, OneToOne } from 'typeorm';
+import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import LinkedAccount from './LinkedAccount';
 import Activity from './Activity';
@@ -51,13 +51,22 @@ export default class User extends BaseModel {
     @OneToOne((type) => EmailVerification)
     public verification: EmailVerification;
 
-    @OneToMany((type) => Activity, (activities) => activities.user)
+    @OneToMany(
+        (type) => Activity,
+        (activities) => activities.user
+    )
     public activities: Activity;
 
-    @OneToMany((type) => GameApplication, (applications) => applications.user)
+    @OneToMany(
+        (type) => GameApplication,
+        (applications) => applications.user
+    )
     public applications: GameApplication;
 
-    @OneToMany((type) => LinkedAccount, (accounts) => accounts.user)
+    @OneToMany(
+        (type) => LinkedAccount,
+        (accounts) => accounts.user
+    )
     public accounts: LinkedAccount[];
 
     /**

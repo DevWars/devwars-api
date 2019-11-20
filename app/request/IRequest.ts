@@ -13,6 +13,15 @@ export interface IRequest extends Request {
 }
 
 /**
+ * Extends the default express request to contain a localized object of the DevWars user, this will
+ * be pushed on during the binding middleware stage when specified as a middleware and the user param
+ * is specified. process. And accessible if required.
+ */
+export interface IUserRequest extends Request {
+    boundUser: User;
+}
+
+/**
  * Extends the default express request to contain a localized object of the DevWars game schedule, this will
  * be pushed on during the requests that specify the schedule id in the url. And accessible if required.
  */
