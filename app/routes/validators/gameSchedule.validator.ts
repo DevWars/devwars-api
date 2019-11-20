@@ -15,15 +15,12 @@ export const createGameScheduleSchema = Joi.object()
             .max(constants.GAME_SCHEDULE_TITLE_MAX_LENGTH)
             .optional(),
 
-        // Objectives is not required (since they can be added later)
-        // The objectives of the GameSchedule
-
         // Objects is a list of keys that are incrementing and not array list. This makes it impossible
         // to validate with joi and will require a shuffle to an array format to better allow for
         // future validation. I have plan's to ensure that objectives are broken out into there own
         // database table to ensure normalization of data and better api flow in the future, the change
         // will probably occur then.
-        objectives: Joi.object().required(),
+        objectives: Joi.object().optional(),
         // .Joi.object()
         // .keys({
         //     description: Joi.string()
@@ -49,15 +46,12 @@ export const updateGameScheduleSchema = Joi.object()
             .max(constants.GAME_SCHEDULE_TITLE_MAX_LENGTH)
             .optional(),
 
-        // Objectives is not required (since they can be added later)
-        // The objectives of the GameSchedule
-
         // Objects is a list of keys that are incrementing and not array list. This makes it impossible
         // to validate with joi and will require a shuffle to an array format to better allow for
         // future validation. I have plan's to ensure that objectives are broken out into there own
         // database table to ensure normalization of data and better api flow in the future, the change
         // will probably occur then.
-        objectives: Joi.object(),
+        objectives: Joi.object().optional(),
         // .Joi.object()
         // .keys({
         //     description: Joi.string()

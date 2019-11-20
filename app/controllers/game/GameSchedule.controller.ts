@@ -89,9 +89,9 @@ export async function create(request: Request, response: Response) {
 
     schedule.setup = {
         ...schedule.setup,
-        mode: params.mode || schedule.setup.mode,
+        mode: params.mode || '',
         objectives: objectives.reduce(toIdMap, {}),
-        title: params.title || schedule.setup.title,
+        title: params.title || '',
     };
 
     await schedule.save();
