@@ -10,7 +10,7 @@ import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import UserRepository from '../../repository/User.repository';
 
 import GameApplication from '../../models/GameApplication';
-import User from '../../models/User';
+import User, { UserRole } from '../../models/User';
 
 /**
  * @api {get} /mine Returns a list of game applications currently registered on.
@@ -232,8 +232,7 @@ export async function findUserApplicationsByGame(request: IGameRequest, response
 }
 
 export async function createGameSchedule(request: IRequest & IGameRequest, response: Response) {
-    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedule = await gameScheduleRepository.findByGame(request.game);
+    const schedule = request.game.schedule;
 
     if (_.isNil(schedule)) {
         return response.status(404).send({
@@ -241,7 +240,18 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
         });
     }
 
-    const application = new GameApplication(schedule, request.user);
+    const { username } = request.params;
+
+    const userRepository = getCustomRepository(UserRepository);
+    const user = await userRepository.findByUsername(username);
+
+    if (_.isNil(user)) {
+        return response.status(404).send({
+            error: `A user does not exist by the provided username '${username}'`,
+        });
+    }
+
+    const application = new GameApplication(schedule, user);
     await application.save();
 
     return response.json(application);

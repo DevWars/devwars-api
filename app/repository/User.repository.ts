@@ -70,6 +70,8 @@ export default class UserRepository extends Repository<User> {
     }
 
     public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {
+        if (_.isNil(schedule)) return null;
+
         return User.createQueryBuilder('user')
             .where((qb) => {
                 const subQuery = qb
