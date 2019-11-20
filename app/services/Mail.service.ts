@@ -63,9 +63,8 @@ export async function sendGameApplicationApplyingEmail(gameApplication: GameAppl
     // prettier-ignore
     output.html = output.html
         .replace(/__USERNAME__/g, gameApplication.user.username)
-        .replace(/__GAME_TITLE__/g, gameApplication.schedule.game.title)
         .replace(/__GAME_TIME__/g, gameApplication.schedule.startTime.toUTCString())
-        .replace(/__GAME_MODE__/g, `${gameApplication.schedule.game.mode}`);
+        .replace(/__GAME_MODE__/g, `${gameApplication.schedule.setup.mode || 'specified'}`);
 
     await send(gameApplication.user.email, subject, output.html);
 }
