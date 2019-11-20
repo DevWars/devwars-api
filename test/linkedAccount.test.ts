@@ -152,12 +152,11 @@ describe('Linked Account - Twitch', () => {
             const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
             const account = await linkedAccountRepository.findByProviderAndProviderId(
                 Provider.TWITCH,
-                requestBody.updates[0].twitchUser.id,
+                requestBody.updates[0].twitchUser.id
             );
 
             // Don't compare User relation
             delete account.user;
-            console.log('account', account);
 
             chai.expect(JSON.stringify(response.body[0])).to.equal(JSON.stringify(account));
             chai.expect(response.body[0].storage.coins).to.equal(account.storage.coins);
