@@ -4,6 +4,7 @@ import * as _ from 'lodash';
 
 import GameScheduleRepository from '../repository/GameSchedule.repository';
 import { IScheduleRequest } from '../request/IRequest';
+import { DATABASE_MAX_ID } from '../constants';
 
 /**
  * Ensures that the requesting authorized user has provided a valid schedule id, this id will be validated,
@@ -17,7 +18,7 @@ export const bindScheduleFromScheduleParam = async (
 ) => {
     const { schedule: scheduleId } = request.params;
 
-    if (_.isNil(scheduleId)) {
+    if (_.isNil(scheduleId) || isNaN(_.toNumber(scheduleId)) || Number(scheduleId) > DATABASE_MAX_ID) {
         return response.status(400).json({ error: 'Invalid schedule id provided.' });
     }
 
