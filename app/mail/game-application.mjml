@@ -4,10 +4,10 @@
 
     <mj-section>
       <mj-column>
-        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">Game Application: __GAME_TITLE__!</mj-text>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">DevWars Game Application!</mj-text>
         <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
           Thank you for applying <strong>__USERNAME__</strong>! We received your application for the <strong>__GAME_MODE__</strong> game mode.
-          The game will be taking place on __GAME_TIME__. Be sure to check the rules and information about this mode and keep a eye out for DevWars going live!
+          The game will be taking place on __GAME_TIME__. Be sure to check the rules and information about this mode and keep an eye out for DevWars going live!
         </mj-text>
       </mj-column>
     </mj-section>
