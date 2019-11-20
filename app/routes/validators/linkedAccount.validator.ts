@@ -2,7 +2,7 @@ import * as Joi from '@hapi/joi';
 
 import * as constants from '../../constants';
 
-export const updateTwitchCoinsSchema = Joi.object().keys({
+const updates = Joi.object().keys({
     twitchUser: Joi.object()
         .keys({
             username: Joi.string()
@@ -18,6 +18,10 @@ export const updateTwitchCoinsSchema = Joi.object().keys({
         .min(constants.TWITCH_COINS_MIN_UPDATE)
         .max(constants.TWITCH_COINS_MAX_UPDATE)
         .required(),
+});
+
+export const updateTwitchCoinsSchema = Joi.object().keys({
+    updates: Joi.array().items(updates).required(),
 
     apiKey: Joi.string().optional(),
 });

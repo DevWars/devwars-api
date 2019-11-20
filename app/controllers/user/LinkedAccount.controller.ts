@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, In } from 'typeorm';
 import LinkedAccount, { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 import { DiscordService } from '../../services/Discord.service';
@@ -9,8 +9,7 @@ import { IRequest } from '../../request/IRequest';
 import * as _ from 'lodash';
 
 export async function all(request: IRequest, response: Response) {
-    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    const accounts = await linkedAccountRepository.findAllByUserId(request.user.id);
+    const accounts = await LinkedAccount.find();
 
     return response.json(accounts);
 }
@@ -60,20 +59,23 @@ export async function disconnect(request: IRequest, response: Response) {
 }
 
 export async function updateTwitchCoins(request: Request, response: Response) {
-    const { twitchUser, amount } = request.body;
+    const twitchUsers = request.body.updates.map((update: any) => update.twitchUser);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
+    await linkedAccountRepository.createMissingAccounts(twitchUsers, Provider.TWITCH);
 
-    if (_.isNil(account)) {
-        account = new LinkedAccount(null, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    const accounts = await LinkedAccount.find({ providerId: In(twitchUsers.map((u: any) => u.id)) });
+    for (const account of accounts) {
+        const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
+        if (!_.isFinite(amount)) continue;
+
+        if (_.isNil(account.storage.coins)) account.storage.coins = 0;
+        account.storage.coins += amount;
     }
 
-    if (_.isNil(account.storage.coins)) account.storage.coins = 0;
-    account.storage.coins += amount;
+    await LinkedAccount.save(accounts);
 
-    await account.save();
-    return response.json(account);
+    return response.json(accounts);
 }
 
 async function connectDiscord(request: Request, response: Response, user: User) {

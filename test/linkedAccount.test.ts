@@ -56,7 +56,12 @@ describe('Linked Account - Twitch', () => {
 
         it('Should not allow updating twitch coins if the amount is not specified.', async () => {
             const requestBody = {
-                twitchUser: { id: 1, username: 'username' },
+                updates: [
+                    {
+                        twitchUser: { id: 1, username: 'username' },
+                        amount: 'not a number',
+                    },
+                ],
                 apiKey: process.env.API_KEY,
             };
 
@@ -68,9 +73,13 @@ describe('Linked Account - Twitch', () => {
 
         it('Should not allow updating twitch coins if the amount is not a number.', async () => {
             const requestBody = {
-                twitchUser: { id: 1, username: 'username' },
+                updates: [
+                    {
+                        twitchUser: { id: 1, username: 'username' },
+                        amount: 'not a number',
+                    },
+                ],
                 apiKey: process.env.API_KEY,
-                amount: 'not a number',
             };
 
             await agent
@@ -80,17 +89,20 @@ describe('Linked Account - Twitch', () => {
         });
 
         it('Should not allow updating twitch coins if the twitch user is not specified.', async () => {
-            const requestBody: any = {
+            const requestBody = {
+                updates: [
+                    {
+                        twitchUser: {},
+                        amount: 'not a number',
+                    },
+                ],
                 apiKey: process.env.API_KEY,
-                amount: 'not a number',
             };
 
             await agent
                 .put(coinsRoute)
                 .send(requestBody)
                 .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
-
-            requestBody.twitchUser = {};
 
             await agent
                 .put(coinsRoute)
@@ -100,8 +112,12 @@ describe('Linked Account - Twitch', () => {
 
         it('Should not allow updating twitch coins if the twitch user is not valid.', async () => {
             const requestBody = {
+                updates: [
+                    {
+                        amount: 'not a number',
+                    },
+                ],
                 apiKey: process.env.API_KEY,
-                amount: 'not a number',
             };
 
             await agent
@@ -119,9 +135,13 @@ describe('Linked Account - Twitch', () => {
             const linkedUser = await createDefaultAccountWithTwitch();
 
             const requestBody = {
-                twitchUser: { id: `${linkedUser.username}1`, username: linkedUser.username },
+                updates: [
+                    {
+                        twitchUser: { id: linkedUser.providerId, username: linkedUser.username },
+                        amount: 100,
+                    },
+                ],
                 apiKey: process.env.API_KEY,
-                amount: 100,
             };
 
             const response = await agent
@@ -132,11 +152,15 @@ describe('Linked Account - Twitch', () => {
             const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
             const account = await linkedAccountRepository.findByProviderAndProviderId(
                 Provider.TWITCH,
-                requestBody.twitchUser.id
+                requestBody.updates[0].twitchUser.id,
             );
 
-            chai.expect(JSON.stringify(response.body)).to.equal(JSON.stringify(account));
-            chai.expect(response.body.storage.coins).to.equal(account.storage.coins);
+            // Don't compare User relation
+            delete account.user;
+            console.log('account', account);
+
+            chai.expect(JSON.stringify(response.body[0])).to.equal(JSON.stringify(account));
+            chai.expect(response.body[0].storage.coins).to.equal(account.storage.coins);
             chai.expect(account.storage.coins).to.equal(100);
         });
     });

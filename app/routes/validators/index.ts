@@ -4,7 +4,7 @@ import { map } from 'lodash';
 
 async function validator(
     content: any,
-    schema: Joi.ObjectSchema,
+    schema: Joi.ObjectSchema | Joi.ArraySchema,
     code: number = 400,
     request: Request,
     response: Response,
@@ -46,7 +46,7 @@ export async function testSchemaValidation(content: any, schema: Joi.ObjectSchem
  * @param schema The joi schema to be validated against.
  * @param code The http code response on validated validation.
  */
-export const bodyValidation = (schema: Joi.ObjectSchema, code?: number) => async (
+export const bodyValidation = (schema: Joi.ObjectSchema | Joi.ArraySchema, code?: number) => async (
     request: Request,
     response: Response,
     next: NextFunction
