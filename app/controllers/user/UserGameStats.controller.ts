@@ -2,12 +2,10 @@ import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 
 import UserRepository from '../../repository/User.repository';
+import { IUserRequest } from '../../request/IRequest';
 
-export async function forUser(request: Request, response: Response) {
+export async function forUser(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(request.params.id);
-    if (!user) return response.sendStatus(404);
-
-    const stats = await userRepository.findGameStatsByUser(user);
+    const stats = await userRepository.findGameStatsByUser(request.boundUser);
     return response.json(stats);
 }

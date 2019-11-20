@@ -2,9 +2,9 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import GameScheduleRepository from '../repository/GameSchedule.repository';
-import { IGameRequest, IScheduleRequest } from '../request/IRequest';
+import { IGameRequest } from '../request/IRequest';
 import GameRepository from '../repository/Game.repository';
+import { DATABASE_MAX_ID } from '../constants';
 
 /**
  * Ensures that the requesting authorized user has provided a valid schedule id, this id will be validated,
@@ -14,7 +14,7 @@ import GameRepository from '../repository/Game.repository';
 export const bindGameFromGameParam = async (request: IGameRequest, response: Response, next: NextFunction) => {
     const { game: gameId } = request.params;
 
-    if (_.isNil(gameId)) {
+    if (_.isNil(gameId) || isNaN(_.toNumber(gameId)) || Number(gameId) > DATABASE_MAX_ID) {
         return response.status(400).json({
             error: 'Invalid game id provided.',
         });

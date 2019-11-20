@@ -3,32 +3,34 @@ import * as _ from 'lodash';
 
 import UserProfile from '../../models/UserProfile';
 import { IProfileRequest } from '../../request/IProfileRequest';
+import { IUserRequest } from '../../request/IRequest';
 
-export async function show(request: Request, response: Response) {
-    const userId = request.params.id;
+export async function show(request: IUserRequest, response: Response) {
+    const profile = await UserProfile.findOne({ where: { user: request.boundUser.id } });
 
-    const user = await UserProfile.findOne({ where: { user: userId } });
-    if (!user) return response.sendStatus(404);
+    if (_.isNil(profile)) {
+        return response.status(404).json({
+            error: `The specified user ${request.boundUser.username} does not have a profile`,
+        });
+    }
 
-    return response.json(user);
+    return response.json(profile);
 }
 
-export async function update(request: Request, response: Response) {
-    const userId = request.params.id;
+export async function update(request: IUserRequest, response: Response) {
     const params: any = { ...(request.body as IProfileRequest) };
+    const profile: any = await UserProfile.findOne({ where: { user: request.boundUser.id } });
 
-    let data: any = await UserProfile.findOne({
-        where: {
-            user: userId,
-        },
+    if (_.isNil(profile)) {
+        return response.status(404).json({
+            error: `The specified user ${request.boundUser.username} does not have a profile`,
+        });
+    }
+
+    Object.keys(profile).map((k) => {
+        if (!_.isNil(params[k])) profile[k] = params[k];
     });
 
-    if (!data) return response.sendStatus(404);
-
-    Object.keys(data).map((k) => {
-        if (!_.isNil(params[k])) data[k] = params[k];
-    });
-
-    data = await UserProfile.save(data);
-    return response.json(data);
+    const updatedProfile = await UserProfile.save(profile);
+    return response.json(updatedProfile);
 }

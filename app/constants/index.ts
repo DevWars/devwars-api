@@ -6,6 +6,10 @@ export const USERNAME_MAX_LENGTH = 25;
 // Does not allow special characters in the beginning or end of username
 export const USERNAME_REGEX = /^[a-zA-Z0-9.-][A-z0-9.-_]{2,23}[a-zA-Z0-9.-]$/;
 
+// currently postgres max int is 4 bytes and any attempt to go over this limit should be rejected
+// http://www.postgresqltutorial.com/postgresql-integer/
+export const DATABASE_MAX_ID = 2 ** 31 - 1;
+
 // Username limits in regards for twitch when processing requests that is directly related to the
 // twitch username. e.g updating twitch coins.
 export const TWITCH_USERNAME_MIN_LENGTH = 4;

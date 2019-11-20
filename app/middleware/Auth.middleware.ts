@@ -65,7 +65,7 @@ export const mustBeRoleOrOwner = (role?: UserRole, bot: boolean = false) => asyn
     response: Response,
     next: NextFunction
 ) => {
-    const requestedUserId = Number(request.params.id);
+    const requestedUserId = Number(request.params.user);
 
     // Ensure that the requesting user is the entity they are also trying to perform the following
     // request on. For example: you can only update your own profile and not others (unless your a admin).

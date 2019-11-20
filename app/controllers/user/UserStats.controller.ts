@@ -1,27 +1,32 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
+import { isNil } from 'lodash';
+
 import UserStats from '../../models/UserStats';
 import UserRepository from '../../repository/User.repository';
-import LinkedAccount, { Provider } from '../../models/LinkedAccount';
+import { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
+import { IUserRequest } from '../../request/IRequest';
 
-export async function forUser(request: Request, response: Response) {
+export async function forUser(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(request.params.id);
-    if (!user) return response.sendStatus(404);
+    const stats = await userRepository.findStatsByUser(request.boundUser);
 
-    const stats = await userRepository.findStatsByUser(user);
-
-    response.json(stats);
+    return response.json(stats);
 }
 
-export async function create(request: Request, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(request.params.id);
-    if (!user) return response.sendStatus(400);
+export async function create(request: IUserRequest, response: Response) {
+    const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
+
+    if (!isNil(existingStatus)) {
+        return response.status(409).json({
+            error: `The user ${request.boundUser.username} already has existing user stats.`,
+        });
+    }
 
     const stats = new UserStats();
-    stats.user = user;
+    stats.user = request.boundUser;
+
     Object.assign(stats, request.body);
 
     await stats.save();
