@@ -14,8 +14,8 @@
       <mj-section background-color="#0B0C11">
         <mj-column width="100%">
           <mj-social>
-            <mj-social-element name="facebook" href="https://www.facebook.com/DevWars/"></mj-social-element>
-            <mj-social-element name="twitter" href="https://www.twitter.com/devwarstv"></mj-social-element>
+            <mj-social-element name="facebook-noshare" href="https://www.facebook.com/DevWars/"></mj-social-element>
+            <mj-social-element name="twitter-noshare" href="https://www.twitter.com/devwarstv"></mj-social-element>
           </mj-social>
         </mj-column>
         <mj-column width="100%">
