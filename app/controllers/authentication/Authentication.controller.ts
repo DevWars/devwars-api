@@ -47,13 +47,13 @@ export async function register(request: Request, response: Response) {
     email = email.trim();
 
     const userRepository = getCustomRepository(UserRepository);
-    const existingUser = await userRepository.findOne({ where: [{ username }, { email }] });
+    const existingUser = await userRepository.findByUsernameOrEmail(username, email);
 
-    if (existingUser && existingUser.username === username) {
+    if (existingUser && existingUser.username.toLowerCase() === username.toLowerCase()) {
         return response.status(409).json({ error: 'A user already exists with the provided username.' });
     }
 
-    if (existingUser && existingUser.email === email) {
+    if (existingUser && existingUser.email.toLowerCase() === email.toLowerCase()) {
         return response.status(409).json({ error: 'A user already exists with the provided email.' });
     }
 

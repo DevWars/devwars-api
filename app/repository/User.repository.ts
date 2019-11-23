@@ -22,18 +22,42 @@ export default class UserRepository extends Repository<User> {
         return await User.findOne({ where: { id } });
     }
 
+    /**
+     * Attempts to find a given user by the email.
+     * @param email The email of the given user.
+     */
     public findByEmail(email: string): Promise<User> {
         return User.createQueryBuilder()
             .where('LOWER(email) = LOWER(:email)', { email })
             .getOne();
     }
 
+    /**
+     * Attempts to find a user by a given username.
+     * @param username The username of the given user.
+     */
     public findByUsername(username: string): Promise<User> {
         return User.createQueryBuilder()
             .where('LOWER(username) = LOWER(:username)', { username })
             .getOne();
     }
 
+    /**
+     * Finds a given user by a email or username, ensuring that they are done lowercase.
+     * @param username The username of the given user.
+     * @param email The email of the given user.
+     */
+    public findByUsernameOrEmail(username: string, email: string): Promise<User> {
+        return User.createQueryBuilder()
+            .where('LOWER(username) = LOWER(:username)', { username })
+            .orWhere('LOWER(email) = LOWER(:email)', { email })
+            .getOne();
+    }
+
+    /**
+     * Finds the user by a given authentication token.
+     * @param token The authentication token for the given user.
+     */
     public findByToken(token: string): Promise<User> {
         return User.findOne({ where: { token } });
     }
