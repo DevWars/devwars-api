@@ -2,8 +2,6 @@ import * as bcrypt from 'bcrypt';
 import { helpers, random } from 'faker';
 import User, { UserRole } from '../models/User';
 
-import { USERNAME_MAX_LENGTH, USERNAME_MIN_LENGTH } from '../constants';
-
 export default class UserSeeding {
     public static default(): User {
         const userCard = helpers.userCard();
