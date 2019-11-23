@@ -7,12 +7,7 @@ import User from '../models/User';
 @EntityRepository(GameSchedule)
 export default class GameScheduleRepository extends Repository<GameSchedule> {
     public all(): Promise<GameSchedule[]> {
-        return GameSchedule.find({
-            order: {
-                startTime: 'DESC',
-            },
-            relations: ['game'],
-        });
+        return GameSchedule.find({ order: { startTime: 'DESC' }, relations: ['game'] });
     }
 
     /**
