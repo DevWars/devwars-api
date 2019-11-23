@@ -15,6 +15,7 @@ import logger from '../app/utils/logger';
 
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 import UserRepository from '../app/repository/User.repository';
+import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -28,13 +29,16 @@ const generateConstantUsers = async () => {
             await transaction.save(user);
 
             const profile = UserProfileSeeding.default();
+            const emailOptIn = EmailOptInSeeding.default();
             const stats = UserStatsSeeding.default();
 
             profile.user = user;
             stats.user = user;
+            emailOptIn.user = user;
 
             await transaction.save(profile);
             await transaction.save(stats);
+            await transaction.save(emailOptIn);
         });
     }
 };
@@ -45,6 +49,7 @@ const generateBasicUsers = async () => {
     for (let i = 4; i <= 100; i++) {
         await connectionManager.transaction(async (transaction) => {
             const profile = UserProfileSeeding.default();
+            const emailOptIn = EmailOptInSeeding.default();
             const stats = UserStatsSeeding.default();
             const user = UserSeeding.default();
 
@@ -52,9 +57,11 @@ const generateBasicUsers = async () => {
 
             profile.user = user;
             stats.user = user;
+            emailOptIn.user = user;
 
             await transaction.save(profile);
             await transaction.save(stats);
+            await transaction.save(emailOptIn);
 
             for (let j = 1; j <= 25; j++) {
                 const activity = ActivitySeeding.withUser(user);

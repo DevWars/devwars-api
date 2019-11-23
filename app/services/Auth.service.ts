@@ -15,6 +15,7 @@ import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
 
 import * as jwt from 'jsonwebtoken';
+import EmailOptIn from '../models/EmailOptIn';
 
 export class AuthService {
     public static async register(request: IRegistrationRequest) {
@@ -28,6 +29,7 @@ export class AuthService {
 
         const userStats = new UserStats(user);
         const gameStats = new UserGameStats(user);
+        const emailOptIn = new EmailOptIn(user);
 
         await VerificationService.reset(user);
 
@@ -36,6 +38,7 @@ export class AuthService {
             await transactionalEntityManager.save(profile);
             await transactionalEntityManager.save(userStats);
             await transactionalEntityManager.save(gameStats);
+            await transactionalEntityManager.save(emailOptIn);
         });
 
         return user;

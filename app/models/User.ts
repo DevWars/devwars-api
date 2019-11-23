@@ -8,6 +8,7 @@ import EmailVerification from './EmailVerification';
 import GameApplication from './GameApplication';
 
 import { isNil, isArray } from 'lodash';
+import EmailOptIn from './EmailOptIn';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -50,6 +51,9 @@ export default class User extends BaseModel {
 
     @OneToOne((type) => EmailVerification)
     public verification: EmailVerification;
+
+    @OneToOne((type) => EmailOptIn)
+    public emailOptIn: EmailOptIn;
 
     @OneToMany(
         (type) => Activity,
