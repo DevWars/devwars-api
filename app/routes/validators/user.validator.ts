@@ -27,9 +27,13 @@ export const statsSchema = Joi.object()
 
 export const profileSchema = Joi.object()
     .keys({
-        firstName: Joi.string().optional(),
+        firstName: Joi.string()
+            .allow('')
+            .optional(),
 
-        lastName: Joi.string().optional(),
+        lastName: Joi.string()
+            .allow('')
+            .optional(),
 
         dob: Joi.date().optional(),
 
@@ -37,25 +41,43 @@ export const profileSchema = Joi.object()
             .valid(...Object.values(Sex))
             .optional(),
 
-        about: Joi.string().optional(),
+        about: Joi.string()
+            .allow('')
+            .optional(),
 
         forHire: Joi.boolean().optional(),
 
-        company: Joi.string().optional(),
+        company: Joi.string()
+            .allow('')
+            .optional(),
 
-        websiteUrl: Joi.string().optional(),
+        websiteUrl: Joi.string()
+            .allow('')
+            .optional(),
 
-        addressOne: Joi.string().optional(),
+        addressOne: Joi.string()
+            .allow('')
+            .optional(),
 
-        addressTwo: Joi.string().optional(),
+        addressTwo: Joi.string()
+            .allow('')
+            .optional(),
 
-        city: Joi.string().optional(),
+        city: Joi.string()
+            .allow('')
+            .optional(),
 
-        state: Joi.string().optional(),
+        state: Joi.string()
+            .allow('')
+            .optional(),
 
-        zip: Joi.string().optional(),
+        zip: Joi.string()
+            .allow('')
+            .optional(),
 
-        country: Joi.string().optional(),
+        country: Joi.string()
+            .allow('')
+            .optional(),
 
         skills: Joi.object().optional(),
     })
