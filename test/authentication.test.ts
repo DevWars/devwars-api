@@ -154,9 +154,54 @@ describe('Authentication', () => {
             chai.expect(!request.body.token).to.equal(true);
         });
 
+        it('Should fail if you attempt to register with a username already in use, regardless of case', async () => {
+            const errorMessage = 'A user already exists with the provided username.';
+            const existingUser = await UserSeeding.default().save();
+            const newUser = UserSeeding.default();
+
+            const newUserBody = { email: newUser.email, username: newUser.username, password: newUser.password };
+            newUserBody.username = existingUser.username.toUpperCase();
+
+            await agent
+                .post('/auth/register')
+                .send(newUserBody)
+                .expect(409, { error: errorMessage });
+
+            newUserBody.username = newUserBody.username.toLowerCase();
+
+            await agent
+                .post('/auth/register')
+                .send(newUserBody)
+                .expect(409, { error: errorMessage });
+        });
+
+        it('Should fail if you attempt to register with a email already in use, regardless of case', async () => {
+            const errorMessage = 'A user already exists with the provided email.';
+            const existingUser = await UserSeeding.default().save();
+            const newUser = UserSeeding.default();
+
+            const newUserBody = { email: newUser.email, username: newUser.username, password: newUser.password };
+            newUserBody.email = existingUser.email.toUpperCase();
+
+            await agent
+                .post('/auth/register')
+                .send(newUserBody)
+                .expect(409, { error: errorMessage });
+
+            newUserBody.email = newUserBody.email.toLowerCase();
+
+            await agent
+                .post('/auth/register')
+                .send(newUserBody)
+                .expect(409, { error: errorMessage });
+        });
+
         it('Should not allow invalid username formats', async () => {
             async function registerInvalidUser(username: string) {
-                return agent.post('/auth/register').send({ username, email: 'invalid@email.fr', password: 'secretpassword' }).expect(400);
+                return agent
+                    .post('/auth/register')
+                    .send({ username, email: 'invalid@email.fr', password: 'secretpassword' })
+                    .expect(400);
             }
 
             // Spaces aren't allowed
@@ -175,7 +220,6 @@ describe('Authentication', () => {
             await registerInvalidUser('12345678901234567890123456');
         });
     });
-
 
     describe('POST - /auth/verify - Verifying emails with the system', () => {
         it('Should find the token and delete it', async () => {

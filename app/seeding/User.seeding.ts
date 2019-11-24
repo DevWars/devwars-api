@@ -4,10 +4,11 @@ import User, { UserRole } from '../models/User';
 
 export default class UserSeeding {
     public static default(): User {
-        const usersHelperCard = helpers.userCard();
+        const userCard = helpers.userCard();
 
         const role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
-        const user = new User(usersHelperCard.username, bcrypt.hashSync('secret', 1), usersHelperCard.email, role);
+        const user = new User(userCard.username, bcrypt.hashSync('secret', 1), userCard.email, role);
+
         user.avatarUrl = random.image();
         user.lastSignIn = new Date();
 
