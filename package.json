@@ -23,7 +23,9 @@
         "migrate": "ts-node ./node_modules/.bin/typeorm migration:run"
     },
     "husky": {
-        "hooks": {}
+        "hooks": {
+            "pre-commit": "npm test"
+        }
     },
     "nyc": {
         "include": [

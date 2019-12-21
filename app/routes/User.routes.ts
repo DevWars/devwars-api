@@ -14,7 +14,7 @@ import { asyncErrorHandler } from './handlers';
 import { bodyValidation } from './validators';
 import { statsSchema, profileSchema, updateUserSchema } from './validators/user.validator';
 import { bindUserFromUserParam } from '../middleware/User.middleware';
-import { emailPermissionSchema } from './validators/emai.validator';
+import { emailPermissionSchema } from './validators/email.validator';
 
 const upload = multer({ dest: 'uploads/' });
 const UserRoute: express.Router = express.Router();
