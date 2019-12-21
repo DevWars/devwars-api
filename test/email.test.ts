@@ -10,7 +10,7 @@ import { UserRole } from '../app/models/User';
 const server: ServerService = new ServerService();
 let agent: any;
 
-describe('Linked Account - Twitch', () => {
+describe('Emailing', () => {
     before(async () => {
         await server.Start();
         await (await Connection).synchronize(true);
@@ -31,7 +31,7 @@ describe('Linked Account - Twitch', () => {
 
         it('Should fail if the user does not exist.', async () => {
             await agent
-                .get('/users/99/emails/permissions')
+                .get('/users/999/emails/permissions')
                 .set('Cookie', await cookieForUser(admin))
                 .expect(404);
         });
