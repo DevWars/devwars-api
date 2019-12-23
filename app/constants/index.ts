@@ -1,3 +1,10 @@
+// The reserved usernames that cannot be taken by any newly created accounts.
+export const RESERVED_USERNAMES = ['admin', 'devwars', 'administrator', 'administration', 'competitor', 'eval'];
+
+// The competitor usernames that will be a default reserved username to replace users who have been
+// deleted (e.g game application, results, existing displayed data)
+export const COMPETITOR_USERNAME = 'Competitor';
+
 // The minimum and maximum length a new/existing users username must respect for
 // the user to be registered or authorized with the site.
 export const USERNAME_MIN_LENGTH = 4;
