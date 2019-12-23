@@ -1,9 +1,15 @@
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getConnection } from 'typeorm';
 import { Request, Response } from 'express';
 import { isNil, isInteger } from 'lodash';
 
+import GameApplication from '../../models/GameApplication';
+import UserProfile from '../../models/UserProfile';
+import UserStats from '../../models/UserStats';
+import Activity from '../../models/Activity';
+
 import UserRepository from '../../repository/User.repository';
 import { IUserRequest } from '../../request/IRequest';
+import { COMPETITOR_USERNAME } from '../../constants';
 import { hash } from '../../utils/hash';
 
 import { parseIntWithDefault } from '../../../test/helpers';
@@ -210,4 +216,55 @@ export async function update(request: IUserRequest, response: Response) {
     await request.boundUser.save();
 
     return response.json(request.boundUser);
+}
+
+/**
+ * @api {delete} /:user Deletes the user from the system (replaces with competitor)
+ * @apiName DeleteUserById
+ * @apiGroup User
+ * @apiPermission admin, owner
+ *
+ * @apiParam {Number} user Users unique ID.
+ * @apiParam {string} [lastSigned] Users updated last signed in date.
+ */
+export async function deleteUser(request: IUserRequest, response: Response) {
+    const { boundUser: removingUser } = request;
+
+    await getConnection().transaction(async (transaction) => {
+        const userRepository = transaction.getCustomRepository(UserRepository);
+        const competitor = await userRepository.findByUsername(COMPETITOR_USERNAME);
+
+        // The reserved user needs to exist before hand to ensure that the user can be removed and
+        // there details are replaced with the template reserved user (competitor).
+        if (competitor == null) throw Error('Users cannot be removed since a replacement user does not exist.');
+
+        const whereOptions = { where: { user: removingUser } };
+
+        // First remove all related activities for the given user. Since the user is being removed, any
+        // action taken by the user is only related to a given user and should be removed (not replaced
+        // by competitor).
+        const activities = await transaction.find<Activity>(Activity, whereOptions);
+        await transaction.remove(activities);
+
+        // Remove the given users related profile && users stats
+        const profiles = await transaction.find<UserProfile>(UserProfile, whereOptions);
+        await transaction.remove(profiles);
+
+        const statistics = await transaction.find<UserStats>(UserStats, whereOptions);
+        await transaction.remove(statistics);
+
+        // For all applications that exist for the user, replace them with the replacement user
+        // "Competitor", this is a pre-defined user to help with ensuring data is not damaged and
+        // not usable since related users are missing.
+        const gameApplications = await transaction.find(GameApplication, whereOptions);
+        for (const application of gameApplications) {
+            application.user = competitor;
+            await application.save();
+        }
+
+        // Finally delete the user.
+        await transaction.remove(removingUser);
+    });
+
+    return response.json({ user: request.boundUser.id });
 }

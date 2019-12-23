@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import * as authValidator from './validators/authentication.validator';
-import * as AuthController from '../controllers/authentication/Authentication.controller';
+import * as AuthController from '../controllers/authentication/authentication.controller';
 import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 
 import { bodyValidation, queryValidation } from './validators';

@@ -18,7 +18,7 @@ import * as jwt from 'jsonwebtoken';
 import EmailOptIn from '../models/EmailOptIn';
 
 export class AuthService {
-    public static async register(request: IRegistrationRequest) {
+    public static async register(request: IRegistrationRequest, shouldSendVerification: boolean = true) {
         const { username, email, password } = request;
 
         const user = new User(username, await hash(password), email, UserRole.PENDING);
@@ -31,7 +31,8 @@ export class AuthService {
         const gameStats = new UserGameStats(user);
         const emailOptIn = new EmailOptIn(user);
 
-        await VerificationService.reset(user);
+        // Only email if specified (is by default)
+        if (shouldSendVerification) await VerificationService.reset(user);
 
         await getManager().transaction(async (transactionalEntityManager) => {
             await transactionalEntityManager.save(user);
