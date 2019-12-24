@@ -18,6 +18,13 @@ const upload = multer({ dest: 'uploads/' });
 const UserRoute: express.Router = express.Router();
 
 UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)], asyncErrorHandler(UserController.all));
+
+UserRoute.get(
+    '/lookup',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
+    asyncErrorHandler(UserController.lookupUser)
+);
+
 UserRoute.get('/:user', [bindUserFromUserParam], asyncErrorHandler(UserController.show));
 
 UserRoute.put(

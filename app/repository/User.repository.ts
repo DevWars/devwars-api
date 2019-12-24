@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, Like } from 'typeorm';
 import User from '../models/User';
 import UserProfile from '../models/UserProfile';
 import UserStats from '../models/UserStats';
@@ -79,13 +79,23 @@ export default class UserRepository extends Repository<User> {
         return byUsername;
     }
 
-    public findProfileByUser(user: User): Promise<UserProfile> {
-        return UserProfile.findOne({ user });
+    /**
+     * Attempts to find all the users that have a username (like* the one specified. This is hard
+     * limited by the given limit provided but will fall back onto a hard limit of 50 if not
+     * specified.
+     *
+     * @param username The username that will be performed in the given *like* match.
+     * @param limit The upper limit of the number of users to gather based on the likeness.
+     */
+    public async getUsersLikeUsername(username: string, limit: number = 50): Promise<User[]> {
+        return await User.createQueryBuilder('user')
+            .where('LOWER(user.username) LIKE :username', { username: `%${username.toLowerCase()}%` })
+            .take(limit)
+            .getMany();
     }
 
     public async findStatsByUser(user: User): Promise<any> {
         const [stats, game] = await Promise.all([UserStats.findOne({ user }), UserGameStats.findOne({ user })]);
-
         return { ...stats, game };
     }
 

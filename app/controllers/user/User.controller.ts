@@ -1,12 +1,13 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
-import { isNil } from 'lodash';
+import { isNil, isInteger } from 'lodash';
 
 import User from '../../models/User';
 import { UserRole } from '../../models/User';
 import UserRepository from '../../repository/User.repository';
 import { IRequest, IUserRequest } from '../../request/IRequest';
 import { hash } from '../../utils/hash';
+import { stringify } from 'querystring';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -18,16 +19,67 @@ interface IUpdateUserRequest {
 }
 
 /**
+ * @api {get} /lookup?username=:username&limit=:limit Looks up users by username (like match).
+ * @apiName LookupUsersByUsername
+ * @apiGroup User
+ *
+ * @apiParam {string} username  A partial or full username for a given user.
+ * @apiParam {number} limit     The maximum amount of users to return (max 50)
+ *
+ * @apiSuccess {User[]} Users    A array of user objects containing the username and id.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [{
+ *        "username": "Sadie_Brekke21",
+ *        "id": 27
+ *      },
+ *      {
+ *        "username": "Aubrey.Watsica15",
+ *        "id": 59
+ *      },
+ *      {
+ *        "username": "Alessia.Breitenberg",
+ *        "id": 83
+ *      }]
+ */
+export async function lookupUser(request: IUserRequest, response: Response) {
+    let { username, limit } = request.query;
+
+    if (isNil(username)) username = '';
+    username = username.replace(/\s/g, '').trim();
+
+    if (isNil(limit) || !isInteger(Number(limit)) || Number(limit) > 50) limit = 50;
+    limit = Number(limit);
+
+    if (username === '') {
+        return response.status(400).json({
+            message: 'The specified username within the query must not be empty.',
+        });
+    }
+
+    const userRepository = getCustomRepository(UserRepository);
+    const users = await userRepository.getUsersLikeUsername(username, limit);
+
+    // Reduce the response down to the given username and id of the users.
+    return response.json(
+        users.map((e) => {
+            return { username: e.username, id: e.id };
+        })
+    );
+}
+
+/**
  * @api {get} /:user Request User basic information
  * @apiName GetUserById
  * @apiGroup User
  *
  * @apiParam {Number} user Users unique ID.
  *
- * @apiSuccess {string} username    the username of the User.
- * @apiSuccess {string} role        the role of the User.
- * @apiSuccess {number} id          the id of the User.
- * @apiSuccess {string} avatarUrl   the avatar url of the User.
+ * @apiSuccess {string} username    The username of the User.
+ * @apiSuccess {string} role        The role of the User.
+ * @apiSuccess {number} id          The id of the User.
+ * @apiSuccess {string} avatarUrl   The avatar url of the User.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
