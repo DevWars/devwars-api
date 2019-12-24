@@ -83,3 +83,20 @@ export async function sendPasswordResetEmail(user: User, resetUrl: string) {
 
     await send(user.email, subject, output.html);
 }
+
+export async function sendContactUsEmail(name: string, email: string, message: string) {
+    const subject = `DevWars Contact Us - ${name}`;
+
+    const filePath = path.resolve(__dirname, '../mail/contact-us.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__NAME__/g, name)
+        .replace(/__EMAIL__/g, email)
+        .replace(/__MESSAGE__/g, message);
+
+    await send('contact@devwars.tv', subject, output.html);
+    await send(email, subject, output.html);
+}
