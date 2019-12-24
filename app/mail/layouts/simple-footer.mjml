@@ -1,0 +1,16 @@
+<mjml>
+  <mj-body>
+    <mj-section background-color="#0B0C11">
+      <mj-column width="100%">
+        <mj-social>
+          <mj-social-element name="facebook-noshare" href="https://www.facebook.com/DevWars/"></mj-social-element>
+          <mj-social-element name="twitter-noshare" href="https://www.twitter.com/devwarstv"></mj-social-element>
+        </mj-social>
+      </mj-column>
+      <mj-column width="100%">
+        <mj-text align="center" color="#c9d0df" text-transform="uppercase">&copy; <a style="text-decoration: none; color: inherit;" href="https://www.devwars.tv/">DEVWARS.TV</a> - 2019</mj-text>
+        <mj-text align="center" color="#c9d0df"><a style="text-decoration: none; color: inherit;" href="https://discord.gg/devwars">Join our Discord!</a></mj-text>
+      </mj-column>
+    </mj-section>
+  </mj-body>
+</mjml>

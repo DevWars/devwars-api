@@ -1,0 +1,15 @@
+<mjml>
+  <mj-body>
+    <mj-wrapper>
+      <mj-section padding="0px 0px 20px" background-color="#0B0C11">
+        <mj-column>
+          <mj-text align="center" color="#c9d0df" font-size="13px">
+            <p>
+              &copy; 2019 All Rights Reserved.
+            </p>
+            <a href="#" style="color: #c9d0df">Unsubscribe</a>
+          </mj-text>
+        </mj-column>
+      </mj-section>
+  </mj-body>
+</mjml>

@@ -9,6 +9,7 @@ import { LeaderboardRoute } from './Leaderboard.route';
 import { LinkedAccountRoute } from './LinkedAccount.routes';
 import { UserRoute } from './User.routes';
 import { TempRoute } from './Temp.routes';
+import { ContactRoute } from './contact.routes';
 
 interface IRoute {
     path: string;
@@ -61,6 +62,11 @@ export const Routes: IRoute[] = [
         handler: UserRoute,
         middleware: [],
         path: '/users',
+    },
+    {
+        handler: ContactRoute,
+        middleware: [],
+        path: '/contact',
     },
 
     // TEMP: To support cookie authentication for Old Editor

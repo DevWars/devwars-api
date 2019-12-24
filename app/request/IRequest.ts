@@ -36,3 +36,13 @@ export interface IScheduleRequest extends Request {
 export interface IGameRequest extends Request {
     game: Game;
 }
+
+/**
+ * Extends the default express request to contain a localized object of the DevWars contact us request, this will
+ * include the name, email and message the user is sending with the contact us page.
+ */
+export interface IContactRequest extends Request {
+    name: string;
+    email: string;
+    message: string;
+}

@@ -1,0 +1,26 @@
+<mjml>
+  <mj-body background-color="#090b11">
+    <mj-include path="./layouts/header.mjml"></mj-include>
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">DevWars Contact Us!</mj-text>
+        <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
+          Thank you for contacting us <strong>__NAME__</strong>! We received your email, you will
+          hear back from us soon. Below is a copy of the contact-us response that was sent.
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-section padding-top="0">
+      <mj-column>
+        <mj-text align="left" font-size="16px" color="#fff" font-family="helvetica">Name: __NAME__</mj-text>
+        <mj-text align="left" font-size="16px" color="#fff" font-family="helvetica">Email: __EMAIL__</mj-text>
+        <mj-text align="left" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
+          __MESSAGE__
+        </mj-text>
+      </mj-column>
+    </mj-section>
+    <mj-include path="./layouts/simple-footer.mjml"></mj-include>
+  </mj-body>
+</mjml>

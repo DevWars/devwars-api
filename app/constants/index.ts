@@ -55,3 +55,11 @@ export const GAME_SCHEDULE_TITLE_MAX_LENGTH = 124;
 // The min and max length of a given description of a objective of the game.
 export const GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MIN_LENGTH = 5;
 export const GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MAX_LENGTH = 124;
+
+// The min and max length of the contact us name length
+export const CONTACT_US_NAME_MIN = 3;
+export const CONTACT_US_NAME_MAX = 64;
+
+// the min and max length of the contact message
+export const CONTACT_US_MESSAGE_MIN = 24;
+export const CONTACT_US_MESSAGE_MAX = 500;
