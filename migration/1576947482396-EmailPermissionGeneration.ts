@@ -1,5 +1,7 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import UserRepository from '../app/repository/User.repository';
 import EmailOptIn from '../app/models/EmailOptIn';
+import User from '../app/models/User';
 
 export class EmailPermissionGeneration1576947482396 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
@@ -9,16 +11,20 @@ export class EmailPermissionGeneration1576947482396 implements MigrationInterfac
                 columns: [
                     {
                         name: 'id',
-                        type: 'number',
+                        type: 'integer',
                         isPrimary: true,
+                        isGenerated: true,
+                        generationStrategy: 'increment',
                     },
                     {
                         name: 'updatedAt',
-                        type: 'date',
+                        type: 'timestamp',
+                        default: 'now()',
                     },
                     {
                         name: 'createdAt',
-                        type: 'date',
+                        type: 'timestamp',
+                        default: 'now()',
                     },
                     {
                         name: 'email_opt_in_news',
@@ -40,6 +46,10 @@ export class EmailPermissionGeneration1576947482396 implements MigrationInterfac
                         type: 'boolean',
                         default: true,
                     },
+                    {
+                        name: 'userId',
+                        type: 'integer',
+                    },
                 ],
             }),
             true
@@ -54,6 +64,12 @@ export class EmailPermissionGeneration1576947482396 implements MigrationInterfac
                 onDelete: 'CASCADE',
             })
         );
+
+        const users = await queryRunner.manager.find<User>(User);
+
+        for (const user of users) {
+            await queryRunner.manager.save(new EmailOptIn(user));
+        }
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {}
