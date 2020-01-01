@@ -15,6 +15,10 @@ import { hash } from '../../utils/hash';
 import { parseIntWithDefault } from '../../../test/helpers';
 import { UserRole } from '../../models/User';
 import User from '../../models/User';
+import LinkedAccount from '../../models/LinkedAccount';
+import PasswordReset from '../../models/PasswordReset';
+import EmailVerification from '../../models/EmailVerification';
+import UserGameStats from '../../models/UserGameStats';
 
 import ApiError from '../../utils/apiError';
 
@@ -243,15 +247,43 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         // First remove all related activities for the given user. Since the user is being removed, any
         // action taken by the user is only related to a given user and should be removed (not replaced
         // by competitor).
-        const activities = await transaction.find<Activity>(Activity, whereOptions);
+        const activities = await transaction.find(Activity, whereOptions);
         await transaction.remove(activities);
 
         // Remove the given users related profile && users stats
-        const profiles = await transaction.find<UserProfile>(UserProfile, whereOptions);
+        const profiles = await transaction.find(UserProfile, whereOptions);
         await transaction.remove(profiles);
 
-        const statistics = await transaction.find<UserStats>(UserStats, whereOptions);
+        const statistics = await transaction.find(UserStats, whereOptions);
         await transaction.remove(statistics);
+
+        const gameStatistics = await transaction.find(UserGameStats, whereOptions);
+        await transaction.remove(gameStatistics);
+
+        // remove the given users related accounts
+        const linkedAccounts = await transaction.find(LinkedAccount, whereOptions);
+        await transaction.remove(linkedAccounts);
+
+        // remove the given users password resets
+        const passwordResets = await transaction.find(PasswordReset, whereOptions);
+        await transaction.remove(passwordResets);
+
+        // remove the given users email verification
+        const emailVerifications = await transaction.find(EmailVerification, whereOptions);
+        await transaction.remove(emailVerifications);
+
+        // All future game applications in which the game has not occurred yet can be removed, any
+        // in the past can be replaced. So delete all future game applications.
+        const futureGameApplications = await transaction
+            .getRepository(GameApplication)
+            .createQueryBuilder('app')
+            .leftJoin('app.schedule', 'game_schedule')
+            .where('game_schedule.startTime >= :after')
+            .andWhere('app."userId" = :user')
+            .setParameters({ after: new Date(), user: removingUser.id })
+            .getMany();
+
+        await transaction.remove(futureGameApplications);
 
         // For all applications that exist for the user, replace them with the replacement user
         // "Competitor", this is a pre-defined user to help with ensuring data is not damaged and
@@ -262,7 +294,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             await application.save();
         }
 
-        // Finally delete the user.
+        // // Finally delete the user.
         await transaction.remove(removingUser);
     });
 

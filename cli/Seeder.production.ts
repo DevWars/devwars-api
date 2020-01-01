@@ -1,16 +1,11 @@
 import * as typeorm from 'typeorm';
 import { randomBytes } from 'crypto';
 
-import UserProfileSeeding from '../app/seeding/UserProfile.seeding';
-import UserStatsSeeding from '../app/seeding/UserStats.seeding';
-import UserSeeding from '../app/seeding/User.seeding';
-
 import User, { UserRole } from '../app/models/User';
 import UserProfile from '../app/models/UserProfile';
 import UserStats from '../app/models/UserStats';
 import UserGameStats from '../app/models/UserGameStats';
 
-import { AuthService } from '../app/services/Auth.service';
 import { Connection } from '../app/services/Connection.service';
 import { COMPETITOR_USERNAME } from '../app/constants';
 import logger from '../app/utils/logger';
@@ -38,6 +33,7 @@ const generateConstantUsers = async () => {
         const password = await generateRandomPassword();
 
         const constantUser = new User(user.username, await hash(password), `${user.email}@devwars.tv`, UserRole.USER);
+        constantUser.lastSignIn = new Date();
 
         const profile = new UserProfile(constantUser);
         profile.skills = { html: 1, css: 1, js: 1 };
