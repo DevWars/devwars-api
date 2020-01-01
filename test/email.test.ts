@@ -9,7 +9,7 @@ import { UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 import { UserRole } from '../app/models/User';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
-import EmailOptInRepository from '../app/repository/Email.repository';
+import EmailRepository from '../app/repository/EmailOptIn.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -37,7 +37,7 @@ describe('Emailing', () => {
         });
 
         it('Should update all values if specified.', async () => {
-            const repository = getCustomRepository(EmailOptInRepository);
+            const repository = getCustomRepository(EmailRepository);
             const emailOptIn: any = await repository.findOne({ where: { user } });
 
             chai.expect(isNil(emailOptIn)).to.be.eq(false);
@@ -66,7 +66,7 @@ describe('Emailing', () => {
         });
 
         it('Should not update any values if non specified.', async () => {
-            const repository = getCustomRepository(EmailOptInRepository);
+            const repository = getCustomRepository(EmailRepository);
             const emailOptIn: any = await repository.findOne({ where: { user } });
 
             await agent
@@ -79,7 +79,7 @@ describe('Emailing', () => {
         });
 
         it('Should update the specified value for a given user.', async () => {
-            const repository = getCustomRepository(EmailOptInRepository);
+            const repository = getCustomRepository(EmailRepository);
             const emailOptIn = await repository.findOne({ where: { user } });
 
             await agent

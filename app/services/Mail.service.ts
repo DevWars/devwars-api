@@ -2,10 +2,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
+import { getCustomRepository } from 'typeorm';
 
 import GameApplication from '../models/GameApplication';
-import logger from '../utils/logger';
 import User from '../models/User';
+import LinkedAccount from '../models/LinkedAccount';
+
+import EmailRepository from '../repository/EmailOptIn.repository';
+import logger from '../utils/logger';
 
 const mjml2html = require('mjml');
 const mjmlOptions = { minify: true, keepComments: false };
@@ -54,6 +58,11 @@ export async function sendWelcomeEmail(user: User, verificationUrl: string) {
  * @param gameApplication The game application related to the email being sent.
  */
 export async function sendGameApplicationApplyingEmail(gameApplication: GameApplication) {
+    const emailRepository = getCustomRepository(EmailRepository);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(gameApplication.user);
+
+    if (!emailPermissions.gameApplications) return;
+
     const subject = 'DevWars Game Application';
 
     const filePath = path.resolve(__dirname, '../mail/game-application.mjml');
@@ -100,3 +109,8 @@ export async function sendContactUsEmail(name: string, email: string, message: s
     await send('contact@devwars.tv', subject, output.html);
     await send(email, subject, output.html);
 }
+/**
+ * Send a email to th linked account user about the account status change.
+ * @param linkedAccount The linked account containing the user who will get the linked email change.
+ */
+export async function SendLinkedAccountEmail(linkedAccount: LinkedAccount) {}

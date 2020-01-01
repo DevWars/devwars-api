@@ -3,7 +3,7 @@ import { getCustomRepository } from 'typeorm';
 import { isNil } from 'lodash';
 
 import { IUserRequest } from '../request/IRequest';
-import EmailOptInRepository from '../repository/Email.repository';
+import EmailRepository from '../repository/EmailOptIn.repository';
 import { IUpdateEmailPermissionRequest } from '../request/IUpdateEmailPermissionRequest';
 import EmailOptIn from '../models/EmailOptIn';
 
@@ -30,7 +30,7 @@ import EmailOptIn from '../models/EmailOptIn';
  * @apiError EmailPermissionsDontExist No user email permissions exist for the given user.
  */
 export async function gatherEmailPermissions(request: IUserRequest, response: Response, next: NextFunction) {
-    const emailOptInRepository = getCustomRepository(EmailOptInRepository);
+    const emailOptInRepository = getCustomRepository(EmailRepository);
     const permissions = await emailOptInRepository.getEmailOptInPermissionForUser(request.boundUser);
 
     if (isNil(permissions)) {
@@ -75,7 +75,7 @@ export async function gatherEmailPermissions(request: IUserRequest, response: Re
  * @apiError EmailPermissionsDontExist No user email permissions exist for the given user.
  */
 export async function updateEmailPermissions(request: IUserRequest, response: Response, next: NextFunction) {
-    const emailOptInRepository = getCustomRepository(EmailOptInRepository);
+    const emailOptInRepository = getCustomRepository(EmailRepository);
     const permissions: any = await emailOptInRepository.getEmailOptInPermissionForUser(request.boundUser);
 
     const emailUpdate: IUpdateEmailPermissionRequest = request.body;
