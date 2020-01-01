@@ -1,0 +1,16 @@
+{
+    "type": "postgres",
+    "host": "localhost",
+    "port": 5432,
+    "username": "root",
+    "password": "root",
+    "database": "devwars",
+    "synchronize": false,
+    "logging": true,
+    "entities": ["./app/models/*{.ts,js}"],
+    "migrations": ["./migration/**/*{.ts,js}"],
+    "cli": {
+        "entitiesDir": "./app/models",
+        "migrationsDir": "./migration"
+    }
+}
