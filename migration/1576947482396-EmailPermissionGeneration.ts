@@ -72,5 +72,11 @@ export class EmailPermissionGeneration1576947482396 implements MigrationInterfac
         }
     }
 
-    public async down(queryRunner: QueryRunner): Promise<any> {}
+    /**
+     * Drops the related email opt in table and ensures that all related foreign keys
+     * (relationships) are removed during the process.
+     */
+    public async down(queryRunner: QueryRunner): Promise<any> {
+        await queryRunner.dropTable('email_opt_in', true, true, true);
+    }
 }
