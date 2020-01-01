@@ -20,7 +20,8 @@
         "seed:password": "node -r ts-node/register ./cli/SeedPassword.ts",
         "seed:test": "cross-env NODE_ENV=test node -r ts-node/register ./cli/Seeder.ts",
         "typeorm": "ts-node -P ./tsconfig.json ./node_modules/.bin/typeorm",
-        "migrate": "ts-node ./node_modules/.bin/typeorm migration:run"
+        "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
+        "migrate:revert": "ts-node ./node_modules/.bin/typeorm migration:revert"
     },
     "husky": {
         "hooks": {

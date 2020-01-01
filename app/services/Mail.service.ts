@@ -2,10 +2,14 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
+import { getCustomRepository } from 'typeorm';
 
 import GameApplication from '../models/GameApplication';
-import logger from '../utils/logger';
 import User from '../models/User';
+import LinkedAccount from '../models/LinkedAccount';
+
+import EmailRepository from '../repository/EmailOptIn.repository';
+import logger from '../utils/logger';
 
 const mjml2html = require('mjml');
 const mjmlOptions = { minify: true, keepComments: false };
@@ -54,9 +58,46 @@ export async function sendWelcomeEmail(user: User, verificationUrl: string) {
  * @param gameApplication The game application related to the email being sent.
  */
 export async function sendGameApplicationApplyingEmail(gameApplication: GameApplication) {
+    const emailRepository = getCustomRepository(EmailRepository);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(gameApplication.user);
+
+    if (!emailPermissions.gameApplications) {
+        const { username } = gameApplication.user;
+        return logger.verbose(`game application email skipped for ${username} due to permissions.`);
+    }
+
     const subject = 'DevWars Game Application';
 
     const filePath = path.resolve(__dirname, '../mail/game-application.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__USERNAME__/g, gameApplication.user.username)
+        .replace(/__GAME_TIME__/g, gameApplication.schedule.startTime.toUTCString())
+        .replace(/__GAME_MODE__/g, `${gameApplication.schedule.setup.mode || 'specified'}`);
+
+    await send(gameApplication.user.email, subject, output.html);
+}
+
+/**
+ * Sends the game application resigning email to the given user, this email describes
+ * the game they are  resigning to with basic information about the event.
+ * @param gameApplication The game application related to the email being sent.
+ */
+export async function SendGameApplicationResignEmail(gameApplication: GameApplication) {
+    const emailRepository = getCustomRepository(EmailRepository);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(gameApplication.user);
+
+    if (!emailPermissions.gameApplications) {
+        const { username } = gameApplication.user;
+        return logger.verbose(`game application resign email skipped for ${username} due to permissions.`);
+    }
+
+    const subject = 'DevWars Game Application Update (Resign)';
+
+    const filePath = path.resolve(__dirname, '../mail/game-application-resign.mjml');
     const template = fs.readFileSync(filePath).toString();
     const output = mjml2html(template, { ...mjmlOptions, filePath });
 
@@ -99,4 +140,63 @@ export async function sendContactUsEmail(name: string, email: string, message: s
 
     await send('contact@devwars.tv', subject, output.html);
     await send(email, subject, output.html);
+}
+/**
+ * Send a email to th linked account user about the account status change (linked).
+ * @param linkedAccount The linked account containing the user who will get the linked email change.
+ */
+export async function SendLinkedAccountEmail(linkedAccount: LinkedAccount) {
+    const emailRepository = getCustomRepository(EmailRepository);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(linkedAccount.user);
+
+    if (!emailPermissions.linkedAccounts) {
+        const { username } = linkedAccount.user;
+        return logger.verbose(`linked account email skipped for ${username} due to permissions.`);
+    }
+
+    const subject = 'DevWars Linked Account Update';
+
+    const filePath = path.resolve(__dirname, '../mail/linked-account.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    const { provider } = linkedAccount;
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__USERNAME__/g, linkedAccount.user.username)
+        .replace(/__PROVIDER__/g, `${provider[0].toUpperCase()}${provider.toLowerCase().slice(1)}`)
+        .replace(/__URL__/g, `${process.env.FRONT_URL}/settings/connections`);
+
+    await send(linkedAccount.user.email, subject, output.html);
+}
+
+/**
+ * Send a email to the linked account user about the account status change (unlinked).
+ * @param linkedAccount The linked account containing the user who will get the linked email change.
+ */
+export async function SendUnLinkedAccountEmail(linkedAccount: LinkedAccount) {
+    const emailRepository = getCustomRepository(EmailRepository);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(linkedAccount.user);
+
+    if (!emailPermissions.linkedAccounts) {
+        const { username } = linkedAccount.user;
+        return logger.verbose(`unlinked account email skipped for ${username} due to permissions.`);
+    }
+
+    const subject = 'DevWars Linked Account Update (Unlinked)';
+
+    const filePath = path.resolve(__dirname, '../mail/linked-account-disconnect.mjml');
+    const template = fs.readFileSync(filePath).toString();
+    const output = mjml2html(template, { ...mjmlOptions, filePath });
+
+    const { provider } = linkedAccount;
+
+    // prettier-ignore
+    output.html = output.html
+        .replace(/__USERNAME__/g, linkedAccount.user.username)
+        .replace(/__PROVIDER__/g, `${provider[0].toUpperCase()}${provider.toLowerCase().slice(1)}`)
+        .replace(/__URL__/g, `${process.env.FRONT_URL}/settings/connections`);
+
+    await send(linkedAccount.user.email, subject, output.html);
 }

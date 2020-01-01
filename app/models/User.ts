@@ -8,6 +8,7 @@ import EmailVerification from './EmailVerification';
 import GameApplication from './GameApplication';
 
 import { isNil, isArray } from 'lodash';
+import EmailOptIn from './EmailOptIn';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -42,29 +43,32 @@ export default class User extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @OneToOne((type) => UserProfile)
+    @OneToOne(() => UserProfile)
     public profile: UserProfile;
 
-    @OneToOne((type) => UserStats)
+    @OneToOne(() => UserStats)
     public stats: UserStats;
 
-    @OneToOne((type) => EmailVerification)
+    @OneToOne(() => EmailVerification)
     public verification: EmailVerification;
 
+    @OneToOne(() => EmailOptIn)
+    public emailOptIn: EmailOptIn;
+
     @OneToMany(
-        (type) => Activity,
+        () => Activity,
         (activities) => activities.user
     )
     public activities: Activity;
 
     @OneToMany(
-        (type) => GameApplication,
+        () => GameApplication,
         (applications) => applications.user
     )
-    public applications: GameApplication;
+    public applications: GameApplication[];
 
     @OneToMany(
-        (type) => LinkedAccount,
+        () => LinkedAccount,
         (accounts) => accounts.user
     )
     public accounts: LinkedAccount[];

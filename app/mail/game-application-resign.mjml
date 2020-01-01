@@ -1,0 +1,19 @@
+<mjml>
+  <mj-body background-color="#090b11">
+    <mj-include path="./layouts/header.mjml"></mj-include>
+
+    <mj-section>
+      <mj-column>
+        <mj-text font-weight="bold" align="center" font-size="24px" color="#fff" font-family="helvetica">DevWars Game Application Update!</mj-text>
+        <mj-text align="center" line-height="160%" font-size="16px" color="#fff" font-family="helvetica">
+          Hi <strong>__USERNAME__</strong>! We received your request for resigning from the
+          application for the <strong>__GAME_MODE__</strong> game mode. You will no longer be taken
+          into consideration during the selection process. Be sure to keep an eye out for DevWars
+          events and games in the future!
+        </mj-text>
+      </mj-column>
+    </mj-section>
+
+    <mj-include path="./layouts/footer.mjml"></mj-include>
+  </mj-body>
+</mjml>

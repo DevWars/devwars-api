@@ -3,7 +3,7 @@ import { Response } from 'express';
 import * as _ from 'lodash';
 
 import { IGameRequest, IRequest, IScheduleRequest } from '../../request/IRequest';
-import { sendGameApplicationApplyingEmail } from '../../services/Mail.service';
+import { sendGameApplicationApplyingEmail, SendGameApplicationResignEmail } from '../../services/Mail.service';
 
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
@@ -147,8 +147,11 @@ export async function applyToSchedule(request: IRequest & IScheduleRequest, resp
  */
 export async function resignFromSchedule(request: IRequest & IScheduleRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-    await gameApplicationRepository.delete({ user: request.user, schedule: request.schedule });
 
+    const application = await gameApplicationRepository.findByUserAndSchedule(request.user, request.schedule);
+    await gameApplicationRepository.delete(application);
+
+    await SendGameApplicationResignEmail(application);
     return response.send();
 }
 
