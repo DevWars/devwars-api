@@ -7,6 +7,7 @@ import User from '../../models/User';
 
 import { IRequest } from '../../request/IRequest';
 import * as _ from 'lodash';
+import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
 
 export async function all(request: IRequest, response: Response) {
     const accounts = await LinkedAccount.find();
@@ -45,17 +46,19 @@ export async function disconnect(request: IRequest, response: Response) {
     if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid.` });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    const account = await linkedAccountRepository.findByUserIdAndProvider(request.user.id, provider);
+    const linkedAccount = await linkedAccountRepository.findByUserIdAndProvider(request.user.id, provider);
 
     // if no link between the given account and the given sevice, let the user know of said link
     // that that it does not exist.
-    if (_.isNil(account)) {
+    if (_.isNil(linkedAccount)) {
         const error = `no linked account between user ${request.user.username} and provider ${provider}}`;
         return response.sendStatus(404).send({ error });
     }
 
-    await account.remove();
-    return response.json(account);
+    await linkedAccount.remove();
+
+    await SendUnLinkedAccountEmail(linkedAccount);
+    return response.json(linkedAccount);
 }
 
 export async function updateTwitchCoins(request: Request, response: Response) {
@@ -90,16 +93,17 @@ async function connectDiscord(request: Request, response: Response, user: User) 
     if (_.isNil(discordUser)) return response.status(403).json({ error: 'Discord user not found.' });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    let account = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
+    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
 
-    if (_.isNil(account)) {
-        account = new LinkedAccount(user, discordUser.username, Provider.DISCORD, discordUser.id);
+    if (_.isNil(linkedAccount)) {
+        linkedAccount = new LinkedAccount(user, discordUser.username, Provider.DISCORD, discordUser.id);
     }
 
-    account.user = user;
-    account.username = discordUser.username;
+    linkedAccount.user = user;
+    linkedAccount.username = discordUser.username;
 
-    await account.save();
+    await linkedAccount.save();
 
+    await SendLinkedAccountEmail(linkedAccount);
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
