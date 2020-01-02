@@ -233,6 +233,7 @@ export async function update(request: IUserRequest, response: Response) {
  */
 export async function deleteUser(request: IUserRequest, response: Response) {
     const { boundUser: removingUser } = request;
+    const { id: removingUserId } = removingUser;
 
     await getConnection().transaction(async (transaction) => {
         const userRepository = transaction.getCustomRepository(UserRepository);
@@ -298,5 +299,5 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         await transaction.remove(removingUser);
     });
 
-    return response.json({ user: request.boundUser.id });
+    return response.json({ user: removingUserId });
 }
