@@ -1,4 +1,6 @@
 import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { isNil, isArray } from 'lodash';
+
 import BaseModel from './BaseModel';
 import LinkedAccount from './LinkedAccount';
 import Activity from './Activity';
@@ -7,8 +9,8 @@ import UserStats from './UserStats';
 import EmailVerification from './EmailVerification';
 import GameApplication from './GameApplication';
 
-import { isNil, isArray } from 'lodash';
 import EmailOptIn from './EmailOptIn';
+import PasswordReset from './PasswordReset';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -54,6 +56,9 @@ export default class User extends BaseModel {
 
     @OneToOne(() => EmailOptIn)
     public emailOptIn: EmailOptIn;
+
+    @OneToOne((type) => PasswordReset)
+    public passwordReset: PasswordReset;
 
     @OneToMany(
         () => Activity,
