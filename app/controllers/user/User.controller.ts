@@ -237,6 +237,13 @@ export async function deleteUser(request: IUserRequest, response: Response) {
     const { boundUser: removingUser } = request;
     const { id: removingUserId } = removingUser;
 
+    if (removingUser.role <= UserRole.MODERATOR) {
+        const removalError = 'Users with roles moderator or higher cannot be deleted, ensure to demote the user first.';
+        return response.status(400).json({
+            error: removalError,
+        });
+    }
+
     await getConnection().transaction(async (transaction) => {
         const userRepository = transaction.getCustomRepository(UserRepository);
         const competitor = await userRepository.findByUsername(COMPETITOR_USERNAME);

@@ -37,11 +37,11 @@ describe('user', () => {
             moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
         });
 
-        it('Should reject not authenticated users.', async () => {
+        it('Should reject not authenticated users', async () => {
             await agent.get(lookupUrl).expect(401);
         });
 
-        it('Should reject users not a minimum role of moderator.', async () => {
+        it('Should reject users not a minimum role of moderator', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
 
             await agent
@@ -51,7 +51,7 @@ describe('user', () => {
                 .expect(403);
         });
 
-        it('Should allow moderator and admins.', async () => {
+        it('Should allow moderator and admins', async () => {
             const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             for (const test of [
@@ -134,22 +134,41 @@ describe('user', () => {
             tempUser = await UserSeeding.withRole(UserRole.USER).save();
         });
 
-        it('Should fail deleting the user if you are not authenticated.', async () => {
+        it('Should fail deleting the user if you are not authenticated', async () => {
             await agent.delete(`/users/${tempUser.id}`).expect(401);
         });
 
-        it('Should fail deleting the user if you are a moderator.', async () => {
+        it('Should fail deleting the user if you are a moderator', async () => {
             const result = await agent
                 .delete(`/users/${tempUser.id}`)
                 .set('Cookie', await cookieForUser(moderator))
                 .expect(403);
         });
 
-        it('Should fail deleting the user if you are a standard user and not the owner.', async () => {
+        it('Should fail deleting the user if you are a standard user and not the owner', async () => {
             await agent
                 .delete(`/users/${moderator.id}`)
                 .set('Cookie', await cookieForUser(tempUser))
                 .expect(403);
+        });
+
+        it('Should fail if you attempt to delete a moderator or higher regardless of role', async () => {
+            const e = 'Users with roles moderator or higher cannot be deleted, ensure to demote the user first.';
+
+            await agent
+                .delete(`/users/${moderator.id}`)
+                .set('Cookie', await cookieForUser(administrator))
+                .expect(400, { error: e });
+
+            await agent
+                .delete(`/users/${administrator.id}`)
+                .set('Cookie', await cookieForUser(administrator))
+                .expect(400, { error: e });
+
+            await agent
+                .delete(`/users/${tempUser.id}`)
+                .set('Cookie', await cookieForUser(administrator))
+                .expect(200, { user: tempUser.id });
         });
 
         it('Should allow deleting the user if you are the owner', async () => {
@@ -166,7 +185,7 @@ describe('user', () => {
                 .expect(200, { user: tempUser.id });
         });
 
-        it('Should remove the users profile.', async () => {
+        it('Should remove the users profile', async () => {
             const userProfile = await new UserProfile(tempUser).save();
 
             chai.expect(_.isNil(await UserProfile.findOne({ where: { user: tempUser } }))).to.eq(false);
@@ -181,7 +200,7 @@ describe('user', () => {
             chai.expect(_.isNil(await UserProfile.findOne(userProfile.id))).to.eq(true);
         });
 
-        it('Should remove the users statistics.', async () => {
+        it('Should remove the users statistics', async () => {
             const userStats = await new UserStats(tempUser).save();
 
             chai.expect(_.isNil(await UserStats.findOne({ where: { user: tempUser } }))).to.eq(false);
@@ -196,7 +215,7 @@ describe('user', () => {
             chai.expect(_.isNil(await UserStats.findOne(userStats.id))).to.eq(true);
         });
 
-        it('Should remove the users game statistics.', async () => {
+        it('Should remove the users game statistics', async () => {
             const userGameStats = await new UserGameStats(tempUser).save();
 
             chai.expect(_.isNil(await UserGameStats.findOne({ where: { user: tempUser } }))).to.eq(false);
@@ -211,7 +230,7 @@ describe('user', () => {
             chai.expect(_.isNil(await UserGameStats.findOne(userGameStats.id))).to.eq(true);
         });
 
-        it('Should remove the users email verification if any.', async () => {
+        it('Should remove the users email verification if any', async () => {
             const emailVerification = new EmailVerification();
             emailVerification.token = tempUser.username + tempUser.id;
             emailVerification.user = tempUser;
@@ -230,7 +249,7 @@ describe('user', () => {
             chai.expect(_.isNil(await EmailVerification.findOne(emailVerification.id))).to.eq(true);
         });
 
-        it('Should remove the users password reset if any.', async () => {
+        it('Should remove the users password reset if any', async () => {
             const passwordReset = new PasswordReset();
             passwordReset.token = tempUser.username + tempUser.id;
             passwordReset.expiresAt = new Date();
@@ -250,7 +269,7 @@ describe('user', () => {
             chai.expect(_.isNil(await PasswordReset.findOne(passwordReset.id))).to.eq(true);
         });
 
-        it('Should remove all the users linked accounts if any.', async () => {
+        it('Should remove all the users linked accounts if any', async () => {
             const { username, id } = tempUser;
 
             await new LinkedAccount(tempUser, username, username + id, `${id}`).save();
@@ -268,10 +287,10 @@ describe('user', () => {
             chai.expect(updatedLinkedAccounts.length).to.eq(0);
         });
 
-        it.skip('Should remove all the users activities if any.', async () => {});
+        it.skip('Should remove all the users activities if any', async () => {});
 
-        it.skip('Should remove all the users future game applications if any.', async () => {});
+        it.skip('Should remove all the users future game applications if any', async () => {});
 
-        it.skip('Should replace all previous game applications with replacement competitor user if any.', async () => {});
+        it.skip('Should replace all previous game applications with replacement competitor user if any', async () => {});
     });
 });
