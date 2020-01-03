@@ -19,6 +19,8 @@ import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import EmailVerification from '../../models/EmailVerification';
 import UserGameStats from '../../models/UserGameStats';
+import EmailOptIn from '../../models/EmailOptIn';
+import { GameStatus } from '../../models/GameSchedule';
 
 import ApiError from '../../utils/apiError';
 
@@ -255,6 +257,10 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         const profiles = await transaction.find(UserProfile, whereOptions);
         await transaction.remove(profiles);
 
+        // remove the given users related email permissions
+        const emailPermissions = await transaction.find(EmailOptIn, whereOptions);
+        await transaction.remove(emailPermissions);
+
         const statistics = await transaction.find(UserStats, whereOptions);
         await transaction.remove(statistics);
 
@@ -279,9 +285,9 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             .getRepository(GameApplication)
             .createQueryBuilder('app')
             .leftJoin('app.schedule', 'game_schedule')
-            .where('game_schedule.startTime >= :after')
+            .andWhere('game_schedule.status = :gameStatus')
             .andWhere('app."userId" = :user')
-            .setParameters({ after: new Date(), user: removingUser.id })
+            .setParameters({ user: removingUser.id, gameStatus: GameStatus.SCHEDULED })
             .getMany();
 
         await transaction.remove(futureGameApplications);
@@ -289,10 +295,39 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         // For all applications that exist for the user, replace them with the replacement user
         // "Competitor", this is a pre-defined user to help with ensuring data is not damaged and
         // not usable since related users are missing.
-        const gameApplications = await transaction.find(GameApplication, whereOptions);
+        const gameApplications = await transaction.find(
+            GameApplication,
+            Object.assign(whereOptions, { relations: ['schedule', 'schedule.game'] })
+        );
+
         for (const application of gameApplications) {
+            const gameStorage = application.schedule?.game?.storage;
             application.user = competitor;
-            await application.save();
+
+            // Update the inner game players model to replace the removing user with the replacement
+            // user. Since these will be rendered on the home page.
+            if (!isNil(gameStorage?.players) && !isNil(gameStorage.players[removingUserId])) {
+                gameStorage.players[competitor.id] = {
+                    team: gameStorage.players[removingUserId].team,
+                    username: competitor.username,
+                    id: competitor.id,
+                };
+
+                delete gameStorage.players[removingUserId];
+            }
+
+            // update the editor to replace the known user with the competitor user.
+            if (!isNil(gameStorage?.editors)) {
+                for (const editorsKey of Object.keys(gameStorage?.editors)) {
+                    if (gameStorage.editors[editorsKey]?.player === removingUserId) {
+                        gameStorage.editors[editorsKey].player = competitor.id;
+                    }
+                }
+            }
+
+            // Only attempt to save the game again if the game is not null.
+            if (!isNil(application.schedule.game)) await transaction.save(application.schedule.game);
+            await transaction.save(application);
         }
 
         // // Finally delete the user.
