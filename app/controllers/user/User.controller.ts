@@ -9,7 +9,6 @@ import Activity from '../../models/Activity';
 
 import UserRepository from '../../repository/User.repository';
 import { IUserRequest } from '../../request/IRequest';
-import { COMPETITOR_USERNAME } from '../../constants';
 import { hash } from '../../utils/hash';
 
 import { parseIntWithDefault } from '../../../test/helpers';
@@ -225,7 +224,7 @@ export async function update(request: IUserRequest, response: Response) {
 }
 
 /**
- * @api {delete} /:user Deletes the user from the system (replaces with competitor)
+ * @api {delete} /:user Deletes the user from the system
  * @apiName DeleteUserById
  * @apiGroup User
  * @apiPermission admin, owner
@@ -245,13 +244,6 @@ export async function deleteUser(request: IUserRequest, response: Response) {
     }
 
     await getConnection().transaction(async (transaction) => {
-        const userRepository = transaction.getCustomRepository(UserRepository);
-        const competitor = await userRepository.findByUsername(COMPETITOR_USERNAME);
-
-        // The reserved user needs to exist before hand to ensure that the user can be removed and
-        // there details are replaced with the template reserved user (competitor).
-        if (competitor == null) throw Error('Users cannot be removed since a replacement user does not exist.');
-
         const whereOptions = { where: { user: removingUser } };
 
         // First remove all related activities for the given user. Since the user is being removed, any
@@ -299,9 +291,8 @@ export async function deleteUser(request: IUserRequest, response: Response) {
 
         await transaction.remove(futureGameApplications);
 
-        // For all applications that exist for the user, replace them with the replacement user
-        // "Competitor", this is a pre-defined user to help with ensuring data is not damaged and
-        // not usable since related users are missing.
+        // For all applications that exist for the user that have already taken place, ensure that
+        // they are purged from the players and editors body.
         const gameApplications = await transaction.find(
             GameApplication,
             Object.assign(whereOptions, { relations: ['schedule', 'schedule.game'] })
@@ -309,17 +300,11 @@ export async function deleteUser(request: IUserRequest, response: Response) {
 
         for (const application of gameApplications) {
             const gameStorage = application.schedule?.game?.storage;
-            application.user = competitor;
+            application.user = null;
 
             // Update the inner game players model to replace the removing user with the replacement
             // user. Since these will be rendered on the home page.
             if (!isNil(gameStorage?.players) && !isNil(gameStorage.players[removingUserId])) {
-                gameStorage.players[competitor.id] = {
-                    team: gameStorage.players[removingUserId].team,
-                    username: competitor.username,
-                    id: competitor.id,
-                };
-
                 delete gameStorage.players[removingUserId];
             }
 
@@ -327,14 +312,14 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             if (!isNil(gameStorage?.editors)) {
                 for (const editorsKey of Object.keys(gameStorage?.editors)) {
                     if (gameStorage.editors[editorsKey]?.player === removingUserId) {
-                        gameStorage.editors[editorsKey].player = competitor.id;
+                        delete gameStorage.editors[editorsKey];
                     }
                 }
             }
 
             // Only attempt to save the game again if the game is not null.
             if (!isNil(application.schedule.game)) await transaction.save(application.schedule.game);
-            await transaction.save(application);
+            await transaction.remove(application);
         }
 
         // // Finally delete the user.

@@ -1,20 +1,22 @@
-import { getManager, EntityManager, getCustomRepository } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 
+import { UserSeeding, ActivitySeeding, GameApplicationSeeding, GameScheduleSeeding } from '../app/seeding';
+
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
-import User, { UserRole } from '../app/models/User';
-import { UserSeeding } from '../app/seeding';
-import { COMPETITOR_USERNAME } from '../app/constants';
-import UserProfile from '../app/models/UserProfile';
-import UserStats from '../app/models/UserStats';
+
+import EmailVerification from '../app/models/EmailVerification';
+import GameApplication from '../app/models/GameApplication';
 import UserGameStats from '../app/models/UserGameStats';
 import LinkedAccount from '../app/models/LinkedAccount';
-import EmailVerification from '../app/models/EmailVerification';
 import PasswordReset from '../app/models/PasswordReset';
+import UserProfile from '../app/models/UserProfile';
+import User, { UserRole } from '../app/models/User';
+import UserStats from '../app/models/UserStats';
+import Activity from '../app/models/Activity';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -118,14 +120,12 @@ describe('user', () => {
 
     describe('DELETE /users/{{userId}} - Performing a delete request for the specified user', () => {
         let administrator: User;
-        let competitor: User;
         let moderator: User;
         let tempUser: User;
 
         before(async () => {
             // ensuring that the constant user exists before running the test since its required for
             // performing a correct deletion.
-            competitor = await UserSeeding.withUsername(COMPETITOR_USERNAME).save();
             administrator = await UserSeeding.withRole(UserRole.ADMIN).save();
             moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
         });
@@ -287,10 +287,39 @@ describe('user', () => {
             chai.expect(updatedLinkedAccounts.length).to.eq(0);
         });
 
-        it.skip('Should remove all the users activities if any', async () => {});
+        it('Should remove all the users activities if any', async () => {
+            await ActivitySeeding.withUser(tempUser).save();
+            await ActivitySeeding.withUser(tempUser).save();
 
-        it.skip('Should remove all the users future game applications if any', async () => {});
+            const activities = await Activity.find({ where: { user: tempUser } });
+            chai.expect(activities.length).to.eq(2);
 
-        it.skip('Should replace all previous game applications with replacement competitor user if any', async () => {});
+            await agent
+                .delete(`/users/${tempUser.id}`)
+                .set('Cookie', await cookieForUser(tempUser))
+                .expect(200, { user: tempUser.id });
+
+            const updatedActivities = await Activity.find({ where: { user: tempUser } });
+            chai.expect(updatedActivities.length).to.eq(0);
+        });
+
+        it('Should remove all the users game applications if any', async () => {
+            const gameScheduleOne = await GameScheduleSeeding.default().save();
+            const gameScheduleTwo = await GameScheduleSeeding.default().save();
+
+            await GameApplicationSeeding.withScheduleAndUser(gameScheduleOne, tempUser).save();
+            await GameApplicationSeeding.withScheduleAndUser(gameScheduleTwo, tempUser).save();
+
+            const gameApplications = await GameApplication.find({ where: { user: tempUser } });
+            chai.expect(gameApplications.length).to.eq(2);
+
+            await agent
+                .delete(`/users/${tempUser.id}`)
+                .set('Cookie', await cookieForUser(tempUser))
+                .expect(200, { user: tempUser.id });
+
+            const updatedGameApplications = await GameApplication.find({ where: { user: tempUser } });
+            chai.expect(updatedGameApplications.length).to.eq(0);
+        });
     });
 });
