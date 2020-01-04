@@ -47,7 +47,10 @@ describe('user', () => {
         it('Should allow moderator and admins.', async () => {
             const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
 
-            for (const test of [[moderator, 200], [admin, 200]]) {
+            for (const test of [
+                [moderator, 200],
+                [admin, 200],
+            ]) {
                 await agent
                     .get(lookupUrl)
                     .set('Cookie', await cookieForUser(test[0] as User))
@@ -62,12 +65,17 @@ describe('user', () => {
                 .set('Cookie', await cookieForUser(moderator))
                 .send()
                 .expect(400, {
-                    message: 'The specified username within the query must not be empty.',
+                    error: 'The specified username within the query must not be empty.',
                 });
         });
 
         it('Should respect the limit if specified', async () => {
-            for (const test of [[50, 50], [1, 1], [10, 10], [500, 50]]) {
+            for (const test of [
+                [50, 50],
+                [1, 1],
+                [10, 10],
+                [500, 50],
+            ]) {
                 const response = await agent
                     .get(`/users/lookup?username=e&limit=${test[0]}`)
                     .set('Cookie', await cookieForUser(moderator))

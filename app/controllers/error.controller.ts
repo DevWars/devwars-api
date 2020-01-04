@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import logger from '../utils/logger';
+import ApiError from '../utils/apiError';
 
 /**
  *  Handles catches in which the next response of a given controller is a error
@@ -16,5 +17,5 @@ export function handleError(error: any, request: Request, response: Response, ne
  * Handles cases in which the route does not exist, e.g /authentication/missing
  */
 export function handleMissing(request: Request, response: Response, next: NextFunction) {
-    return response.status(404).json({ error: 'not found.' });
+    return response.redirect(process.env.FRONT_URL);
 }

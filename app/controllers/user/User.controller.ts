@@ -10,6 +10,8 @@ import { parseIntWithDefault } from '../../../test/helpers';
 import { UserRole } from '../../models/User';
 import User from '../../models/User';
 
+import ApiError from '../../utils/apiError';
+
 interface IUpdateUserRequest {
     lastSigned: Date;
     email: string;
@@ -54,8 +56,9 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     limit = Number(limit);
 
     if (username === '') {
-        return response.status(400).json({
-            message: 'The specified username within the query must not be empty.',
+        throw new ApiError({
+            error: 'The specified username within the query must not be empty.',
+            code: 400,
         });
     }
 
@@ -194,8 +197,9 @@ export async function update(request: IUserRequest, response: Response) {
     const existingUsername = await userRepository.findByUsername(params.username);
 
     if (!isNil(existingUsername) && existingUsername.id !== request.boundUser.id) {
-        return response.status(409).send({
-            message: 'The provided username already exists for a registered user.',
+        throw new ApiError({
+            error: 'The provided username already exists for a registered user.',
+            code: 409,
         });
     }
 

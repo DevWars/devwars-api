@@ -18,6 +18,7 @@ import { ResetService } from '../../services/Reset.service';
 import { hash } from '../../utils/hash';
 
 import { IRequest } from '../../request/IRequest';
+import ApiError from '../../utils/apiError';
 
 function flattenUser(user: User) {
     return {
@@ -50,11 +51,11 @@ export async function register(request: Request, response: Response) {
     const existingUser = await userRepository.findByUsernameOrEmail(username, email);
 
     if (existingUser && existingUser.username.toLowerCase() === username.toLowerCase()) {
-        return response.status(409).json({ error: 'A user already exists with the provided username.' });
+        throw new ApiError({ error: 'A user already exists with the provided username.', code: 409 });
     }
 
     if (existingUser && existingUser.email.toLowerCase() === email.toLowerCase()) {
-        return response.status(409).json({ error: 'A user already exists with the provided email.' });
+        throw new ApiError({ error: 'A user already exists with the provided email.', code: 409 });
     }
 
     // Register the user in the database, generating a new user with the default and minimal
@@ -136,15 +137,23 @@ export async function login(request: Request, response: Response) {
     // If the user does not exist by the provided credentials, then exist before continuing.
     // Ensuring that the user is aware that they are invalid and not able to login due to that
     // reason.
-    if (_.isNil(user)) return response.status(400).json({ error: 'The provided username or password is not correct.' });
-
+    if (_.isNil(user)) {
+        throw new ApiError({
+            error: 'The provided username or password is not correct.',
+            code: 400,
+        });
+    }
     // Ensure that the password provided matches the encrypted password stored in the database, this will be using
     // the salt and hash with the secret in bcrypt.
     const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
     // If the password does not match, ensure the user is told about the authentication failing.
-    if (!passwordsMatch)
-        return response.status(400).json({ error: 'The provided username or password is not correct.' });
+    if (!passwordsMatch) {
+        throw new ApiError({
+            error: 'The provided username or password is not correct.',
+            code: 400,
+        });
+    }
 
     const token = await AuthService.newToken(user);
     response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
@@ -160,7 +169,7 @@ export async function logout(request: IRequest, response: Response) {
     await User.save(request.user);
 
     response.cookie('token', null, { domain: process.env.COOKIE_DOMAIN });
-    return response.json({ message: 'Success' });
+    return response.send();
 }
 
 /**
@@ -184,7 +193,7 @@ export async function initiateEmailReset(request: IRequest, response: Response) 
     const { password, email } = request.body;
 
     const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
-    if (!passwordsMatch) return response.status(400).json({ error: 'Password did not match.' });
+    if (!passwordsMatch) throw new ApiError({ code: 400, error: 'Password did not match.' });
 
     await ResetService.resetEmail(user, email);
 
@@ -196,7 +205,7 @@ export async function initiatePasswordReset(request: Request, response: Response
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByCredentials({ identifier: username_or_email });
-    if (!user) return response.status(404).json({ error: 'User not found.' });
+    if (!user) throw new ApiError({ code: 404, error: 'User not found.' });
 
     const passwordResetRepository = getCustomRepository(PasswordResetRepository);
     await passwordResetRepository.delete({ user });
@@ -212,12 +221,10 @@ export async function resetPassword(request: Request, response: Response) {
     const passwordResetRepository = getCustomRepository(PasswordResetRepository);
     const passwordReset = await passwordResetRepository.findByToken(token);
 
-    if (!passwordReset) {
-        return response.status(400).json({ error: 'Could not reset password' });
-    }
+    if (!passwordReset) throw new ApiError({ code: 400, error: 'Could not reset password' });
 
     if (Date.now() > passwordReset.expiresAt.getTime()) {
-        return response.status(401).json({ error: 'Expired password reset token' });
+        throw new ApiError({ code: 401, error: 'Expired password reset token' });
     }
 
     const user = passwordReset.user;

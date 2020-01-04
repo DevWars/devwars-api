@@ -10,6 +10,7 @@ import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
 import { IGameRequest, IRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
+import ApiError from '../../utils/apiError';
 
 export function flattenGame(game: Game) {
     return {
@@ -66,7 +67,7 @@ export async function latest(request: Request, response: Response) {
 
     // ensure that if we don't have any future games, (meaning that there are no games in the
     // database at all) that we let the user know that no games exist..
-    if (_.isNil(game)) return response.status(404).json({ error: 'Currently no future games exist.' });
+    if (_.isNil(game)) throw new ApiError({ code: 404, error: 'Currently no future games exist.' });
 
     return response.json(flattenGame(game));
 }
@@ -76,8 +77,9 @@ export async function active(request: Request, response: Response) {
     const game = await gameRepository.active();
 
     if (_.isNil(game)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: 'There currently is no active game.',
+            code: 404,
         });
     }
 

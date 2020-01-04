@@ -10,6 +10,7 @@ import { DiscordService } from '../../services/Discord.service';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
 import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
+import ApiError from '../../utils/apiError';
 
 /**
  * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
@@ -53,7 +54,10 @@ export async function all(request: IRequest, response: Response) {
 export async function connect(request: IRequest, response: Response) {
     const provider = request.params.provider.toUpperCase();
 
-    if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid.` });
+    if (!(provider in Provider)) {
+        throw new ApiError({ error: `${provider} is not a valid.`, code: 400 });
+    }
+
     if (provider === Provider.DISCORD) return await connectDiscord(request, response, request.user);
 
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
@@ -78,7 +82,7 @@ export async function disconnect(request: IRequest, response: Response) {
 
     // if the given provider is not valid, then return out with a response to the user that the
     // given provider is not empty.
-    if (!(provider in Provider)) return response.status(400).json({ error: `${provider} is not a valid.` });
+    if (!(provider in Provider)) throw new ApiError({ error: `${provider} is not a valid.`, code: 400 });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const linkedAccount = await linkedAccountRepository.findByUserIdAndProvider(request.user.id, provider);
@@ -87,7 +91,7 @@ export async function disconnect(request: IRequest, response: Response) {
     // that that it does not exist.
     if (_.isNil(linkedAccount)) {
         const error = `no linked account between user ${request.user.username} and provider ${provider}}`;
-        return response.status(404).send({ error });
+        throw new ApiError({ error, code: 404 });
     }
 
     await linkedAccount.remove();
@@ -120,12 +124,12 @@ async function connectDiscord(request: Request, response: Response, user: User) 
     // gather a given access token for the code that was returned back from discord, completing
     // the linkage and authorization process with discord.
     const token = await DiscordService.accessTokenForCode(request.query.code);
-    if (_.isNil(token)) return response.status(400).json({ error: 'Could not gather access token for discord.' });
+    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for discord.', code: 400 });
 
     // Attempt to gather the related users account information for the given token, this is what
     // will be used to link the accounts up with discord.
     const discordUser = await DiscordService.discordUserForToken(token);
-    if (_.isNil(discordUser)) return response.status(403).json({ error: 'Discord user not found.' });
+    if (_.isNil(discordUser)) throw new ApiError({ error: 'Discord user not found.', code: 403 });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
