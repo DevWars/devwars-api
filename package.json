@@ -6,7 +6,7 @@
     "description": "Official Node API for DevWars",
     "main": "server.js",
     "scripts": {
-        "start": "npm run build && cd dist && cross-env NODE_ENV=production node ./app/index.js",
+        "start": "cd dist && cross-env NODE_ENV=production node ./app/index.js",
         "dev": "nodemon",
         "test:nyc": "cross-env NODE_ENV=test nyc --reporter=html mocha test/**/*.test.ts",
         "test": "cross-env NODE_ENV=test mocha test/**/*.test.ts",
@@ -68,7 +68,7 @@
         "superagent": "^3.8.2",
         "token-extractor": "^0.1.6",
         "ts-node": "8.4.0",
-        "typeorm": "^0.2.20",
+        "typeorm": "^0.2.22",
         "typescript": "^3.7.2",
         "winston": "^3.2.1"
     },
