@@ -103,12 +103,12 @@ UserRoute.patch(
 UserRoute.get(
     '/:user/connections',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
-    asyncErrorHandler(LinkedAccountController.gatherAllUserConnections)
+    wrapAsync(LinkedAccountController.gatherAllUserConnections)
 );
 UserRoute.get(
     '/:user/connections/:provider',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
-    asyncErrorHandler(LinkedAccountController.gatherAllUserConnectionsByProvider)
+    wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProvider)
 );
 
 export { UserRoute };

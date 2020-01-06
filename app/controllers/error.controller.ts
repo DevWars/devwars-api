@@ -13,7 +13,7 @@ export function handleError(error: any, request: Request, response: Response, ne
     const apiError = error as ApiError;
 
     // If specified or ont a api error, log the error.
-    if ((!isNil(apiError.code) && apiError.log) || isNil(apiError.code)) {
+    if (!(error instanceof ApiError) || (!isNil(apiError.code) && apiError.log)) {
         const { protocol, originalUrl } = request;
 
         logger.error(`error on request: ${protocol}://${request.get('host')}${originalUrl}, ${error}`);
