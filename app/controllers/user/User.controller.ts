@@ -102,8 +102,8 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiGroup User
  * @apiPermission moderator
  *
- * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100)
- * @apiParam {string} offset The offset of which place to start gathering linked accounts from  (limit: 100)
+ * @apiParam {string} limit The number of users to gather from the offset. (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering users from.
  *
  * @apiSuccess {json} Users The users within the limit and offset.
  *

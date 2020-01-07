@@ -12,7 +12,7 @@ import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 
 /**
- * @api {get} /oauth?limit={:limit}&offset={:offset}
+ * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
  * @apiDescription Gather all linked accounts that are organize by updatedAt. With limit and offset
  * specification to page the content.
  *
@@ -20,8 +20,8 @@ import { parseIntWithDefault } from '../../../test/helpers';
  * @apiGroup LinkedAccounts
  * @apiPermission moderator
  *
- * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100)
- * @apiParam {string} offset The offset of which place to start gathering linked accounts from  (limit: 100)
+ * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100).
+ * @apiParam {string} offset The offset of which place to start gathering linked accounts from.
  *
  * @apiSuccess {json} LinkedAccounts The linked accounts within the limit and offset.
  *
@@ -92,7 +92,7 @@ export async function disconnect(request: IRequest, response: Response) {
 
     await linkedAccount.remove();
 
-    await SendUnLinkedAccountEmail(linkedAccount);
+    await SendUnLinkedAccountEmail(request.user, provider);
     return response.json(linkedAccount);
 }
 
@@ -139,12 +139,12 @@ async function connectDiscord(request: Request, response: Response, user: User) 
 
     await linkedAccount.save();
 
-    await SendLinkedAccountEmail(linkedAccount);
+    await SendLinkedAccountEmail(user, Provider.DISCORD);
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
 
 /**
- * @api {get} /:user/connections Request All users linked accounts.
+ * @api {get} /:user/connections Request all users linked accounts.
  * @apiName GetUsersConnections
  * @apiGroup User
  * @apiPermission owner/moderator
@@ -171,7 +171,7 @@ export async function gatherAllUserConnections(request: IUserRequest, response: 
 }
 
 /**
- * @api {get} /:user/connections Request All users linked accounts by provider.
+ * @api {get} /:user/connections/:provider Request all users linked accounts by provider.
  * @apiName GetUsersConnectionsByProvider
  * @apiGroup User
  * @apiPermission owner/moderator

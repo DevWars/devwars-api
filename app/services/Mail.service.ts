@@ -143,15 +143,15 @@ export async function sendContactUsEmail(name: string, email: string, message: s
 }
 /**
  * Send a email to th linked account user about the account status change (linked).
- * @param linkedAccount The linked account containing the user who will get the linked email change.
+ * @param user The user who has unlinked a connection from there account.
+ * @param provider The provider who was unlinked.
  */
-export async function SendLinkedAccountEmail(linkedAccount: LinkedAccount) {
+export async function SendLinkedAccountEmail(user: User, provider: string) {
     const emailRepository = getCustomRepository(EmailRepository);
-    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(linkedAccount.user);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(user);
 
-    if (!emailPermissions.linkedAccounts) {
-        const { username } = linkedAccount.user;
-        return logger.verbose(`linked account email skipped for ${username} due to permissions.`);
+    if (!emailPermissions?.linkedAccounts) {
+        return logger.verbose(`linked account email skipped for ${user.username} due to permissions.`);
     }
 
     const subject = 'DevWars Linked Account Update';
@@ -160,27 +160,28 @@ export async function SendLinkedAccountEmail(linkedAccount: LinkedAccount) {
     const template = fs.readFileSync(filePath).toString();
     const output = mjml2html(template, { ...mjmlOptions, filePath });
 
-    const { provider } = linkedAccount;
-
     // prettier-ignore
     output.html = output.html
-        .replace(/__USERNAME__/g, linkedAccount.user.username)
+        .replace(/__USERNAME__/g, user.username)
         .replace(/__PROVIDER__/g, `${provider[0].toUpperCase()}${provider.toLowerCase().slice(1)}`)
         .replace(/__URL__/g, `${process.env.FRONT_URL}/settings/connections`);
 
-    await send(linkedAccount.user.email, subject, output.html);
+    await send(user.email, subject, output.html);
 }
 
 /**
- * Send a email to the linked account user about the account status change (unlinked).
- * @param linkedAccount The linked account containing the user who will get the linked email change.
+ *
+ *  Send a email to the linked account user about the account status change (unlinked).
+ *
+ * @param user The user who has unlinked a connection from there account.
+ * @param provider The provider who was unlinked.
  */
-export async function SendUnLinkedAccountEmail(linkedAccount: LinkedAccount) {
+export async function SendUnLinkedAccountEmail(user: User, provider: string) {
     const emailRepository = getCustomRepository(EmailRepository);
-    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(linkedAccount.user);
+    const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(user);
 
     if (!emailPermissions.linkedAccounts) {
-        const { username } = linkedAccount.user;
+        const { username } = user;
         return logger.verbose(`unlinked account email skipped for ${username} due to permissions.`);
     }
 
@@ -190,13 +191,11 @@ export async function SendUnLinkedAccountEmail(linkedAccount: LinkedAccount) {
     const template = fs.readFileSync(filePath).toString();
     const output = mjml2html(template, { ...mjmlOptions, filePath });
 
-    const { provider } = linkedAccount;
-
     // prettier-ignore
     output.html = output.html
-        .replace(/__USERNAME__/g, linkedAccount.user.username)
+        .replace(/__USERNAME__/g, user.username)
         .replace(/__PROVIDER__/g, `${provider[0].toUpperCase()}${provider.toLowerCase().slice(1)}`)
         .replace(/__URL__/g, `${process.env.FRONT_URL}/settings/connections`);
 
-    await send(linkedAccount.user.email, subject, output.html);
+    await send(user.email, subject, output.html);
 }
