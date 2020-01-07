@@ -1,8 +1,11 @@
 {
     "watch": ["**/*.ts"],
     "ext": "ts",
-    "ignore": ["./test/*.ts"],
+    "ignore": ["*.test.ts"],
     "exec": "node --inspect -r ts-node/register ./app/index.ts",
+    "sourceMaps": true,
+    "cwd": "${workspaceRoot}",
+    "protocol": "inspector",
     "env": {
         "NODE_ENV": "development"
     }

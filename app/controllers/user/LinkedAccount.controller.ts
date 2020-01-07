@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getCustomRepository, In } from 'typeorm';
+import { getCustomRepository, In, AdvancedConsoleLogger } from 'typeorm';
 import LinkedAccount, { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 import { DiscordService } from '../../services/Discord.service';
@@ -8,9 +8,42 @@ import User from '../../models/User';
 import { IRequest } from '../../request/IRequest';
 import * as _ from 'lodash';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
+import { parseIntWithDefault } from '../../../test/helpers';
 
+/**
+ * @api {get} /oauth?limit={:limit}&offset={:offset}
+ * @apiDescription Gather all linked accounts that are organize by updatedAt. With limit and offset
+ * specification to page the content.
+ *
+ * @apiName GatherAllLinkedAccounts
+ * @apiGroup LinkedAccounts
+ *
+ * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering linked accounts from  (limit: 100)
+ *
+ * @apiSuccess {json} LinkedAccount The linked accounts within the limit and offset.
+ *
+ * @apiSuccessExample /oauth?limit=1&offset=0:
+ *     HTTP/1.1 200 OK
+ * [{
+ *   username": "aten",
+ *   "provider": "TWITCH",
+ *   "providerId": "100106087",
+ *   "storage": { ... },
+ *   "id": 405,
+ *   "updatedAt": "2020-01-05T23:52:49.229Z",
+ *   "createdAt": "2019-10-25T21:01:45.568Z"
+ *  }]
+ */
 export async function all(request: IRequest, response: Response) {
-    const accounts = await LinkedAccount.find();
+    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
+    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+
+    const accounts = await LinkedAccount.createQueryBuilder('linked')
+        .orderBy('"updatedAt"', 'DESC')
+        .limit(limit > 100 || limit < 1 ? 100 : limit)
+        .offset(offset < 0 ? 0 : offset)
+        .getMany();
 
     return response.json(accounts);
 }

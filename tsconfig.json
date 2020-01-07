@@ -2,7 +2,7 @@
     "compilerOptions": {
         "module": "commonjs",
         "target": "es2018",
-        "lib": ["es2018", "dom"],
+        "lib": ["es2018"],
         "noImplicitAny": true,
         "sourceMap": true,
         "emitDecoratorMetadata": true,
