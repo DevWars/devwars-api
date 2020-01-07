@@ -149,6 +149,14 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
     const application = await gameApplicationRepository.findByUserAndSchedule(request.user, request.schedule);
+
+    if (_.isNil(application)) {
+        const error = `No game application exists for schedule ${request.schedule.id} by user ${request.user.username}`;
+        return response.status(404).json({
+            error,
+        });
+    }
+
     await gameApplicationRepository.delete(application);
 
     await SendGameApplicationResignEmail(application);

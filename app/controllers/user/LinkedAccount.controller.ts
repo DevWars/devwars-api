@@ -52,7 +52,7 @@ export async function disconnect(request: IRequest, response: Response) {
     // that that it does not exist.
     if (_.isNil(linkedAccount)) {
         const error = `no linked account between user ${request.user.username} and provider ${provider}}`;
-        return response.sendStatus(404).send({ error });
+        return response.status(404).send({ error });
     }
 
     await linkedAccount.remove();
