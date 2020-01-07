@@ -1,13 +1,14 @@
 import { Request, Response } from 'express';
-import { getCustomRepository, In, AdvancedConsoleLogger } from 'typeorm';
-import LinkedAccount, { Provider } from '../../models/LinkedAccount';
+import { getCustomRepository, In } from 'typeorm';
+import * as _ from 'lodash';
+
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
-import { DiscordService } from '../../services/Discord.service';
+import LinkedAccount, { Provider } from '../../models/LinkedAccount';
 import User from '../../models/User';
 
-import { IRequest } from '../../request/IRequest';
-import * as _ from 'lodash';
+import { DiscordService } from '../../services/Discord.service';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
+import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 
 /**
@@ -17,11 +18,12 @@ import { parseIntWithDefault } from '../../../test/helpers';
  *
  * @apiName GatherAllLinkedAccounts
  * @apiGroup LinkedAccounts
+ * @apiPermission moderator
  *
  * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100)
  * @apiParam {string} offset The offset of which place to start gathering linked accounts from  (limit: 100)
  *
- * @apiSuccess {json} LinkedAccount The linked accounts within the limit and offset.
+ * @apiSuccess {json} LinkedAccounts The linked accounts within the limit and offset.
  *
  * @apiSuccessExample /oauth?limit=1&offset=0:
  *     HTTP/1.1 200 OK
@@ -139,4 +141,72 @@ async function connectDiscord(request: Request, response: Response, user: User) 
 
     await SendLinkedAccountEmail(linkedAccount);
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
+}
+
+/**
+ * @api {get} /:user/connections Request All users linked accounts.
+ * @apiName GetUsersConnections
+ * @apiGroup User
+ * @apiPermission owner/moderator
+ *
+ * @apiSuccess {json} LinkedAccounts The users linked accounts.
+ *
+ * @apiSuccessExample /:user/connections
+ *     HTTP/1.1 200 OK
+ * [{
+ *     "username": "tehstun",
+ *     "provider": "DISCORD",
+ *     "providerId": "185840292463640576",
+ *     "storage": {},
+ *     "id": 693,
+ *     "updatedAt": "2019-11-20T16:56:57.212Z",
+ *     "createdAt": "2019-11-20T16:56:57.212Z"
+ * }]
+ */
+export async function gatherAllUserConnections(request: IUserRequest, response: Response) {
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+
+    const connections = await linkedAccountRepository.findAllByUserId(request.boundUser.id);
+    return response.json(connections);
+}
+
+/**
+ * @api {get} /:user/connections Request All users linked accounts by provider.
+ * @apiName GetUsersConnectionsByProvider
+ * @apiGroup User
+ * @apiPermission owner/moderator
+ *
+ * @apiSuccess {json} LinkedAccounts The users linked accounts.
+ *
+ * @apiSuccessExample /:user/connections/discord
+ *     HTTP/1.1 200 OK
+ * [{
+ *     "username": "tehstun",
+ *     "provider": "DISCORD",
+ *     "providerId": "185840292463640576",
+ *     "storage": {},
+ *     "id": 693,
+ *     "updatedAt": "2019-11-20T16:56:57.212Z",
+ *     "createdAt": "2019-11-20T16:56:57.212Z"
+ * }]
+ */
+export async function gatherAllUserConnectionsByProvider(request: IUserRequest, response: Response) {
+    const { provider } = request.params;
+
+    if (_.isNil(provider) || !(provider.toUpperCase() in Provider))
+        return response.status(400).json({ error: `${provider} is not a valid.` });
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    const connection = await linkedAccountRepository.findByUserIdAndProvider(request.boundUser.id, provider);
+
+    if (_.isNil(connection)) {
+        const capitalizedProvider = `${provider[0].toUpperCase()}${provider.substring(1).toLowerCase()}`;
+        const username = request.boundUser.username;
+
+        return response.status(404).json({
+            error: `Connection does not exist for user ${username} with third-party ${capitalizedProvider}`,
+        });
+    }
+
+    return response.json(connection);
 }

@@ -5,6 +5,7 @@ import * as UserController from '../controllers/user/User.controller';
 import * as UserProfileController from '../controllers/user/UserProfile.controller';
 import * as UserStatsController from '../controllers/user/UserStats.controller';
 import * as UserGameStatsController from '../controllers/user/UserGameStats.controller';
+import * as LinkedAccountController from '../controllers/user/LinkedAccount.controller';
 import * as UserAvatarController from '../controllers/user/UserAvatar.controller';
 import * as EmailController from '../controllers/Email.controller';
 
@@ -23,7 +24,7 @@ const UserRoute: express.Router = express.Router();
  *  GENERAL
  ******************************/
 
-UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)], asyncErrorHandler(UserController.all));
+UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], asyncErrorHandler(UserController.all));
 
 UserRoute.get(
     '/lookup',
@@ -99,6 +100,21 @@ UserRoute.patch(
         bodyValidation(emailPermissionSchema),
     ],
     asyncErrorHandler(EmailController.updateEmailPermissions)
+);
+
+/******************************
+ *  Linked Accounts
+ ******************************/
+
+UserRoute.get(
+    '/:user/connections',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
+    asyncErrorHandler(LinkedAccountController.gatherAllUserConnections)
+);
+UserRoute.get(
+    '/:user/connections/:provider',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
+    asyncErrorHandler(LinkedAccountController.gatherAllUserConnectionsByProvider)
 );
 
 export { UserRoute };
