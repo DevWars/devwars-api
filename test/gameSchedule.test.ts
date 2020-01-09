@@ -13,6 +13,7 @@ import { cookieForUser } from './helpers';
 import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
 import { UserRole } from '../app/models/User';
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
+import GameRepository from '../app/repository/Game.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -47,6 +48,9 @@ describe('Game-Schedule', () => {
 
     afterEach(async () => {
         const scheduleRepository = getCustomRepository(GameScheduleRepository);
+        const gameRepository = getCustomRepository(GameRepository);
+
+        await gameRepository.delete({});
         await scheduleRepository.delete({});
     });
 
@@ -157,12 +161,10 @@ describe('Game-Schedule', () => {
                 title: 'helloWorld',
             };
 
-            const request = await agent
+            await agent
                 .patch(`/schedules/${Schedule.id}`)
                 .set('Cookie', await cookieForUser(user))
-                .send(updateData);
-
-            chai.expect(request.status).to.be.eq(403);
+                .expect(403);
         });
 
         it('Should return the schedules update because mod', async () => {
@@ -215,5 +217,45 @@ describe('Game-Schedule', () => {
 
             chai.expect(request.body).to.have.lengthOf(2);
         });
+    });
+
+    describe('POST - /schedules/:schedule/activate - Activating the schedule and creating the game', async () => {
+        let user: any = null;
+        let mod: any = null;
+        let schedule: any = null;
+
+        beforeEach(async () => {
+            user = await UserSeeding.withRole(UserRole.USER).save();
+            mod = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            schedule = await GameScheduleSeeding.withStatus(GameStatus.SCHEDULED).save();
+        });
+
+        it('should fail if not authenticated as a moderator or higher', async () => {
+            await agent.post(`/schedules/${schedule.id}/activate`).expect(401);
+
+            await agent
+                .post(`/schedules/${schedule.id}/activate`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(403);
+
+            await agent
+                .post(`/schedules/${schedule.id}/activate`)
+                .set('Cookie', await cookieForUser(mod))
+                .expect(200);
+        });
+
+        it('should fail if the given schedule does not exist.', async () => {
+            await agent
+                .post('/schedules/999/activate')
+                .set('Cookie', await cookieForUser(mod))
+                .expect(404, {
+                    error: 'A game schedule does not exist for the given id.',
+                });
+        });
+
+        it.skip('should fail if the schedule is not in a scheduled state', async () => {});
+        it.skip('should fail if the schedule already has a related game.', async () => {});
+        it.skip('should setup the relation between the game and the schedule', async () => {});
+        it.skip('should setup the relation between the schedule and the game', async () => {});
     });
 });
