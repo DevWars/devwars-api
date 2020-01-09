@@ -38,6 +38,10 @@ Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core back
 -   [PostgreSQL](https://www.postgresql.org/): 9.4 or higher.
 -   [Firebase](https://firebase.google.com/): instance with database (service account).
 
+### Environment Variables
+
+Ensure to make a copy of the `.env.example` file in the same directory and rename the given file to `.env`. This will be loaded up into the application when it first starts running. These are required configuration settings to ensure correct function. Process through the newly created file and make the required changes if needed.
+
 ## Contributors
 
 This project exists thanks to all the people who [contribute](https://github.com/DevWars/devwars-api/graphs/contributors). We encourage you to contribute to DevWars but ensure to open a related issue first. Please check out the [contributing](https://github.com/DevWars/devwars-api/blob/master/CONTRIBUTING.md) to DevWars guide for guidelines about how to proceed.
