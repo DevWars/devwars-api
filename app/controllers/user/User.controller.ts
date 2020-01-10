@@ -305,6 +305,9 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             // Update the inner game players model to replace the removing user with the replacement
             // user. Since these will be rendered on the home page.
             if (!isNil(gameStorage?.players) && !isNil(gameStorage.players[removingUserId])) {
+                const player = gameStorage.players[removingUserId];
+
+                gameStorage.players['0'] = { id: 0, team: player.team, username: 'Competitor' };
                 delete gameStorage.players[removingUserId];
             }
 
@@ -312,7 +315,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             if (!isNil(gameStorage?.editors)) {
                 for (const editorsKey of Object.keys(gameStorage?.editors)) {
                     if (gameStorage.editors[editorsKey]?.player === removingUserId) {
-                        delete gameStorage.editors[editorsKey];
+                        gameStorage.editors[editorsKey].player = 0;
                     }
                 }
             }
@@ -322,7 +325,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             await transaction.remove(application);
         }
 
-        // // Finally delete the user.
+        // Finally delete the user.
         await transaction.remove(removingUser);
     });
 

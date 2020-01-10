@@ -222,7 +222,7 @@ describe('Game-Schedule', () => {
     describe('POST - /schedules/:schedule/activate - Activating the schedule and creating the game', async () => {
         let user: any = null;
         let mod: any = null;
-        let schedule: any = null;
+        let schedule: GameSchedule = null;
 
         beforeEach(async () => {
             user = await UserSeeding.withRole(UserRole.USER).save();
@@ -253,9 +253,57 @@ describe('Game-Schedule', () => {
                 });
         });
 
-        it.skip('should fail if the schedule is not in a scheduled state', async () => {});
-        it.skip('should fail if the schedule already has a related game.', async () => {});
-        it.skip('should setup the relation between the game and the schedule', async () => {});
-        it.skip('should setup the relation between the schedule and the game', async () => {});
+        it('should fail if the schedule is not in a scheduled state', async () => {
+            const expectedBody = {
+                error: 'schedule cannot be activated since its not in a scheduled state.',
+            };
+
+            for (const updatedStatus of [GameStatus.ACTIVE, GameStatus.ENDED]) {
+                schedule.status = updatedStatus;
+                await schedule.save();
+
+                await agent
+                    .post(`/schedules/${schedule.id}/activate`)
+                    .set('Cookie', await cookieForUser(mod))
+                    .expect(400, expectedBody);
+            }
+        });
+
+        it('should fail if the schedule already has a related game.', async () => {
+            await agent
+                .post(`/schedules/${schedule.id}/activate`)
+                .set('Cookie', await cookieForUser(mod))
+                .expect(200);
+
+            schedule.status = GameStatus.SCHEDULED;
+            await schedule.save();
+
+            await agent
+                .post(`/schedules/${schedule.id}/activate`)
+                .set('Cookie', await cookieForUser(mod))
+                .expect(400, {
+                    error: 'schedule cannot be activated since game already exists',
+                });
+        });
+
+        it('should setup the relation between the game and the schedule', async () => {
+            await agent
+                .post(`/schedules/${schedule.id}/activate`)
+                .set('Cookie', await cookieForUser(mod))
+                .expect(200);
+
+            const scheduleRepository = getCustomRepository(GameScheduleRepository);
+            const updatedSchedule = await scheduleRepository.findById(schedule.id);
+
+            chai.expect(_.isNil(updatedSchedule?.game)).to.be.eq(false);
+            chai.expect(_.isNil(updatedSchedule?.game.id)).to.be.eq(false);
+
+            const gameRepository = getCustomRepository(GameRepository);
+            const game = await gameRepository.findOne(updatedSchedule.game.id, { relations: ['schedule'] });
+
+            chai.expect(_.isNil(game)).to.be.eq(false);
+            chai.expect(_.isNil(game?.schedule)).to.be.eq(false);
+            chai.expect(game.schedule.id).to.be.eq(schedule.id);
+        });
     });
 });
