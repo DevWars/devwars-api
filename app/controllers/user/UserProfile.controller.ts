@@ -7,10 +7,11 @@ import { IUserRequest } from '../../request/IRequest';
 
 /**
  * @api {get} /users/:userId/profile Get all of the profile information for a certain user.
- * @apiName ShowProfileforUser
+ * @apiName GetProfileforUser
  * @apiGroup User
+ * @apiPermission Moderator, Owner
  * 
- * @apiParam {string} username A partial or full username for a given user.
+ * @apiParam {string} id The id of a certain user.
  * 
  * @apiSuccess {object} profile An object containing all of the profile properties.
  * @apiSuccess {number} id The id of the user.
