@@ -6,8 +6,8 @@ import { IProfileRequest } from '../../request/IProfileRequest';
 import { IUserRequest } from '../../request/IRequest';
 
 /**
- * @api {get} NEED ENDPOINT URL Shows all of the profile information for a certain username.
- * @apiName ShowProfileforUsername
+ * @api {get} /users/:userId/profile Get all of the profile information for a certain user.
+ * @apiName ShowProfileforUser
  * @apiGroup User
  * 
  * @apiParam {string} username A partial or full username for a given user.
