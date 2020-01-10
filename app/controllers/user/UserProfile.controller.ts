@@ -34,7 +34,7 @@ import { IUserRequest } from '../../request/IRequest';
  * @apiSuccess {object} skills The skills of the user.
  * @apiSuccess {number} js The js skill of the user.
  * @apiSuccess {number} css The css skill of the user.
- * @apiSuccess {html} html The html skill of the user.
+ * @apiSuccess {number} html The html skill of the user.
  * 
  * @apiSuccessExample Success-Response:
  *      {
@@ -101,7 +101,7 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiParam {object} skills The skills of the user.
  * @apiParam {number} js The js skill of the user.
  * @apiParam {number} css The css skill of the user.
- * @apiParam {html} html The html skill of the user.
+ * @apiParam {number} html The html skill of the user.
  * 
  * @apiSuccess
  * 
