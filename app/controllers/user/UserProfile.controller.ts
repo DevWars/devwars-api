@@ -74,6 +74,40 @@ export async function show(request: IUserRequest, response: Response) {
     return response.json(profile);
 }
 
+/**
+ * @api {patch} /users/:userId/profile Updates the profile information for a certain user.
+ * @apiName UpdateProfileforUser
+ * @apiGroup User
+ * @apiPermission Administrator, Owner
+ * 
+ * @apiParam {string} id The id of a certain user.
+ * @apiParam {object} profile An object containing all of the profile properties.
+ * @apiParam {datetime} updatedAt When the profile was last updated.
+ * @apiParam {datetime} createdAt When the profile was created.
+ * @apiParam {string} firstName The first name of the user.
+ * @apiParam {string} lastName The last name of the user.
+ * @apiParam {string} dob The birthday of the user.
+ * @apiParam {string} sex The sex of the user.
+ * @apiParam {string} about Description of the user.
+ * @apiParam {boolean} forHire If the user is available for hire.
+ * @apiParam {string} company The company the user works for.
+ * @apiParam {string} websiteUrl The website of the user.
+ * @apiParam {string} addressOne The primary address of the user.
+ * @apiParam {string} addressTwo The secondary address of the user.
+ * @apiParam {string} city The city of the user.
+ * @apiParam {string} state The state of the user.
+ * @apiParam {string} zip The zip of the user.
+ * @apiParam {string} country The country of the user.
+ * @apiParam {object} skills The skills of the user.
+ * @apiParam {number} js The js skill of the user.
+ * @apiParam {number} css The css skill of the user.
+ * @apiParam {html} html The html skill of the user.
+ * 
+ * @apiSuccess
+ * 
+ * @apiSuccessExample
+ */
+
 export async function update(request: IUserRequest, response: Response) {
     const params: any = { ...(request.body as IProfileRequest) };
     const profile: any = await UserProfile.findOne({ where: { user: request.boundUser.id } });
