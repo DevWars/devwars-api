@@ -17,7 +17,7 @@ export const cookieForUser = async (user: User): Promise<string> => {
  * @param upper The upper bounds of the value.
  */
 export const parseIntWithDefault = (possible: any, def: number = 0, lower?: number, upper?: number): number => {
-    if (isNil(possible) || !isNumber(Number(possible))) {
+    if (isNil(possible) || !isNumber(Number(possible)) || isNaN(Number(possible))) {
         return def;
     }
 
