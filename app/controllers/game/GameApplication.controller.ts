@@ -156,8 +156,9 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
         const { username } = request.user;
         const { id } = request.schedule;
 
-        return response.status(404).json({
+        throw new ApiError({
             error: `No game application exists for schedule ${id} by user ${username}`,
+            code: 404,
         });
     }
 

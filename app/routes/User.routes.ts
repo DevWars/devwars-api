@@ -42,7 +42,7 @@ UserRoute.put(
 UserRoute.delete(
     '/:user',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserFromUserParam],
-    asyncErrorHandler(UserController.deleteUser)
+    wrapAsync(UserController.deleteUser)
 );
 
 UserRoute.put(

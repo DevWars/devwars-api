@@ -60,7 +60,7 @@ export async function register(request: Request, response: Response) {
     }
 
     if (RESERVED_USERNAMES.includes(username.toLowerCase())) {
-        return response.status(409).json({ error: 'The specified username is reserved and cannot be registered.' });
+        throw new ApiError({ error: 'The specified username is reserved and cannot be registered.', code: 409 });
     }
 
     // Register the user in the database, generating a new user with the default and minimal

@@ -9,6 +9,7 @@ import { IScheduleRequest } from '../../request/IRequest';
 import GameSchedule from '../../models/GameSchedule';
 import { GameStatus } from '../../models/GameSchedule';
 import Game from '../../models/Game';
+import ApiError from '../../utils/apiError';
 
 function flattenSchedule(schedule: GameSchedule) {
     return {
@@ -102,14 +103,16 @@ export async function activate(request: IScheduleRequest, response: Response) {
     const scheduleBody = request.body;
 
     if (request.schedule.status !== GameStatus.SCHEDULED) {
-        return response.status(400).json({
+        throw new ApiError({
             error: 'schedule cannot be activated since its not in a scheduled state.',
+            code: 400,
         });
     }
 
     if (!isNil(request.schedule.game)) {
-        return response.status(400).json({
+        throw new ApiError({
             error: 'schedule cannot be activated since game already exists',
+            code: 400,
         });
     }
 

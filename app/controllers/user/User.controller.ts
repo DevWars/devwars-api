@@ -238,9 +238,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
 
     if (removingUser.role <= UserRole.MODERATOR) {
         const removalError = 'Users with roles moderator or higher cannot be deleted, ensure to demote the user first.';
-        return response.status(400).json({
-            error: removalError,
-        });
+        throw new ApiError({ code: 400, error: removalError });
     }
 
     await getConnection().transaction(async (transaction) => {
