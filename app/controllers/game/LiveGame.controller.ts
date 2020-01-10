@@ -7,6 +7,7 @@ import GameRepository from '../../repository/Game.repository';
 import GameService from '../../services/Game.service';
 import { GameStatus } from '../../models/GameSchedule';
 import { flattenGame } from './Game.controller';
+import ApiError from '../../utils/apiError';
 
 export async function addPlayer(request: IRequest & IGameRequest, response: Response) {
     const { player, team } = request.body;
@@ -27,11 +28,14 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
 
     if (!request.game.storage.editors) request.game.storage.editors = {};
     const editors = request.game.storage.editors;
-
     const nextEditorId = Object.keys(editors).length;
+
     for (const editor of Object.values(editors) as any) {
         if (editor.player === player.id && editor.language === player.language) {
-            return response.status(409).json({ error: 'Player already assigned to that language.' });
+            throw new ApiError({
+                error: 'Player already assigned to that language.',
+                code: 409,
+            });
         }
     }
     editors[nextEditorId] = {

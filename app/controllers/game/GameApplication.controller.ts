@@ -11,6 +11,7 @@ import UserRepository from '../../repository/User.repository';
 
 import GameApplication from '../../models/GameApplication';
 import User, { UserRole } from '../../models/User';
+import ApiError from '../../utils/apiError';
 
 /**
  * @api {get} /mine Returns a list of game applications currently registered on.
@@ -249,8 +250,9 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
     const schedule = request.game.schedule;
 
     if (_.isNil(schedule)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: 'A game schedule does not exist for the given id.',
+            code: 404,
         });
     }
 
@@ -260,8 +262,9 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
     const user = await userRepository.findByUsername(username);
 
     if (_.isNil(user)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: `A user does not exist by the provided username '${username}'`,
+            code: 404,
         });
     }
 

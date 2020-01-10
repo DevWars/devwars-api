@@ -7,6 +7,7 @@ import UserRepository from '../../repository/User.repository';
 import { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 import { IUserRequest } from '../../request/IRequest';
+import ApiError from '../../utils/apiError';
 
 export async function forUser(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
@@ -19,8 +20,9 @@ export async function create(request: IUserRequest, response: Response) {
     const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
 
     if (!isNil(existingStatus)) {
-        return response.status(409).json({
+        throw new ApiError({
             error: `The user ${request.boundUser.username} already has existing user stats.`,
+            code: 409,
         });
     }
 

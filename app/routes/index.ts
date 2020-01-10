@@ -13,66 +13,54 @@ import { ContactRoute } from './contact.routes';
 
 interface IRoute {
     path: string;
-    middleware: any[];
     handler: express.Router;
 }
 
 export const Routes: IRoute[] = [
     {
         handler: HealthRoute,
-        middleware: [],
         path: '/',
     },
     {
         handler: AuthRoute,
-        middleware: [],
         path: '/auth',
     },
     {
         handler: GameRoute,
-        middleware: [],
         path: '/games',
     },
     {
         handler: GameScheduleRoute,
-        middleware: [],
         path: '/schedules',
     },
     {
         handler: GameApplicationRoute,
-        middleware: [],
         path: '/applications',
     },
     {
         handler: ActivityRoute,
-        middleware: [],
         path: '/activities',
     },
     {
         handler: LeaderboardRoute,
-        middleware: [],
         path: '/leaderboards',
     },
     {
         handler: LinkedAccountRoute,
-        middleware: [],
         path: '/oauth',
     },
     {
         handler: UserRoute,
-        middleware: [],
         path: '/users',
     },
     {
         handler: ContactRoute,
-        middleware: [],
         path: '/contact',
     },
 
     // TEMP: To support cookie authentication for Old Editor
     {
         handler: TempRoute,
-        middleware: [],
         path: '/user',
     },
 ];
