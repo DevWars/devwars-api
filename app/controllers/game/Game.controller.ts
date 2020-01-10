@@ -11,6 +11,9 @@ import { IGameRequest, IRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
+import { isNil } from 'lodash';
+import { DATABASE_MAX_ID } from '../../constants';
+import { parseIntWithDefault } from '../../../test/helpers';
 
 export function flattenGame(game: Game) {
     return {
@@ -110,11 +113,13 @@ export async function create(request: IRequest, response: Response) {
 }
 
 export async function findAllBySeason(request: Request, response: Response) {
-    const season = request.params.season;
+    const season = parseIntWithDefault(request.params.season, null, 1, DATABASE_MAX_ID);
+
+    if (isNil(season)) return response.status(400).json({ error: 'Invalid session id provided' });
+
     const gameRepository = getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(Number(season));
 
-    if (!games) return response.sendStatus(404);
     response.json(games.map((game) => flattenGame(game)));
 }
 

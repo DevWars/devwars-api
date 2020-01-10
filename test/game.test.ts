@@ -16,6 +16,7 @@ import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/User';
 import Game from '../app/models/Game';
+import { DATABASE_MAX_ID } from '../app/constants';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -440,6 +441,22 @@ describe('game', () => {
     });
 
     describe('GET - games/season/:season - Gathering a season by id', () => {
+        it('Should reject if a given season id is not a number', async () => {
+            for (const season of [null, undefined, 'test', {}]) {
+                await agent.get(`/games/season/${season}`).expect(400, {
+                    error: 'Invalid session id provided',
+                });
+            }
+        });
+
+        it('Should reject if a given season id is larger than the database max or less than one', async () => {
+            for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
+                await agent.get(`/games/season/${season}`).expect(400, {
+                    error: 'Invalid session id provided',
+                });
+            }
+        });
+
         it('Should be able to gather a season by id if it exists', async () => {
             await connectionManager.transaction(async (transaction) => {
                 const game1 = await GameSeeding.withSeason(2);
