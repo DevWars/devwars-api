@@ -198,7 +198,7 @@ export async function gatherAllUserConnectionsByProvider(request: IUserRequest, 
     const { provider } = request.params;
 
     if (_.isNil(provider) || !(provider.toUpperCase() in Provider))
-        return response.status(400).json({ error: `${provider} is not a valid.` });
+        throw new ApiError({ error: `${provider} is not a valid.`, code: 400 });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const connection = await linkedAccountRepository.findByUserIdAndProvider(request.boundUser.id, provider);
@@ -207,8 +207,9 @@ export async function gatherAllUserConnectionsByProvider(request: IUserRequest, 
         const capitalizedProvider = `${provider[0].toUpperCase()}${provider.substring(1).toLowerCase()}`;
         const username = request.boundUser.username;
 
-        return response.status(404).json({
+        throw new ApiError({
             error: `Connection does not exist for user ${username} with third-party ${capitalizedProvider}`,
+            code: 404,
         });
     }
 

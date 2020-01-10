@@ -38,6 +38,13 @@ UserRoute.put(
     ],
     wrapAsync(UserController.update)
 );
+
+UserRoute.delete(
+    '/:user',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserFromUserParam],
+    wrapAsync(UserController.deleteUser)
+);
+
 UserRoute.put(
     '/:user/avatar',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam, upload.single('avatar')],

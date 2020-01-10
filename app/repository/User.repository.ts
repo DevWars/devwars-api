@@ -1,6 +1,5 @@
 import { EntityRepository, Repository, Like } from 'typeorm';
 import User from '../models/User';
-import UserProfile from '../models/UserProfile';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
 import GameSchedule from '../models/GameSchedule';

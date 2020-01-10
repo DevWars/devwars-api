@@ -20,6 +20,7 @@ export default class GameScheduleSeeding {
             mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
             title: hacker.noun(),
             objectives: objectives.reduce(toIdMap, {}),
+            season: 3,
         };
 
         return schedule;
