@@ -72,7 +72,7 @@
         "winston": "^3.2.1"
     },
     "devDependencies": {
-        "@types/bcrypt": "^2.0.0",
+        "@types/bcrypt": "^3.0.0",
         "@types/chai": "^4.2.5",
         "@types/cookie-parser": "^1.4.2",
         "@types/cors": "^2.8.6",
