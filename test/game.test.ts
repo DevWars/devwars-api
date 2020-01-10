@@ -444,7 +444,7 @@ describe('game', () => {
         it('Should reject if a given season id is not a number', async () => {
             for (const season of [null, undefined, 'test', {}]) {
                 await agent.get(`/games/season/${season}`).expect(400, {
-                    error: 'Invalid session id provided',
+                    error: 'Invalid season id provided.',
                 });
             }
         });
@@ -452,7 +452,7 @@ describe('game', () => {
         it('Should reject if a given season id is larger than the database max or less than one', async () => {
             for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
                 await agent.get(`/games/season/${season}`).expect(400, {
-                    error: 'Invalid session id provided',
+                    error: 'Invalid season id provided.',
                 });
             }
         });

@@ -115,7 +115,7 @@ export async function create(request: IRequest, response: Response) {
 export async function findAllBySeason(request: Request, response: Response) {
     const season = parseIntWithDefault(request.params.season, null, 1, DATABASE_MAX_ID);
 
-    if (isNil(season)) return response.status(400).json({ error: 'Invalid session id provided' });
+    if (isNil(season)) throw new ApiError({ code: 400, error: 'Invalid season id provided.' });
 
     const gameRepository = getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(Number(season));
