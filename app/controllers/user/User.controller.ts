@@ -2,12 +2,13 @@ import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import { isNil, isInteger } from 'lodash';
 
-import User from '../../models/User';
-import { UserRole } from '../../models/User';
 import UserRepository from '../../repository/User.repository';
-import { IRequest, IUserRequest } from '../../request/IRequest';
+import { IUserRequest } from '../../request/IRequest';
 import { hash } from '../../utils/hash';
-import { stringify } from 'querystring';
+
+import { parseIntWithDefault } from '../../../test/helpers';
+import { UserRole } from '../../models/User';
+import User from '../../models/User';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -99,7 +100,12 @@ export async function show(request: IUserRequest, response: Response) {
  * @api {get} /:user Request All User basic information
  * @apiName GetUsers
  * @apiGroup User
- * @apiPermission administrator
+ * @apiPermission moderator
+ *
+ * @apiParam {string} limit The number of users to gather from the offset. (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering users from.
+ *
+ * @apiSuccess {json} Users The users within the limit and offset.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -124,7 +130,15 @@ export async function show(request: IUserRequest, response: Response) {
  *     }]
  */
 export async function all(request: Request, response: Response) {
-    const users = await User.find();
+    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
+    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+
+    const users = await User.createQueryBuilder('user')
+        .orderBy('"updatedAt"', 'DESC')
+        .limit(limit > 100 || limit < 1 ? 100 : limit)
+        .offset(offset < 0 ? 0 : offset)
+        .getMany();
+
     return response.json(users);
 }
 

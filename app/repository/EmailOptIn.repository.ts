@@ -11,7 +11,6 @@ export default class EmailOptInRepository extends Repository<EmailOptIn> {
      * @param user The user who's permissions are being gathered.
      */
     public async getEmailOptInPermissionForUser(user: User): Promise<EmailOptIn> {
-        if (_.isNil(user)) return null;
-        return await EmailOptIn.findOne({ where: { user: user.id } });
+        return await EmailOptIn.findOne({ where: { user } });
     }
 }

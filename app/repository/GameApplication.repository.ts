@@ -10,7 +10,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
         return GameApplication.find({ where: { user }, relations: ['schedule'] });
     }
 
-    public findByUserAndSchedule(user: User, schedule: GameSchedule) {
+    public findByUserAndSchedule(user: User, schedule: GameSchedule): Promise<GameApplication> {
         return GameApplication.findOne({ where: { user, schedule }, relations: ['schedule', 'user'] });
     }
 }
