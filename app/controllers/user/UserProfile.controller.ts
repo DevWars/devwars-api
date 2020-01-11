@@ -127,9 +127,9 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiSuccess {string} zip The zip of the user.
  * @apiSuccess {string} country The country of the user.
  * @apiSuccess {object} skills The skills of the user.
- * @apiSuccess {number} js The js skill of the user.
- * @apiSuccess {number} css The css skill of the user.
- * @apiSuccess {number} html The html skill of the user.
+ * @apiSuccess {number} skills.js The js skill of the user.
+ * @apiSuccess {number} skills.css The css skill of the user.
+ * @apiSuccess {number} skills.html The html skill of the user.
  * 
  * @apiSuccessExample {json} Success-Response:
  *      {

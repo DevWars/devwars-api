@@ -8,12 +8,57 @@ import { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 import { IUserRequest } from '../../request/IRequest';
 
+/**
+ * @api {get} /users/:user/stats Get the stats of a user.
+ * @apiName GetStatsOfUser
+ * @apiGroup User
+ * 
+ * @apiParam {string} user The id of a certain user.
+ * 
+ * @apiSuccess {number} coins The number of coins the user has. Default is 0.
+ * @apiSuccess {number} xp The amount of xp the user has. Default is 0.
+ * @apiSuccess {number} level The level of the user. Default is 1.
+ * @apiSuccess {string} twitchId The Twitch id of the user.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *      {
+ *          "coins": 3,
+ *          "xp": 1,
+ *          "level": 5,
+ *          "twitchId": "87763385"
+ *      }
+ */
+
 export async function forUser(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
     const stats = await userRepository.findStatsByUser(request.boundUser);
 
     return response.json(stats);
 }
+
+/**
+ * @api {post} /users/:user/stats Create stats for a user.
+ * @apiName CreateStatsForUser
+ * 
+ * @apiParam {string} user The id of a certain user.
+ * @apiParam {number} coins The number of coins the user has. Min is 0.
+ * @apiParam {number} xp The amount of xp the user has. Min is 0.
+ * @apiParam {number} level The level of the user. Min is 1.
+ * @apiParam {string} twitchId The Twitch id of the user.
+ * 
+ * @apiParamExample {json} Request-Example:
+ *      {
+ *          "coins": 10,
+ *          "xp": 3,
+ *          "level": 4,
+ *          "twitchId": "24485211"
+ *      }
+ *  
+ * @apiSuccess {number} coins The number of coins the user has.
+ * @apiSuccess {number} xp The amount of xp the user has.
+ * @apiSuccess {number} level The level of the user.
+ * @apiSuccess {string} twitchId The Twitch id of the user.
+ */
 
 export async function create(request: IUserRequest, response: Response) {
     const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
