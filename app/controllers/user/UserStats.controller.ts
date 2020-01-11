@@ -13,7 +13,7 @@ import { IUserRequest } from '../../request/IRequest';
  * @apiName GetStatsOfUser
  * @apiGroup User
  * 
- * @apiParam {string} user The id of a certain user.
+ * @apiParam {string} user The id of the user.
  * 
  * @apiSuccess {number} coins The number of coins the user has. Default is 0.
  * @apiSuccess {number} xp The amount of xp the user has. Default is 0.
@@ -39,8 +39,9 @@ export async function forUser(request: IUserRequest, response: Response) {
 /**
  * @api {post} /users/:user/stats Create stats for a user.
  * @apiName CreateStatsForUser
+ * @apiGroup User
  * 
- * @apiParam {string} user The id of a certain user.
+ * @apiParam {string} user The id of the user.
  * @apiParam {number} coins The number of coins the user has. Min is 0.
  * @apiParam {number} xp The amount of xp the user has. Min is 0.
  * @apiParam {number} level The level of the user. Min is 1.
@@ -77,6 +78,21 @@ export async function create(request: IUserRequest, response: Response) {
     await stats.save();
     return response.json(stats);
 }
+
+/**
+ * @api {get} /users/stats/coins Show the number of coins the user has.
+ * @apiName GetCoinsOfUser
+ * @apiGroup User
+ * 
+ * @apiParam {string} user The id of the user. // Not sure about this param. Might be all users since there's no path param?
+ * 
+ * @apiSuccess {number} coins The number of coins the user has.
+ * 
+ * @apiSuccessExample {json} Success-Response:
+ *      {
+ *          "coins": 3,
+ *      }
+ */
 
 export async function getCoins(request: Request, response: Response) {
     const { twitchId } = request.query;
