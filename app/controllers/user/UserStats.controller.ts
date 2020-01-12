@@ -15,17 +15,36 @@ import { IUserRequest } from '../../request/IRequest';
  * 
  * @apiParam {string} user The id of the user.
  * 
- * @apiSuccess {number} coins The number of coins the user has. Default is 0.
- * @apiSuccess {number} xp The amount of xp the user has. Default is 0.
- * @apiSuccess {number} level The level of the user. Default is 1.
+ * @apiSuccess {number} id The id of the user.
+ * @apiSuccess {datetime} updatedAt the time the user was last updated.
+ * @apiSuccess {datetime} createdAt the time the user was created at.
+ * @apiSuccess {number} coins The number of coins the user has. default is 0.
+ * @apiSuccess {number} xp The amount of xp the user has. default is 0.
+ * @apiSuccess {number} level The level of the user. default is 1.
  * @apiSuccess {string} twitchId The Twitch id of the user.
+ * @apiSuccess {object} game The game stats of the user.
+ * @apiSuccess {number} game.id The id of the user.
+ * @apiSuccess {datetime} game.updatedAt The time the user was last updated.
+ * @apiSuccess {datetime} game.createdAt The time the user was created at.
+ * @apiSuccess {number} game.wins The number of wins the user has.
+ * @apiSuccess {number} game.loses The number of losses the user has. 
  * 
  * @apiSuccessExample {json} Success-Response:
  *      {
- *          "coins": 3,
- *          "xp": 1,
- *          "level": 5,
- *          "twitchId": "87763385"
+ *      "id": 1,
+ *      "updatedAt": "1969-12-31T17:00:00.000Z",
+ *      "createdAt": "1969-12-31T17:00:00.000Z",
+ *      "coins": 48837,
+ *      "xp": 600,
+ *      "level": 1,
+ *      "twitchId": null,
+ *      "game": {
+ *      "id": 1,
+ *      "updatedAt": "1969-12-31T17:00:00.000Z",
+ *      "createdAt": "1969-12-31T17:00:00.000Z",
+ *      "wins": 1,
+ *      "loses": 0
+ *      }
  *      }
  */
 
@@ -42,10 +61,10 @@ export async function forUser(request: IUserRequest, response: Response) {
  * @apiGroup User
  * 
  * @apiParam {string} user The id of the user.
- * @apiParam {number} coins The number of coins the user has. Min is 0.
- * @apiParam {number} xp The amount of xp the user has. Min is 0.
- * @apiParam {number} level The level of the user. Min is 1.
- * @apiParam {string} twitchId The Twitch id of the user.
+ * @apiParam {number} coins The number of coins the user has. minimum is 0.
+ * @apiParam {number} xp The amount of xp the user has. minimum is 0.
+ * @apiParam {number} level The level of the user. minimum is 1.
+ * @apiParam {string} twitchId The twitch id of the user.
  * 
  * @apiParamExample {json} Request-Example:
  *      {
@@ -58,7 +77,7 @@ export async function forUser(request: IUserRequest, response: Response) {
  * @apiSuccess {number} coins The number of coins the user has.
  * @apiSuccess {number} xp The amount of xp the user has.
  * @apiSuccess {number} level The level of the user.
- * @apiSuccess {string} twitchId The Twitch id of the user.
+ * @apiSuccess {string} twitchId The twitch id of the user.
  */
 
 export async function create(request: IUserRequest, response: Response) {
@@ -84,14 +103,7 @@ export async function create(request: IUserRequest, response: Response) {
  * @apiName GetCoinsOfUser
  * @apiGroup User
  * 
- * @apiParam {string} user The id of the user. // Not sure about this param. Might be all users since there's no path param?
- * 
- * @apiSuccess {number} coins The number of coins the user has.
- * 
- * @apiSuccessExample {json} Success-Response:
- *      {
- *          "coins": 3,
- *      }
+ * @apiSuccess {string} coins The number of coins the user has.
  */
 
 export async function getCoins(request: Request, response: Response) {

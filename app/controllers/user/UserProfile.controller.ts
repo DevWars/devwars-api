@@ -136,21 +136,22 @@ export async function show(request: IUserRequest, response: Response) {
  *       "firstName": "Jack",
  *       "lastName": "Dupont",
  *       "dob": "2020-1-10T00:00:00.000Z",
- *       "sex": null,
- *       "about": null,
- *       "forHire": null,
- *       "company": null,
- *       "websiteUrl": null,
- *       "addressOne": null,
- *       "addressTwo": null,
- *       "city": null,
- *       "state": null,
- *       "zip": null,
- *       "country": null,
+ *       "sex": "",
+ *       "about": "",
+ *       "forHire": false,
+ *       "company": "",
+ *       "websiteUrl": "",
+ *       "addressOne": "",
+ *       "addressTwo": "",
+ *       "city": "",
+ *       "state": "",
+ *       "zip": "",
+ *       "country": "",
  *       "skills": {
  *           "html": 5,
  *           "css": 2,
  *           "js": 3,
+ *      }
  *      }
  */
 
