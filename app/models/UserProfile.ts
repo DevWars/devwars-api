@@ -3,9 +3,9 @@ import BaseModel from './BaseModel';
 import User from './User';
 
 export enum Sex {
-    MALE,
-    FEMALE,
-    OTHER,
+    MALE = 0,
+    FEMALE = 1,
+    OTHER = 2,
 }
 
 @Entity('user_profile')
