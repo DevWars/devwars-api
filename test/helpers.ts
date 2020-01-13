@@ -1,6 +1,8 @@
-import User from '../app/models/User';
-import { AuthService } from '../app/services/Auth.service';
 import { isNumber, isNil } from 'lodash';
+import * as fs from 'fs';
+
+import { AuthService } from '../app/services/Auth.service';
+import User from '../app/models/User';
 
 export const cookieForUser = async (user: User): Promise<string> => {
     return `token=${await AuthService.newToken(user)}`;
@@ -27,4 +29,26 @@ export const parseIntWithDefault = (possible: any, def: number = 0, lower?: numb
     if (!isNil(upper) && result > upper) return def;
 
     return result;
+};
+
+/**
+ * Returns true or false based on the existence of a file.
+ * @param file The file path that will be checked for existence.
+ */
+export const fileExists = (file: string): boolean => {
+    return fs.existsSync(file);
+};
+
+/**
+ * Returns true or false based on the access of a file based on the provided mode (fs.constants).
+ * @param file The file path that will be checked for access.
+ * @param mode The mode to attempt to access, e.g read, write. (use fs.constants)
+ */
+export const canAccessFile = (file: string, mode?: number): boolean => {
+    try {
+        fs.accessSync(file, mode);
+        return true;
+    } catch (error) {
+        return false;
+    }
 };
