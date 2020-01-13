@@ -68,7 +68,7 @@
         "token-extractor": "^0.1.6",
         "ts-node": "8.6.0",
         "typeorm": "^0.2.22",
-        "typescript": "^3.7.2",
+        "typescript": "^3.7.4",
         "winston": "^3.2.1"
     },
     "devDependencies": {
