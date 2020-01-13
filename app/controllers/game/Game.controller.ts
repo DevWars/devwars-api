@@ -13,7 +13,8 @@ import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
 import { isNil } from 'lodash';
 import { DATABASE_MAX_ID } from '../../constants';
-import { parseIntWithDefault } from '../../../test/helpers';
+import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import UserRepository from '../../repository/User.repository';
 
 export function flattenGame(game: Game) {
     return {
@@ -29,7 +30,19 @@ export function flattenGame(game: Game) {
 }
 
 export async function show(request: IGameRequest, response: Response) {
-    return response.json(flattenGame(request.game));
+    const includePlayers = parseBooleanWithDefault(request.query.players, false);
+    const game = flattenGame(request.game);
+
+    if (includePlayers && !isNil(game.players)) {
+        const userRepository = getCustomRepository(UserRepository);
+        const players = await userRepository.findByIds(Object.keys(game.players));
+
+        for (const player of players) {
+            game.players[player.id] = Object.assign(player, game.players[player.id]);
+        }
+    }
+
+    return response.json(game);
 }
 
 export async function all(request: Request, response: Response) {

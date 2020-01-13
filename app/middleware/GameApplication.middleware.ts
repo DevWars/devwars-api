@@ -7,6 +7,7 @@ import GameRepository from '../repository/Game.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
+import { parseIntWithDefault, parseBooleanWithDefault } from '../../test/helpers';
 
 /**
  * Ensures that the requesting authorized user has provided a valid schedule id, this id will be validated,
@@ -15,10 +16,9 @@ import ApiError from '../utils/apiError';
  */
 export const bindGameFromGameParam = wrapAsync(
     async (request: IGameRequest, response: Response, next: NextFunction) => {
-        const { game: gameId } = request.params;
+        const gameId = parseIntWithDefault(request.params.game, null, 1, DATABASE_MAX_ID);
 
-        if (_.isNil(gameId) || isNaN(_.toNumber(gameId)) || Number(gameId) > DATABASE_MAX_ID)
-            throw new ApiError({ code: 400, error: 'Invalid game id provided.' });
+        if (_.isNil(gameId)) throw new ApiError({ code: 400, error: 'Invalid game id provided.' });
 
         const gameRepository = getCustomRepository(GameRepository);
         const game = await gameRepository.findOne(gameId, { relations: ['schedule'] });
