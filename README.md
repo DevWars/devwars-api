@@ -21,7 +21,7 @@
    <a href="http://typeorm.io/#/">
     <img src="https://img.shields.io/badge/PostgresSQL-v11.0.0-orange.svg" alt="postgres version">
   </a>
-  <img src="https://flat.badgen.net/dependabot/devwars/devwars-api/162181219?icon=dependabot" alt="Dependabot Badge" />
+  <!-- <img src="https://flat.badgen.net/dependabot/devwars/devwars-api/162181219?icon=dependabot" alt="Dependabot Badge" /> -->
 </p>
 
 Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core backbone and interface for the day to day running of the DevWars platform.
@@ -62,7 +62,7 @@ Running `npm run dev` will start a development server that will automatically re
 
 ## Contributors
 
-This project exists thanks to all the people who [contribute](https://github.com/DevWars/devwars-api/graphs/contributors). We encourage you to contribute to DevWars but ensure to open a related issue first. Please check out the [contributing](https://github.com/DevWars/devwars-api/blob/master/CONTRIBUTING.md) to DevWars guide for guidelines about how to proceed.
+This project exists thanks to all the people who [contribute](https://github.com/DevWars/devwars-api/graphs/contributors). We encourage you to contribute to DevWars but ensure to open a related issue first. Please check out the [contributing](CONTRIBUTING.md) to DevWars guide for guidelines about how to proceed.
 
 ## License
 
