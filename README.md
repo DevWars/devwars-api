@@ -21,7 +21,7 @@
    <a href="http://typeorm.io/#/">
     <img src="https://img.shields.io/badge/PostgresSQL-v11.0.0-orange.svg" alt="postgres version">
   </a>
-  <img src="https://flat.badgen.net/dependabot/devwars/devwars-api?icon=dependabot" alt="Dependabot Badge" />
+  <img src="https://flat.badgen.net/dependabot/devwars/devwars-api/162181219?icon=dependabot" alt="Dependabot Badge" />
 </p>
 
 Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core backbone and interface for the day to day running of the DevWars platform.
@@ -36,11 +36,29 @@ Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core back
 
 -   [Nodejs](https://nodejs.org/en/): 10.0 or higher
 -   [PostgreSQL](https://www.postgresql.org/): 9.4 or higher.
--   [Firebase](https://firebase.google.com/): instance with database (service account).
+    <!-- -   [Firebase](https://firebase.google.com/): instance with database (service account). -->
+
+### Dependency Installation
+
+Run `npm run install` to install dependent node_modules.
 
 ### Environment Variables
 
-Ensure to make a copy of the `.env.example` file in the same directory and rename the given file to `.env`. This will be loaded up into the application when it first starts running. These are required configuration settings to ensure correct function. Process through the newly created file and make the required changes if needed.
+Make a copy of the `.env.example` file in the same directory and rename the given file to `.env`. This will be loaded up into the application when it first starts running. These are required configuration settings to ensure correct function. Process through the newly created file and make the required changes if needed.
+
+### Seeding The Database
+
+Once you have everything setup in the environment variables folder, you will be able to seed the database. This process will generate fake data that will allow testing and usage of the API.
+
+run `npm run seed`
+
+### Testing
+
+Running `npm run test` will start the testing process, using the second set of connection details within the `.env` file. This process is enforced as a git hook before committing code.
+
+### Development
+
+Running `npm run dev` will start a development server that will automatically restart when changes occur. Additionally running `npm run dev:break` will allow development with the inspector attached.
 
 ## Contributors
 
