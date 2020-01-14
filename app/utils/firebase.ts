@@ -7,7 +7,7 @@ import * as fs from 'fs';
 import { EOL } from 'os';
 
 import logger from './logger';
-import { fileExists, canAccessFile } from '../../test/helpers';
+import { pathExists, canAccessPath } from '../../test/helpers';
 import { isNil } from 'lodash';
 
 // tslint:disable:no-var-requires
@@ -22,13 +22,13 @@ let firebaseSingleton: firebase.app.App | null = null;
 export function initializeFirebase(): firebase.app.App | null {
     if (!isNil(firebaseSingleton)) return firebaseSingleton;
 
-    if (!fileExists(firebasePath)) {
+    if (!pathExists(firebasePath)) {
         logger.warn('Firebase service account file does not exist (firebase.json).');
         logger.warn('No firebase functionality until the service account file is provided.');
         return null;
     }
 
-    if (!canAccessFile(firebasePath, fs.constants.R_OK)) {
+    if (!canAccessPath(firebasePath, fs.constants.R_OK)) {
         logger.warn('Firebase service account file exists but executing user does not have permission to read.');
         logger.warn('No firebase functionality until the service account is readable by the executing user..');
         return null;

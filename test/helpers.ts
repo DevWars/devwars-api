@@ -33,22 +33,22 @@ export const parseIntWithDefault = (possible: any, def: number = 0, lower?: numb
 
 /**
  * Returns true or false based on the existence of a file.
- * @param file The file path that will be checked for existence.
+ * @param path The file path that will be checked for existence.
  */
-export const fileExists = (file: string): boolean => {
-    return fs.existsSync(file);
+export const pathExists = (path: string): boolean => {
+    return fs.existsSync(path);
 };
 
 /**
  * Returns true or false based on the access of a file based on the provided mode (fs.constants).
- * @param file The file path that will be checked for access.
+ * @param path The file path that will be checked for access.
  * @param mode The mode to attempt to access, e.g read, write. (use fs.constants)
  */
-export const canAccessFile = (file: string, mode?: number): boolean => {
+export const canAccessPath = (path: string, mode?: number): boolean => {
     try {
-        fs.accessSync(file, mode);
+        fs.accessSync(path, mode);
         return true;
     } catch (error) {
-        return false;
+        return error.code === 'ENOENT';
     }
 };
