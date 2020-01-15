@@ -1,57 +1,71 @@
-# DevWars <img align="right" src="http://i.imgur.com/D9giOVL.png">
+<div align="center">
+  <br>
+  <img alt="DEV" src="https://i.imgur.com/D9giOVL.png" width="250px">
+  <h1>DevWars API</h1>
+  <strong>The Human Layer of the Stack</strong>
+</div>
+<br>
+<p align="center">
+  <a href="">
+    <img src="https://img.shields.io/badge/Nodejs-v10.0.0-green.svg" alt="nodejs version">
+  </a>
+  <a href="https://expressjs.com/">
+    <img src="https://img.shields.io/badge/Express-v4.0.0-brightgreen.svg" alt="expressjs version">
+  </a>
+  <a href="https://www.typescriptlang.org/">
+    <img src="https://img.shields.io/badge/Typescript-v3.0.0-blue.svg" alt="typescript version">
+  </a>
+  <a href="http://typeorm.io/#/">
+    <img src="https://img.shields.io/badge/TypeORM-v0.2.0-red.svg" alt="typeorm version">
+  </a>
+   <a href="http://typeorm.io/#/">
+    <img src="https://img.shields.io/badge/PostgresSQL-v11.0.0-orange.svg" alt="postgres version">
+  </a>
+  <!-- <img src="https://flat.badgen.net/dependabot/devwars/devwars-api/162181219?icon=dependabot" alt="Dependabot Badge" /> -->
+</p>
 
-_Official Website for [Devwars.tv](http://devwars.tv/)_
+Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core backbone and interface for the day to day running of the DevWars platform.
 
----
+## What is DevWars?
 
-## Stack:
+[DevWars.tv](https://www.devwars.tv/) is a live game show for developers that is currently streamed on [Twitch](https://www.twitch.tv/devwars). People of all levels participate in an exhilarating battle to create the best website they can within 60 minutes. Teams are formed of 3 people, with the team's members each controlling a single language - HTML, CSS and JavaScript.
 
-[<img src="https://img.shields.io/badge/Express-brightgreen.svg">](https://expressjs.com/)
-[<img src="https://img.shields.io/badge/Typescript-0076c6.svg">](https://www.typescriptlang.org/)
-[<img src="https://img.shields.io/badge/TypeORM-red.svg">](http://typeorm.io/#/)
-[<img src="https://img.shields.io/badge/MySQL-orange.svg">](https://www.mysql.com/)
+## Getting Started
 
----
+### Prerequisites
 
-## Running our test suite:
+-   [Nodejs](https://nodejs.org/en/): 10.0 or higher
+-   [PostgreSQL](https://www.postgresql.org/): 9.4 or higher.
+    <!-- -   [Firebase](https://firebase.google.com/): instance with database (service account). -->
 
-Go to the root of the repo
+### Dependency Installation
 
-```bash
-npm install
-npm test
-```
+Run `npm run install` to install dependent node_modules.
 
-All of your tests should pass by default on your first run. We use SQLite so you won't need a database running while you develop.
+### Environment Variables
 
-If however, you want to run our entire stack, please refer to our repo [DevWars Stack](https://github.com/DevWars/devwars-stack)
+Make a copy of the `.env.example` file in the same directory and rename the given file to `.env`. This will be loaded up into the application when it first starts running. These are required configuration settings to ensure correct function. Process through the newly created file and make the required changes if needed.
 
----
+### Seeding The Database
 
-## Create the .env
+Once you have everything setup in the environment variables folder, you will be able to seed the database. This process will generate fake data that will allow testing and usage of the API.
 
-FIREBASE_URL=https://<Your Firebase ID>.firebaseio.com/
+run `npm run seed`
 
-## Project Structure
+### Testing
 
-Overview
+Running `npm run test` will start the testing process, using the second set of connection details within the `.env` file. This process is enforced as a git hook before committing code.
 
-    ├── app                           - Main App
-    |   ├── controllers                 - HTTP Layer (Handles incoming requests)
-    |   ├── factory                     - Factories for all of our models (Helps with testing)
-    |   ├── middleware                 - HTTP Middleware (Useful shorthand for guarding requests)
-    |   ├── models                      - All of the domain in DevWars
-    |   ├── repository                  - Data Access Layer (How we fetch our data)
-    |   ├── request                     - Structures for complicated request models
-    |   ├── routes                      - Individual express modules for separate controllers
-    |   ├── services                    - Service layer (Executing actions for DevWars)
-    |   ├── types                       - Extra TypeScript definitions
-    |   ├── utils                       - Miscellaneous utilities
-    ├── cli                           - CLI commands for quick dev tools
-    |   ├── Seeder                      - Seeds random data (Will be split eventually)
-    |   ├── ChangeRole                  - Changes role of a user by username
-    |   ├── GetTestUser                 - Prints out the email / username of a random user
-    ├── config                        - CLI commands for quick dev tools
-    ├── coverage                      - Test coverage output
-    ├── docs                          - API Doc output folder
-    ├── test                          - Miscellaneous Tests
+### Development
+
+Running `npm run dev` will start a development server that will automatically restart when changes occur. Additionally running `npm run dev:break` will allow development with the inspector attached.
+
+## Contributors
+
+This project exists thanks to all the people who [contribute](https://github.com/DevWars/devwars-api/graphs/contributors). We encourage you to contribute to DevWars but ensure to open a related issue first. Please check out the [contributing](CONTRIBUTING.md) to DevWars guide for guidelines about how to proceed.
+
+## License
+
+> You can check out the full license [here](https://github.com/DevWars/devwars-api/blob/master/LICENSE)
+
+This project is licensed under the terms of the **MIT** license.
