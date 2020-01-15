@@ -1,5 +1,5 @@
-import { isNumber, isNil } from 'lodash';
 import * as fs from 'fs';
+import { isNumber, isNil, isBoolean } from 'lodash';
 
 import { AuthService } from '../app/services/Auth.service';
 import User from '../app/models/User';
@@ -29,6 +29,21 @@ export const parseIntWithDefault = (possible: any, def: number = 0, lower?: numb
     if (!isNil(upper) && result > upper) return def;
 
     return result;
+};
+
+/**
+ * Parses any given object and attempts to form a boolean value. This includes 1,0 (number and strings),
+ * @param possible The possible value to be parsed.
+ * @param def The default value ot be returned otherwise if not a boolean.
+ */
+export const parseBooleanWithDefault = (possible: any, def: boolean = false): boolean => {
+    if (isNil(possible)) return def;
+
+    if (possible === 1 || possible === 0) return Boolean(possible);
+    if (possible === '0' || possible === '1') return possible === '1';
+    if (possible === 'true' || possible === 'false') return possible === 'true';
+
+    return !isBoolean(possible) ? def : Boolean(possible);
 };
 
 /**
