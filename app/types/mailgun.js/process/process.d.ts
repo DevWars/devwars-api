@@ -29,6 +29,9 @@ declare namespace NodeJS {
         DISCORD_CLIENT: string;
         DISCORD_SECRET: string;
 
+        TWITCH_CLIENT: string;
+        TWITCH_SECRET: string;
+
         MAILGUN_KEY: string;
 
         AWS_ENDPOINT_URL: string;
