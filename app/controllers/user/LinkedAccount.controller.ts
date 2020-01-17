@@ -198,7 +198,7 @@ export async function gatherAllUserConnectionsByProvider(request: IUserRequest, 
     const { provider } = request.params;
 
     if (_.isNil(provider) || !(provider.toUpperCase() in Provider))
-        throw new ApiError({ error: `${provider} is not a valid.`, code: 400 });
+        throw new ApiError({ error: `${provider} is not a valid provider.`, code: 400 });
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const connection = await linkedAccountRepository.findByUserIdAndProvider(request.boundUser.id, provider);
