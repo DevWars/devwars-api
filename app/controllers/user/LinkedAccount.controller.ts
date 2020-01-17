@@ -11,6 +11,7 @@ import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services
 import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 import ApiError from '../../utils/apiError';
+import { TwitchService } from '../../services/twitch.service';
 
 /**
  * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
@@ -59,6 +60,7 @@ export async function connect(request: IRequest, response: Response) {
     }
 
     if (provider === Provider.DISCORD) return await connectDiscord(request, response, request.user);
+    if (provider === Provider.TWITCH) return await connectTwitch(request, response, request.user);
 
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
@@ -118,6 +120,33 @@ export async function updateTwitchCoins(request: Request, response: Response) {
     await LinkedAccount.save(accounts);
 
     return response.json(accounts);
+}
+
+async function connectTwitch(request: Request, response: Response, user: User) {
+    // gather a given access token for the code that was returned back from twitch, completing
+    // the linkage and authorization process with twitch.
+    const token = await TwitchService.accessTokenForCode(request.query.code);
+    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for Twitch.', code: 400 });
+
+    // Attempt to gather the related users account information for the given token, this is what
+    // will be used to link the accounts up with twitch.
+    const twitchUser = await TwitchService.twitchUserForToken(token);
+    if (_.isNil(twitchUser)) throw new ApiError({ error: 'Twitch user not found.', code: 403 });
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
+
+    if (_.isNil(linkedAccount)) {
+        linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    }
+
+    linkedAccount.user = user;
+    linkedAccount.username = twitchUser.username;
+
+    await linkedAccount.save();
+
+    await SendLinkedAccountEmail(user, Provider.TWITCH);
+    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
 
 async function connectDiscord(request: Request, response: Response, user: User) {
