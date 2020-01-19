@@ -11,7 +11,7 @@ import UserRepository from '../../repository/User.repository';
 import { IUserRequest } from '../../request/IRequest';
 import { hash } from '../../utils/hash';
 
-import { parseIntWithDefault } from '../../../test/helpers';
+import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
 import { UserRole } from '../../models/User';
 import User from '../../models/User';
 import LinkedAccount from '../../models/LinkedAccount';
@@ -39,6 +39,7 @@ interface IUpdateUserRequest {
  *
  * @apiParam {string} username  A partial or full username for a given user.
  * @apiParam {number} limit     The maximum amount of users to return (max 50)
+ * @apiParam {boolean} full     If all the user details should be returned or not.
  *
  * @apiSuccess {User[]} Users    A array of user objects containing the username and id.
  *
@@ -58,13 +59,13 @@ interface IUpdateUserRequest {
  *      }]
  */
 export async function lookupUser(request: IUserRequest, response: Response) {
-    let { username, limit } = request.query;
+    let { username, limit, full } = request.query;
 
     if (isNil(username)) username = '';
     username = username.replace(/\s/g, '').trim();
 
-    if (isNil(limit) || !isInteger(Number(limit)) || Number(limit) > 50) limit = 50;
-    limit = Number(limit);
+    limit = parseIntWithDefault(limit, 50, 1, 50);
+    full = parseBooleanWithDefault(full, false);
 
     if (username === '') {
         throw new ApiError({
@@ -75,6 +76,10 @@ export async function lookupUser(request: IUserRequest, response: Response) {
 
     const userRepository = getCustomRepository(UserRepository);
     const users = await userRepository.getUsersLikeUsername(username, limit);
+
+    // If the user has specified full user details, then return out early
+    // before performing a filter to username and ids.
+    if (full) return response.json(users);
 
     // Reduce the response down to the given username and id of the users.
     return response.json(
