@@ -13,9 +13,9 @@ import ApiError from '../../utils/apiError';
  * @api {get} /users/:user/stats Get the stats of a user.
  * @apiName GetStatsOfUser
  * @apiGroup User
- * 
+ *
  * @apiParam {string} user The id of the user.
- * 
+ *
  * @apiSuccess {number} id The id of the user.
  * @apiSuccess {datetime} updatedAt the time the user was last updated.
  * @apiSuccess {datetime} createdAt the time the user was created at.
@@ -28,8 +28,8 @@ import ApiError from '../../utils/apiError';
  * @apiSuccess {datetime} game.updatedAt The time the user was last updated.
  * @apiSuccess {datetime} game.createdAt The time the user was created at.
  * @apiSuccess {number} game.wins The number of wins the user has.
- * @apiSuccess {number} game.loses The number of losses the user has. 
- * 
+ * @apiSuccess {number} game.loses The number of losses the user has.
+ *
  * @apiSuccessExample {json} Success-Response:
  *      {
  *      "id": 1,
@@ -51,6 +51,7 @@ import ApiError from '../../utils/apiError';
 
 export async function forUser(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
+
     const stats = await userRepository.findStatsByUser(request.boundUser);
 
     return response.json(stats);
@@ -60,13 +61,13 @@ export async function forUser(request: IUserRequest, response: Response) {
  * @api {post} /users/:user/stats Create stats for a user.
  * @apiName CreateStatsForUser
  * @apiGroup User
- * 
+ *
  * @apiParam {string} user The id of the user.
  * @apiParam {number} coins The number of coins the user has. minimum is 0.
  * @apiParam {number} xp The amount of xp the user has. minimum is 0.
  * @apiParam {number} level The level of the user. minimum is 1.
  * @apiParam {string} twitchId The twitch id of the user.
- * 
+ *
  * @apiParamExample {json} Request-Example:
  *      {
  *          "coins": 10,
@@ -74,7 +75,7 @@ export async function forUser(request: IUserRequest, response: Response) {
  *          "level": 4,
  *          "twitchId": "24485211"
  *      }
- *  
+ *
  * @apiSuccess {number} coins The number of coins the user has.
  * @apiSuccess {number} xp The amount of xp the user has.
  * @apiSuccess {number} level The level of the user.
@@ -104,7 +105,7 @@ export async function create(request: IUserRequest, response: Response) {
  * @api {get} /users/stats/coins Show the number of coins the user has.
  * @apiName GetCoinsOfUser
  * @apiGroup User
- * 
+ *
  * @apiSuccess {string} coins The number of coins the user has.
  */
 
@@ -114,7 +115,8 @@ export async function getCoins(request: Request, response: Response) {
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByToken(request.cookies.token);
-    if (user) {
+
+    if (!isNil(user)) {
         const stats = await userRepository.findStatsByUser(user);
         coins += stats.coins;
     }
@@ -127,7 +129,7 @@ export async function getCoins(request: Request, response: Response) {
             coins += account.storage.coins;
         }
 
-        if (!user && account.user) {
+        if (isNil(user) && !isNil(account.user)) {
             const stats = await userRepository.findStatsByUser(account.user);
             coins += stats.coins;
         }

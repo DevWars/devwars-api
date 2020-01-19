@@ -12,6 +12,7 @@ import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 import ApiError from '../../utils/apiError';
 import { TwitchService } from '../../services/twitch.service';
+import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
 
 /**
  * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
@@ -106,20 +107,32 @@ export async function updateTwitchCoins(request: Request, response: Response) {
     const twitchUsers = request.body.updates.map((update: any) => update.twitchUser);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
+
     await linkedAccountRepository.createMissingAccounts(twitchUsers, Provider.TWITCH);
 
-    const accounts = await LinkedAccount.find({ providerId: In(twitchUsers.map((u: any) => u.id)) });
+    const accounts = await linkedAccountRepository.find({
+        where: {
+            providerId: In(twitchUsers.map((u: any) => u.id)),
+        },
+        relations: ['user'],
+    });
+
     for (const account of accounts) {
         const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
         if (!_.isFinite(amount)) continue;
 
-        if (_.isNil(account.storage.coins)) account.storage.coins = 0;
-        account.storage.coins += amount;
+        if (!_.isNil(account.user)) {
+            // push it on the users statistics since they have there twitch accounts linked.
+            await userStatisticsRepository.updateCoinsForUser(account.user, amount);
+        } else {
+            if (_.isNil(account.storage.coins)) account.storage.coins = 0;
+            account.storage.coins += amount;
+        }
     }
 
     await LinkedAccount.save(accounts);
-
-    return response.json(accounts);
+    return response.send();
 }
 
 async function connectTwitch(request: Request, response: Response, user: User) {
@@ -142,6 +155,15 @@ async function connectTwitch(request: Request, response: Response, user: User) {
 
     linkedAccount.user = user;
     linkedAccount.username = twitchUser.username;
+
+    // Update and shift the twitch account coins from the linked account to the user stats when a user
+    // makes the link between twitch and the dev wars account. Now when updating twitch coins, the server
+    // will update the user stats and not the linked account (unless the link is broken).
+    const userStatsRepository = getCustomRepository(UserStatisticsRepository);
+    await userStatsRepository.updateCoinsForUser(linkedAccount.user, _.defaultTo(linkedAccount.storage?.coins, 0));
+
+    // Remove any coins on the linked account since they have been moved to the stats.
+    if (!_.isNil(linkedAccount.storage?.coins)) delete linkedAccount.storage.coins;
 
     await linkedAccount.save();
 

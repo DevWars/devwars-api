@@ -18,7 +18,7 @@ export default class UserRepository extends Repository<User> {
      * @param id The id of the user being found.
      */
     public async findById(id: any): Promise<User> {
-        return await User.findOne({ where: { id } });
+        return await this.findOne({ where: { id } });
     }
 
     /**
@@ -26,7 +26,7 @@ export default class UserRepository extends Repository<User> {
      * @param email The email of the given user.
      */
     public findByEmail(email: string): Promise<User> {
-        return User.createQueryBuilder()
+        return this.createQueryBuilder()
             .where('LOWER(email) = LOWER(:email)', { email })
             .getOne();
     }
@@ -36,7 +36,7 @@ export default class UserRepository extends Repository<User> {
      * @param username The username of the given user.
      */
     public findByUsername(username: string): Promise<User> {
-        return User.createQueryBuilder()
+        return this.createQueryBuilder()
             .where('LOWER(username) = LOWER(:username)', { username })
             .getOne();
     }
@@ -47,7 +47,7 @@ export default class UserRepository extends Repository<User> {
      * @param email The email of the given user.
      */
     public findByUsernameOrEmail(username: string, email: string): Promise<User> {
-        return User.createQueryBuilder()
+        return this.createQueryBuilder()
             .where('LOWER(username) = LOWER(:username)', { username })
             .orWhere('LOWER(email) = LOWER(:email)', { email })
             .getOne();
@@ -58,7 +58,7 @@ export default class UserRepository extends Repository<User> {
      * @param token The authentication token for the given user.
      */
     public findByToken(token: string): Promise<User> {
-        return User.findOne({ where: { token } });
+        return this.findOne({ where: { token } });
     }
 
     /**
@@ -87,13 +87,13 @@ export default class UserRepository extends Repository<User> {
      * @param limit The upper limit of the number of users to gather based on the likeness.
      */
     public async getUsersLikeUsername(username: string, limit: number = 50): Promise<User[]> {
-        return await User.createQueryBuilder('user')
+        return await this.createQueryBuilder('user')
             .where('LOWER(user.username) LIKE :username', { username: `%${username.toLowerCase()}%` })
             .take(limit)
             .getMany();
     }
 
-    public async findStatsByUser(user: User): Promise<any> {
+    public async findStatsByUser(user: User) {
         const [stats, game] = await Promise.all([UserStats.findOne({ user }), UserGameStats.findOne({ user })]);
         return { ...stats, game };
     }
@@ -105,7 +105,7 @@ export default class UserRepository extends Repository<User> {
     public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {
         if (_.isNil(schedule)) return null;
 
-        return User.createQueryBuilder('user')
+        return this.createQueryBuilder('user')
             .where((qb) => {
                 const subQuery = qb
                     .subQuery()
