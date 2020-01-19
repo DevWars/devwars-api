@@ -24,7 +24,7 @@ const UserRoute: express.Router = express.Router();
  *  GENERAL
  ******************************/
 
-UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.ADMIN)], wrapAsync(UserController.all));
+UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], wrapAsync(UserController.all));
 UserRoute.get('/lookup', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], wrapAsync(UserController.lookupUser));
 UserRoute.get('/:user', [bindUserFromUserParam], wrapAsync(UserController.show));
 
