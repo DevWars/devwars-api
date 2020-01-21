@@ -13,6 +13,7 @@ import { parseIntWithDefault } from '../../../test/helpers';
 import ApiError from '../../utils/apiError';
 import { TwitchService } from '../../services/twitch.service';
 import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
+import logger from '../../utils/logger';
 
 /**
  * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
@@ -97,7 +98,17 @@ export async function disconnect(request: IRequest, response: Response) {
         throw new ApiError({ error, code: 404 });
     }
 
-    await linkedAccount.remove();
+    // if the given user has any related storage on the linked account, don't remove it but unlink,
+    // since the user could then again link it in the future, returning there coins back into once
+    // they connect again.
+    if (!_.isNil(linkedAccount.storage) && Object.keys(linkedAccount.storage).length > 0) {
+        linkedAccount.user = null;
+        await linkedAccount.save();
+    } else {
+        // Otherwise if no storage is provided, just go and remove it completely, since its the same
+        // as just having a new linked account.
+        await linkedAccount.remove();
+    }
 
     await SendUnLinkedAccountEmail(request.user, provider);
     return response.json(linkedAccount);
@@ -155,15 +166,6 @@ async function connectTwitch(request: Request, response: Response, user: User) {
 
     linkedAccount.user = user;
     linkedAccount.username = twitchUser.username;
-
-    // Update and shift the twitch account coins from the linked account to the user stats when a user
-    // makes the link between twitch and the dev wars account. Now when updating twitch coins, the server
-    // will update the user stats and not the linked account (unless the link is broken).
-    const userStatsRepository = getCustomRepository(UserStatisticsRepository);
-    await userStatsRepository.updateCoinsForUser(linkedAccount.user, _.defaultTo(linkedAccount.storage?.coins, 0));
-
-    // Remove any coins on the linked account since they have been moved to the stats.
-    if (!_.isNil(linkedAccount.storage?.coins)) delete linkedAccount.storage.coins;
 
     await linkedAccount.save();
 

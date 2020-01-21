@@ -19,7 +19,6 @@ import UserStats from '../app/models/UserStats';
 import Activity from '../app/models/Activity';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
-import { response } from 'express';
 
 const server: ServerService = new ServerService();
 let agent: any;

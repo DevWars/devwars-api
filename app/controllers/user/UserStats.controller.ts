@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { isNil } from 'lodash';
+import { isNil, defaultTo } from 'lodash';
 
 import UserStats from '../../models/UserStats';
 import UserRepository from '../../repository/User.repository';
@@ -40,19 +40,25 @@ import ApiError from '../../utils/apiError';
  *      "level": 1,
  *      "twitchId": null,
  *      "game": {
- *      "id": 1,
- *      "updatedAt": "1969-12-31T17:00:00.000Z",
- *      "createdAt": "1969-12-31T17:00:00.000Z",
- *      "wins": 1,
- *      "loses": 0
- *      }
+ *       "id": 1,
+ *       "updatedAt": "1969-12-31T17:00:00.000Z",
+ *       "createdAt": "1969-12-31T17:00:00.000Z",
+ *       "wins": 1,
+ *       "loses": 0
+ *       }
  *      }
  */
-
 export async function forUser(request: IUserRequest, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
+    const { boundUser: user } = request;
 
-    const stats = await userRepository.findStatsByUser(request.boundUser);
+    const userRepository = getCustomRepository(UserRepository);
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+
+    const stats = await userRepository.findStatsByUser(user);
+
+    // gather all related link account coins.
+    const linkedAccounts = await linkedAccountRepository.findAllByUserId(user.id);
+    linkedAccounts.forEach((account) => (stats.coins += defaultTo(account.storage?.coins, 0)));
 
     return response.json(stats);
 }
@@ -81,7 +87,6 @@ export async function forUser(request: IUserRequest, response: Response) {
  * @apiSuccess {number} level The level of the user.
  * @apiSuccess {string} twitchId The twitch id of the user.
  */
-
 export async function create(request: IUserRequest, response: Response) {
     const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
 
@@ -108,26 +113,30 @@ export async function create(request: IUserRequest, response: Response) {
  *
  * @apiSuccess {string} coins The number of coins the user has.
  */
-
 export async function getCoins(request: Request, response: Response) {
     const { twitchId } = request.query;
     let coins = 0;
 
     const userRepository = getCustomRepository(UserRepository);
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+
     const user = await userRepository.findByToken(request.cookies.token);
 
-    if (!isNil(user)) {
+    if (!isNil(user) && isNil(twitchId)) {
         const stats = await userRepository.findStatsByUser(user);
         coins += stats.coins;
+
+        // Update the coins if the given user has a linked account and that linked account has a
+        // given coins list.
+        const linkedAccounts = await linkedAccountRepository.findAllByUserId(user.id);
+        linkedAccounts.forEach((account) => (stats.coins += defaultTo(account.storage?.coins, 0)));
     }
 
-    if (twitchId) {
-        const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    // specified twitch id from the query, this is different than just being based off the
+    // authenticated user, which can be used to also determine the twitch account.
+    if (!isNil(twitchId)) {
         const account = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchId);
-
-        if (account && account.storage && account.storage.coins) {
-            coins += account.storage.coins;
-        }
+        if (!isNil(account) && !isNil(account.storage?.coins)) coins += account.storage.coins;
 
         if (isNil(user) && !isNil(account.user)) {
             const stats = await userRepository.findStatsByUser(account.user);

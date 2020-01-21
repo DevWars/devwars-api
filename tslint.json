@@ -12,5 +12,5 @@
         "no-bitwise": false
     },
     "rulesDirectory": [],
-    "extends": ["tslint:recommended", "tslint-config-prettier"]
+    "extends": ["tslint:recommended", "tslint-config-prettier", "tslint-eslint-rules"]
 }
