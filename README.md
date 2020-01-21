@@ -21,7 +21,7 @@
    <a href="http://typeorm.io/#/">
     <img src="https://img.shields.io/badge/PostgresSQL-v11.0.0-orange.svg" alt="postgres version">
   </a>
-  <!-- <img src="https://flat.badgen.net/dependabot/devwars/devwars-api/162181219?icon=dependabot" alt="Dependabot Badge" /> -->
+    <img src="https://flat.badgen.net/dependabot/DevWars/devwars-api/?icon=dependabot" alt="Dependabot Badge" />
 </p>
 
 Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core backbone and interface for the day to day running of the DevWars platform.
