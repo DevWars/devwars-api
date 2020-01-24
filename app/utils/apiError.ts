@@ -30,6 +30,6 @@ export default class ApiError extends Error {
      * Simple override of string to ensure stack is logged if specified overwise default.
      */
     public toString(): string {
-        return this.logStack ? this.stack : super.toString();
+        return this.logStack || process.env.NODE_ENV === 'development' ? this.stack : super.toString();
     }
 }
