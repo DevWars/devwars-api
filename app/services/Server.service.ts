@@ -68,7 +68,7 @@ export default class ServerService {
 
     private ConfigurationRouter(): void {
         for (const route of Routes) {
-            this.app.use(route.path, route.middleware, route.handler);
+            this.app.use(route.path, route.handler);
         }
 
         this.app.use(errorController.handleError);

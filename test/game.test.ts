@@ -16,6 +16,8 @@ import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/User';
 import Game from '../app/models/Game';
+import { DATABASE_MAX_ID } from '../app/constants';
+import UserRepository from '../app/repository/User.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -128,12 +130,45 @@ describe('game', () => {
                 await transaction.save(game3);
             });
 
-            const response = await agent
-                .get(`/games/${game2.id}`)
-                .send()
-                .expect(200);
+            const response = await agent.get(`/games/${game2.id}`).expect(200);
 
             chai.expect(response.body.id).to.equal(game2.id);
+        });
+
+        it('should gather additional player details if specified', async () => {
+            const game = await (await GameSeeding.default()).save();
+            const playerIds = Object.keys(game.storage.players);
+            const [player] = playerIds;
+
+            // standard endpoint test (no specification).
+            const standardResponse = await agent.get(`/games/${game.id}`).expect(200);
+            chai.expect(standardResponse.body.id).to.equal(game.id);
+
+            chai.expect(Object.keys(standardResponse.body.players)).to.deep.equal(playerIds);
+            chai.expect(standardResponse.body.players[player]).to.deep.equal(game.storage.players[player]);
+
+            // standard endpoint test with false specification
+            const standardFalseResponse = await agent.get(`/games/${game.id}?players=false`).expect(200);
+            chai.expect(standardFalseResponse.body.id).to.deep.equal(game.id);
+
+            chai.expect(Object.keys(standardFalseResponse.body.players)).to.deep.equal(playerIds);
+            chai.expect(standardFalseResponse.body.players[player]).to.deep.equal(game.storage.players[player]);
+
+            // standard endpoint call specifying true for players.
+            const playersResponse = await agent.get(`/games/${game.id}?players=true`).expect(200);
+            chai.expect(playersResponse.body.id).to.deep.equal(game.id);
+
+            chai.expect(Object.keys(playersResponse.body.players)).to.deep.equal(playerIds);
+            chai.expect(playersResponse.body.players[player]).to.not.equal(game.storage.players[player]);
+
+            const userRepository = getCustomRepository(UserRepository);
+            const storedPlayer = await userRepository.findById(player);
+
+            chai.expect(_.isNil(storedPlayer)).to.not.be.equal(true);
+
+            // How the server would merge the given users when specifying to include players.
+            const mergedPlayer = JSON.stringify(Object.assign(game.storage.players[player], storedPlayer.toJSON()));
+            chai.expect(JSON.parse(mergedPlayer)).to.deep.equal(playersResponse.body.players[player]);
         });
     });
 
@@ -440,6 +475,22 @@ describe('game', () => {
     });
 
     describe('GET - games/season/:season - Gathering a season by id', () => {
+        it('Should reject if a given season id is not a number', async () => {
+            for (const season of [null, undefined, 'test', {}]) {
+                await agent.get(`/games/season/${season}`).expect(400, {
+                    error: 'Invalid season id provided.',
+                });
+            }
+        });
+
+        it('Should reject if a given season id is larger than the database max or less than one', async () => {
+            for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
+                await agent.get(`/games/season/${season}`).expect(400, {
+                    error: 'Invalid season id provided.',
+                });
+            }
+        });
+
         it('Should be able to gather a season by id if it exists', async () => {
             await connectionManager.transaction(async (transaction) => {
                 const game1 = await GameSeeding.withSeason(2);

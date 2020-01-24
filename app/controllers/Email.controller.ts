@@ -6,6 +6,7 @@ import { IUserRequest } from '../request/IRequest';
 import EmailRepository from '../repository/EmailOptIn.repository';
 import { IUpdateEmailPermissionRequest } from '../request/IUpdateEmailPermissionRequest';
 import EmailOptIn from '../models/EmailOptIn';
+import ApiError from '../utils/apiError';
 
 /**
  * @api {get} /users/:user/emails/permissions Gather user related email permissions
@@ -34,8 +35,9 @@ export async function gatherEmailPermissions(request: IUserRequest, response: Re
     const permissions = await emailOptInRepository.getEmailOptInPermissionForUser(request.boundUser);
 
     if (isNil(permissions)) {
-        return response.status(404).json({
+        throw new ApiError({
             error: `No email permission exist for the given user, ${request.boundUser.username}`,
+            code: 404,
         });
     }
 
@@ -81,8 +83,9 @@ export async function updateEmailPermissions(request: IUserRequest, response: Re
     const emailUpdate: IUpdateEmailPermissionRequest = request.body;
 
     if (isNil(permissions)) {
-        return response.status(404).json({
+        throw new ApiError({
             error: `No email permission exist for the given user, ${request.boundUser.username}`,
+            code: 404,
         });
     }
 

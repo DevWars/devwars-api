@@ -1,0 +1,36 @@
+# [0.1.0](https://github.com/devwars/devwars-api/compare/3927d1675fa9ff39ce937c15e8b4e7de61f044e7...v0.1.0) (2020-01-24)
+
+### Bug Fixes
+
+-   activated game schedules links are now correctly bound ([465cba6](https://github.com/devwars/devwars-api/commit/465cba6cc988de6fba12e8fe9380f5ec1cffcf92))
+-   allow empty string for profile updates ([baaec8a](https://github.com/devwars/devwars-api/commit/baaec8af85b3e14241d8572ae59d73c3b5b5605b))
+-   devwars header and correct linking footer social ([8108825](https://github.com/devwars/devwars-api/commit/81088252113f54b5368f0ec30c07578a43fa10d0))
+-   registration does not allow existing username/email regardless of case ([5276466](https://github.com/devwars/devwars-api/commit/52764664f189b3683ab9d3ebb143b5579706c6b7))
+-   removed game title and applied correct mode path for app emails ([5e59740](https://github.com/devwars/devwars-api/commit/5e597400a73f6f8b9510c3c19247f37ecf3fd8de))
+-   resigning and oauth limits ([060c796](https://github.com/devwars/devwars-api/commit/060c7960e5aa95f4347e1bc04c90c9c0d552dde6))
+-   season game endpoints ordering ([ad85bc4](https://github.com/devwars/devwars-api/commit/ad85bc427fd5499857497d51c119d5859ce04ed1))
+-   **authorization:** don't set the local user object with there token or password ([319c270](https://github.com/devwars/devwars-api/commit/319c27070649c4789e72b55d9ecf9e0b29f9ef14))
+-   **delete-user:** copy id when deleting user since reference object ([0190e6a](https://github.com/devwars/devwars-api/commit/0190e6aaae5fae1af782ebb14f87e1c29c220ee1))
+-   **discord:** fixed discord linkage issue ([b63d553](https://github.com/devwars/devwars-api/commit/b63d5530a600c1a131fdb976fe45b77a4cffeabc))
+-   **game-application:** findByGame now has improved response messages and performs user sanitisation. ([cc5d81b](https://github.com/devwars/devwars-api/commit/cc5d81b72f0c5a8b38aa4707470d56e9ca80b0a1))
+-   **game-applications:** removed exposed user information from responses + api-doc. ([abb01a7](https://github.com/devwars/devwars-api/commit/abb01a7dd0e174def8b9e0d1d0de61e756527db1))
+-   **reverify:** reverify correctly recreates and sends out verification email ([c46ac6f](https://github.com/devwars/devwars-api/commit/c46ac6ff6c48fc64699b92c16f75bc88f6eecbec))
+-   **user:** usernames are enforced lowercase ([ecc409b](https://github.com/devwars/devwars-api/commit/ecc409b16509063655370907fe872ebcb603a728))
+-   **user-delete:** ensure game storage players reflect deletion changes ([faf81f4](https://github.com/devwars/devwars-api/commit/faf81f469efef67c4c5146716c49d1f42f9cde4f))
+-   **user-profile:** ensure that gathering profiles must be authenticated and owner or admin ([35f97d0](https://github.com/devwars/devwars-api/commit/35f97d05a0ba7e0fb48428edf61548728ceca490))
+-   **user-profiles:** Moderators can now view user-profiles ([96c36f4](https://github.com/devwars/devwars-api/commit/96c36f43ef2a3bc6257e72881baf946452f9ee6a))
+-   **user-sanitization:** users are now sanitized after authorization process ([18602ad](https://github.com/devwars/devwars-api/commit/18602ad09242615045030cfa97154969e60fe729))
+-   **verification:** email verification now uses api url not front url ([a20e083](https://github.com/devwars/devwars-api/commit/a20e0834d5c8f7347f7064228e746a75e93b0dbb))
+
+### Features
+
+-   /lookup can now specify full to get a complete response ([d8df543](https://github.com/devwars/devwars-api/commit/d8df54301fa4945dc7106d15a045feddd4e84a5c))
+-   Introduction of the contribution file ([8e98abb](https://github.com/devwars/devwars-api/commit/8e98abbe0618d360b059e48201972ee33dbf2a82))
+-   Ability to connect to Twitch as a connection ([211adf3](https://github.com/devwars/devwars-api/commit/211adf37a237eb63f1463be07a0f2e581df5bdaf))
+-   **authentication:** authentication now uses JWT ([3d67377](https://github.com/devwars/devwars-api/commit/3d67377db2db666371b9212de1b7ee637db8fd0f))
+-   **connections:** support to gather users connections ([20b3f39](https://github.com/devwars/devwars-api/commit/20b3f3972cdcf04f133d62a765dc82826fcf7fa6))
+-   **email:** contact us endpoint now allows for posts to /contact with the name, email and message ([de9e4a9](https://github.com/devwars/devwars-api/commit/de9e4a94f91da93290e3b023688b9beb06bcc9e1))
+-   **email:** email permissions are now being respected ([bb54236](https://github.com/devwars/devwars-api/commit/bb542361022d194e70331c8af796ebb896b050ab))
+-   **logger:** introduced the logger into the merged master ([148fcd9](https://github.com/devwars/devwars-api/commit/148fcd9c03d01d76ee78417e81291592b2932a50))
+-   **registration:** block registration when using reserved usernames ([589ecae](https://github.com/devwars/devwars-api/commit/589ecae6cbbdbc7da2c81d86ba2c9abfb04d04a8))
+-   **email:** email unsubscribe link will now direct to the correct ([44fa473](https://github.com/devwars/devwars-api/commit/44fa47373552f0af6132b5a7a343ad590e5184ed))

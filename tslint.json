@@ -8,8 +8,9 @@
         "max-line-length": [true, 120],
         "ordered-imports": false,
         "object-literal-sort-keys": false,
-        "curly": false
+        "curly": false,
+        "no-bitwise": false
     },
     "rulesDirectory": [],
-    "extends": ["tslint:recommended", "tslint-config-prettier"]
+    "extends": ["tslint:recommended", "tslint-config-prettier", "tslint-eslint-rules"]
 }

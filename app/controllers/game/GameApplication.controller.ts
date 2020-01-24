@@ -11,6 +11,7 @@ import UserRepository from '../../repository/User.repository';
 
 import GameApplication from '../../models/GameApplication';
 import User, { UserRole } from '../../models/User';
+import ApiError from '../../utils/apiError';
 
 /**
  * @api {get} /mine Returns a list of game applications currently registered on.
@@ -149,18 +150,22 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
     const application = await gameApplicationRepository.findByUserAndSchedule(request.user, request.schedule);
+    const { id: applicationId } = application;
 
     if (_.isNil(application)) {
-        const error = `No game application exists for schedule ${request.schedule.id} by user ${request.user.username}`;
-        return response.status(404).json({
-            error,
+        const { username } = request.user;
+        const { id } = request.schedule;
+
+        throw new ApiError({
+            error: `No game application exists for schedule ${id} by user ${username}`,
+            code: 404,
         });
     }
 
-    await gameApplicationRepository.delete(application);
-
+    await application.remove();
     await SendGameApplicationResignEmail(application);
-    return response.send();
+
+    return response.send({ application: applicationId });
 }
 
 /**
@@ -246,8 +251,9 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
     const schedule = request.game.schedule;
 
     if (_.isNil(schedule)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: 'A game schedule does not exist for the given id.',
+            code: 404,
         });
     }
 
@@ -257,8 +263,9 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
     const user = await userRepository.findByUsername(username);
 
     if (_.isNil(user)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: `A user does not exist by the provided username '${username}'`,
+            code: 404,
         });
     }
 

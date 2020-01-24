@@ -1,9 +1,0 @@
-{
-    "watch": ["**/*.ts"],
-    "ext": "ts",
-    "ignore": ["./test/*.ts"],
-    "exec": "node --inspect -r ts-node/register ./app/index.ts",
-    "env": {
-        "NODE_ENV": "development"
-    }
-}

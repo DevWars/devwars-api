@@ -1,13 +1,27 @@
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, getConnection } from 'typeorm';
 import { Request, Response } from 'express';
 import { isNil, isInteger } from 'lodash';
 
-import User from '../../models/User';
-import { UserRole } from '../../models/User';
+import GameApplication from '../../models/GameApplication';
+import UserProfile from '../../models/UserProfile';
+import UserStats from '../../models/UserStats';
+import Activity from '../../models/Activity';
+
 import UserRepository from '../../repository/User.repository';
-import { IRequest, IUserRequest } from '../../request/IRequest';
+import { IUserRequest } from '../../request/IRequest';
 import { hash } from '../../utils/hash';
-import { stringify } from 'querystring';
+
+import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import { UserRole } from '../../models/User';
+import User from '../../models/User';
+import LinkedAccount from '../../models/LinkedAccount';
+import PasswordReset from '../../models/PasswordReset';
+import EmailVerification from '../../models/EmailVerification';
+import UserGameStats from '../../models/UserGameStats';
+import EmailOptIn from '../../models/EmailOptIn';
+import { GameStatus } from '../../models/GameSchedule';
+
+import ApiError from '../../utils/apiError';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -25,6 +39,7 @@ interface IUpdateUserRequest {
  *
  * @apiParam {string} username  A partial or full username for a given user.
  * @apiParam {number} limit     The maximum amount of users to return (max 50)
+ * @apiParam {boolean} full     If all the user details should be returned or not.
  *
  * @apiSuccess {User[]} Users    A array of user objects containing the username and id.
  *
@@ -44,22 +59,27 @@ interface IUpdateUserRequest {
  *      }]
  */
 export async function lookupUser(request: IUserRequest, response: Response) {
-    let { username, limit } = request.query;
+    let { username, limit, full } = request.query;
 
     if (isNil(username)) username = '';
     username = username.replace(/\s/g, '').trim();
 
-    if (isNil(limit) || !isInteger(Number(limit)) || Number(limit) > 50) limit = 50;
-    limit = Number(limit);
+    limit = parseIntWithDefault(limit, 50, 1, 50);
+    full = parseBooleanWithDefault(full, false);
 
     if (username === '') {
-        return response.status(400).json({
-            message: 'The specified username within the query must not be empty.',
+        throw new ApiError({
+            error: 'The specified username within the query must not be empty.',
+            code: 400,
         });
     }
 
     const userRepository = getCustomRepository(UserRepository);
     const users = await userRepository.getUsersLikeUsername(username, limit);
+
+    // If the user has specified full user details, then return out early
+    // before performing a filter to username and ids.
+    if (full) return response.json(users);
 
     // Reduce the response down to the given username and id of the users.
     return response.json(
@@ -99,7 +119,12 @@ export async function show(request: IUserRequest, response: Response) {
  * @api {get} /:user Request All User basic information
  * @apiName GetUsers
  * @apiGroup User
- * @apiPermission administrator
+ * @apiPermission moderator
+ *
+ * @apiParam {string} limit The number of users to gather from the offset. (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering users from.
+ *
+ * @apiSuccess {json} Users The users within the limit and offset.
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
@@ -124,7 +149,15 @@ export async function show(request: IUserRequest, response: Response) {
  *     }]
  */
 export async function all(request: Request, response: Response) {
-    const users = await User.find();
+    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
+    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+
+    const users = await User.createQueryBuilder('user')
+        .orderBy('"updatedAt"', 'DESC')
+        .limit(limit > 100 || limit < 1 ? 100 : limit)
+        .offset(offset < 0 ? 0 : offset)
+        .getMany();
+
     return response.json(users);
 }
 
@@ -180,8 +213,9 @@ export async function update(request: IUserRequest, response: Response) {
     const existingUsername = await userRepository.findByUsername(params.username);
 
     if (!isNil(existingUsername) && existingUsername.id !== request.boundUser.id) {
-        return response.status(409).send({
-            message: 'The provided username already exists for a registered user.',
+        throw new ApiError({
+            error: 'The provided username already exists for a registered user.',
+            code: 409,
         });
     }
 
@@ -192,4 +226,111 @@ export async function update(request: IUserRequest, response: Response) {
     await request.boundUser.save();
 
     return response.json(request.boundUser);
+}
+
+/**
+ * @api {delete} /:user Deletes the user from the system
+ * @apiName DeleteUserById
+ * @apiGroup User
+ * @apiPermission admin, owner
+ *
+ * @apiParam {Number} user Users unique ID.
+ * @apiParam {string} [lastSigned] Users updated last signed in date.
+ */
+export async function deleteUser(request: IUserRequest, response: Response) {
+    const { boundUser: removingUser } = request;
+    const { id: removingUserId } = removingUser;
+
+    if (removingUser.role <= UserRole.MODERATOR) {
+        const removalError = 'Users with roles moderator or higher cannot be deleted, ensure to demote the user first.';
+        throw new ApiError({ code: 400, error: removalError });
+    }
+
+    await getConnection().transaction(async (transaction) => {
+        const whereOptions = { where: { user: removingUser } };
+
+        // First remove all related activities for the given user. Since the user is being removed, any
+        // action taken by the user is only related to a given user and should be removed (not replaced
+        // by competitor).
+        const activities = await transaction.find(Activity, whereOptions);
+        await transaction.remove(activities);
+
+        // Remove the given users related profile && users stats
+        const profiles = await transaction.find(UserProfile, whereOptions);
+        await transaction.remove(profiles);
+
+        // remove the given users related email permissions
+        const emailPermissions = await transaction.find(EmailOptIn, whereOptions);
+        await transaction.remove(emailPermissions);
+
+        const statistics = await transaction.find(UserStats, whereOptions);
+        await transaction.remove(statistics);
+
+        const gameStatistics = await transaction.find(UserGameStats, whereOptions);
+        await transaction.remove(gameStatistics);
+
+        // remove the given users related accounts
+        const linkedAccounts = await transaction.find(LinkedAccount, whereOptions);
+        await transaction.remove(linkedAccounts);
+
+        // remove the given users password resets
+        const passwordResets = await transaction.find(PasswordReset, whereOptions);
+        await transaction.remove(passwordResets);
+
+        // remove the given users email verification
+        const emailVerifications = await transaction.find(EmailVerification, whereOptions);
+        await transaction.remove(emailVerifications);
+
+        // All future game applications in which the game has not occurred yet can be removed, any
+        // in the past can be replaced. So delete all future game applications.
+        const futureGameApplications = await transaction
+            .getRepository(GameApplication)
+            .createQueryBuilder('app')
+            .leftJoin('app.schedule', 'game_schedule')
+            .andWhere('game_schedule.status = :gameStatus')
+            .andWhere('app."userId" = :user')
+            .setParameters({ user: removingUser.id, gameStatus: GameStatus.SCHEDULED })
+            .getMany();
+
+        await transaction.remove(futureGameApplications);
+
+        // For all applications that exist for the user that have already taken place, ensure that
+        // they are purged from the players and editors body.
+        const gameApplications = await transaction.find(
+            GameApplication,
+            Object.assign(whereOptions, { relations: ['schedule', 'schedule.game'] })
+        );
+
+        for (const application of gameApplications) {
+            const gameStorage = application.schedule?.game?.storage;
+            application.user = null;
+
+            // Update the inner game players model to replace the removing user with the replacement
+            // user. Since these will be rendered on the home page.
+            if (!isNil(gameStorage?.players) && !isNil(gameStorage.players[removingUserId])) {
+                const player = gameStorage.players[removingUserId];
+
+                gameStorage.players['0'] = { id: 0, team: player.team, username: 'Competitor' };
+                delete gameStorage.players[removingUserId];
+            }
+
+            // update the editor to replace the known user with the competitor user.
+            if (!isNil(gameStorage?.editors)) {
+                for (const editorsKey of Object.keys(gameStorage?.editors)) {
+                    if (gameStorage.editors[editorsKey]?.player === removingUserId) {
+                        gameStorage.editors[editorsKey].player = 0;
+                    }
+                }
+            }
+
+            // Only attempt to save the game again if the game is not null.
+            if (!isNil(application.schedule.game)) await transaction.save(application.schedule.game);
+            await transaction.remove(application);
+        }
+
+        // Finally delete the user.
+        await transaction.remove(removingUser);
+    });
+
+    return response.json({ user: removingUserId });
 }

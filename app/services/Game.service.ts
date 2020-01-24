@@ -1,9 +1,7 @@
 import AWS = require('aws-sdk');
-import { ManagedUpload, PutObjectRequest } from 'aws-sdk/clients/s3';
-import Game from '../models/Game';
-import firebase from '../utils/firebase';
+import { default as firebase, available } from '../utils/firebase';
 
-const firebaseGame = firebase.database().ref('game');
+const firebaseGame = available ? firebase.database().ref('game') : null;
 
 export default class GameService {
     public static async all() {
@@ -116,12 +114,13 @@ export default class GameService {
         }
 
         await firebaseGame
-            .child('teams')
+            ?.child('teams')
             .child('blue')
             .child('players')
             .set(bluePlayers);
+
         await firebaseGame
-            .child('teams')
+            ?.child('teams')
             .child('red')
             .child('players')
             .set(redPlayers);
@@ -146,6 +145,6 @@ export default class GameService {
             objectives,
         };
 
-        await firebaseGame.update(newGame);
+        await firebaseGame?.update(newGame);
     }
 }

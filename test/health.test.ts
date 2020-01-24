@@ -1,24 +1,23 @@
-import * as chai from 'chai';
-import * as express from 'express';
 import * as supertest from 'supertest';
 import ServerService from '../app/services/Server.service';
 
 const server: ServerService = new ServerService();
-let app: express.Application;
+let agent: supertest.SuperTest<supertest.Test> = null;
 
 describe('Health', () => {
     before(async () => {
         await server.Start();
-
-        app = server.App();
     });
 
-    it('should return healthy', async () => {
-        const res = await supertest(app)
-            .get('/health')
-            .send();
+    beforeEach(() => {
+        agent = supertest.agent(server.App());
+    });
 
-        chai.expect(res.status).to.be.eq(200);
-        chai.expect(res.body.status).to.be.eq('Healthy');
+    it('GET - /health - should return healthy and the current version number', async () => {
+        const packageJson = require('../package');
+        await agent.get('/health').expect(200, {
+            status: 'Healthy',
+            version: packageJson.version,
+        });
     });
 });

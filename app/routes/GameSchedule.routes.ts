@@ -2,7 +2,7 @@ import * as express from 'express';
 
 import * as GameScheduleController from '../controllers/game/GameSchedule.controller';
 import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
-import { asyncErrorHandler } from './handlers';
+import { wrapAsync } from './handlers';
 import { UserRole } from '../models/User';
 import { bodyValidation } from './validators';
 import { createGameScheduleSchema, updateGameScheduleSchema } from './validators/gameSchedule.validator';
@@ -10,16 +10,16 @@ import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middle
 
 const GameScheduleRoute: express.Router = express.Router();
 
-GameScheduleRoute.get('/', asyncErrorHandler(GameScheduleController.all));
+GameScheduleRoute.get('/', wrapAsync(GameScheduleController.all));
 
 GameScheduleRoute.post(
     '/',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bodyValidation(createGameScheduleSchema)],
-    asyncErrorHandler(GameScheduleController.create)
+    wrapAsync(GameScheduleController.create)
 );
 
-GameScheduleRoute.get('/latest', asyncErrorHandler(GameScheduleController.latest));
-GameScheduleRoute.get('/:schedule', [bindScheduleFromScheduleParam], asyncErrorHandler(GameScheduleController.show));
+GameScheduleRoute.get('/latest', wrapAsync(GameScheduleController.latest));
+GameScheduleRoute.get('/:schedule', [bindScheduleFromScheduleParam], wrapAsync(GameScheduleController.show));
 
 GameScheduleRoute.patch(
     '/:schedule',
@@ -29,7 +29,7 @@ GameScheduleRoute.patch(
         bindScheduleFromScheduleParam,
         bodyValidation(updateGameScheduleSchema),
     ],
-    asyncErrorHandler(GameScheduleController.update)
+    wrapAsync(GameScheduleController.update)
 );
 
 // GameScheduleRoute.post('/:id/activate', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
@@ -38,9 +38,9 @@ GameScheduleRoute.patch(
 GameScheduleRoute.post(
     '/:schedule/activate',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
-    asyncErrorHandler(GameScheduleController.activate)
+    wrapAsync(GameScheduleController.activate)
 );
 
-GameScheduleRoute.get('/status/:status', asyncErrorHandler(GameScheduleController.byStatus));
+GameScheduleRoute.get('/status/:status', wrapAsync(GameScheduleController.byStatus));
 
 export { GameScheduleRoute };

@@ -1,10 +1,10 @@
 import * as express from 'express';
 
 import * as HealthController from '../controllers/Health.controller';
-import { asyncErrorHandler } from './handlers';
+import { wrapAsync } from './handlers';
 
 const HealthRoute = express.Router();
 
-HealthRoute.get('/health', asyncErrorHandler(HealthController.index));
+HealthRoute.get('/health', HealthController.index);
 
 export { HealthRoute };

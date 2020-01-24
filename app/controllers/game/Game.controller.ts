@@ -10,6 +10,11 @@ import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
 import { IGameRequest, IRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
+import ApiError from '../../utils/apiError';
+import { isNil } from 'lodash';
+import { DATABASE_MAX_ID } from '../../constants';
+import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import UserRepository from '../../repository/User.repository';
 
 export function flattenGame(game: Game) {
     return {
@@ -25,7 +30,19 @@ export function flattenGame(game: Game) {
 }
 
 export async function show(request: IGameRequest, response: Response) {
-    return response.json(flattenGame(request.game));
+    const includePlayers = parseBooleanWithDefault(request.query.players, false);
+    const game = flattenGame(request.game);
+
+    if (includePlayers && !isNil(game.players)) {
+        const userRepository = getCustomRepository(UserRepository);
+        const players = await userRepository.findByIds(Object.keys(game.players));
+
+        for (const player of players) {
+            game.players[player.id] = Object.assign(player, game.players[player.id]);
+        }
+    }
+
+    return response.json(game);
 }
 
 export async function all(request: Request, response: Response) {
@@ -66,7 +83,7 @@ export async function latest(request: Request, response: Response) {
 
     // ensure that if we don't have any future games, (meaning that there are no games in the
     // database at all) that we let the user know that no games exist..
-    if (_.isNil(game)) return response.status(404).json({ error: 'Currently no future games exist.' });
+    if (_.isNil(game)) throw new ApiError({ code: 404, error: 'Currently no future games exist.' });
 
     return response.json(flattenGame(game));
 }
@@ -76,8 +93,9 @@ export async function active(request: Request, response: Response) {
     const game = await gameRepository.active();
 
     if (_.isNil(game)) {
-        return response.status(404).send({
+        throw new ApiError({
             error: 'There currently is no active game.',
+            code: 404,
         });
     }
 
@@ -108,11 +126,13 @@ export async function create(request: IRequest, response: Response) {
 }
 
 export async function findAllBySeason(request: Request, response: Response) {
-    const season = request.params.season;
+    const season = parseIntWithDefault(request.params.season, null, 1, DATABASE_MAX_ID);
+
+    if (isNil(season)) throw new ApiError({ code: 400, error: 'Invalid season id provided.' });
+
     const gameRepository = getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(Number(season));
 
-    if (!games) return response.sendStatus(404);
     response.json(games.map((game) => flattenGame(game)));
 }
 

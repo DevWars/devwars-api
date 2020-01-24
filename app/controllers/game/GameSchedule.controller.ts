@@ -1,12 +1,15 @@
 import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
-import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from '../../request/IGameScheduleRequest';
+import { isNil } from 'lodash';
 
-import GameSchedule from '../../models/GameSchedule';
-import Game from '../../models/Game';
-import { GameStatus } from '../../models/GameSchedule';
+import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from '../../request/IGameScheduleRequest';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import { IScheduleRequest } from '../../request/IRequest';
+
+import GameSchedule from '../../models/GameSchedule';
+import { GameStatus } from '../../models/GameSchedule';
+import Game from '../../models/Game';
+import ApiError from '../../utils/apiError';
 
 function flattenSchedule(schedule: GameSchedule) {
     return {
@@ -97,26 +100,45 @@ export async function create(request: Request, response: Response) {
 }
 
 export async function activate(request: IScheduleRequest, response: Response) {
-    const schedule = request.body;
+    const scheduleBody = request.body;
 
-    // Create the Game
+    if (request.schedule.status !== GameStatus.SCHEDULED) {
+        throw new ApiError({
+            error: 'schedule cannot be activated since its not in a scheduled state.',
+            code: 400,
+        });
+    }
+
+    if (!isNil(request.schedule.game)) {
+        throw new ApiError({
+            error: 'schedule cannot be activated since game already exists',
+            code: 400,
+        });
+    }
+
     const game = new Game();
 
     game.schedule = request.schedule;
-    game.season = request.schedule.setup.season || schedule.season;
-    game.mode = request.schedule.setup.mode || schedule.mode;
-    game.title = request.schedule.setup.title || schedule.title;
+    game.season = request.schedule.setup.season || scheduleBody.season;
+    game.mode = request.schedule.setup.mode || scheduleBody.mode;
+    game.title = request.schedule.setup.title || scheduleBody.title;
     game.storage = {
         mode: game.mode,
         title: game.title,
-        startTime: request.schedule.setup.startTime || schedule.startTime,
-        objectives: request.schedule.setup.objectives || schedule.objectives || {},
+        startTime: request.schedule.startTime || scheduleBody.startTime,
+        objectives: request.schedule.setup.objectives || scheduleBody.objectives || {},
     };
 
     await game.save();
 
     // Update GameSchedule
     request.schedule.status = GameStatus.ACTIVE;
+
+    // The just created game object cannot be bound to the schedule since this would create a
+    // circular dependency based on the game having a link to the schedule object and the schedule
+    // linking back ot the game. Thus requiring a new reference being created.
+    request.schedule.game = new Game();
+    request.schedule.game.id = game.id;
     await request.schedule.save();
 
     return response.json(flattenSchedule(request.schedule));
