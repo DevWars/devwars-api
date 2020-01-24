@@ -103,7 +103,7 @@
         "nyc": "^15.0.0",
         "supertest": "^4.0.2",
         "ts-node-dev": "^1.0.0-pre.44",
-        "tslint": "^5.20.1",
+        "tslint": "^6.0.0",
         "tslint-config-prettier": "^1.18.0"
     }
 }
