@@ -93,7 +93,7 @@
         "@types/superagent": "^4.1.4",
         "@types/supertest": "^2.0.8",
         "@types/winston": "^2.4.4",
-        "apidoc": "^0.19.1",
+        "apidoc": "^0.20.0",
         "chai": "^4.2.0",
         "copyfiles": "^2.2.0",
         "cross-env": "^6.0.3",
