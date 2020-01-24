@@ -11,14 +11,20 @@ import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
 
 import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';
 import { testSchemaValidation } from '../app/routes/validators';
-import { UserSeeding } from '../app/seeding';
+import { UserSeeding, UserStatsSeeding } from '../app/seeding';
+import UserStatisticsRepository from '../app/repository/UserStatisticsRepository';
 
 const server: ServerService = new ServerService();
 let agent: any;
 
-async function createDefaultAccountWithTwitch() {
+async function createDefaultAccountWithTwitch(): Promise<LinkedAccount> {
     const user = UserSeeding.default();
     await user.save();
+
+    const stats = UserStatsSeeding.default();
+    stats.user = user;
+
+    await stats.save();
 
     const linkedAccount = new LinkedAccount(user, user.username, Provider.TWITCH, `${user.username}1`);
     await linkedAccount.save();
@@ -133,6 +139,7 @@ describe('Linked Account - Twitch', () => {
 
         it('Should allow updating twitch coins if the twitch user is valid.', async () => {
             const linkedUser = await createDefaultAccountWithTwitch();
+            const { user } = linkedUser;
 
             const requestBody = {
                 updates: [
@@ -144,23 +151,16 @@ describe('Linked Account - Twitch', () => {
                 apiKey: process.env.API_KEY,
             };
 
-            const response = await agent
+            const userStatsRepository = getCustomRepository(UserStatisticsRepository);
+            const beforeUserStats = await userStatsRepository.findOne({ where: { user } });
+
+            await agent
                 .put(coinsRoute)
                 .send(requestBody)
                 .expect(200);
 
-            const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-            const account = await linkedAccountRepository.findByProviderAndProviderId(
-                Provider.TWITCH,
-                requestBody.updates[0].twitchUser.id
-            );
-
-            // Don't compare User relation
-            delete account.user;
-
-            chai.expect(JSON.stringify(response.body[0])).to.equal(JSON.stringify(account));
-            chai.expect(response.body[0].storage.coins).to.equal(account.storage.coins);
-            chai.expect(account.storage.coins).to.equal(100);
+            const userStats = await userStatsRepository.findOne({ where: { user } });
+            chai.expect(beforeUserStats.coins + 100).to.equal(userStats.coins);
         });
     });
 });

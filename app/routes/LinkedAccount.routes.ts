@@ -10,7 +10,13 @@ import { updateTwitchCoinsSchema } from './validators/linkedAccount.validator';
 
 const LinkedAccountRoute: express.Router = express.Router();
 
-LinkedAccountRoute.get('/', mustBeAuthenticated, wrapAsync(LinkedAccountController.all));
+LinkedAccountRoute.get(
+    '/',
+    mustBeAuthenticated,
+    mustBeRole(UserRole.MODERATOR),
+    wrapAsync(LinkedAccountController.all)
+);
+
 LinkedAccountRoute.get('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.connect));
 LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.disconnect));
 

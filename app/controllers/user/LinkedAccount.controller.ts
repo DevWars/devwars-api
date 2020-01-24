@@ -11,6 +11,9 @@ import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services
 import { IRequest, IUserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 import ApiError from '../../utils/apiError';
+import { TwitchService } from '../../services/twitch.service';
+import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
+import logger from '../../utils/logger';
 
 /**
  * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
@@ -59,6 +62,7 @@ export async function connect(request: IRequest, response: Response) {
     }
 
     if (provider === Provider.DISCORD) return await connectDiscord(request, response, request.user);
+    if (provider === Provider.TWITCH) return await connectTwitch(request, response, request.user);
 
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
@@ -94,7 +98,17 @@ export async function disconnect(request: IRequest, response: Response) {
         throw new ApiError({ error, code: 404 });
     }
 
-    await linkedAccount.remove();
+    // if the given user has any related storage on the linked account, don't remove it but unlink,
+    // since the user could then again link it in the future, returning there coins back into once
+    // they connect again.
+    if (!_.isNil(linkedAccount.storage) && Object.keys(linkedAccount.storage).length > 0) {
+        linkedAccount.user = null;
+        await linkedAccount.save();
+    } else {
+        // Otherwise if no storage is provided, just go and remove it completely, since its the same
+        // as just having a new linked account.
+        await linkedAccount.remove();
+    }
 
     await SendUnLinkedAccountEmail(request.user, provider);
     return response.json(linkedAccount);
@@ -104,20 +118,59 @@ export async function updateTwitchCoins(request: Request, response: Response) {
     const twitchUsers = request.body.updates.map((update: any) => update.twitchUser);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
+
     await linkedAccountRepository.createMissingAccounts(twitchUsers, Provider.TWITCH);
 
-    const accounts = await LinkedAccount.find({ providerId: In(twitchUsers.map((u: any) => u.id)) });
+    const accounts = await linkedAccountRepository.find({
+        where: {
+            providerId: In(twitchUsers.map((u: any) => u.id)),
+        },
+        relations: ['user'],
+    });
+
     for (const account of accounts) {
         const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
         if (!_.isFinite(amount)) continue;
 
-        if (_.isNil(account.storage.coins)) account.storage.coins = 0;
-        account.storage.coins += amount;
+        if (!_.isNil(account.user)) {
+            // push it on the users statistics since they have there twitch accounts linked.
+            await userStatisticsRepository.updateCoinsForUser(account.user, amount);
+        } else {
+            if (_.isNil(account.storage.coins)) account.storage.coins = 0;
+            account.storage.coins += amount;
+        }
     }
 
     await LinkedAccount.save(accounts);
+    return response.send();
+}
 
-    return response.json(accounts);
+async function connectTwitch(request: Request, response: Response, user: User) {
+    // gather a given access token for the code that was returned back from twitch, completing
+    // the linkage and authorization process with twitch.
+    const token = await TwitchService.accessTokenForCode(request.query.code);
+    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for Twitch.', code: 400 });
+
+    // Attempt to gather the related users account information for the given token, this is what
+    // will be used to link the accounts up with twitch.
+    const twitchUser = await TwitchService.twitchUserForToken(token);
+    if (_.isNil(twitchUser)) throw new ApiError({ error: 'Twitch user not found.', code: 403 });
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
+
+    if (_.isNil(linkedAccount)) {
+        linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    }
+
+    linkedAccount.user = user;
+    linkedAccount.username = twitchUser.username;
+
+    await linkedAccount.save();
+
+    await SendLinkedAccountEmail(user, Provider.TWITCH);
+    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
 
 async function connectDiscord(request: Request, response: Response, user: User) {
