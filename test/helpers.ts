@@ -1,11 +1,57 @@
 import * as fs from 'fs';
-import { isNumber, isNil, isBoolean } from 'lodash';
+import * as _ from 'lodash';
 
 import { AuthService } from '../app/services/Auth.service';
 import User from '../app/models/User';
 
 export const cookieForUser = async (user: User): Promise<string> => {
     return `token=${await AuthService.newToken(user)}`;
+};
+
+/**
+ * Takes in a express query parameter and attempts to parse it out as an array of strings. Removing
+ * all duplicates, values that could not be parsed, and respecting the min and max length limits.
+ *
+ * @param parameter The array or single item that is being parsed into a int array.
+ * @param min The lower limit of the possible length.
+ * @param max The upper limit of the possible length.
+ */
+export const parseStringsFromQueryParameter = (parameter: any, min?: number, max?: number): string[] => {
+    // If the given parameter is not an array but is a given single item (which express does) see if
+    // we can parse it and return a single item, otherwise continue onward.
+    if (!_.isArray(parameter) && parseStringWithDefault(parameter, null, min, max) !== null) {
+        return [parseStringWithDefault(parameter, null, min, max)];
+    }
+
+    // If we could not parse the single item and its not a array, then return a empty list back.
+    if (!_.isArray(parameter)) return [];
+
+    // Return compacted list of all the ids parsed, removing any that could not be parsed and any
+    // duplicates that existed.
+    return _.uniq(_.compact(_.map(parameter, (e) => parseStringWithDefault(e, null, min, max))));
+};
+
+/**
+ * Takes in a possible string value, ensures its a string and within a given length bound. Returning
+ * the parsed string if so otherwise the fallback default value (default: null). Used during the
+ * parsing of possible string values within a query.
+ *
+ * @param possible The possible value to be parsed.
+ * @param def The fallback default value.
+ * @param lower The lower bounds of the value length.
+ * @param upper The upper bounds of the value length.
+ */
+export const parseStringWithDefault = (possible: any, def: any = null, min?: number, max?: number): string => {
+    if (_.isNil(possible) || !_.isString(possible)) {
+        return def;
+    }
+
+    const result = `${possible}`;
+
+    if (!_.isNil(min) && result.length < min) return def;
+    if (!_.isNil(max) && result.length > max) return def;
+
+    return result;
 };
 
 /**
@@ -19,14 +65,14 @@ export const cookieForUser = async (user: User): Promise<string> => {
  * @param upper The upper bounds of the value.
  */
 export const parseIntWithDefault = (possible: any, def: number = 0, lower?: number, upper?: number): number => {
-    if (isNil(possible) || !isNumber(Number(possible)) || isNaN(Number(possible))) {
+    if (_.isNil(possible) || !_.isNumber(Number(possible)) || isNaN(Number(possible))) {
         return def;
     }
 
     const result = Number(possible);
 
-    if (!isNil(lower) && result < lower) return def;
-    if (!isNil(upper) && result > upper) return def;
+    if (!_.isNil(lower) && result < lower) return def;
+    if (!_.isNil(upper) && result > upper) return def;
 
     return result;
 };
@@ -37,13 +83,13 @@ export const parseIntWithDefault = (possible: any, def: number = 0, lower?: numb
  * @param def The default value ot be returned otherwise if not a boolean.
  */
 export const parseBooleanWithDefault = (possible: any, def: boolean = false): boolean => {
-    if (isNil(possible)) return def;
+    if (_.isNil(possible)) return def;
 
     if (possible === 1 || possible === 0) return Boolean(possible);
     if (possible === '0' || possible === '1') return possible === '1';
     if (possible === 'true' || possible === 'false') return possible === 'true';
 
-    return !isBoolean(possible) ? def : Boolean(possible);
+    return !_.isBoolean(possible) ? def : Boolean(possible);
 };
 
 /**
