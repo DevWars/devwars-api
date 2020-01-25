@@ -31,9 +31,9 @@ function flattenUser(user: User) {
     };
 }
 /**
- * Attempts to register a new user with the service, enforcing validation checks on the
- * username, password and email provided. If all process checks complete and are valid,
- * new/unique, then a welcome email will be sent out to introduce the new user.
+ * Attempts to register a new user with the service, enforcing validation checks on the username,
+ * password and email provided. If all process checks complete and are valid, new/unique, then a
+ * welcome email will be sent out to introduce the new user.
  *
  * @api {post} /register Attempts to creates a new user with the service.
  * @apiVersion 1.0.0
@@ -63,21 +63,21 @@ export async function register(request: Request, response: Response) {
         throw new ApiError({ error: 'The specified username is reserved and cannot be registered.', code: 409 });
     }
 
-    // Register the user in the database, generating a new user with the default and minimal
-    // stats / settings for usage.
+    // Register the user in the database, generating a new user with the default and minimal stats /
+    // settings for usage.
     const user = await AuthService.register({ username, email, password });
 
-    // Gather and bind the new token for the newly registered user, removing the need for the
-    // user to again login since they have "already" authenticated with the service with the
-    // registering process.
+    // Gather and bind the new token for the newly registered user, removing the need for the user
+    // to again login since they have "already" authenticated with the service with the registering
+    // process.
     response.cookie('token', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
     response.json(flattenUser(user));
 }
 
 /**
  * @api {post} /auth/reverify Sends out a users verification email.
- * @apiDescription Goes through the verification process once again with the authenticated user
- * with the system. Only if the user is not already verified.
+ * @apiDescription Goes through the verification process once again with the authenticated user with
+ * the system. Only if the user is not already verified.
  * @apiVersion 1.0.0
  * @apiName Reverify
  * @apiGroup Authentication
@@ -85,9 +85,9 @@ export async function register(request: Request, response: Response) {
  * @apiSuccess {User} user The user of the newly created account.
  */
 export async function reverify(request: IRequest, response: Response) {
-    // If the user is not in the pending state, return out early stating that its complete with
-    // the status of already being verified. This is a edge case which is unlikely to be done
-    // through standard user interaction.
+    // If the user is not in the pending state, return out early stating that its complete with the
+    // status of already being verified. This is a edge case which is unlikely to be done through
+    // standard user interaction.
     if (request.user.role !== UserRole.PENDING) {
         return response.json({ message: `${request.user.username} is already verified` });
     }
@@ -106,13 +106,13 @@ export async function verify(request: Request, response: Response) {
         where: { token },
     });
 
-    // If no verification object could be found, then redirect the user back to the home page.
-    // this will happen regardless but clearly defined redirect based on failed validation check
-    // will ensure future understanding.
+    // If no verification object could be found, then redirect the user back to the home page. this
+    // will happen regardless but clearly defined redirect based on failed validation check will
+    // ensure future understanding.
     if (_.isNil(verificationToken)) return response.redirect(process.env.FRONT_URL);
 
-    // Update the user role, ensuring that they are now removed from the pending state and
-    // returned or setup as a standard user, then updating the database with this change.
+    // Update the user role, ensuring that they are now removed from the pending state and returned
+    // or setup as a standard user, then updating the database with this change.
     const { user } = verificationToken;
     user.role = UserRole.USER;
 
@@ -148,8 +148,8 @@ export async function login(request: Request, response: Response) {
             code: 400,
         });
     }
-    // Ensure that the password provided matches the encrypted password stored in the database, this will be using
-    // the salt and hash with the secret in bcrypt.
+    // Ensure that the password provided matches the encrypted password stored in the database, this
+    // will be using the salt and hash with the secret in bcrypt.
     const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
 
     // If the password does not match, ensure the user is told about the authentication failing.
@@ -192,17 +192,54 @@ export async function currentUser(request: IRequest, response: Response) {
     return response.json(request.user);
 }
 
+/**
+ * @api {post} /auth/reset/email Updates the current users email
+ * @apiDescription Takes the specified users current password and new email. Ensures that the
+ * password matches the current users password and that the new email meets the current system
+ * requirements. If both are successful, the current authenticated users email is updated with
+ * the new one. This will require email verification once again via email.
+ *
+ * @apiVersion 1.0.0
+ * @apiName UpdateEmail
+ * @apiGroup Email
+ *
+ * @apiParam {string} password The current users password.
+ * @apiParam {string} email The new users email.
+ *
+ *  * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ *     {
+ *      "message": "Email reset, a verification email has been sent.",
+ *      "verification": true
+ *     }
+ */
 export async function initiateEmailReset(request: IRequest, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findOne(request.user.id);
     const { password, email } = request.body;
 
-    const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
+    const passwordsMatch: boolean = await bcrypt.compare(password, request.user.password);
     if (!passwordsMatch) throw new ApiError({ code: 400, error: 'Password did not match.' });
 
-    await ResetService.resetEmail(user, email);
+    if (request.user.email.toLowerCase() === email.toLowerCase()) {
+        throw new ApiError({
+            error: 'The specified email address is already the assigned address.',
+            code: 409,
+        });
+    }
 
-    return response.json({ message: 'Email reset.' });
+    const userRepository = getCustomRepository(UserRepository);
+    if (await userRepository.userExistsWithEmail(email)) {
+        throw new ApiError({
+            error: 'The specified email is already in use.',
+            code: 409,
+        });
+    }
+
+    await ResetService.resetEmail(request.user, email);
+    const { role } = request.user;
+
+    return response.json({
+        message: 'Email reset, a verification email has been sent.',
+        verification: role === UserRole.USER || role === UserRole.PENDING,
+    });
 }
 
 export async function initiatePasswordReset(request: Request, response: Response) {
@@ -241,4 +278,45 @@ export async function resetPassword(request: Request, response: Response) {
     });
 
     return response.json({ message: 'Password reset!' });
+}
+
+/**
+ * @api {put} /auth/reset/password Updates the current users password
+ * @apiDescription Takes the specified users old and new password. Ensures that the old password
+ * matches the current users password and that the new password meets the current system
+ * requirements. If Both are successful, the current authenticated users password is updated with
+ * the new one.
+ *
+ * @apiVersion 1.0.0
+ * @apiName UpdatePassword
+ * @apiGroup Password
+ *
+ * @apiParam {string} oldPassword The current users password.
+ * @apiParam {string} newPassword The new users password.
+ *
+ *  * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     {
+ *      "message": "Password successfully updated.",
+ *     }
+ */
+export async function updatePassword(request: IRequest, response: Response) {
+    const { oldPassword, newPassword }: { oldPassword: string; newPassword: string } = request.body;
+
+    // Ensure that the password provided matches the encrypted password stored in the database, this
+    // will be using the salt and hash with the secret in bcrypt.
+    const passwordsMatch: boolean = await bcrypt.compare(oldPassword, request.user.password);
+
+    // If the password does not match, ensure the user is told about the authentication failing.
+    if (!passwordsMatch) {
+        throw new ApiError({
+            error: 'The provided current password is not correct.',
+            code: 400,
+        });
+    }
+
+    request.user.password = await hash(newPassword);
+    await request.user.save();
+
+    return response.send({ message: 'Password successfully updated.' });
 }

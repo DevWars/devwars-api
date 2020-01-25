@@ -16,6 +16,12 @@ export class VerificationService {
      * @param user The user who is getting their verification progress reset.
      */
     public static async reset(user: User) {
+        // If the given user is moderator or a admin, they should not be subject to updating user
+        // role state. e.g only standard users have to go through email verification again.
+        if (user.role === UserRole.ADMIN || user.role === UserRole.MODERATOR) {
+            return;
+        }
+
         const emailRepository = getCustomRepository(EmailVerificationRepository);
         await emailRepository.removeForUser(user);
 

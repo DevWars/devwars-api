@@ -54,6 +54,18 @@ export default class UserRepository extends Repository<User> {
     }
 
     /**
+     * Returns true if and only if a user already has the assigned email address, regardless of case.
+     * @param email The email address to check if its in use or not.
+     */
+    public async userExistsWithEmail(email: string): Promise<boolean> {
+        const totalExist = await this.createQueryBuilder()
+            .where('LOWER(email) = LOWER(:email)', { email })
+            .getCount();
+
+        return totalExist >= 1;
+    }
+
+    /**
      * Finds the user by a given authentication token.
      * @param token The authentication token for the given user.
      */

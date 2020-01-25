@@ -56,7 +56,7 @@ export const forgotPasswordSchema = Joi.object()
     .unknown(true);
 
 /**
- * The reset password schema for when a password is being updated. It must contain a valid
+ * The reset password schema for when a password is being reset. It must contain a valid
  * token (which will be validated by the endpoint) and a valid password that meets the
  * system requirements
  */
@@ -70,6 +70,22 @@ export const resetPasswordSchema = Joi.object()
             .required(),
     })
     .unknown(true);
+
+/**
+ * The update password schema for when a password is being updated. It must contain a valid old
+ * password and a valid new password that meets the system requirements.
+ */
+export const updatePasswordSchema = Joi.object().keys({
+    oldPassword: Joi.string()
+        .min(constants.PASSWORD_MIN_LENGTH)
+        .max(constants.PASSWORD_MAX_LENGTH)
+        .required(),
+
+    newPassword: Joi.string()
+        .min(constants.PASSWORD_MIN_LENGTH)
+        .max(constants.PASSWORD_MAX_LENGTH)
+        .required(),
+});
 
 /**
  * The reset password schema for when a password is being updated. It must contain a valid
