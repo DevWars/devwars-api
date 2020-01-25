@@ -338,13 +338,42 @@ export async function deleteUser(request: IUserRequest, response: Response) {
 }
 
 /**
- * @api {delete} /users/leaderboards Get the current win based leaderboards for all users.
+ * @api {get} /users/leaderboards Get the current win based leaderboards for all users.
  * @apiDescription Gathers the current win leaderboard statistics for all users in a paging fashion.
  * @apiName GetLeaderboardsForUser
  * @apiGroup User
  *
  * @apiParam {number} first How many users to be returned, default 20, min: 1, max: 100
  * @apiParam {number} after A offset at which point to start gathering users, default: 0, min: 0
+ *
+ * @apiSuccessExample Success-Response /users/leaderboards?first=5&after=40:
+ *     HTTP/1.1 200 OK
+ * {
+ *     "data": [
+ *       {
+ *         "userId": 46,
+ *         "username": "Sigurd.Harber",
+ *         "wins": 5,
+ *         "loses": 17,
+ *         "xp": 15039,
+ *         "coins": 18316,
+ *         "level": 3
+ *       },
+ *       {
+ *         "userId": 42,
+ *         "username": "Carolyne_McClure85",
+ *         "wins": 5,
+ *         "loses": 13,
+ *         "xp": 13695,
+ *         "coins": 1888,
+ *         "level": 2
+ *       },
+ *     ],
+ *     "pagination": {
+ *       "before": "http://localhost:8080/users/leaderboards?first=5&after=35",
+ *       "after": "http://localhost:8080/users/leaderboards?first=5&after=45"
+ *     }
+ *   }
  */
 export async function getUsersLeaderboards(request: Request, response: Response) {
     const { first, after } = request.query;
