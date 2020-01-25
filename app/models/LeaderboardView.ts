@@ -22,7 +22,6 @@ import { ViewEntity, ViewColumn } from 'typeorm';
          ) leaderboards;
     `,
     materialized: true,
-    synchronize: process.env.NODE_ENV === 'test' ? false : true,
 })
 export default class Leaderboard {
     @ViewColumn()
