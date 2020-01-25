@@ -8,8 +8,8 @@ export default class GameRepository extends Repository<Game> {
         return this.findOne({ order: { createdAt: 'DESC' } });
     }
 
-    public active(): Promise<Game> {
-        return this.findOne({ where: { status: GameStatus.ACTIVE } });
+    public active(relations: string[]): Promise<Game> {
+        return this.findOne({ where: { status: GameStatus.ACTIVE }, relations });
     }
 
     public findAllBySeason(season: number): Promise<Game[]> {

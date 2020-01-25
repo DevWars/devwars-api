@@ -26,6 +26,7 @@ export function flattenGame(game: Game) {
         mode: game.mode,
         videoUrl: game.videoUrl,
         status: game.status, // TEMPORARY
+        schedule: game.schedule?.id || null,
     };
 }
 
@@ -90,7 +91,7 @@ export async function latest(request: Request, response: Response) {
 
 export async function active(request: Request, response: Response) {
     const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.active();
+    const game = await gameRepository.active(['schedule']);
 
     if (_.isNil(game)) {
         throw new ApiError({
