@@ -202,7 +202,7 @@ export async function applyToScheduleFromTwitch(request: IScheduleRequest, respo
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, TwitchId);
 
-    if (_.isNil(linkedAccount)) {
+    if (_.isNil(linkedAccount) || _.isNil(linkedAccount.user)) {
         throw new ApiError({
             message: 'No user exists with the a linked account to twitch with the specified id.',
             code: 400,
