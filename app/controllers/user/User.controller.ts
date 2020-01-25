@@ -337,6 +337,15 @@ export async function deleteUser(request: IUserRequest, response: Response) {
     return response.json({ user: removingUserId });
 }
 
+/**
+ * @api {delete} /users/leaderboards Get the current win based leaderboards for all users.
+ * @apiDescription Gathers the current win leaderboard statistics for all users in a paging fashion.
+ * @apiName GetLeaderboardsForUser
+ * @apiGroup User
+ *
+ * @apiParam {number} first How many users to be returned, default 20, min: 1, max: 100
+ * @apiParam {number} after A offset at which point to start gathering users, default: 0, min: 0
+ */
 export async function getUsersLeaderboards(request: Request, response: Response) {
     const { first, after } = request.query;
 
