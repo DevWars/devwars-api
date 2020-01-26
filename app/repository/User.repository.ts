@@ -137,22 +137,4 @@ export default class UserRepository extends Repository<User> {
     public findGameStatsByUser(user: User): Promise<UserGameStats> {
         return UserGameStats.findOne({ user });
     }
-
-    public async findApplicationsBySchedule(schedule: GameSchedule): Promise<User[]> {
-        if (_.isNil(schedule)) return null;
-
-        return this.createQueryBuilder('user')
-            .where((qb) => {
-                const subQuery = qb
-                    .subQuery()
-                    .select('application.user_id')
-                    .from(GameApplication, 'application')
-                    .where('application.schedule_id = :schedule')
-                    .getSql();
-
-                return 'user.id in ' + subQuery;
-            })
-            .setParameter('schedule', schedule.id)
-            .getMany();
-    }
 }

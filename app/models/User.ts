@@ -11,6 +11,7 @@ import GameApplication from './GameApplication';
 
 import EmailOptIn from './EmailOptIn';
 import PasswordReset from './PasswordReset';
+import UserGameStats from './UserGameStats';
 
 export enum UserRole {
     PENDING = 'PENDING',
@@ -45,11 +46,23 @@ export default class User extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @OneToOne(() => UserProfile)
+    @OneToOne(
+        () => UserProfile,
+        (user) => user.user
+    )
     public profile: UserProfile;
 
-    @OneToOne(() => UserStats)
+    @OneToOne(
+        () => UserStats,
+        (stats) => stats.user
+    )
     public stats: UserStats;
+
+    @OneToOne(
+        () => UserGameStats,
+        (stats) => stats.user
+    )
+    public gameStats: UserGameStats;
 
     @OneToOne(() => EmailVerification)
     public verification: EmailVerification;

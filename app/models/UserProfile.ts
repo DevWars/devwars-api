@@ -59,7 +59,7 @@ export default class UserProfile extends BaseModel {
 
     // ------------------------------------------------------------
     // Relations
-    @OneToOne((type) => User)
+    @OneToOne(() => User)
     @JoinColumn()
     public user: User;
 
