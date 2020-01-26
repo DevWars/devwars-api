@@ -76,7 +76,7 @@ export default class User extends BaseModel {
         () => LinkedAccount,
         (accounts) => accounts.user
     )
-    public accounts: LinkedAccount[];
+    public connections: LinkedAccount[];
 
     /**
      * Creates a new instance of the user model.

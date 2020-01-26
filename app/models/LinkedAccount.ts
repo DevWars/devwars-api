@@ -37,7 +37,10 @@ export default class LinkedAccount extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @ManyToOne((type) => User, (user) => user.accounts)
+    @ManyToOne(
+        (type) => User,
+        (user) => user.connections
+    )
     @JoinTable()
     public user: User;
 

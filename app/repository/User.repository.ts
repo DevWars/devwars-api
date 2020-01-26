@@ -6,6 +6,7 @@ import GameSchedule from '../models/GameSchedule';
 import GameApplication from '../models/GameApplication';
 
 import * as _ from 'lodash';
+import logger from '../utils/logger';
 
 interface ICredentials {
     identifier: string;
@@ -13,6 +14,27 @@ interface ICredentials {
 
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
+    public async findUsersWithPaging({
+        first,
+        after,
+        orderBy = 'updatedAt',
+        relations = [],
+    }: {
+        first: number;
+        after: number;
+        orderBy: string;
+        relations: string[];
+    }): Promise<User[]> {
+        return this.find({
+            skip: after,
+            take: first,
+            order: {
+                [orderBy]: 'DESC',
+            },
+            relations,
+        });
+    }
+
     /**
      * Finds a given user by there id.
      * @param id The id of the user being found.
@@ -98,11 +120,13 @@ export default class UserRepository extends Repository<User> {
      * @param username The username that will be performed in the given *like* match.
      * @param limit The upper limit of the number of users to gather based on the likeness.
      */
-    public async getUsersLikeUsername(username: string, limit: number = 50): Promise<User[]> {
-        return await this.createQueryBuilder('user')
+    public async getUsersLikeUsername(username: string, limit: number = 50, relations: string[]): Promise<User[]> {
+        let query = this.createQueryBuilder('user')
             .where('LOWER(user.username) LIKE :username', { username: `%${username.toLowerCase()}%` })
-            .take(limit)
-            .getMany();
+            .take(limit);
+
+        _.forEach(relations, (relation) => (query = query.leftJoinAndSelect(`user.${relation}`, relation)));
+        return query.getMany();
     }
 
     public async findStatsByUser(user: User) {

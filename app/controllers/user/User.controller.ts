@@ -25,6 +25,9 @@ import EmailOptIn from '../../models/EmailOptIn';
 import { UserRole } from '../../models/User';
 import User from '../../models/User';
 
+import ApiError from '../../utils/apiError';
+import { DATABASE_MAX_ID } from '../../constants';
+
 interface IUpdateUserRequest {
     lastSigned: Date;
     email: string;
@@ -77,7 +80,13 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     }
 
     const userRepository = getCustomRepository(UserRepository);
-    const users = await userRepository.getUsersLikeUsername(username, limit);
+    const users = await userRepository.getUsersLikeUsername(username, limit, ['connections']);
+
+    _.forEach(users, (user: any) => {
+        user.connections = _.map(user.connections, (a) => {
+            return { username: a.username, provider: a.provider.toLowerCase() };
+        });
+    });
 
     // If the user has specified full user details, then return out early
     // before performing a filter to username and ids.
@@ -85,7 +94,7 @@ export async function lookupUser(request: IUserRequest, response: Response) {
 
     // Reduce the response down to the given username and id of the users.
     return response.json(
-        users.map((e) => {
+        users.map((e: User) => {
             return { username: e.username, id: e.id };
         })
     );
@@ -130,37 +139,72 @@ export async function show(request: IUserRequest, response: Response) {
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     [{
- *      "username": "test-admin",
- *      "role": "ADMIN",
- *      "id": 1,
- *      "avatarUrl": "http://lorempixel.com/640/480/nature"
- *      "updatedAt": "2019-11-19T14:54:09.441Z",
- *      "createdAt": "2019-11-19T14:54:09.441Z",
- *      "lastSignIn": "2019-11-19T14:54:09.442Z",
- *     },
+ * {
+ *   "data": [
  *     {
- *      "username": "Lelia_Boyer",
- *      "email": "William_Rowe1@yahoo.com",
- *      "role": "MODERATOR",
- *      "id": 5,
- *      "updatedAt": "2019-11-19T14:54:09.479Z",
- *      "createdAt": "2019-11-19T14:54:09.479Z",
- *      "lastSignIn": "2019-11-19T14:54:09.481Z",
- *      "avatarUrl": "http://lorempixel.com/640/480/cats"
- *     }]
+ *       "username": "tehstun",
+ *       "email": "example@gmail.com",
+ *       "role": "MODERATOR",
+ *       "id": 1354,
+ *       "updatedAt": "2020-01-26T00:30:11.052Z",
+ *       "createdAt": "2019-02-02T17:17:09.000Z",
+ *       "lastSignIn": "2020-01-26T00:30:11.050Z",
+ *       "avatarUrl": null,
+ *       "connections": [
+ *         {
+ *           "username": "tehstun",
+ *           "provider": "discord"
+ *         },
+ *         {
+ *           "username": "mambadev",
+ *           "provider": "twitch"
+ *         }
+ *       ]
+ *     }
+ *   ],
+ *   "pagination": {
+ *     "before": null,
+ *     "after": "http://localhost:8080/users/?first=1&after=1"
+ *   }
+ * }
+ *
  */
 export async function all(request: Request, response: Response) {
-    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
-    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+    const { first, after } = request.query;
 
-    const users = await User.createQueryBuilder('user')
-        .orderBy('"updatedAt"', 'DESC')
-        .limit(limit > 100 || limit < 1 ? 100 : limit)
-        .offset(offset < 0 ? 0 : offset)
-        .getMany();
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+    };
 
-    return response.json(users);
+    const userRepository = getCustomRepository(UserRepository);
+    const users: any = await userRepository.findUsersWithPaging({
+        first: params.first,
+        after: params.after,
+        orderBy: 'updatedAt',
+        relations: ['connections'],
+    });
+
+    _.forEach(users, (user) => {
+        user.connections = _.map(user.connections, (a) => {
+            return { username: a.username, provider: a.provider.toLowerCase() };
+        });
+    });
+
+    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+
+    const pagination = {
+        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
+        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+    };
+
+    if (users.length === 0) pagination.after = null;
+    if (params.after === 0) pagination.before = null;
+
+    return response.json({
+        data: users,
+        pagination,
+    });
 }
 
 /**
