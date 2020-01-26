@@ -60,4 +60,9 @@ export default class LinkedAccount extends BaseModel {
         this.providerId = providerId;
         this.storage = {};
     }
+
+    public toJSON(): LinkedAccount {
+        const { username, provider } = { ...this };
+        return { username, provider: provider.toLowerCase() } as LinkedAccount;
+    }
 }

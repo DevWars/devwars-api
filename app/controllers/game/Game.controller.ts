@@ -36,7 +36,9 @@ export async function show(request: IGameRequest, response: Response) {
 
     if (includePlayers && !isNil(game.players)) {
         const userRepository = getCustomRepository(UserRepository);
-        const players = await userRepository.findByIds(Object.keys(game.players));
+        const players = await userRepository.findByIds(Object.keys(game.players), {
+            relations: ['connections'],
+        });
 
         for (const player of players) {
             game.players[player.id] = Object.assign(player, game.players[player.id]);

@@ -185,12 +185,6 @@ export async function all(request: Request, response: Response) {
         relations: ['connections'],
     });
 
-    _.forEach(users, (user) => {
-        user.connections = _.map(user.connections, (a) => {
-            return { username: a.username, provider: a.provider.toLowerCase() };
-        });
-    });
-
     const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
 
     const pagination = {
