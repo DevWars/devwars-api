@@ -350,17 +350,10 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             if (!_.isNil(gameStorage?.players) && !_.isNil(gameStorage.players[removingUserId])) {
                 const player = gameStorage.players[removingUserId];
 
-                gameStorage.players['0'] = { id: 0, team: player.team, username: 'Competitor' };
-                delete gameStorage.players[removingUserId];
-            }
-
-            // update the editor to replace the known user with the competitor user.
-            if (!_.isNil(gameStorage?.editors)) {
-                for (const editorsKey of Object.keys(gameStorage?.editors)) {
-                    if (gameStorage.editors[editorsKey]?.player === removingUserId) {
-                        gameStorage.editors[editorsKey].player = 0;
-                    }
-                }
+                // Set the internal id of the player is 0, since the front end will process based on
+                // the internal Id of 0, if we change the actual key id, then it does not support
+                // multiple deleted users.
+                gameStorage.players[removingUserId] = { id: 0, team: player.team, username: 'Competitor' };
             }
 
             // Only attempt to save the game again if the game is not null.
