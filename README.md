@@ -40,7 +40,7 @@ Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core back
 
 ### Dependency Installation
 
-Run `npm run install` to install dependent node_modules.
+Run `npm install` to install dependent node_modules.
 
 ### Environment Variables
 
