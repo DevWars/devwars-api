@@ -1,27 +1,29 @@
 import { getCustomRepository, getConnection } from 'typeorm';
 import { Request, Response } from 'express';
-import { isNil, isInteger } from 'lodash';
+import * as _ from 'lodash';
 
 import GameApplication from '../../models/GameApplication';
 import UserProfile from '../../models/UserProfile';
 import UserStats from '../../models/UserStats';
 import Activity from '../../models/Activity';
 
+import LeaderboardRepository from '../../repository/leaderboard.repository';
 import UserRepository from '../../repository/User.repository';
 import { IUserRequest } from '../../request/IRequest';
+import { DATABASE_MAX_ID } from '../../constants';
+import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
 
 import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
-import { UserRole } from '../../models/User';
-import User from '../../models/User';
+
+import EmailVerification from '../../models/EmailVerification';
 import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
-import EmailVerification from '../../models/EmailVerification';
 import UserGameStats from '../../models/UserGameStats';
-import EmailOptIn from '../../models/EmailOptIn';
 import { GameStatus } from '../../models/GameSchedule';
-
-import ApiError from '../../utils/apiError';
+import EmailOptIn from '../../models/EmailOptIn';
+import { UserRole } from '../../models/User';
+import User from '../../models/User';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -61,7 +63,7 @@ interface IUpdateUserRequest {
 export async function lookupUser(request: IUserRequest, response: Response) {
     let { username, limit, full } = request.query;
 
-    if (isNil(username)) username = '';
+    if (_.isNil(username)) username = '';
     username = username.replace(/\s/g, '').trim();
 
     limit = parseIntWithDefault(limit, 50, 1, 50);
@@ -212,7 +214,7 @@ export async function update(request: IUserRequest, response: Response) {
     const userRepository = getCustomRepository(UserRepository);
     const existingUsername = await userRepository.findByUsername(params.username);
 
-    if (!isNil(existingUsername) && existingUsername.id !== request.boundUser.id) {
+    if (!_.isNil(existingUsername) && existingUsername.id !== request.boundUser.id) {
         throw new ApiError({
             error: 'The provided username already exists for a registered user.',
             code: 409,
@@ -220,7 +222,7 @@ export async function update(request: IUserRequest, response: Response) {
     }
 
     // Ensure to encrypt the updated password if it has been specified.
-    if (!isNil(params.password)) params.password = await hash(params.password);
+    if (!_.isNil(params.password)) params.password = await hash(params.password);
 
     Object.assign(request.boundUser, params);
     await request.boundUser.save();
@@ -307,7 +309,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
 
             // Update the inner game players model to replace the removing user with the replacement
             // user. Since these will be rendered on the home page.
-            if (!isNil(gameStorage?.players) && !isNil(gameStorage.players[removingUserId])) {
+            if (!_.isNil(gameStorage?.players) && !_.isNil(gameStorage.players[removingUserId])) {
                 const player = gameStorage.players[removingUserId];
 
                 gameStorage.players['0'] = { id: 0, team: player.team, username: 'Competitor' };
@@ -315,7 +317,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             }
 
             // update the editor to replace the known user with the competitor user.
-            if (!isNil(gameStorage?.editors)) {
+            if (!_.isNil(gameStorage?.editors)) {
                 for (const editorsKey of Object.keys(gameStorage?.editors)) {
                     if (gameStorage.editors[editorsKey]?.player === removingUserId) {
                         gameStorage.editors[editorsKey].player = 0;
@@ -324,7 +326,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             }
 
             // Only attempt to save the game again if the game is not null.
-            if (!isNil(application.schedule.game)) await transaction.save(application.schedule.game);
+            if (!_.isNil(application.schedule.game)) await transaction.save(application.schedule.game);
             await transaction.remove(application);
         }
 
@@ -333,4 +335,69 @@ export async function deleteUser(request: IUserRequest, response: Response) {
     });
 
     return response.json({ user: removingUserId });
+}
+
+/**
+ * @api {get} /users/leaderboards Get the current win based leaderboards for all users.
+ * @apiDescription Gathers the current win leaderboard statistics for all users in a paging fashion.
+ * @apiName GetLeaderboardsForUser
+ * @apiGroup User
+ *
+ * @apiParam {number} first How many users to be returned, default 20, min: 1, max: 100
+ * @apiParam {number} after A offset at which point to start gathering users, default: 0, min: 0
+ *
+ * @apiSuccessExample Success-Response /users/leaderboards?first=5&after=40:
+ *     HTTP/1.1 200 OK
+ * {
+ *     "data": [
+ *       {
+ *         "userId": 46,
+ *         "username": "Sigurd.Harber",
+ *         "wins": 5,
+ *         "loses": 17,
+ *         "xp": 15039,
+ *         "coins": 18316,
+ *         "level": 3
+ *       },
+ *       {
+ *         "userId": 42,
+ *         "username": "Carolyne_McClure85",
+ *         "wins": 5,
+ *         "loses": 13,
+ *         "xp": 13695,
+ *         "coins": 1888,
+ *         "level": 2
+ *       },
+ *     ],
+ *     "pagination": {
+ *       "before": "http://localhost:8080/users/leaderboards?first=5&after=35",
+ *       "after": "http://localhost:8080/users/leaderboards?first=5&after=45"
+ *     }
+ *   }
+ */
+export async function getUsersLeaderboards(request: Request, response: Response) {
+    const { first, after } = request.query;
+
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+    };
+
+    const leaderboardRepository = getCustomRepository(LeaderboardRepository);
+    const leaderboards = await leaderboardRepository.findUsers(params.first, params.after);
+
+    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+
+    const pagination = {
+        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
+        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+    };
+
+    if (leaderboards.length === 0) pagination.after = null;
+    if (params.after === 0) pagination.before = null;
+
+    return response.json({
+        data: leaderboards,
+        pagination,
+    });
 }
