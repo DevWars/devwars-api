@@ -33,6 +33,12 @@ GameApplicationRoute.post(
     wrapAsync(GameApplicationController.applyToSchedule)
 );
 
+GameApplicationRoute.post(
+    '/schedule/:schedule/twitch',
+    [mustBeRole(UserRole.MODERATOR, true), bindScheduleFromScheduleParam],
+    wrapAsync(GameApplicationController.applyToScheduleFromTwitch)
+);
+
 GameApplicationRoute.delete(
     '/schedule/:schedule',
     [mustBeAuthenticated, bindScheduleFromScheduleParam],

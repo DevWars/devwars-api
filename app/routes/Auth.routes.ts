@@ -29,6 +29,12 @@ AuthRoute.post(
     wrapAsync(AuthController.resetPassword)
 );
 
+AuthRoute.put(
+    '/reset/password',
+    [mustBeAuthenticated, bodyValidation(authValidator.updatePasswordSchema)],
+    wrapAsync(AuthController.updatePassword)
+);
+
 AuthRoute.post(
     '/reset/email',
     [mustBeAuthenticated, bodyValidation(authValidator.resetEmailSchema)],

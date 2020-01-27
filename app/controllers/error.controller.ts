@@ -16,7 +16,8 @@ export function handleError(error: any, request: Request, response: Response, ne
     if (!(error instanceof ApiError) || (!isNil(apiError.code) && apiError.log)) {
         const { protocol, originalUrl } = request;
 
-        logger.error(`error on request: ${protocol}://${request.get('host')}${originalUrl}, ${error}`);
+        const message = process.env.NODE_ENV === 'development' ? error.stack : error;
+        logger.error(`error on request: ${protocol}://${request.get('host')}${originalUrl}, ${message}`);
     }
 
     // If we have thrown a instance of a apiError and it was not a 500, then process the

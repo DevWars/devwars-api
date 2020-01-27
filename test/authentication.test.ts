@@ -383,7 +383,7 @@ describe('Authentication', () => {
         let user: User;
 
         beforeEach(async () => {
-            user = await UserSeeding.default().save();
+            user = await UserSeeding.withRole(UserRole.USER).save();
             token = await cookieForUser(user);
         });
 
@@ -431,7 +431,7 @@ describe('Authentication', () => {
                 .post(resetEmailRoute)
                 .set('Cookie', token)
                 .send({ password: 'secret', email: 'valid@sample.com' })
-                .expect(200, { message: 'Email reset.' });
+                .expect(200, { message: 'Email reset, a verification email has been sent.', verification: true });
 
             const userRepository = getCustomRepository(UserRepository);
             const updatedUser = await userRepository.findById(user.id);
