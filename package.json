@@ -46,7 +46,7 @@
     },
     "dependencies": {
         "@hapi/joi": "^16.1.7",
-        "aws-sdk": "^2.573.0",
+        "aws-sdk": "^2.610.0",
         "axios": "^0.19.2",
         "bcrypt": "^3.0.7",
         "body-parser": "^1.18.2",
