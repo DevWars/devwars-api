@@ -312,7 +312,7 @@ export async function findApplicationsBySchedule(request: IScheduleRequest, resp
     ];
 
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-    const applications = await gameApplicationRepository.findBySchedule(request.game.schedule, _.compact(relations));
+    const applications = await gameApplicationRepository.findBySchedule(request.schedule, _.compact(relations));
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
     const users = applications.map((app) => app.user.sanitize(...sanitizationFields));
