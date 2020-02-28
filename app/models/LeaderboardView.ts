@@ -21,7 +21,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
                    join user_game_stats userGameStats on "user".id = userGameStats."userId"
          ) leaderboards;
     `,
-    materialized: true,
+    materialized: false,
 })
 export default class Leaderboard {
     @ViewColumn()

@@ -1,4 +1,4 @@
-import { getManager, EntityManager, getCustomRepository } from 'typeorm';
+import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
 import { random } from 'faker';
 import * as chai from 'chai';
@@ -167,7 +167,13 @@ describe('game', () => {
             chai.expect(_.isNil(storedPlayer)).to.not.be.equal(true);
 
             // How the server would merge the given users when specifying to include players.
-            const mergedPlayer = JSON.stringify(Object.assign(game.storage.players[player], storedPlayer.toJSON()));
+            const mergedPlayer = JSON.stringify(
+                Object.assign(game.storage.players[player], {
+                    ...storedPlayer.toJSON(),
+                    connections: [],
+                })
+            );
+
             chai.expect(JSON.parse(mergedPlayer)).to.deep.equal(playersResponse.body.players[player]);
         });
     });
@@ -504,11 +510,7 @@ describe('game', () => {
                 await transaction.save(game4);
             });
 
-            const season = random.arrayElement([
-                { id: 1, amount: 1 },
-                { id: 2, amount: 2 },
-                { id: 3, amount: 1 },
-            ]);
+            const season = random.arrayElement([{ id: 1, amount: 1 }, { id: 2, amount: 2 }, { id: 3, amount: 1 }]);
 
             const response = await agent
                 .get(`/games/season/${season.id}`)
