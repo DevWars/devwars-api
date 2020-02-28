@@ -1,4 +1,4 @@
-import { getCustomRepository, getConnection } from 'typeorm';
+import { getConnection, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
@@ -14,19 +14,15 @@ import { DATABASE_MAX_ID } from '../../constants';
 import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
 
-import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import { parseBooleanWithDefault, parseIntWithDefault } from '../../../test/helpers';
 
 import EmailVerification from '../../models/EmailVerification';
 import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
-import { GameStatus } from '../../models/GameSchedule';
 import EmailOptIn from '../../models/EmailOptIn';
-import { UserRole } from '../../models/User';
-import User from '../../models/User';
-
-import ApiError from '../../utils/apiError';
-import { DATABASE_MAX_ID } from '../../constants';
+import User, { UserRole } from '../../models/User';
+import Game from '../../models/Game';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -96,7 +92,7 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     return response.json(
         users.map((e: User) => {
             return { username: e.username, id: e.id };
-        })
+        }),
     );
 }
 
@@ -321,29 +317,19 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         const emailVerifications = await transaction.find(EmailVerification, whereOptions);
         await transaction.remove(emailVerifications);
 
-        // All future game applications in which the game has not occurred yet can be removed, any
-        // in the past can be replaced. So delete all future game applications.
-        const futureGameApplications = await transaction
-            .getRepository(GameApplication)
-            .createQueryBuilder('app')
-            .leftJoin('app.schedule', 'game_schedule')
-            .andWhere('game_schedule.status = :gameStatus')
-            .andWhere('app."userId" = :user')
-            .setParameters({ user: removingUser.id, gameStatus: GameStatus.SCHEDULED })
+        // they are purged from the players and editors body.
+        const gameApplications = await transaction.find(GameApplication, whereOptions);
+        await transaction.remove(gameApplications);
+
+        const userRelatedGames = await transaction
+            .getRepository(Game)
+            .createQueryBuilder('games')
+            .select()
+            .where('(storage ->> \'players\')::json ->:id IS NOT NULL', { id: removingUserId })
             .getMany();
 
-        await transaction.remove(futureGameApplications);
-
-        // For all applications that exist for the user that have already taken place, ensure that
-        // they are purged from the players and editors body.
-        const gameApplications = await transaction.find(
-            GameApplication,
-            Object.assign(whereOptions, { relations: ['schedule', 'schedule.game'] })
-        );
-
-        for (const application of gameApplications) {
-            const gameStorage = application.schedule?.game?.storage;
-            application.user = null;
+        for (const game of userRelatedGames) {
+            const gameStorage = game?.storage;
 
             // Update the inner game players model to replace the removing user with the replacement
             // user. Since these will be rendered on the home page.
@@ -354,11 +340,8 @@ export async function deleteUser(request: IUserRequest, response: Response) {
                 // the internal Id of 0, if we change the actual key id, then it does not support
                 // multiple deleted users.
                 gameStorage.players[removingUserId] = { id: 0, team: player.team, username: 'Competitor' };
+                await transaction.save(game);
             }
-
-            // Only attempt to save the game again if the game is not null.
-            if (!_.isNil(application.schedule.game)) await transaction.save(application.schedule.game);
-            await transaction.remove(application);
         }
 
         // Finally delete the user.

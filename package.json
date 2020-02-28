@@ -19,8 +19,8 @@
         "serve-docs": "apidoc -i ./app -o ./docs && http-server -p 8081 docs",
         "seed": "node -r ts-node/register ./cli/seeder.ts",
         "seed:password": "node -r ts-node/register ./cli/SeedPassword.ts",
-        "typeorm": "ts-node -P ./tsconfig.json ./node_modules/.bin/typeorm",
-        "migrate": "ts-node ./node_modules/.bin/typeorm migration:run",
+        "typeorm": "ts-node-dev -P ./tsconfig.json ./node_modules/.bin/typeorm",
+        "migrate": "ts-node-dev ./node_modules/.bin/typeorm migration:run",
         "migrate:revert": "ts-node ./node_modules/.bin/typeorm migration:revert"
     },
     "husky": {
