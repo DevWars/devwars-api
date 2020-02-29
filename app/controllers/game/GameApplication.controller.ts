@@ -8,7 +8,7 @@ import { sendGameApplicationApplyingEmail, SendGameApplicationResignEmail } from
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import UserRepository from '../../repository/User.repository';
 
-import { parseStringWithDefault } from '../../../test/helpers';
+import { parseStringWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
 import GameApplication from '../../models/GameApplication';
 import User from '../../models/User';
 import ApiError from '../../utils/apiError';
@@ -235,6 +235,8 @@ export async function applyToScheduleFromTwitch(request: IScheduleRequest, respo
  * @apiGroup Applications
  *
  * @apiParam {number} ScheduleId The id of the schedule being resigned from.
+ * @apiParam {boolean} profile If profiles should be included in the response.
+ * @apiParam {boolean} stats If stats should be included in the response.
  *
  * @apiSuccess OK
  *
@@ -272,6 +274,8 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
  * @apiGroup Applications
  *
  * @apiParam {number} ScheduleId The id of the given schedule to gather applications from.
+ * @apiParam {boolean} profile If profiles should be included in the response.
+ * @apiParam {boolean} stats If stats should be included in the response.
  *
  * @apiSuccess {User[]} Applications A list of users applications for a given game schedule id.
  * @apiSuccessExample Success-Response:
@@ -293,11 +297,25 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
 export async function findApplicationsBySchedule(request: IScheduleRequest, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    let users = await userRepository.findApplicationsBySchedule(request.schedule);
+    const { profile, stats } = request.query;
+
+    const params = {
+        profile: parseBooleanWithDefault(profile, false),
+        stats: parseBooleanWithDefault(stats, false),
+    };
+
+    const relations = [
+        'user',
+        params.profile ? 'user.profile' : null,
+        params.stats ? 'user.stats' : null,
+        params.stats ? 'user.gameStats' : null,
+    ];
+
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+    const applications = await gameApplicationRepository.findBySchedule(request.schedule, _.compact(relations));
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    users = users.map((app: User) => app.sanitize(...sanitizationFields));
+    const users = applications.map((app) => app.user.sanitize(...sanitizationFields));
 
     return response.json(users);
 }
@@ -333,11 +351,25 @@ export async function findApplicationsBySchedule(request: IScheduleRequest, resp
  *
  */
 export async function findUserApplicationsByGame(request: IGameRequest, response: Response) {
-    const userRepository = getCustomRepository(UserRepository);
-    let users = (await userRepository.findApplicationsBySchedule(request.game.schedule)) || [];
+    const { profile, stats } = request.query;
+
+    const params = {
+        profile: parseBooleanWithDefault(profile, false),
+        stats: parseBooleanWithDefault(stats, false),
+    };
+
+    const relations = [
+        'user',
+        params.profile ? 'user.profile' : null,
+        params.stats ? 'user.stats' : null,
+        params.stats ? 'user.gameStats' : null,
+    ];
+
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+    const applications = await gameApplicationRepository.findBySchedule(request.game.schedule, _.compact(relations));
 
     const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
-    users = users.map((app) => app.sanitize(...sanitizationFields));
+    const users = applications.map((app) => app.user.sanitize(...sanitizationFields));
 
     return response.json(users);
 }
@@ -361,6 +393,16 @@ export async function createGameSchedule(request: IRequest & IGameRequest, respo
         throw new ApiError({
             error: `A user does not exist by the provided username '${username}'`,
             code: 404,
+        });
+    }
+
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+    const exists = await gameApplicationRepository.existsByUserAndSchedule(user, schedule);
+
+    if (exists) {
+        throw new ApiError({
+            error: 'The user already has a application for the specified game.',
+            code: 409,
         });
     }
 

@@ -58,10 +58,7 @@ describe('user', () => {
         it('Should allow moderator and admins', async () => {
             const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
 
-            for (const test of [
-                [moderator, 200],
-                [admin, 200],
-            ]) {
+            for (const test of [[moderator, 200], [admin, 200]]) {
                 await agent
                     .get(lookupUrl)
                     .set('Cookie', await cookieForUser(test[0] as User))
@@ -81,12 +78,7 @@ describe('user', () => {
         });
 
         it('Should respect the limit if specified', async () => {
-            for (const test of [
-                [50, 50],
-                [1, 1],
-                [10, 10],
-                [500, 50],
-            ]) {
+            for (const test of [[50, 50], [1, 1], [10, 10], [500, 50]]) {
                 const response = await agent
                     .get(`/users/lookup?username=e&limit=${test[0]}`)
                     .set('Cookie', await cookieForUser(moderator))
@@ -441,8 +433,8 @@ describe('user', () => {
                 .set('Cookie', await cookieForUser(tempUser));
 
             chai.expect(result.status).to.be.equal(200);
-            chai.expect(result.body.id).to.be.equal(discord.id);
-            chai.expect(result.body.provider).to.be.equal(discord.provider);
+            chai.expect(result.body.username).to.be.equal(discord.username);
+            chai.expect(result.body.provider).to.be.equal(discord.provider.toLowerCase());
 
             await linkedAccountTwitch.save();
             const twitch = await linkedAccountRepository.findByUserIdAndProvider(tempUser.id, Provider.TWITCH);
@@ -452,8 +444,8 @@ describe('user', () => {
                 .set('Cookie', await cookieForUser(tempUser));
 
             chai.expect(resultTwo.status).to.be.equal(200);
-            chai.expect(resultTwo.body.id).to.be.equal(twitch.id);
-            chai.expect(resultTwo.body.provider).to.be.equal(twitch.provider);
+            chai.expect(resultTwo.body.username).to.be.equal(twitch.username);
+            chai.expect(resultTwo.body.provider).to.be.equal(twitch.provider.toLowerCase());
         });
     });
 });

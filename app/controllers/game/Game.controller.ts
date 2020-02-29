@@ -36,7 +36,9 @@ export async function show(request: IGameRequest, response: Response) {
 
     if (includePlayers && !isNil(game.players)) {
         const userRepository = getCustomRepository(UserRepository);
-        const players = await userRepository.findByIds(Object.keys(game.players));
+        const players = await userRepository.findByIds(Object.keys(game.players), {
+            relations: ['connections'],
+        });
 
         for (const player of players) {
             game.players[player.id] = Object.assign(player, game.players[player.id]);
@@ -56,13 +58,16 @@ export async function update(request: IRequest & IGameRequest, response: Respons
     const gameRequest = request.body as IUpdateGameRequest;
 
     const game = request.game;
+
     game.mode = gameRequest.mode;
     game.videoUrl = gameRequest.videoUrl;
     game.storage = {
         ...game.storage,
         title: gameRequest.title,
         mode: gameRequest.mode,
-        objectives: gameRequest.objectives,
+        objectives: gameRequest.objectives || game.storage?.objectives,
+        teams: gameRequest.teams || game.storage?.teams,
+        meta: gameRequest.meta || game.storage?.meta,
     };
 
     await game.save();

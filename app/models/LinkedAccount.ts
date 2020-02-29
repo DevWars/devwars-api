@@ -37,7 +37,7 @@ export default class LinkedAccount extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @ManyToOne((type) => User, (user) => user.accounts)
+    @ManyToOne((type) => User, (user) => user.connections)
     @JoinTable()
     public user: User;
 
@@ -56,5 +56,10 @@ export default class LinkedAccount extends BaseModel {
         this.provider = provider;
         this.providerId = providerId;
         this.storage = {};
+    }
+
+    public toJSON(): LinkedAccount {
+        const { username, provider } = { ...this };
+        return { username, provider: provider.toLowerCase() } as LinkedAccount;
     }
 }

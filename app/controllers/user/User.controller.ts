@@ -1,4 +1,4 @@
-import { getCustomRepository, getConnection } from 'typeorm';
+import { getConnection, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
@@ -14,16 +14,15 @@ import { DATABASE_MAX_ID } from '../../constants';
 import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
 
-import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import { parseBooleanWithDefault, parseIntWithDefault } from '../../../test/helpers';
 
 import EmailVerification from '../../models/EmailVerification';
 import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
-import { GameStatus } from '../../models/GameSchedule';
 import EmailOptIn from '../../models/EmailOptIn';
-import { UserRole } from '../../models/User';
-import User from '../../models/User';
+import User, { UserRole } from '../../models/User';
+import Game from '../../models/Game';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -77,7 +76,13 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     }
 
     const userRepository = getCustomRepository(UserRepository);
-    const users = await userRepository.getUsersLikeUsername(username, limit);
+    const users = await userRepository.getUsersLikeUsername(username, limit, ['connections']);
+
+    _.forEach(users, (user: any) => {
+        user.connections = _.map(user.connections, (a) => {
+            return { username: a.username, provider: a.provider.toLowerCase() };
+        });
+    });
 
     // If the user has specified full user details, then return out early
     // before performing a filter to username and ids.
@@ -85,9 +90,9 @@ export async function lookupUser(request: IUserRequest, response: Response) {
 
     // Reduce the response down to the given username and id of the users.
     return response.json(
-        users.map((e) => {
+        users.map((e: User) => {
             return { username: e.username, id: e.id };
-        })
+        }),
     );
 }
 
@@ -130,37 +135,66 @@ export async function show(request: IUserRequest, response: Response) {
  *
  * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
- *     [{
- *      "username": "test-admin",
- *      "role": "ADMIN",
- *      "id": 1,
- *      "avatarUrl": "http://lorempixel.com/640/480/nature"
- *      "updatedAt": "2019-11-19T14:54:09.441Z",
- *      "createdAt": "2019-11-19T14:54:09.441Z",
- *      "lastSignIn": "2019-11-19T14:54:09.442Z",
- *     },
+ * {
+ *   "data": [
  *     {
- *      "username": "Lelia_Boyer",
- *      "email": "William_Rowe1@yahoo.com",
- *      "role": "MODERATOR",
- *      "id": 5,
- *      "updatedAt": "2019-11-19T14:54:09.479Z",
- *      "createdAt": "2019-11-19T14:54:09.479Z",
- *      "lastSignIn": "2019-11-19T14:54:09.481Z",
- *      "avatarUrl": "http://lorempixel.com/640/480/cats"
- *     }]
+ *       "username": "tehstun",
+ *       "email": "example@gmail.com",
+ *       "role": "MODERATOR",
+ *       "id": 1354,
+ *       "updatedAt": "2020-01-26T00:30:11.052Z",
+ *       "createdAt": "2019-02-02T17:17:09.000Z",
+ *       "lastSignIn": "2020-01-26T00:30:11.050Z",
+ *       "avatarUrl": null,
+ *       "connections": [
+ *         {
+ *           "username": "tehstun",
+ *           "provider": "discord"
+ *         },
+ *         {
+ *           "username": "mambadev",
+ *           "provider": "twitch"
+ *         }
+ *       ]
+ *     }
+ *   ],
+ *   "pagination": {
+ *     "before": null,
+ *     "after": "http://localhost:8080/users/?first=1&after=1"
+ *   }
+ * }
+ *
  */
 export async function all(request: Request, response: Response) {
-    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
-    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+    const { first, after } = request.query;
 
-    const users = await User.createQueryBuilder('user')
-        .orderBy('"updatedAt"', 'DESC')
-        .limit(limit > 100 || limit < 1 ? 100 : limit)
-        .offset(offset < 0 ? 0 : offset)
-        .getMany();
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+    };
 
-    return response.json(users);
+    const userRepository = getCustomRepository(UserRepository);
+    const users: any = await userRepository.findUsersWithPaging({
+        first: params.first,
+        after: params.after,
+        orderBy: 'updatedAt',
+        relations: ['connections'],
+    });
+
+    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+
+    const pagination = {
+        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
+        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+    };
+
+    if (users.length === 0) pagination.after = null;
+    if (params.after === 0) pagination.before = null;
+
+    return response.json({
+        data: users,
+        pagination,
+    });
 }
 
 /**
@@ -283,51 +317,31 @@ export async function deleteUser(request: IUserRequest, response: Response) {
         const emailVerifications = await transaction.find(EmailVerification, whereOptions);
         await transaction.remove(emailVerifications);
 
-        // All future game applications in which the game has not occurred yet can be removed, any
-        // in the past can be replaced. So delete all future game applications.
-        const futureGameApplications = await transaction
-            .getRepository(GameApplication)
-            .createQueryBuilder('app')
-            .leftJoin('app.schedule', 'game_schedule')
-            .andWhere('game_schedule.status = :gameStatus')
-            .andWhere('app."userId" = :user')
-            .setParameters({ user: removingUser.id, gameStatus: GameStatus.SCHEDULED })
+        // they are purged from the players and editors body.
+        const gameApplications = await transaction.find(GameApplication, whereOptions);
+        await transaction.remove(gameApplications);
+
+        const userRelatedGames = await transaction
+            .getRepository(Game)
+            .createQueryBuilder('games')
+            .select()
+            .where('(storage ->> \'players\')::json ->:id IS NOT NULL', { id: removingUserId })
             .getMany();
 
-        await transaction.remove(futureGameApplications);
-
-        // For all applications that exist for the user that have already taken place, ensure that
-        // they are purged from the players and editors body.
-        const gameApplications = await transaction.find(
-            GameApplication,
-            Object.assign(whereOptions, { relations: ['schedule', 'schedule.game'] })
-        );
-
-        for (const application of gameApplications) {
-            const gameStorage = application.schedule?.game?.storage;
-            application.user = null;
+        for (const game of userRelatedGames) {
+            const gameStorage = game?.storage;
 
             // Update the inner game players model to replace the removing user with the replacement
             // user. Since these will be rendered on the home page.
             if (!_.isNil(gameStorage?.players) && !_.isNil(gameStorage.players[removingUserId])) {
                 const player = gameStorage.players[removingUserId];
 
-                gameStorage.players['0'] = { id: 0, team: player.team, username: 'Competitor' };
-                delete gameStorage.players[removingUserId];
+                // Set the internal id of the player is 0, since the front end will process based on
+                // the internal Id of 0, if we change the actual key id, then it does not support
+                // multiple deleted users.
+                gameStorage.players[removingUserId] = { id: 0, team: player.team, username: 'Competitor' };
+                await transaction.save(game);
             }
-
-            // update the editor to replace the known user with the competitor user.
-            if (!_.isNil(gameStorage?.editors)) {
-                for (const editorsKey of Object.keys(gameStorage?.editors)) {
-                    if (gameStorage.editors[editorsKey]?.player === removingUserId) {
-                        gameStorage.editors[editorsKey].player = 0;
-                    }
-                }
-            }
-
-            // Only attempt to save the game again if the game is not null.
-            if (!_.isNil(application.schedule.game)) await transaction.save(application.schedule.game);
-            await transaction.remove(application);
         }
 
         // Finally delete the user.
