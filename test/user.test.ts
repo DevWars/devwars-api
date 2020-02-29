@@ -434,7 +434,7 @@ describe('user', () => {
 
             chai.expect(result.status).to.be.equal(200);
             chai.expect(result.body.username).to.be.equal(discord.username);
-            chai.expect(result.body.provider).to.be.equal(discord.provider);
+            chai.expect(result.body.provider).to.be.equal(discord.provider.toLowerCase());
 
             await linkedAccountTwitch.save();
             const twitch = await linkedAccountRepository.findByUserIdAndProvider(tempUser.id, Provider.TWITCH);
@@ -445,7 +445,7 @@ describe('user', () => {
 
             chai.expect(resultTwo.status).to.be.equal(200);
             chai.expect(resultTwo.body.username).to.be.equal(twitch.username);
-            chai.expect(resultTwo.body.provider).to.be.equal(twitch.provider);
+            chai.expect(resultTwo.body.provider).to.be.equal(twitch.provider.toLowerCase());
         });
     });
 });
