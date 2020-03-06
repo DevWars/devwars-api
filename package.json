@@ -99,7 +99,7 @@
         "cross-env": "^6.0.3",
         "http-server": "^0.12.1",
         "husky": "^4.2.3",
-        "mocha": "^7.0.1",
+        "mocha": "^7.1.0",
         "nyc": "^15.0.0",
         "supertest": "^4.0.2",
         "ts-node-dev": "^1.0.0-pre.44",
