@@ -19,8 +19,8 @@ export default class UserGameStats extends BaseModel {
     /**
      * The last played game for any game for the given user.
      */
-    @Column({ name: 'last_played', default: new Date('0001-01-01T00:00:00Z'), nullable: false })
-    public lastPlayed: Date;
+    // @Column({ name: 'last_played', default: new Date('0001-01-01T00:00:00Z'), nullable: false })
+    // public lastPlayed: Date;
 
     // ------------------------------------------------------------
     // Relations
