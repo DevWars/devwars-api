@@ -1,5 +1,6 @@
 import { GameStatus } from '../models/GameSchedule';
 import { IGameStorageObjective, IGameStorageTeam, IGameStorageMeta } from '../types/game';
+import { GameMode } from '../models/Game';
 
 export interface IUpdateGameRequest {
     // The updated status of the game..
@@ -21,7 +22,7 @@ export interface IUpdateGameRequest {
     title: string;
 
     // The mode the game is currently playing, e.g Classic, Blitz.
-    mode: string;
+    mode: GameMode;
 
     // The updated video url of the game being played. e.g on twitch.
     videoUrl: string;

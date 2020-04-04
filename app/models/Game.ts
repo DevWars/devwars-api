@@ -4,10 +4,16 @@ import GameSchedule from './GameSchedule';
 import { IGameStorage } from '../types/game';
 
 // TEMPORARY: Status on game until Editor refactor is completed
-enum GameStatus {
+export enum GameStatus {
     SCHEDULED,
     ACTIVE,
     ENDED,
+}
+
+export enum GameMode {
+    ZenGarden = 'Zen Garden',
+    Classic = 'Classic',
+    Blitz = 'Blitz',
 }
 
 @Entity('game')
@@ -22,7 +28,7 @@ export default class Game extends BaseModel {
      * Represents which game mode we are playing
      */
     @Column()
-    public mode: string;
+    public mode: GameMode;
 
     /**
      * Name or theme of the game

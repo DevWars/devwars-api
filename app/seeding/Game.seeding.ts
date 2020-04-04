@@ -1,6 +1,6 @@
 import { hacker, helpers, internet, random, lorem, date } from 'faker';
 
-import Game from '../models/Game';
+import Game, { GameMode } from '../models/Game';
 import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
@@ -34,7 +34,7 @@ export default class GameSeeding {
         game.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
 
         game.season = random.number({ min: 1, max: 3 });
-        game.mode = helpers.randomize(['Classic', 'Zen Garden', 'Blitz']);
+        game.mode = helpers.randomize([GameMode.Blitz, GameMode.Classic, GameMode.ZenGarden]);
         game.title = hacker.noun() + hacker.noun();
         game.videoUrl = helpers.randomize([undefined, internet.url()]);
         game.storage = {
@@ -89,7 +89,11 @@ export default class GameSeeding {
         return game;
     }
 
-    public static async withMode(mode: string) {
+    /**
+     * Creates a new game with the given mode.
+     * @param mode The mode the game should be created with.
+     */
+    public static async withMode(mode: GameMode) {
         const game = await GameSeeding.default();
 
         game.mode = mode;

@@ -15,7 +15,7 @@ import { GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/User';
-import Game from '../app/models/Game';
+import Game, { GameMode } from '../app/models/Game';
 import { DATABASE_MAX_ID } from '../app/constants';
 import UserRepository from '../app/repository/User.repository';
 
@@ -90,10 +90,7 @@ describe('game', () => {
                 await transaction.save(game2);
             });
 
-            const response = await agent
-                .get('/games')
-                .send()
-                .expect(200);
+            const response = await agent.get('/games').send().expect(200);
 
             chai.expect(response.body.length).to.be.equal(2);
         });
@@ -109,10 +106,7 @@ describe('game', () => {
                 await transaction.save(game1);
             });
 
-            const response = await agent
-                .get('/games/latest')
-                .send()
-                .expect(200);
+            const response = await agent.get('/games/latest').send().expect(200);
 
             chai.expect(response.body.id).to.equal(game2.id);
         });
@@ -206,7 +200,7 @@ describe('game', () => {
 
         it('Should update if the user is a moderator.', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.withMode('Blitz');
+            const game = await GameSeeding.withMode(GameMode.Blitz);
             await game.save();
 
             const response = await agent
@@ -222,7 +216,7 @@ describe('game', () => {
 
         it('Should update if the user is a administrator.', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            const game = await GameSeeding.withMode('Blitz');
+            const game = await GameSeeding.withMode(GameMode.Blitz);
             await game.save();
 
             const response = await agent
@@ -248,16 +242,13 @@ describe('game', () => {
             // remove the game players since tests are in relation to adding new players based on a
             // given id. Since the generation can create players that cause clashes and invalidates
             // the results.
-            game = await GameSeeding.withMode('Blitz');
+            game = await GameSeeding.withMode(GameMode.Blitz);
             delete game.storage.players;
             await game.save();
         });
 
         it('Should not allow adding a player when not authenticated', async () => {
-            await agent
-                .post('/games/1/player')
-                .send()
-                .expect(401);
+            await agent.post('/games/1/player').send().expect(401);
         });
 
         it('Should not allow adding a player when authenticated user is a standard user.', async () => {
@@ -398,7 +389,7 @@ describe('game', () => {
 
         beforeEach(async () => {
             moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            game = await GameSeeding.withMode('Blitz');
+            game = await GameSeeding.withMode(GameMode.Blitz);
 
             // work with a real existing player from the seeding.
             templatePlayerObject.player.id = game.storage.players[Object.keys(game.storage.players)[0]].id;
@@ -406,10 +397,7 @@ describe('game', () => {
         });
 
         it('Should not allow removing a user if a standard user.', async () => {
-            await agent
-                .delete('/games/1/player')
-                .send()
-                .expect(401);
+            await agent.delete('/games/1/player').send().expect(401);
         });
 
         it('Should allow removing a user if a moderator user.', async () => {
@@ -510,12 +498,13 @@ describe('game', () => {
                 await transaction.save(game4);
             });
 
-            const season = random.arrayElement([{ id: 1, amount: 1 }, { id: 2, amount: 2 }, { id: 3, amount: 1 }]);
+            const season = random.arrayElement([
+                { id: 1, amount: 1 },
+                { id: 2, amount: 2 },
+                { id: 3, amount: 1 },
+            ]);
 
-            const response = await agent
-                .get(`/games/season/${season.id}`)
-                .send()
-                .expect(200);
+            const response = await agent.get(`/games/season/${season.id}`).send().expect(200);
 
             chai.expect(response.body.length).to.be.eq(season.amount);
             _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
