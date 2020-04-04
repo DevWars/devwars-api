@@ -64,6 +64,6 @@ export default class GameService {
             };
         });
 
-        await firebaseGame?.update({ id, theme, name, objectives, ...storage });
+        await firebaseGame?.update({ id, theme, name, objectives });
     }
 }
