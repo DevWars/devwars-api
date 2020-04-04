@@ -190,6 +190,12 @@ export async function autoAssignPlayers(request: IRequest & IGameRequest, respon
         'user.stats',
         'user.gameStats',
     ]);
+
+    // Perform the auto assignment of players based on the applications.
+    const updatedGame = GameService.autoAssignPlayersForGame(request.game, applications);
+    await updatedGame.save();
+
+    return response.status(200).send();
 }
 
 export async function activate(request: IRequest & IGameRequest, response: Response) {
