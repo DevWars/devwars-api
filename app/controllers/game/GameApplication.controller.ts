@@ -322,8 +322,7 @@ export async function findApplicationsBySchedule(request: IScheduleRequest, resp
 
 /**
  * @api {get} /applications/game/:gameId Gather a list of users applications by a game.
- * @apiDescription Finds a list of game applications for a given game, sending back the list of
- * users information.
+ * @apiDescription Finds a list of game applications for a given game, sending back the list of users information.
  * @apiVersion 1.0.0
  * @apiName GameApplicationsByGame
  * @apiGroup Applications

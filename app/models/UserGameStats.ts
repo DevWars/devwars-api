@@ -4,17 +4,32 @@ import User from './User';
 
 @Entity('user_game_stats')
 export default class UserGameStats extends BaseModel {
-    // ------------------------------------------------------------
-    // Columns
-    @Column({ default: 0 })
+    /**
+     * The total number of wins the user has occurred on the platform.
+     */
+    @Column({ default: 0, nullable: false })
     public wins: number;
 
-    @Column({ default: 0 })
+    /**
+     * The total number of loses the given player has occurred on the platform.
+     */
+    @Column({ default: 0, nullable: false })
     public loses: number;
+
+    /**
+     * The last played game for any game for the given user.
+     */
+    @Column({ name: 'last_played', default: new Date('0001-01-01T00:00:00Z'), nullable: false })
+    public lastPlayed: Date;
 
     // ------------------------------------------------------------
     // Relations
-    @OneToOne((type) => User)
+    // ------------------------------------------------------------
+
+    /**
+     * The user who owns this user game state.
+     */
+    @OneToOne((type) => User, (user) => user.id)
     @JoinColumn()
     public user: User;
 

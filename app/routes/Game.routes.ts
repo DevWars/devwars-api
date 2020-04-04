@@ -44,6 +44,12 @@ GameRoute.delete(
 );
 
 GameRoute.post(
+    '/:game/auto-assign',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
+    wrapAsync(GameController.autoAssignPlayers)
+);
+
+GameRoute.post(
     '/:game/activate',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
     wrapAsync(GameController.activate)

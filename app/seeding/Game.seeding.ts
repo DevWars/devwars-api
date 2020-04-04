@@ -40,8 +40,6 @@ export default class GameSeeding {
         game.storage = {
             mode: game.mode,
             title: game.title,
-            startTime: date.past(20),
-            endTime: date.past(10),
             objectives: objectives.reduce(toIdMap, {}),
             players,
             editors: GameSeeding.createEditors(6, Object.values(players)),
@@ -53,7 +51,7 @@ export default class GameSeeding {
                     votes: {
                         ui: random.number({ min: 0, max: 100 }),
                         ux: random.number({ min: 0, max: 100 }),
-                        tie: random.number({ min: 0, max: 100 }),
+                        tie: random.boolean(),
                     },
                 },
                 1: {
@@ -63,30 +61,29 @@ export default class GameSeeding {
                     votes: {
                         ui: random.number({ min: 0, max: 100 }),
                         ux: random.number({ min: 0, max: 100 }),
-                        tie: random.number({ min: 0, max: 100 }),
+                        tie: random.boolean(),
                     },
                 },
             },
             template: game.mode === 'Zen Garden' ? '<html></html>' : '',
-            meta: {},
         };
 
         game.storage.meta = {
             winningTeam: random.number({ max: 1 }),
-            teamScores: {
-                0: {
+            teamScores: [
+                {
                     objectives: random.number({ min: 0, max: 5 }),
                     ui: random.number({ min: 0, max: 2 }),
                     ux: random.number({ min: 0, max: 2 }),
-                    tie: random.number({ min: 0, max: 1 }),
+                    tie: random.boolean(),
                 },
-                1: {
+                {
                     objectives: random.number({ min: 0, max: 5 }),
                     ui: random.number({ min: 0, max: 2 }),
                     ux: random.number({ min: 0, max: 2 }),
-                    tie: random.number({ min: 0, max: 1 }),
+                    tie: random.boolean(),
                 },
-            },
+            ],
         };
 
         return game;

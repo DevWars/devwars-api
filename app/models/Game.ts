@@ -1,6 +1,7 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import GameSchedule from './GameSchedule';
+import { IGameStorage } from '../types/game';
 
 // TEMPORARY: Status on game until Editor refactor is completed
 enum GameStatus {
@@ -45,7 +46,7 @@ export default class Game extends BaseModel {
      * Big json object with all game information
      */
     @Column({ type: 'jsonb', default: {} })
-    public storage: any;
+    public storage: IGameStorage;
 
     // ------------------------------------------------------------
     // Relations
