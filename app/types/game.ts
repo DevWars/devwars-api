@@ -31,7 +31,7 @@ export interface IGameStorage {
 
     // The teams objective, containing a list of the teams playing, including
     // the id of the team, name and which objectives have been completed.
-    teams?: { [index: string]: IGameStorageTeam };
+    teams?: { [index: number]: IGameStorageTeam };
 
     // The object of the editors that is related to the given game. including
     // which users have been to assigned to which editor.
@@ -154,4 +154,8 @@ export interface IGameStoragePlayer {
 
     // The username of the player that has been assigned to the game.
     username: string;
+
+    // @optional -  The profile image of the user, that was assigned.
+    // If not assigned, will fall back to the default value.
+    avatarUrl?: string;
 }

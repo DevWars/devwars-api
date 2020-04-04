@@ -92,7 +92,7 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     return response.json(
         users.map((e: User) => {
             return { username: e.username, id: e.id };
-        }),
+        })
     );
 }
 
@@ -325,7 +325,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
             .getRepository(Game)
             .createQueryBuilder('games')
             .select()
-            .where('(storage ->> \'players\')::json ->:id IS NOT NULL', { id: removingUserId })
+            .where("(storage ->> 'players')::json ->:id IS NOT NULL", { id: removingUserId })
             .getMany();
 
         for (const game of userRelatedGames) {
@@ -339,7 +339,12 @@ export async function deleteUser(request: IUserRequest, response: Response) {
                 // Set the internal id of the player is 0, since the front end will process based on
                 // the internal Id of 0, if we change the actual key id, then it does not support
                 // multiple deleted users.
-                gameStorage.players[removingUserId] = { id: 0, team: player.team, username: 'Competitor' };
+                gameStorage.players[removingUserId] = {
+                    id: 0,
+                    team: player.team,
+                    username: 'Competitor',
+                    avatarUrl: undefined,
+                };
                 await transaction.save(game);
             }
         }
