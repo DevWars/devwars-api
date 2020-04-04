@@ -39,7 +39,11 @@ export default class GameService {
             const playerArr = player.team === 0 ? bluePlayers : redPlayers;
             const { id, username, team, avatarUrl } = player;
 
-            playerArr.push({ team, language: editor.language, user: { id, username, avatarUrl } });
+            playerArr.push({
+                team,
+                language: editor.language,
+                user: { id, username, avatarUrl: _.defaultTo(avatarUrl, null) },
+            });
         }
 
         await firebaseGame?.child('teams').child('blue').child('players').set(bluePlayers);

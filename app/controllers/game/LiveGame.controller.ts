@@ -35,8 +35,7 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
     const existingPlayer = players[player.id];
 
     if (existingPlayer && existingPlayer.team !== team.id) {
-        response.status(409).json({ error: "Can't change player's team." });
-        return;
+        return response.status(409).json({ error: "Can't change player's team." });
     }
 
     const usersRepository = getCustomRepository(UserRepository);
