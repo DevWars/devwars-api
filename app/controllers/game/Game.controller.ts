@@ -7,15 +7,15 @@ import Game from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
-import { IGameRequest, IRequest } from '../../request/IRequest';
+import { IGameRequest, IRequest, ICreateGameRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
-import { isNil } from 'lodash';
 import { DATABASE_MAX_ID } from '../../constants';
 import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
 import UserRepository from '../../repository/User.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
+import GameScheduleRepository from '../../repository/GameSchedule.repository';
 
 export function flattenGame(game: Game) {
     return {
@@ -35,7 +35,7 @@ export async function show(request: IGameRequest, response: Response) {
     const includePlayers = parseBooleanWithDefault(request.query.players, false);
     const game = flattenGame(request.game);
 
-    if (includePlayers && !isNil(game.players)) {
+    if (includePlayers && !_.isNil(game.players)) {
         const userRepository = getCustomRepository(UserRepository);
         const players = await userRepository.findByIds(Object.keys(game.players), {
             relations: ['connections'],
@@ -109,33 +109,56 @@ export async function active(request: Request, response: Response) {
     return response.json(flattenGame(game));
 }
 
-export async function create(request: IRequest, response: Response) {
-    const { season, mode, title, videoUrl, storage } = request.body;
+/**
+ * @api {post} /games/
+ * @apiDescription Creates a new game based on the properties.
+ * @apiName CreateNewGame
+ * @apiVersion 1.0.0
+ * @apiGroup Games
+ *
+ * @apiSuccess {Game} The newly created game object.
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * {
+ * ...
+ * }
+ *
+ * @apiError NotAuthenticated The user creating the game is not authenticated.
+ * @apiError NotModeratorOrHigher The requesting user is not a moderator or higher.
+ * @apiError MissingDefinedProperties The request is missing required properties to create games.
+ * @apiError ScheduleDoesNotExist The given schedule for the game does not exist.
+ * @apiError ScheduleIsNotActive The given schedule is not active.
+ */
+export async function create(request: ICreateGameRequest, response: Response) {
+    const { season, mode, title, storage, status } = request.body;
 
-    const game = new Game();
+    const scheduleRepository = getCustomRepository(GameScheduleRepository);
+    const schedule = await scheduleRepository.findById(request.body.schedule);
 
-    game.mode = mode;
-    game.title = title;
-    game.season = season;
-    game.videoUrl = videoUrl;
-    game.storage = { mode, title, objectives: {}, players: {} };
-
-    if (!_.isNil(storage) && !_.isNil(storage.objectives)) {
-        game.storage.objectives = storage.objectives;
+    if (_.isNil(schedule)) {
+        throw new ApiError({
+            message: 'The given game schedule does not exist.',
+            code: 404,
+        });
     }
 
-    if (!_.isNil(storage) && !_.isNil(storage.players)) {
-        game.storage.players = storage.players;
+    if (schedule.status !== GameStatus.ACTIVE) {
+        throw new ApiError({
+            message: 'The given game cannot be created if the schedule is not active.',
+            code: 400,
+        });
     }
 
+    const updatedStorage = Object.assign(storage, { mode, title });
+    const game = new Game(season, mode, title, null, status, updatedStorage, schedule);
     await game.save();
+
     return response.status(201).json(flattenGame(game));
 }
 
 export async function findAllBySeason(request: Request, response: Response) {
     const season = parseIntWithDefault(request.params.season, null, 1, DATABASE_MAX_ID);
 
-    if (isNil(season)) throw new ApiError({ code: 400, error: 'Invalid season id provided.' });
+    if (_.isNil(season)) throw new ApiError({ code: 400, error: 'Invalid season id provided.' });
 
     const gameRepository = getCustomRepository(GameRepository);
     const games = await gameRepository.findAllBySeason(Number(season));

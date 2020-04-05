@@ -10,4 +10,5 @@ export interface IUpdateGameScheduleRequest {
     mode: string;
     title: string;
     objectives: object;
+    templates: object;
 }

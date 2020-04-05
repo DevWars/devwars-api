@@ -113,12 +113,12 @@ const generateApplications = async () => {
     logger.info('Generating basic users');
     await generateBasicUsers();
 
-    logger.info('Generating games');
-    await generateGames();
+    // logger.info('Generating games');
+    // await generateGames();
 
-    logger.info('Generating applications');
-    await generateApplications();
+    // logger.info('Generating applications');
+    // await generateApplications();
 
-    logger.info('Seeding complete');
+    // logger.info('Seeding complete');
     await connection.close();
 })();

@@ -24,13 +24,9 @@ export default class GameSchedule extends BaseModel {
     // Relations
 
     @JoinColumn()
-    @OneToOne(() => Game, { onDelete: 'CASCADE' })
+    @OneToOne(() => Game, (game) => game.id, { onDelete: 'CASCADE' })
     public game: Game;
 
-    @OneToMany(
-        () => GameApplication,
-        (applications) => applications.schedule,
-        { cascade: true }
-    )
+    @OneToMany(() => GameApplication, (applications) => applications.schedule, { cascade: true })
     public applications: GameApplication;
 }

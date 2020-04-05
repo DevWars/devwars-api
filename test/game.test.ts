@@ -73,9 +73,9 @@ describe('game', () => {
             const response = await agent
                 .post('/games')
                 .set('Cookie', await cookieForUser(user))
-                .send(game);
+                .send(game)
+                .expect(201);
 
-            chai.expect(response.status).to.be.eq(201);
             chai.expect(response.body.mode).to.be.eq(game.mode);
         });
     });

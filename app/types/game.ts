@@ -1,4 +1,5 @@
 import User from '../models/User';
+import { GameStatus, GameMode } from '../models/Game';
 
 /**
  * The given game storage object is a json blob and is not another table. It
@@ -18,7 +19,7 @@ export interface IGameStorage {
 
     // The template html code that will be used to help get the game up and
     // running faster.
-    template?: string;
+    templates?: IGameStorageGameTemplates;
 
     // The objectives of the given game, what the teams must do to be win.
     objectives?: { [index: string]: IGameStorageObjective };
@@ -40,6 +41,20 @@ export interface IGameStorage {
     // any related meta information about hte game, typically containing all the
     // related results and scores of the finished game.
     meta?: IGameStorageMeta;
+}
+
+/**
+ * Templates that are used in the game, these will be loaded before the game starts ready for the user to use.
+ */
+export interface IGameStorageGameTemplates {
+    // The template for the html editor that will be inserted before the game starts.
+    html?: string;
+
+    // The template for the css editor that will be inserted before the game starts.
+    css?: string;
+
+    // The template for the javascript editor that will be inserted before the game starts.
+    js?: string;
 }
 
 /**
