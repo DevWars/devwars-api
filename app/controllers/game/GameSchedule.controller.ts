@@ -72,29 +72,12 @@ export async function byStatus(request: Request, response: Response) {
 export async function create(request: Request, response: Response) {
     const params = { ...(request.body as ICreateGameScheduleRequest) };
 
-    const schedule = new GameSchedule();
-    const objectives = [];
-
-    for (let id = 1; id <= 5; id++) {
-        objectives.push({
-            id,
-            description: '',
-            isBonus: id === 5,
-        });
-    }
-    const toIdMap = (result: any, obj: { id: number }) => {
-        result[obj.id] = obj;
-        return result;
-    };
-
-    schedule.startTime = params.startTime || schedule.startTime;
-
-    schedule.setup = {
-        ...schedule.setup,
+    const schedule = new GameSchedule(params.startTime, GameStatus.SCHEDULED, {
         mode: params.mode || '',
-        objectives: objectives.reduce(toIdMap, {}),
+        objectives: params.objectives || {},
+        templates: params.templates || {},
         title: params.title || '',
-    };
+    });
 
     await schedule.save();
     return response.json(flattenSchedule(schedule));
