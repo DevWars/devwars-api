@@ -3,6 +3,8 @@ import { isNil, isNumber } from 'lodash';
 
 import logger from '../utils/logger';
 import ApiError from '../utils/apiError';
+import { AuthService } from '../services/Auth.service';
+import { getCustomRepository } from 'typeorm';
 
 /**
  *  Handles catches in which the next response of a given controller is a error
@@ -41,5 +43,11 @@ export function handleError(error: any, request: Request, response: Response, ne
  * Handles cases in which the route does not exist, e.g /authentication/missing
  */
 export function handleMissing(request: Request, response: Response, next: NextFunction) {
-    return response.redirect(process.env.FRONT_URL);
+    const { token } = request.cookies;
+
+    // If the user who has been redirected to a invalid endpoint that does not
+    // exist for any reason and that user is not authenticated, just respond as
+    // if they are not authenticated, otherwise return 404 (not found).
+    if (isNil(token) || isNil(AuthService.VerifyAuthenticationToken(token))) return response.status(401).send();
+    return response.status(404).send();
 }
