@@ -3,7 +3,7 @@ import * as _ from 'lodash';
 import Game from '../models/Game';
 import GameApplication from '../models/GameApplication';
 import { default as firebase, available } from '../utils/firebase';
-import { IGameStoragePlayer, IGameStorageEditor } from '../types/game';
+import { IGameStoragePlayer } from '../types/game';
 
 const firebaseGame = available ? firebase.database().ref('game') : null;
 
@@ -68,6 +68,6 @@ export default class GameService {
             };
         });
 
-        await firebaseGame?.update({ id, theme, name, objectives });
+        await firebaseGame?.update({ id, theme, name, objectives, templates: game.storage.templates });
     }
 }

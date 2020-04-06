@@ -4,7 +4,6 @@ import { isNil, isNumber } from 'lodash';
 import logger from '../utils/logger';
 import ApiError from '../utils/apiError';
 import { AuthService } from '../services/Auth.service';
-import { getCustomRepository } from 'typeorm';
 
 /**
  *  Handles catches in which the next response of a given controller is a error
