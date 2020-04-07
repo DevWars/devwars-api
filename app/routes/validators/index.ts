@@ -17,7 +17,7 @@ async function validator(
         return response.status(code).json({
             error: `${map(error.details, ({ message }) => message.replace(/['"]/g, '')).join(
                 ' and '
-            )}, please check your content and try again`,
+            )}, please check your content and try again.`,
         });
     }
 }
@@ -35,7 +35,7 @@ export async function testSchemaValidation(content: any, schema: Joi.ObjectSchem
     } catch (error) {
         return `${map(error.details, ({ message }) => message.replace(/['"]/g, '')).join(
             ' and '
-        )}, please check your content and try again`;
+        )}, please check your content and try again.`;
     }
 }
 

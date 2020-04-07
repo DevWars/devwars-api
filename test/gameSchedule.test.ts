@@ -1,5 +1,4 @@
 import { getManager, EntityManager, getCustomRepository } from 'typeorm';
-import { hacker, helpers, random } from 'faker';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
@@ -7,13 +6,14 @@ import * as _ from 'lodash';
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 
-import { GameScheduleSeeding, UserSeeding } from '../app/seeding';
+import { GameScheduleSeeding, UserSeeding, GameSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
-import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
-import { UserRole } from '../app/models/User';
-import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 import GameRepository from '../app/repository/Game.repository';
+import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
+import GameScheduleRepository from '../app/repository/GameSchedule.repository';
+import { UserRole } from '../app/models/User';
+import logger from '../app/utils/logger';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -21,20 +21,6 @@ let agent: any;
 // Used for the creation of the database transactions without the need of constantly calling into
 // get manager every time a test needs a transaction.
 const connectionManager: EntityManager = getManager();
-
-function generateSchedule() {
-    const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
-    const toIdMap = (result: any, obj: { id: number }) => {
-        result[obj.id] = obj;
-        return result;
-    };
-    return {
-        startTime: new Date(),
-        mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
-        title: `${hacker.noun()} ${hacker.noun()}`,
-        objectives: objectives.reduce(toIdMap, {}),
-    };
-}
 
 describe('Game-Schedule', () => {
     before(async () => {
@@ -56,8 +42,8 @@ describe('Game-Schedule', () => {
 
     describe('GET - /schedules - Gathering all schedules', () => {
         it('Should retrieve all schedules', async () => {
-            const scheduleOne = GameScheduleSeeding.default();
-            const scheduleTwo = GameScheduleSeeding.default();
+            const scheduleOne = GameScheduleSeeding.default().gameSchedule;
+            const scheduleTwo = GameScheduleSeeding.default().gameSchedule;
 
             await connectionManager.transaction(async (transaction) => {
                 await transaction.save(scheduleOne);
@@ -76,18 +62,15 @@ describe('Game-Schedule', () => {
 
             futureDate.setHours(currentDate.getHours() + 2);
 
-            const scheduleOne = GameScheduleSeeding.withTime(currentDate);
-            const scheduleTwo = GameScheduleSeeding.withTime(futureDate);
+            const scheduleOne = GameScheduleSeeding.default().withStartTime(currentDate).gameSchedule;
+            const scheduleTwo = GameScheduleSeeding.default().withStartTime(futureDate).gameSchedule;
 
             await connectionManager.transaction(async (transaction) => {
                 transaction.save(scheduleTwo);
                 transaction.save(scheduleOne);
             });
 
-            const response = await agent
-                .get('/schedules/latest')
-                .send()
-                .expect(200);
+            const response = await agent.get('/schedules/latest').send().expect(200);
 
             chai.expect(response.body.id).to.be.eq(scheduleTwo.id);
         });
@@ -102,53 +85,38 @@ describe('Game-Schedule', () => {
         });
 
         it('Should return 404 because no schedule is found', async () => {
-            await agent
-                .get('/schedules/3')
-                .send()
-                .expect(404);
+            await agent.get('/schedules/3').send().expect(404);
         });
     });
 
     describe('POST - /schedules - Creating a new game schedule', () => {
         it('Should return 403 because user cant create a schedule.', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            const Schedule = generateSchedule();
+            const schedule = GameScheduleSeeding.default().gameSchedule;
 
             await agent
                 .post('/schedules')
                 .set('Cookie', await cookieForUser(user))
-                .send(Schedule)
+                .send(Object.assign(schedule, { mode: schedule.setup.mode }))
                 .expect(403);
         });
 
-        it('Should return the schedule created because admin can create.', async () => {
-            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            const Schedule = generateSchedule();
+        it('Should allow creating schedule as admin or moderator.', async () => {
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                const user = await UserSeeding.withRole(role).save();
+                const schedule = GameScheduleSeeding.default().gameSchedule;
 
-            const goodRequest = await agent
-                .post('/schedules')
-                .set('Cookie', await cookieForUser(user))
-                .send(Schedule)
-                .expect(200);
+                const goodRequest = await agent
+                    .post('/schedules')
+                    .set('Cookie', await cookieForUser(user))
+                    .send(Object.assign(schedule, { mode: schedule.setup.mode }))
+                    .expect(200);
 
-            const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
+                const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
 
-            chai.expect(!_.isNil(ScheduleCreated) && !_.isNil(ScheduleCreated.setup)).to.be.eq(true);
-            chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
-        });
-
-        it('should return the schedule created because moderator can create.', async () => {
-            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const Schedule = generateSchedule();
-
-            const goodRequest = await agent
-                .post('/schedules')
-                .set('Cookie', await cookieForUser(user))
-                .send(Schedule)
-                .expect(200);
-
-            const ScheduleCreated = await GameSchedule.findOne(goodRequest.body.id);
-            chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
+                chai.expect(!_.isNil(ScheduleCreated) && !_.isNil(ScheduleCreated.setup)).to.be.eq(true);
+                chai.expect(ScheduleCreated.setup.title).to.be.eq(goodRequest.body.title);
+            }
         });
     });
 
@@ -203,18 +171,17 @@ describe('Game-Schedule', () => {
     });
 
     describe('GET - /schedules/status/:status - Gathering schedules by status', () => {
-        it('Should return a list a schedules by status', async () => {
+        it('Should return a list of schedules by status', async () => {
             const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
 
             await connectionManager.transaction(async (transaction) => {
                 for (const state of gameStates) {
-                    const schedule = GameScheduleSeeding.withStatus(state);
+                    const schedule = GameScheduleSeeding.default().withStatus(state).gameSchedule;
                     await transaction.save(schedule);
                 }
             });
 
-            const request = await agent.get('/schedules/status/active').send();
-
+            const request = await agent.get('/schedules/status/active').expect(200);
             chai.expect(request.body).to.have.lengthOf(2);
         });
     });
@@ -227,7 +194,7 @@ describe('Game-Schedule', () => {
         beforeEach(async () => {
             user = await UserSeeding.withRole(UserRole.USER).save();
             mod = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            schedule = await GameScheduleSeeding.withStatus(GameStatus.SCHEDULED).save();
+            schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).save();
         });
 
         it('should fail if not authenticated as a moderator or higher', async () => {
@@ -269,13 +236,14 @@ describe('Game-Schedule', () => {
             }
         });
 
-        it('should fail if the schedule already has a related game.', async () => {
+        it('should fail if the schedule already has a related game', async () => {
             await agent
                 .post(`/schedules/${schedule.id}/activate`)
                 .set('Cookie', await cookieForUser(mod))
                 .expect(200);
 
             schedule.status = GameStatus.SCHEDULED;
+            schedule.game = await (await GameSeeding.default()).save();
             await schedule.save();
 
             await agent
@@ -286,7 +254,7 @@ describe('Game-Schedule', () => {
                 });
         });
 
-        it('should setup the relation between the game and the schedule', async () => {
+        it('should mark the schedule as active and allow game creation.', async () => {
             await agent
                 .post(`/schedules/${schedule.id}/activate`)
                 .set('Cookie', await cookieForUser(mod))
@@ -295,15 +263,8 @@ describe('Game-Schedule', () => {
             const scheduleRepository = getCustomRepository(GameScheduleRepository);
             const updatedSchedule = await scheduleRepository.findById(schedule.id);
 
-            chai.expect(_.isNil(updatedSchedule?.game)).to.be.eq(false);
-            chai.expect(_.isNil(updatedSchedule?.game.id)).to.be.eq(false);
-
-            const gameRepository = getCustomRepository(GameRepository);
-            const game = await gameRepository.findOne(updatedSchedule.game.id, { relations: ['schedule'] });
-
-            chai.expect(_.isNil(game)).to.be.eq(false);
-            chai.expect(_.isNil(game?.schedule)).to.be.eq(false);
-            chai.expect(game.schedule.id).to.be.eq(schedule.id);
+            chai.expect(updatedSchedule.id).to.be.eq(schedule.id);
+            chai.expect(updatedSchedule.status).to.be.eq(GameStatus.ACTIVE);
         });
     });
 });

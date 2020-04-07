@@ -11,11 +11,11 @@ import ServerService from '../app/services/Server.service';
 import { testSchemaValidation } from '../app/routes/validators';
 import { addGamePlayerSchema, removeGamePlayerSchema } from '../app/routes/validators/game.validator';
 
-import { GameSeeding, UserSeeding } from '../app/seeding';
+import { GameSeeding, UserSeeding, GameScheduleSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/User';
-import Game, { GameMode } from '../app/models/Game';
+import Game, { GameMode, GameStatus } from '../app/models/Game';
 import { DATABASE_MAX_ID } from '../app/constants';
 import UserRepository from '../app/repository/User.repository';
 
@@ -53,30 +53,92 @@ describe('game', () => {
                 .expect(403);
         });
 
-        it('Should allow creating a game as a moderator', async () => {
+        it('Should allow creating a game as a moderator or admin', async () => {
+            for (const role of Object.values([UserRole.MODERATOR, UserRole.ADMIN])) {
+                const user = await UserSeeding.withRole(role).save();
+
+                const schedule = await new GameScheduleSeeding().withStatus(GameStatus.ACTIVE).save();
+                let game = await GameSeeding.default();
+
+                const response = await agent
+                    .post('/games')
+                    .set('Cookie', await cookieForUser(user))
+                    .send({
+                        schedule: schedule.id,
+                        mode: game.mode,
+                        title: game.title,
+                        status: game.status,
+                        storage: game.storage,
+                        season: game.season,
+                    })
+                    .expect(201);
+
+                const gameRepository = getCustomRepository(GameRepository);
+                game = await gameRepository.findOne(response.body.id);
+
+                chai.expect(response.body).to.include({
+                    id: game.id,
+                    mode: game.mode,
+                    season: game.season,
+                    status: game.status,
+                });
+            }
+        });
+
+        it('Should not allow creating the game if the schedule does not exist', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
             const game = await GameSeeding.default();
 
-            const response = await agent
+            await agent
                 .post('/games')
                 .set('Cookie', await cookieForUser(user))
-                .send(game)
-                .expect(201);
-
-            chai.expect(response.body.mode).to.be.eq(game.mode);
+                .send(Object.assign(game, { schedule: 99 }))
+                .expect(404, { error: 'The given game schedule does not exist.' });
         });
 
-        it('Should allow creating a game as a administrator', async () => {
-            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+        it('Should not allow creating the game if the schedule is not provided', async () => {
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
             const game = await GameSeeding.default();
+
+            await agent
+                .post('/games')
+                .set('Cookie', await cookieForUser(user))
+                .send(game)
+                .expect(400, { error: 'schedule is required, please check your content and try again.' });
+        });
+
+        it('Should not allow creating the game if the schedule is active', async () => {
+            const schedule = await new GameScheduleSeeding().withStatus(GameStatus.SCHEDULED).save();
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const game = await GameSeeding.default();
+
+            await agent
+                .post('/games')
+                .set('Cookie', await cookieForUser(user))
+                .send(Object.assign(game, { schedule: schedule.id }))
+                .expect(400, { error: 'The given game cannot be created if the schedule is not active.' });
+        });
+
+        it('Should contain the templates if the templates are apart of the request', async () => {
+            const schedule = await new GameScheduleSeeding().withStatus(GameStatus.ACTIVE).save();
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const creatingGame = await GameSeeding.default();
+
+            const templates = { html: 'html', css: 'css', js: 'js' };
+            creatingGame.storage.templates = templates;
 
             const response = await agent
                 .post('/games')
                 .set('Cookie', await cookieForUser(user))
-                .send(game)
+                .send(Object.assign(creatingGame, { schedule: schedule.id, templates }))
                 .expect(201);
 
-            chai.expect(response.body.mode).to.be.eq(game.mode);
+            const gameRepository = getCustomRepository(GameRepository);
+            const game = await gameRepository.findOne(response.body.id);
+
+            chai.expect(game.id).to.be.eq(response.body.id);
+            chai.expect(game.storage.templates).to.be.deep.eq(templates);
+            chai.expect(response.body.templates).to.be.deep.eq(templates);
         });
     });
 

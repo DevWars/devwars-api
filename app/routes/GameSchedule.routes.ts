@@ -32,9 +32,6 @@ GameScheduleRoute.patch(
     wrapAsync(GameScheduleController.update)
 );
 
-// GameScheduleRoute.post('/:id/activate', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)],
-// asyncErrorHandler(GameScheduleController.activate))
-
 GameScheduleRoute.post(
     '/:schedule/activate',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],

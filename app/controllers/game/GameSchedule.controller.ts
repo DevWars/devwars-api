@@ -77,6 +77,7 @@ export async function create(request: Request, response: Response) {
         objectives: params.objectives || {},
         templates: params.templates || {},
         title: params.title || '',
+        season: 3,
     });
 
     await schedule.save();
