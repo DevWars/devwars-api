@@ -69,8 +69,10 @@ export interface ICreateGameRequest extends Omit<IRequest, 'body'> {
  * Extends the default express request to contain a localized object of the DevWars contact us request, this will
  * include the name, email and message the user is sending with the contact us page.
  */
-export interface IContactRequest extends Request {
-    name: string;
-    email: string;
-    message: string;
+export interface IContactRequest extends Omit<IRequest, 'body'> {
+    body: {
+        name: string;
+        email: string;
+        message: string;
+    };
 }
