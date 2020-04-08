@@ -32,6 +32,18 @@ GameScheduleRoute.patch(
     wrapAsync(GameScheduleController.update)
 );
 
+GameScheduleRoute.delete(
+    '/:schedule',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
+    wrapAsync(GameScheduleController.deleteScheduleById)
+);
+
+GameScheduleRoute.post(
+    '/:schedule/end',
+    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
+    wrapAsync(GameScheduleController.endScheduleById)
+);
+
 GameScheduleRoute.post(
     '/:schedule/activate',
     [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],

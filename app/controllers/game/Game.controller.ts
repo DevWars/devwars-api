@@ -152,6 +152,9 @@ export async function create(request: ICreateGameRequest, response: Response) {
     const game = new Game(season, mode, title, null, status, updatedStorage, schedule);
     await game.save();
 
+    schedule.game = game;
+    await schedule.save();
+
     return response.status(201).json(flattenGame(game));
 }
 

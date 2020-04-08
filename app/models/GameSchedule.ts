@@ -2,7 +2,6 @@ import { Column, Entity, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import Game from './Game';
 import GameApplication from './GameApplication';
-import { GameSessionActivationTimeoutSeconds } from 'aws-sdk/clients/gamelift';
 import { IGameScheduleSetup } from '../types/gameSchedule';
 
 export enum GameStatus {
