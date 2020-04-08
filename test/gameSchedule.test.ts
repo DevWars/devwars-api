@@ -12,7 +12,7 @@ import { cookieForUser } from './helpers';
 import GameRepository from '../app/repository/Game.repository';
 import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
-import { UserRole } from '../app/models/User';
+import User, { UserRole } from '../app/models/User';
 import logger from '../app/utils/logger';
 
 const server: ServerService = new ServerService();
@@ -167,6 +167,105 @@ describe('Game-Schedule', () => {
 
             const ScheduleUpdated = await GameSchedule.findOne(request.body.id);
             chai.expect(ScheduleUpdated.setup.title).to.be.eq(updateData.title);
+        });
+    });
+
+    describe('POST - /schedules/:id/end - end a game schedule by id', () => {
+        it('Should fail if the given schedule does not exist', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            await agent
+                .post('/schedules/999/end')
+                .set('Cookie', await cookieForUser(user))
+                .expect(404, { error: 'A game schedule does not exist for the given id.' });
+        });
+
+        it('Should fail if the user is a standard user', async () => {
+            const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.ACTIVE).save();
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .post(`/schedules/${schedule.id}/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(403, { error: "Unauthorized, you currently don't meet the minimal requirement." });
+        });
+
+        it('Should fail if the schedule is not in a activate state', async () => {
+            const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.ENDED).save();
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            await agent
+                .post(`/schedules/${schedule.id}/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(400, { error: 'Schedule cannot be ended since its not in a active state.' });
+        });
+
+        it('Should end if the user is a moderator or administrator', async () => {
+            for (const role of [UserRole.ADMIN, UserRole.MODERATOR]) {
+                const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).save();
+                const user = await UserSeeding.withRole(role).save();
+
+                await agent
+                    .post(`/schedules/${schedule.id}/end`)
+                    .set('Cookie', await cookieForUser(user))
+                    .expect(200);
+            }
+        });
+    });
+
+    describe('DELETE - /schedules/:id - deleting a game schedule by id', () => {
+        it('Should fail if the given schedule does not exist', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            await agent
+                .delete('/schedules/999')
+                .set('Cookie', await cookieForUser(user))
+                .expect(404, { error: 'A game schedule does not exist for the given id.' });
+        });
+
+        it('Should fail if the user is a standard user', async () => {
+            const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).save();
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .delete(`/schedules/${schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(403, { error: "Unauthorized, you currently don't meet the minimal requirement." });
+        });
+
+        it('Should fail if the schedule is in activate state', async () => {
+            const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.ACTIVE).save();
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            await agent
+                .delete(`/schedules/${schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(400, { error: 'Schedule cannot be deleted since its not in a scheduled state.' });
+        });
+
+        it('Should fail if the schedule has a related game', async () => {
+            const game = await GameSeeding.default();
+            await game.save();
+
+            const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).withGame(game).save();
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            await agent
+                .delete(`/schedules/${schedule.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(400, { error: 'Schedule cannot be deleted since it has a related game.' });
+        });
+
+        it('Should delete if the user is a moderator or administrator', async () => {
+            for (const role of [UserRole.ADMIN, UserRole.MODERATOR]) {
+                const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).save();
+                const user = await UserSeeding.withRole(role).save();
+
+                await agent
+                    .delete(`/schedules/${schedule.id}`)
+                    .set('Cookie', await cookieForUser(user))
+                    .expect(202);
+            }
         });
     });
 
