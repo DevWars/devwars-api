@@ -148,7 +148,18 @@ export async function create(request: ICreateGameRequest, response: Response) {
         });
     }
 
-    const updatedStorage = Object.assign(storage, { mode, title });
+    const teams = {
+        '0': {
+            id: 0,
+            name: 'blue',
+        },
+        '1': {
+            id: 1,
+            name: 'red',
+        },
+    };
+
+    const updatedStorage = Object.assign({ mode, title, players: {}, editors: {}, teams }, storage);
     const game = new Game(season, mode, title, null, status, updatedStorage, schedule);
     await game.save();
 

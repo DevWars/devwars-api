@@ -296,7 +296,7 @@ describe('game', () => {
     });
 
     describe('POST - /:game/player - Adding a new player to the game', () => {
-        const templatePlayerObject = { player: { id: 1, language: 'css', username: 'username' }, team: { id: 1 } };
+        const templatePlayerObject = { player: { id: 1, language: 'css', username: 'username', team: 1 } };
         let moderator: any = null;
         let game: any = null;
 
@@ -389,28 +389,6 @@ describe('game', () => {
                 .expect(400, { error: await testSchemaValidation(player, addGamePlayerSchema) });
         });
 
-        it('Should fail if team object is not specified.', async () => {
-            const player = _.cloneDeep(templatePlayerObject);
-            delete player.team;
-
-            await agent
-                .post(`/games/${game.id}/player`)
-                .set('Cookie', await cookieForUser(moderator))
-                .send(player)
-                .expect(400, { error: await testSchemaValidation(player, addGamePlayerSchema) });
-        });
-
-        it('Should fail if team id is not specified.', async () => {
-            const player = _.cloneDeep(templatePlayerObject);
-            delete player.team.id;
-
-            await agent
-                .post(`/games/${game.id}/player`)
-                .set('Cookie', await cookieForUser(moderator))
-                .send(player)
-                .expect(400, { error: await testSchemaValidation(player, addGamePlayerSchema) });
-        });
-
         it('Should fail if language is already assigned.', async () => {
             const player = _.cloneDeep(templatePlayerObject);
 
@@ -436,7 +414,7 @@ describe('game', () => {
                 .send(player)
                 .expect(201);
 
-            player.team.id = 2;
+            player.player.team = 2;
 
             await agent
                 .post(`/games/${game.id}/player`)
@@ -656,9 +634,9 @@ describe('game', () => {
             const gameStatsWinners = await gameStatsRepository.find({ where: { user: In(winnersId) } });
             chai.expect(_.size(gameStatsWinners)).to.be.equal(winnersId.length);
 
-            for (const winner of gameStatsWinners) {
-                chai.expect(winner.wins).to.be.equal(1, 'winners should have 1 won game.');
-                chai.expect(winner.loses).to.be.equal(0, 'winners should not have a single lost game.');
+            for (const gameWinner of gameStatsWinners) {
+                chai.expect(gameWinner.wins).to.be.equal(1, 'winners should have 1 won game.');
+                chai.expect(gameWinner.loses).to.be.equal(0, 'winners should not have a single lost game.');
             }
 
             const gameStatsLosers = await gameStatsRepository.find({ where: { user: In(losersId) } });

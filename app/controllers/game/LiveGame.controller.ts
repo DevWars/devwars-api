@@ -28,14 +28,14 @@ import ApiError from '../../utils/apiError';
  * @apiError PlayerAlreadyAssignedLanguage The player has already been assigned that language for that team (e.g html).
  */
 export async function addPlayer(request: IRequest & IGameRequest, response: Response) {
-    const { player, team } = request.body;
+    const { player } = request.body;
 
     if (!request.game.storage.players) request.game.storage.players = {};
     const players = request.game.storage.players;
 
     const existingPlayer = players[player.id];
 
-    if (existingPlayer && existingPlayer.team !== team.id) {
+    if (existingPlayer && existingPlayer.team !== player.team) {
         return response.status(409).json({ error: "Can't change player's team." });
     }
 
@@ -50,7 +50,7 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
     }
 
     const { username, id, avatarUrl } = user;
-    players[id] = { avatarUrl, id, team: team.id, username };
+    players[id] = { avatarUrl, id, team: player.team, username };
 
     if (!request.game.storage.editors) request.game.storage.editors = {};
 
@@ -68,19 +68,8 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
     editors[nextEditorId] = {
         id: nextEditorId,
         player: id,
-        team: team.id,
+        team: player.team,
         language: player.language,
-    };
-
-    request.game.storage.teams = {
-        '0': {
-            id: 0,
-            name: 'blue',
-        },
-        '1': {
-            id: 1,
-            name: 'red',
-        },
     };
 
     await request.game.save();

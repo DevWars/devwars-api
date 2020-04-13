@@ -72,13 +72,6 @@ export const addGamePlayerSchema = Joi.object()
             })
             .required()
             .unknown(true),
-
-        team: Joi.object()
-            .keys({
-                id: Joi.alternatives(Joi.string(), Joi.number()).required(),
-            })
-            .required()
-            .unknown(true),
     })
     .unknown(true);
 

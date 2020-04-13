@@ -68,7 +68,7 @@ export default class GameService {
             };
         });
 
-        await firebaseGame?.update({ id, theme, name, objectives, templates: game.storage.templates });
+        await firebaseGame?.update({ id, theme, name, objectives, templates: game.storage?.templates || {} });
     }
 
     /**
@@ -123,7 +123,9 @@ export default class GameService {
 
         // Gather the results for the given objectives.
         const objectivesResponse = await liveGame.child('objectives').once('value');
-        result.objectives = objectivesResponse.val().map((obj: any, key: string) => {
+        const objectives = objectivesResponse.val() || [];
+
+        result.objectives = objectives.map((obj: any, key: string) => {
             if (obj.blueState === 'complete') completed.blue += 1;
             if (obj.redState === 'complete') completed.red += 1;
 
