@@ -3,7 +3,7 @@ import { Request, Response } from 'express';
 
 import * as _ from 'lodash';
 
-import Game from '../../models/Game';
+import Game, { GameMode } from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 
 import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
@@ -60,12 +60,12 @@ export async function update(request: IRequest & IGameRequest, response: Respons
 
     const game = request.game;
 
-    game.mode = gameRequest.mode;
+    game.mode = gameRequest.mode || game.mode || GameMode.Classic;
     game.videoUrl = gameRequest.videoUrl;
     game.storage = {
         ...game.storage,
-        title: gameRequest.title,
-        mode: gameRequest.mode,
+        title: gameRequest.title || game.storage?.title || '',
+        mode: gameRequest.mode || game.storage?.mode || GameMode.Classic,
         objectives: gameRequest.objectives || game.storage?.objectives,
         teams: gameRequest.teams || game.storage?.teams,
         meta: gameRequest.meta || game.storage?.meta,

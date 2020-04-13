@@ -1,10 +1,16 @@
 import { hacker, helpers, internet, random, lorem, date } from 'faker';
+import * as _ from 'lodash';
 
 import Game, { GameMode } from '../models/Game';
 import { GameStatus } from '../models/GameSchedule';
 import User from '../models/User';
 
 import UserSeeding from './User.seeding';
+import { GameScheduleSeeding } from '.';
+import { IGameStorage } from '../types/game';
+import { getCustomRepository } from 'typeorm';
+import UserRepository from '../repository/User.repository';
+import { IGameObjective } from '../types/common';
 
 export interface IObjective {
     id: number;
@@ -13,171 +19,312 @@ export interface IObjective {
 }
 
 export default class GameSeeding {
-    public static async default() {
-        const game = new Game();
-
-        const objectives = GameSeeding.createObjectives(random.number({ min: 3, max: 5 }));
-
-        const toIdMap = (result: any, obj: { id: number }) => {
-            result[obj.id] = obj;
-            return result;
-        };
-
-        const addRandomObjectiveState = (result: any, obj: { id: number }) => {
-            result[obj.id] = helpers.randomize(['incomplete', 'complete']);
-            return result;
-        };
-
-        const players = await GameSeeding.createPlayers(6);
-
-        // TEMPORARY: Remove once Editor refactor is completed
-        game.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
-
-        game.season = random.number({ min: 1, max: 3 });
-        game.mode = helpers.randomize([GameMode.Blitz, GameMode.Classic, GameMode.ZenGarden]);
-        game.title = hacker.noun() + hacker.noun();
-        game.videoUrl = helpers.randomize([undefined, internet.url()]);
-        game.storage = {
-            mode: game.mode,
-            title: game.title,
-            objectives: objectives.reduce(toIdMap, {}),
-            players,
-            editors: GameSeeding.createEditors(6, Object.values(players)),
-            teams: {
-                0: {
-                    id: 0,
-                    name: 'blue',
-                    objectives: objectives.reduce(addRandomObjectiveState, {}),
-                    votes: {
-                        ui: random.number({ min: 0, max: 100 }),
-                        ux: random.number({ min: 0, max: 100 }),
-                        tie: random.boolean(),
-                    },
-                },
-                1: {
-                    id: 1,
-                    name: 'red',
-                    objectives: objectives.reduce(addRandomObjectiveState, {}),
-                    votes: {
-                        ui: random.number({ min: 0, max: 100 }),
-                        ux: random.number({ min: 0, max: 100 }),
-                        tie: random.boolean(),
-                    },
-                },
-            },
-        };
-
-        game.addTemplate('html', '<html></html>');
-
-        game.storage.meta = {
-            winningTeam: random.number({ max: 1 }),
-            teamScores: [
-                {
-                    objectives: random.number({ min: 0, max: 5 }),
-                    ui: random.number({ min: 0, max: 2 }),
-                    ux: random.number({ min: 0, max: 2 }),
-                    tie: random.boolean(),
-                },
-                {
-                    objectives: random.number({ min: 0, max: 5 }),
-                    ui: random.number({ min: 0, max: 2 }),
-                    ux: random.number({ min: 0, max: 2 }),
-                    tie: random.boolean(),
-                },
-            ],
-        };
-
-        return game;
+    /**
+     * Returns a creation of the default game seeding builder.
+     * @param shouldCreateSchedule If it should create a related schedule or not.
+     */
+    public static default(shouldCreateSchedule: boolean = false): GameSeeding {
+        return new GameSeeding(shouldCreateSchedule);
     }
 
     /**
-     * Creates a new game with the given mode.
-     * @param mode The mode the game should be created with.
+     * Creates a object of objectives that match the expected state.
+     * @param num The number of objectives to be created.
      */
-    public static async withMode(mode: GameMode) {
-        const game = await GameSeeding.default();
+    private static createObjectives(num: number): { [index: string]: IGameObjective } {
+        const objectives: { [index: string]: IGameObjective } = {};
 
-        game.mode = mode;
-
-        return game;
-    }
-
-    public static async withStatus(status: GameStatus) {
-        const game = await GameSeeding.default();
-        game.status = status;
-        return game;
-    }
-
-    public static async withSeason(season: number) {
-        const game = await GameSeeding.default();
-        game.season = season;
-        return game;
-    }
-
-    public static createObjectives(num: number): IObjective[] {
-        const objectives = [];
-        for (let id = 1; id <= num; id++) {
-            objectives.push({
-                id,
+        for (let index = 0; index < num; index++) {
+            objectives[index] = {
                 description: lorem.sentence(),
-                isBonus: id === num,
-            });
+                isBonus: index === num,
+                id: index,
+            };
         }
 
         return objectives;
     }
 
-    public static async createPlayers(num: number) {
-        const players: any = {};
-        const users = await User.find();
+    /**
+     * The game that is being created.
+     */
+    public game: Game;
 
-        if (users.length > 5) {
-            for (let i = 1; i <= num; i++) {
-                const randomUserIndex = random.number({ min: 0, max: users.length - 1 });
-                const user = users[randomUserIndex];
+    /**
+     * The seeding object for creating a related game schedule.
+     */
+    public gameScheduleSeeding: GameScheduleSeeding;
 
-                players[user.id] = {
-                    id: user.id,
-                    username: user.username,
-                    team: i <= num / 2 ? 0 : 1,
-                };
-            }
-        } else {
-            for (let i = 1; i <= num; i++) {
-                const user = await UserSeeding.default().save();
+    /**
+     * If players have been found or loaded to the game, this will be used for
+     * when binding the editors. If no players exist, then players will be added
+     * before the editors.
+     */
+    private playersLoaded: boolean = false;
 
-                players[user.id] = {
-                    id: user.id,
-                    username: user.username,
-                    team: i <= num / 2 ? 0 : 1,
-                };
-            }
-        }
-        return players;
+    /**
+     * If a related game schedule should be created for the given game.
+     */
+    private shouldCreateSchedule: boolean;
+
+    /**
+     * Create a default seeded game object, that uses the builder method.
+     * @param shouldCreateSchedule If it should create a related schedule or not.
+     */
+    public constructor(shouldCreateSchedule: boolean = true) {
+        this.shouldCreateSchedule = shouldCreateSchedule;
+
+        const mode = helpers.randomize(Object.values(GameMode));
+        const title = hacker.noun() + hacker.noun();
+        const videoUrl = helpers.randomize([undefined, internet.url()]);
+        const gameStatus = helpers.randomize([GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED]);
+        const startTime = helpers.randomize([date.past(), date.future()]);
+
+        this.game = new Game(3, mode, title, videoUrl, gameStatus, {
+            mode,
+            title,
+            startTime,
+            editors: {},
+            objectives: GameSeeding.createObjectives(5),
+            players: {},
+            teams: {
+                '0': { id: 0, name: 'blue', objectives: {} },
+                '1': { id: 1, name: 'red', objectives: {} },
+            },
+            templates: {},
+            meta: {
+                teamScores: [],
+                winningTeam: null,
+                bets: { blue: 0, red: 0, tie: false },
+            },
+        });
     }
 
-    public static createEditors(num: number, players: any[]) {
-        const editors: any[] = [
-            { id: 0, team: 0, language: 'html' },
-            { id: 1, team: 0, language: 'css' },
-            { id: 2, team: 0, language: 'js' },
+    /**
+     * Adds a template for the given game based on the language.
+     * @param language The language of the templates being added.
+     */
+    public WithTemplate(language: string): GameSeeding {
+        switch (language) {
+            case 'js':
+                this.game.storage.templates[language] = 'console.log("hit")';
+            case 'css':
+                this.game.storage.templates[language] = 'body { background: white; }';
+            case 'html':
+                this.game.storage.templates[language] = '<html><body>hi</body></html>';
+        }
 
-            { id: 3, team: 1, language: 'html' },
-            { id: 4, team: 1, language: 'css' },
-            { id: 5, team: 1, language: 'js' },
+        return this;
+    }
+
+    /**
+     * Adds all the supporting templates for the given game.
+     */
+    public WithTemplates(): GameSeeding {
+        for (const language of ['html', 'css', 'js']) this.WithTemplate(language);
+        return this;
+    }
+
+    /**
+     * Marks the given mode on the given game.
+     * @param mode The mode the game should be created with.
+     */
+    public withMode(mode: GameMode): GameSeeding {
+        this.game.mode = mode;
+        return this;
+    }
+
+    /**
+     * Adds the given status to the game.
+     * @param status The status being added to the game.
+     */
+    public withStatus(status: GameStatus): GameSeeding {
+        this.game.status = status;
+        return this;
+    }
+
+    /**
+     * Adds the given season to the game.
+     * @param season The season being added to the game.
+     */
+    public withSeason(season: number): GameSeeding {
+        this.game.season = season;
+        return this;
+    }
+
+    /**
+     * Adds the provided players to the given game.
+     * @param players Adds the given players to the given game.
+     */
+    public withPlayers(players: User[]): GameSeeding {
+        for (const player of players) {
+            this.game.storage.players[player.id] = {
+                id: player.id,
+                username: player.username,
+                team: player.id % 2 ? 0 : 1,
+            };
+        }
+
+        this.playersLoaded = true;
+        return this;
+    }
+
+    /**
+     * Includes generated players within the game based the number (amount)
+     * provided.
+     * @param amount The amount of generated players to be added.
+     */
+    public async withGeneratedPlayers(amount: number = 6): Promise<GameSeeding> {
+        for (let i = 1; i <= amount; i++) {
+            const player = await UserSeeding.default().save();
+
+            this.game.storage.players[player.id] = {
+                username: player.username,
+                team: i % 2 ? 0 : 1,
+                id: player.id,
+            };
+        }
+
+        this.playersLoaded = true;
+        return this;
+    }
+
+    /**
+     * Includes editors within the game seeding process, this will generate the
+     * related users if non exist or none have already been created with the
+     * seeder.
+     */
+    public async withEditors(): Promise<GameSeeding> {
+        const editors = [
+            { id: 0, team: 0, language: 'html', player: 0 },
+            { id: 1, team: 0, language: 'css', player: 0 },
+            { id: 2, team: 0, language: 'js', player: 0 },
+
+            { id: 3, team: 1, language: 'html', player: 0 },
+            { id: 4, team: 1, language: 'css', player: 0 },
+            { id: 5, team: 1, language: 'js', player: 0 },
         ];
 
-        const result: any = {};
-        for (const player of players) {
+        let users: any = [];
+
+        // If we don't have players, but we want a editor, then we need to
+        // create players for the given game, only if there does not already
+        // exist at least 6 players.
+        if (!this.playersLoaded) {
+            const userRepository = getCustomRepository(UserRepository);
+            users = await userRepository.find({ take: 6 });
+
+            if (users.length < 6) {
+                await this.withGeneratedPlayers();
+                users = Object.values(this.game.storage.players);
+            }
+        }
+
+        const result: IGameStorage['editors'] = {};
+        for (const player of Object.values(this.game.storage.players)) {
             const editor = editors.shift();
-            if (!editor) break;
 
             editor.player = player.id;
+
             // Override player.team with editor.team
             player.team = editor.team;
             result[editor.id] = editor;
         }
 
-        return result;
+        this.game.storage.editors = result;
+
+        return this;
+    }
+
+    /**
+     * With generated team scores, this includes the teams votes for ui, ux and
+     * tie, and the stream meta score results for both teams. This also includes
+     * objective totals and tie state.
+     */
+    public withTeamScores(): GameSeeding {
+        const objectivesForTeam = (max: number) => {
+            const result: any = {};
+
+            let count = 0;
+            _.forEach(this.game.storage.objectives, (o: any) => {
+                if (count !== max) {
+                    result[o.id] = 'complete';
+                    count += 1;
+                } else {
+                    result[o.id] = 'incomplete';
+                }
+            });
+
+            return result;
+        };
+
+        this.game.storage.teams[0].votes = {
+            ui: random.number({ min: 0, max: 100 }),
+            ux: random.number({ min: 0, max: 100 }),
+            tie: random.boolean(),
+        };
+
+        this.game.storage.teams[1].votes = {
+            ui: random.number({ min: 0, max: 100 }),
+            ux: random.number({ min: 0, max: 100 }),
+            tie: random.boolean(),
+        };
+
+        this.game.storage.meta.winningTeam = random.number({ max: 1 });
+        const numberOfObjectives = _.size(this.game.storage.objectives);
+
+        const teamOneObjectives = random.number({ min: 0, max: numberOfObjectives });
+        const teamTwoObjectives = random.number({ min: 0, max: numberOfObjectives });
+
+        this.game.storage.teams[0].objectives = objectivesForTeam(teamOneObjectives);
+        this.game.storage.teams[1].objectives = objectivesForTeam(teamTwoObjectives);
+
+        this.game.storage.meta.teamScores = [
+            {
+                objectives: teamOneObjectives,
+                ui: this.game.storage.teams[0].votes.ui,
+                ux: this.game.storage.teams[0].votes.ui,
+                tie: teamOneObjectives === teamTwoObjectives,
+            },
+            {
+                objectives: teamTwoObjectives,
+                ui: this.game.storage.teams[1].votes.ui,
+                ux: this.game.storage.teams[1].votes.ui,
+                tie: teamOneObjectives === teamTwoObjectives,
+            },
+        ];
+
+        return this;
+    }
+
+    /**
+     * Performs the common operations that are typically done with game seeding,
+     * this includes template, season, team score, editors and generated users.
+     */
+    public async common(): Promise<GameSeeding> {
+        let game = this.WithTemplates().withSeason(3).withTeamScores();
+        game = await game.withGeneratedPlayers();
+        game = await game.withEditors();
+
+        return game;
+    }
+
+    /**
+     * Creates the given game in the database and returns the given game after
+     * it has been created, this is where the game schedule will be created if
+     * specified within the construction.
+     */
+    public async save(): Promise<Game> {
+        if (this.shouldCreateSchedule) {
+            const status =
+                this.game.status === GameStatus.ACTIVE
+                    ? GameStatus.SCHEDULED
+                    : helpers.randomize([GameStatus.ACTIVE, GameStatus.ENDED]);
+
+            this.gameScheduleSeeding = GameScheduleSeeding.default().withStatus(status);
+            this.game.schedule = await this.gameScheduleSeeding.save();
+        }
+
+        return await this.game.save();
     }
 }

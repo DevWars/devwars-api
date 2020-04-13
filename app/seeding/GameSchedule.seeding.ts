@@ -37,11 +37,6 @@ export default class GameScheduleSeeding {
      */
     public gameSchedule: GameSchedule;
 
-    /**
-     * Create a default seeded game object that does not contain a given
-     * schedule but contains the status, objectives, start time, mode, and setup
-     * details (title, templates, objectives, season and mode)
-     */
     public constructor() {
         const status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ACTIVE, GameStatus.ENDED]);
         const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
@@ -92,7 +87,6 @@ export default class GameScheduleSeeding {
      * after it has been created.
      */
     public async save(): Promise<GameSchedule> {
-        await this.gameSchedule.save();
-        return this.gameSchedule;
+        return await this.gameSchedule.save();
     }
 }

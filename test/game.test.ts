@@ -46,7 +46,7 @@ describe('game', () => {
     describe('POST /games - Creating a new game', () => {
         it('Should not allow creation as a normal user', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
 
             await agent
                 .post('/games')
@@ -60,7 +60,7 @@ describe('game', () => {
                 const user = await UserSeeding.withRole(role).save();
 
                 const schedule = await new GameScheduleSeeding().withStatus(GameStatus.ACTIVE).save();
-                let game = await GameSeeding.default();
+                let game = await GameSeeding.default().save();
 
                 const response = await agent
                     .post('/games')
@@ -89,7 +89,7 @@ describe('game', () => {
 
         it('Should not allow creating the game if the schedule does not exist', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
 
             await agent
                 .post('/games')
@@ -100,7 +100,7 @@ describe('game', () => {
 
         it('Should not allow creating the game if the schedule is not provided', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
 
             await agent
                 .post('/games')
@@ -112,7 +112,7 @@ describe('game', () => {
         it('Should not allow creating the game if the schedule is active', async () => {
             const schedule = await new GameScheduleSeeding().withStatus(GameStatus.SCHEDULED).save();
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
 
             await agent
                 .post('/games')
@@ -124,7 +124,7 @@ describe('game', () => {
         it('Should contain the templates if the templates are apart of the request', async () => {
             const schedule = await new GameScheduleSeeding().withStatus(GameStatus.ACTIVE).save();
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const creatingGame = await GameSeeding.default();
+            const creatingGame = await GameSeeding.default().save();
 
             const templates = { html: 'html', css: 'css', js: 'js' };
             creatingGame.storage.templates = templates;
@@ -146,8 +146,8 @@ describe('game', () => {
 
     describe('GET /games - Gathering All Games', () => {
         it('Should return all games in the system.', async () => {
-            const game1 = await GameSeeding.default();
-            const game2 = await GameSeeding.default();
+            const game1 = await GameSeeding.default().save();
+            const game2 = await GameSeeding.default().save();
 
             await connectionManager.transaction(async (transaction) => {
                 await transaction.save(game1);
@@ -162,8 +162,8 @@ describe('game', () => {
 
     describe('GET /games/latest - Gathering the latest games', () => {
         it('Should gather all the latest games', async () => {
-            const game1 = await GameSeeding.default();
-            const game2 = await GameSeeding.default();
+            const game1 = await GameSeeding.default().save();
+            const game2 = await GameSeeding.default().save();
 
             await connectionManager.transaction(async (transaction) => {
                 await transaction.save(game2);
@@ -178,9 +178,9 @@ describe('game', () => {
 
     describe('GET /games/:id - Gathering the specified game by id', () => {
         it('Should gathering a single game', async () => {
-            const game1 = await GameSeeding.default();
-            const game2 = await GameSeeding.default();
-            const game3 = await GameSeeding.default();
+            const game1 = await GameSeeding.default().save();
+            const game2 = await GameSeeding.default().save();
+            const game3 = await GameSeeding.default().save();
 
             await connectionManager.transaction(async (transaction) => {
                 await transaction.save(game1);
@@ -194,7 +194,7 @@ describe('game', () => {
         });
 
         it('should gather additional player details if specified', async () => {
-            const game = await (await GameSeeding.default()).save();
+            const game = await (await GameSeeding.default().common()).save();
             const playerIds = Object.keys(game.storage.players);
             const [player] = playerIds;
 
@@ -239,7 +239,7 @@ describe('game', () => {
     describe('PATCH - /games/:id - Patching/Updating a game by id', () => {
         it('Should fail if the user is a standard user.', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
 
             await game.save();
 
@@ -252,7 +252,7 @@ describe('game', () => {
 
         it('Should fail if the game does not exist.', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
             await game.save();
 
             await agent
@@ -264,8 +264,7 @@ describe('game', () => {
 
         it('Should update if the user is a moderator.', async () => {
             const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const game = await GameSeeding.withMode(GameMode.Blitz);
-            await game.save();
+            const game = await (await GameSeeding.default().withMode(GameMode.Blitz).common()).save();
 
             const response = await agent
                 .patch(`/games/${game.id}`)
@@ -280,8 +279,7 @@ describe('game', () => {
 
         it('Should update if the user is a administrator.', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            const game = await GameSeeding.withMode(GameMode.Blitz);
-            await game.save();
+            const game = await (await GameSeeding.default().withMode(GameMode.Blitz).common()).save();
 
             const response = await agent
                 .patch(`/games/${game.id}`)
@@ -306,7 +304,7 @@ describe('game', () => {
             // remove the game players since tests are in relation to adding new players based on a
             // given id. Since the generation can create players that cause clashes and invalidates
             // the results.
-            game = await GameSeeding.withMode(GameMode.Blitz);
+            game = await GameSeeding.default().withMode(GameMode.Blitz).save();
             delete game.storage.players;
             await game.save();
         });
@@ -431,7 +429,7 @@ describe('game', () => {
 
         beforeEach(async () => {
             moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            game = await GameSeeding.withMode(GameMode.Blitz);
+            game = await (await GameSeeding.default().withMode(GameMode.Blitz).common()).save();
 
             // work with a real existing player from the seeding.
             templatePlayerObject.player.id = game.storage.players[Object.keys(game.storage.players)[0]].id;
@@ -529,10 +527,10 @@ describe('game', () => {
 
         it('Should be able to gather a season by id if it exists', async () => {
             await connectionManager.transaction(async (transaction) => {
-                const game1 = await GameSeeding.withSeason(2);
-                const game2 = await GameSeeding.withSeason(2);
-                const game3 = await GameSeeding.withSeason(3);
-                const game4 = await GameSeeding.withSeason(1);
+                const game1 = GameSeeding.default().withSeason(2).game;
+                const game2 = GameSeeding.default().withSeason(2).game;
+                const game3 = GameSeeding.default().withSeason(3).game;
+                const game4 = GameSeeding.default().withSeason(1).game;
 
                 await transaction.save(game1);
                 await transaction.save(game2);
@@ -556,7 +554,7 @@ describe('game', () => {
     describe('POST - /:game/end - Ending a game', () => {
         it('Should fail to end the game if a standard user', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+            const game = await GameSeeding.default().withStatus(GameStatus.ACTIVE).save();
 
             await agent
                 .post(`/games/${game.id}/end`)
@@ -567,7 +565,7 @@ describe('game', () => {
         it('Should end the game if a the user is a moderator or administrator', async () => {
             for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
                 const user = await UserSeeding.withRole(role).save();
-                const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+                const game = await GameSeeding.default().withStatus(GameStatus.ACTIVE).save();
 
                 // remove users to ensure we are testing game ending state not
                 // updating players game stats.
@@ -583,7 +581,7 @@ describe('game', () => {
 
         it('Should fail to end the game if the game is already in end state', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            const game = await (await GameSeeding.withStatus(GameStatus.ENDED)).save();
+            const game = await GameSeeding.default().withStatus(GameStatus.ENDED).save();
 
             await agent
                 .post(`/games/${game.id}/end`)
@@ -593,7 +591,7 @@ describe('game', () => {
 
         it('Should increment the winners and loses wins/loses', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            let game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+            let game = await (await GameSeeding.default().withStatus(GameStatus.ACTIVE).common()).save();
 
             // mark blue team as winners.
             game.storage.meta.teamScores[0].objectives = _.size(game.storage.teams[0].objectives);

@@ -7,9 +7,9 @@ import User from './User';
 
 // TEMPORARY: Status on game until Editor refactor is completed
 export enum GameStatus {
-    SCHEDULED,
-    ACTIVE,
-    ENDED,
+    SCHEDULED = 0,
+    ACTIVE = 1,
+    ENDED = 2,
 }
 
 export enum GameMode {

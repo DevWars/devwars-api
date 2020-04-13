@@ -72,22 +72,9 @@ const generateBasicUsers = async () => {
 };
 
 const generateGames = async () => {
-    const userRepository = typeorm.getCustomRepository(UserRepository);
-
     for (let i = 1; i <= 50; i++) {
-        await connectionManager.transaction(async (transaction) => {
-            const schedule = await GameScheduleSeeding.default().save();
-
-            const gameStats = UserGameStatsSeeding.default();
-
-            schedule.game = await GameSeeding.default();
-
-            await transaction.save(schedule.game);
-            await transaction.save(schedule);
-
-            gameStats.user = await userRepository.findOne(i);
-            await transaction.save(gameStats);
-        });
+        const game = await GameSeeding.default(true).common();
+        await game.save();
     }
 };
 
@@ -115,11 +102,11 @@ const generateApplications = async () => {
     logger.info('Generating basic users');
     await generateBasicUsers();
 
-    // logger.info('Generating games');
-    // await generateGames();
+    logger.info('Generating games');
+    await generateGames();
 
-    // logger.info('Generating applications');
-    // await generateApplications();
+    logger.info('Generating applications');
+    await generateApplications();
 
     // logger.info('Seeding complete');
     await connection.close();

@@ -244,7 +244,7 @@ describe('Game-Schedule', () => {
         });
 
         it('Should fail if the schedule has a related game', async () => {
-            const game = await GameSeeding.default();
+            const game = await GameSeeding.default().save();
             await game.save();
 
             const schedule = await GameScheduleSeeding.default().withStatus(GameStatus.SCHEDULED).withGame(game).save();
@@ -342,7 +342,7 @@ describe('Game-Schedule', () => {
                 .expect(200);
 
             schedule.status = GameStatus.SCHEDULED;
-            schedule.game = await (await GameSeeding.default()).save();
+            schedule.game = await GameSeeding.default().save();
             await schedule.save();
 
             await agent
