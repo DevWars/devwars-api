@@ -10,6 +10,8 @@ import { LinkedAccountRoute } from './LinkedAccount.routes';
 import { UserRoute } from './User.routes';
 import { TempRoute } from './Temp.routes';
 import { ContactRoute } from './contact.routes';
+import { DocsRoute } from './docs.routes';
+import { SearchRoute } from './search.routes';
 
 interface IRoute {
     path: string;
@@ -56,6 +58,15 @@ export const Routes: IRoute[] = [
     {
         handler: ContactRoute,
         path: '/contact',
+    },
+    {
+        handler: SearchRoute,
+        path: '/search',
+    },
+
+    {
+        handler: DocsRoute,
+        path: '/docs',
     },
 
     // TEMP: To support cookie authentication for Old Editor

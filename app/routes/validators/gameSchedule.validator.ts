@@ -20,16 +20,11 @@ export const createGameScheduleSchema = Joi.object()
         // future validation. I have plan's to ensure that objectives are broken out into there own
         // database table to ensure normalization of data and better api flow in the future, the change
         // will probably occur then.
-        objectives: Joi.object().optional(),
-        // .Joi.object()
-        // .keys({
-        //     description: Joi.string()
-        //         .min(constants.GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MIN_LENGTH)
-        //         .max(constants.GAME_SCHEDULE_OBJECTIVE_DESCRIPTION_MAX_LENGTH)
-        //         .required(),
-        //
-        //     isBonus: Joi.boolean().required(),
-        // }),
+        objectives: Joi.object().optional().allow(null),
+
+        // The templates that are going to be used on the live editors. Any set
+        // would be used on the setup process of the editor.
+        templates: Joi.object().optional().allow(null),
     })
     .unknown(true);
 

@@ -1,4 +1,5 @@
 import User from '../models/User';
+import { IGameEditorTemplates, IGameObjective } from './common';
 
 /**
  * The given game storage object is a json blob and is not another table. It
@@ -18,10 +19,10 @@ export interface IGameStorage {
 
     // The template html code that will be used to help get the game up and
     // running faster.
-    template?: string;
+    templates?: IGameEditorTemplates;
 
     // The objectives of the given game, what the teams must do to be win.
-    objectives?: { [index: string]: IGameStorageObjective };
+    objectives?: { [index: string]: IGameObjective };
 
     // The objective of players that have been assigned to the given game. This
     // can be expanded into the users object containing the players and users
@@ -52,6 +53,14 @@ export interface IGameStorageMeta {
 
     // The id of the winning team.
     winningTeam: number;
+
+    // The result of the bets that had taken place for the given game, this is
+    // the votes related to who will win and who will loose (or tie)
+    bets?: {
+        red: number;
+        blue: number;
+        tie: boolean;
+    };
 }
 
 /**
@@ -117,28 +126,8 @@ export interface IGameStorageTeam {
     // The status of each objective for the given name in a string format. e.g
     // has the given team completed or not completed the given objectives.
     objectives?: {
-        [index: string]: 'complete' | 'not_complete';
+        [index: string]: 'complete' | 'incomplete';
     };
-}
-
-/**
- * The game storage objective that contains all the information about the
- * possible objectives of the given game. Including the id, bonus state and
- * description that will be given to the users.
- */
-export interface IGameStorageObjective {
-    // The id of the given objective.
-    id: number;
-
-    // If the objective is the bonus objective, this is awarded more score
-    // compared to other objectives. Commonly unlocked after completing all
-    // other.
-    isBonus: boolean;
-
-    // The given description of the objective. This is the objective that
-    // will be shown to the user, e.g what should be done to be awarded the
-    // objective.
-    description: string;
 }
 
 /**

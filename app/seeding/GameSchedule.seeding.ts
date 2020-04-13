@@ -2,63 +2,97 @@ import { date, hacker, helpers, random, lorem } from 'faker';
 
 import GameSchedule from '../models/GameSchedule';
 import { GameStatus } from '../models/GameSchedule';
-import { IObjective } from './Game.seeding';
+import Game, { GameMode } from '../models/Game';
+import { IGameObjective } from '../types/common';
 
 export default class GameScheduleSeeding {
-    public static default(): GameSchedule {
-        const schedule = new GameSchedule();
-
-        const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
-        const toIdMap = (result: any, obj: { id: number }) => {
-            result[obj.id] = obj;
-            return result;
-        };
-
-        schedule.startTime = helpers.randomize([date.past(), date.future()]);
-        schedule.status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ENDED]);
-        schedule.setup = {
-            mode: helpers.randomize(['Classic', 'Zen Garden', 'Blitz']),
-            title: hacker.noun(),
-            objectives: objectives.reduce(toIdMap, {}),
-            season: 3,
-        };
-
-        return schedule;
+    /**
+     * Returns a creation of the default game schedule seeding builder.
+     */
+    public static default(): GameScheduleSeeding {
+        return new GameScheduleSeeding();
     }
 
-    public static upcoming(): GameSchedule {
-        const schedule = this.default();
+    /**
+     * Creates a object of objectives that match the expected state.
+     * @param num The number of objectives to be created.
+     */
+    private static createObjectives(num: number): { [index: string]: IGameObjective } {
+        const objectives: { [index: string]: IGameObjective } = {};
 
-        schedule.startTime = date.future();
-        schedule.status = GameStatus.SCHEDULED;
-
-        return schedule;
-    }
-
-    public static withStatus(status: GameStatus): GameSchedule {
-        const schedule = this.default();
-        schedule.status = status;
-
-        return schedule;
-    }
-
-    public static withTime(time: Date): GameSchedule {
-        const game = this.default();
-        game.startTime = time;
-
-        return game;
-    }
-
-    public static createObjectives(num: number): IObjective[] {
-        const objectives = [];
-        for (let id = 1; id <= num; id++) {
-            objectives.push({
-                id,
+        for (let index = 0; index < num; index++) {
+            objectives[index] = {
                 description: lorem.sentence(),
-                isBonus: id === num,
-            });
+                isBonus: index === num,
+                id: index,
+            };
         }
 
         return objectives;
+    }
+
+    /**
+     * The game schedule that the seeder is creating, this is what the builder
+     * object will use to construct the seeded game schedule.
+     */
+    public gameSchedule: GameSchedule;
+
+    /**
+     * Create a default seeded game object that does not contain a given
+     * schedule but contains the status, objectives, start time, mode, and setup
+     * details (title, templates, objectives, season and mode)
+     */
+    public constructor() {
+        const status = helpers.randomize([GameStatus.SCHEDULED, GameStatus.ACTIVE, GameStatus.ENDED]);
+        const objectives = GameScheduleSeeding.createObjectives(random.number({ min: 3, max: 5 }));
+        const startTime = helpers.randomize([date.past(), date.future()]);
+        const mode = helpers.randomize(Object.values(GameMode));
+
+        const setup = {
+            title: hacker.noun(),
+            templates: {},
+            objectives,
+            season: 3,
+            mode,
+        };
+
+        this.gameSchedule = new GameSchedule(startTime, status, setup);
+        return this;
+    }
+
+    /**
+     * Binds the current default game schedule with the given status.
+     * @param status The status the given game will have.
+     */
+    public withStatus(status: GameStatus): GameScheduleSeeding {
+        this.gameSchedule.status = status;
+        return this;
+    }
+
+    /**
+     * Binds the current default game schedule with the given schedule.
+     * @param game The status the given game will have.
+     */
+    public withGame(game: Game): GameScheduleSeeding {
+        this.gameSchedule.game = game;
+        return this;
+    }
+
+    /**
+     * Binds the current default game schedule with the given start time.
+     * @param time The start time the game will have.
+     */
+    public withStartTime(time: Date): GameScheduleSeeding {
+        this.gameSchedule.startTime = time;
+        return this;
+    }
+
+    /**
+     * Creates the given schedule in the database and returns the given game
+     * after it has been created.
+     */
+    public async save(): Promise<GameSchedule> {
+        await this.gameSchedule.save();
+        return this.gameSchedule;
     }
 }

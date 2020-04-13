@@ -76,8 +76,10 @@ const generateGames = async () => {
 
     for (let i = 1; i <= 50; i++) {
         await connectionManager.transaction(async (transaction) => {
+            const schedule = await GameScheduleSeeding.default().save();
+
             const gameStats = UserGameStatsSeeding.default();
-            const schedule = GameScheduleSeeding.default();
+
             schedule.game = await GameSeeding.default();
 
             await transaction.save(schedule.game);
@@ -113,12 +115,12 @@ const generateApplications = async () => {
     logger.info('Generating basic users');
     await generateBasicUsers();
 
-    logger.info('Generating games');
-    await generateGames();
+    // logger.info('Generating games');
+    // await generateGames();
 
-    logger.info('Generating applications');
-    await generateApplications();
+    // logger.info('Generating applications');
+    // await generateApplications();
 
-    logger.info('Seeding complete');
+    // logger.info('Seeding complete');
     await connection.close();
 })();

@@ -65,8 +65,9 @@ export default class GameSeeding {
                     },
                 },
             },
-            template: game.mode === 'Zen Garden' ? '<html></html>' : '',
         };
+
+        game.addTemplate('html', '<html></html>');
 
         game.storage.meta = {
             winningTeam: random.number({ max: 1 }),
@@ -98,6 +99,12 @@ export default class GameSeeding {
 
         game.mode = mode;
 
+        return game;
+    }
+
+    public static async withStatus(status: GameStatus) {
+        const game = await GameSeeding.default();
+        game.status = status;
         return game;
     }
 

@@ -31,20 +31,14 @@ describe('Contact Us ', () => {
 
     describe('POST /contact - Creating a new contact us request.', () => {
         it('Should pass if name, email and message are valid', async () => {
-            await agent
-                .post('/contact')
-                .send(validPost)
-                .expect(200);
+            await agent.post('/contact').send(validPost).expect(200);
         });
 
         it('Should fail if no name, email or message is provided', async () => {
             const { name, email, message } = { ...validPost };
 
             for (const test of [{ email, message }, { name, message }, { name, email }, {}]) {
-                await agent
-                    .post('/contact')
-                    .send(test)
-                    .expect(400);
+                await agent.post('/contact').send(test).expect(400);
             }
         });
 
@@ -56,7 +50,7 @@ describe('Contact Us ', () => {
                 .post('/contact')
                 .send({ name, email: validPost.email, message: validPost.message })
                 .expect(400, {
-                    error: 'name length must be at least 3 characters long, please check your content and try again',
+                    error: 'name length must be at least 3 characters long, please check your content and try again.',
                 });
 
             while (name.length < CONTACT_US_NAME_MAX + 1) name += 'A';
@@ -66,50 +60,37 @@ describe('Contact Us ', () => {
                 .send({ name, email: validPost.email, message: validPost.message })
                 .expect(400, {
                     error:
-                        'name length must be less than or equal to 64 characters long, please check your content and try again',
+                        'name length must be less than or equal to 64 characters long, please check your content and try again.',
                 });
         });
 
         it('Should fail the email is not a valid email.', async () => {
             const { name, message } = { ...validPost };
 
-            const invalidEmail = 'email must be a valid email, please check your content and try again';
-            const emptyEmail = 'email is not allowed to be empty, please check your content and try again';
+            const invalidEmail = 'email must be a valid email, please check your content and try again.';
+            const emptyEmail = 'email is not allowed to be empty, please check your content and try again.';
 
             for (const email of ['test.com', 'testing', '@test.com']) {
-                await agent
-                    .post('/contact')
-                    .send({ name, email, message })
-                    .expect(400, { error: invalidEmail });
+                await agent.post('/contact').send({ name, email, message }).expect(400, { error: invalidEmail });
             }
 
-            await agent
-                .post('/contact')
-                .send({ name, email: '', message })
-                .expect(400, { error: emptyEmail });
+            await agent.post('/contact').send({ name, email: '', message }).expect(400, { error: emptyEmail });
         });
 
         it('Should fail the message is above or below the constraints', async () => {
             let message = '';
             while (message.length < CONTACT_US_MESSAGE_MIN - 1) message += 'A';
 
-            await agent
-                .post('/contact')
-                .send({ name: validPost.name, email: validPost.email, message })
-                .expect(400, {
-                    error:
-                        'message length must be at least 24 characters long, please check your content and try again',
-                });
+            await agent.post('/contact').send({ name: validPost.name, email: validPost.email, message }).expect(400, {
+                error: 'message length must be at least 24 characters long, please check your content and try again.',
+            });
 
             while (message.length < CONTACT_US_MESSAGE_MAX + 1) message += 'A';
 
-            await agent
-                .post('/contact')
-                .send({ message, email: validPost.email, name: validPost.name })
-                .expect(400, {
-                    error:
-                        'message length must be less than or equal to 500 characters long, please check your content and try again',
-                });
+            await agent.post('/contact').send({ message, email: validPost.email, name: validPost.name }).expect(400, {
+                error:
+                    'message length must be less than or equal to 500 characters long, please check your content and try again.',
+            });
         });
     });
 });

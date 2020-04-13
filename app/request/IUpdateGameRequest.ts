@@ -1,6 +1,7 @@
 import { GameStatus } from '../models/GameSchedule';
-import { IGameStorageObjective, IGameStorageTeam, IGameStorageMeta } from '../types/game';
+import { IGameStorageTeam, IGameStorageMeta } from '../types/game';
 import { GameMode } from '../models/Game';
+import { IGameObjective } from '../types/common';
 
 export interface IUpdateGameRequest {
     // The updated status of the game..
@@ -11,7 +12,7 @@ export interface IUpdateGameRequest {
     meta?: IGameStorageMeta;
 
     // The objectives of the given game, what the teams must do to be win.
-    objectives?: { [index: string]: IGameStorageObjective };
+    objectives?: { [index: string]: IGameObjective };
 
     // The teams objective, containing a list of the teams playing, including
     // the id of the team, name and which objectives have been completed.
