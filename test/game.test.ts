@@ -615,7 +615,7 @@ describe('game', () => {
 
         it('Should increment the winners and loses wins/loses', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
-            const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+            let game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
 
             // mark blue team as winners.
             game.storage.meta.teamScores[0].objectives = _.size(game.storage.teams[0].objectives);
@@ -640,12 +640,17 @@ describe('game', () => {
                 .set('Cookie', await cookieForUser(user))
                 .expect(200);
 
+            const gameRepository = getCustomRepository(GameRepository);
+            game = await gameRepository.findOne({ where: { id: game.id } });
+
+            const winner = game.storage.meta.winningTeam;
+
             const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
 
-            const winners = _.filter(game.storage.players, (player) => player.team === 0);
+            const winners = _.filter(game.storage.players, (player) => player.team === winner);
             const winnersId = _.map(winners, (e) => e.id);
 
-            const losers = _.filter(game.storage.players, (player) => player.team === 1);
+            const losers = _.filter(game.storage.players, (player) => player.team !== winner);
             const losersId = _.map(losers, (e) => e.id);
 
             const gameStatsWinners = await gameStatsRepository.find({ where: { user: In(winnersId) } });

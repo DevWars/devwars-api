@@ -4,7 +4,6 @@ dotenv.config();
 import * as path from 'path';
 import * as firebase from 'firebase-admin';
 import * as fs from 'fs';
-import { EOL } from 'os';
 
 import logger from './logger';
 import { pathExists, canAccessPath } from '../../test/helpers';
