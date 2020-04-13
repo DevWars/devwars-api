@@ -53,6 +53,14 @@ export interface IGameStorageMeta {
 
     // The id of the winning team.
     winningTeam: number;
+
+    // The result of the bets that had taken place for the given game, this is
+    // the votes related to who will win and who will loose (or tie)
+    bets?: {
+        red: number;
+        blue: number;
+        tie: boolean;
+    };
 }
 
 /**
@@ -118,7 +126,7 @@ export interface IGameStorageTeam {
     // The status of each objective for the given name in a string format. e.g
     // has the given team completed or not completed the given objectives.
     objectives?: {
-        [index: string]: 'complete' | 'not_complete';
+        [index: string]: 'complete' | 'incomplete';
     };
 }
 

@@ -102,6 +102,12 @@ export default class GameSeeding {
         return game;
     }
 
+    public static async withStatus(status: GameStatus) {
+        const game = await GameSeeding.default();
+        game.status = status;
+        return game;
+    }
+
     public static async withSeason(season: number) {
         const game = await GameSeeding.default();
         game.season = season;

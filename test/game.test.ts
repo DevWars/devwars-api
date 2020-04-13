@@ -1,4 +1,4 @@
-import { EntityManager, getCustomRepository, getManager } from 'typeorm';
+import { EntityManager, getCustomRepository, getManager, In } from 'typeorm';
 import * as supertest from 'supertest';
 import { random } from 'faker';
 import * as chai from 'chai';
@@ -18,6 +18,8 @@ import { UserRole } from '../app/models/User';
 import Game, { GameMode, GameStatus } from '../app/models/Game';
 import { DATABASE_MAX_ID } from '../app/constants';
 import UserRepository from '../app/repository/User.repository';
+import UserGameStats from '../app/models/UserGameStats';
+import UserGameStatsRepository from '../app/repository/userGameStats.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -570,6 +572,97 @@ describe('game', () => {
 
             chai.expect(response.body.length).to.be.eq(season.amount);
             _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
+        });
+    });
+
+    describe('POST - /:game/end - Ending a game', () => {
+        it('Should fail to end the game if a standard user', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+
+            await agent
+                .post(`/games/${game.id}/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(403);
+        });
+
+        it('Should end the game if a the user is a moderator or administrator', async () => {
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                const user = await UserSeeding.withRole(role).save();
+                const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+
+                // remove users to ensure we are testing game ending state not
+                // updating players game stats.
+                game.storage.players = {};
+                await game.save();
+
+                await agent
+                    .post(`/games/${game.id}/end`)
+                    .set('Cookie', await cookieForUser(user))
+                    .expect(200);
+            }
+        });
+
+        it('Should fail to end the game if the game is already in end state', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const game = await (await GameSeeding.withStatus(GameStatus.ENDED)).save();
+
+            await agent
+                .post(`/games/${game.id}/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(400, { error: 'The game is already in a end state.' });
+        });
+
+        it('Should increment the winners and loses wins/loses', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const game = await (await GameSeeding.withStatus(GameStatus.ACTIVE)).save();
+
+            // mark blue team as winners.
+            game.storage.meta.teamScores[0].objectives = _.size(game.storage.teams[0].objectives);
+            _.forEach(Object.keys(game.storage.teams[0].objectives), (key) => {
+                game.storage.teams[0].objectives[key] = 'complete';
+            });
+
+            game.storage.meta.teamScores[1].objectives = 0;
+            _.forEach(Object.keys(game.storage.teams[1].objectives), (key) => {
+                game.storage.teams[1].objectives[key] = 'incomplete';
+            });
+
+            const userRepository = getCustomRepository(UserRepository);
+
+            for (const player of Object.values(game.storage.players)) {
+                const playerUser = await userRepository.findById(player.id);
+                await new UserGameStats(playerUser).save();
+            }
+
+            await agent
+                .post(`/games/${game.id}/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(200);
+
+            const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
+
+            const winners = _.filter(game.storage.players, (player) => player.team === 0);
+            const winnersId = _.map(winners, (e) => e.id);
+
+            const losers = _.filter(game.storage.players, (player) => player.team === 1);
+            const losersId = _.map(losers, (e) => e.id);
+
+            const gameStatsWinners = await gameStatsRepository.find({ where: { user: In(winnersId) } });
+            chai.expect(_.size(gameStatsWinners)).to.be.equal(winnersId.length);
+
+            for (const winner of gameStatsWinners) {
+                chai.expect(winner.wins).to.be.equal(1, 'winners should have 1 won game.');
+                chai.expect(winner.loses).to.be.equal(0, 'winners should not have a single lost game.');
+            }
+
+            const gameStatsLosers = await gameStatsRepository.find({ where: { user: In(losersId) } });
+            chai.expect(_.size(gameStatsLosers)).to.be.equal(losersId.length);
+
+            for (const loser of gameStatsLosers) {
+                chai.expect(loser.loses).to.be.equal(1, 'losers should have 1 lost game.');
+                chai.expect(loser.wins).to.be.equal(0, 'losers should not have a single won game.');
+            }
         });
     });
 });
