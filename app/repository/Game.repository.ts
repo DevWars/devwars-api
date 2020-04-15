@@ -15,4 +15,28 @@ export default class GameRepository extends Repository<Game> {
     public findAllBySeason(season: number): Promise<Game[]> {
         return this.find({ where: { season }, order: { createdAt: 'DESC' } });
     }
+
+    public async findBySeasonWithPaging({
+        first,
+        after,
+        season,
+        orderBy = 'createdAt',
+    }: {
+        first: number;
+        after: number;
+        season: number;
+        orderBy: string;
+        relations: string[];
+    }): Promise<Game[]> {
+        return this.find({
+            skip: after,
+            take: first,
+            where: {
+                season,
+            },
+            order: {
+                [orderBy]: 'DESC',
+            },
+        });
+    }
 }

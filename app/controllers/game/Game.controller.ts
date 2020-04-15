@@ -170,14 +170,44 @@ export async function create(request: ICreateGameRequest, response: Response) {
 }
 
 export async function findAllBySeason(request: Request, response: Response) {
-    const season = parseIntWithDefault(request.params.season, null, 1, DATABASE_MAX_ID);
+    const { first, after } = request.query;
+    const { season } = request.params;
 
-    if (_.isNil(season)) throw new ApiError({ code: 400, error: 'Invalid season id provided.' });
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+        season: parseIntWithDefault(season, null, 1, DATABASE_MAX_ID),
+    };
 
+    if (_.isNil(params.season)) {
+        throw new ApiError({
+            error: 'Invalid season id provided.',
+            code: 400,
+        });
+    }
     const gameRepository = getCustomRepository(GameRepository);
-    const games = await gameRepository.findAllBySeason(Number(season));
+    const games = await gameRepository.findBySeasonWithPaging({
+        first: params.first,
+        after: params.after,
+        season: params.season,
+        orderBy: 'updatedAt',
+        relations: ['connections'],
+    });
 
-    response.json(games.map((game) => flattenGame(game)));
+    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+
+    const pagination = {
+        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
+        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+    };
+
+    if (games.length === 0) pagination.after = null;
+    if (params.after === 0) pagination.before = null;
+
+    return response.json({
+        data: games.map((game) => flattenGame(game)),
+        pagination,
+    });
 }
 
 /**

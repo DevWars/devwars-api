@@ -16,6 +16,7 @@ import logger from '../app/utils/logger';
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 import UserRepository from '../app/repository/User.repository';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
+import { helpers } from 'faker';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -73,7 +74,7 @@ const generateBasicUsers = async () => {
 
 const generateGames = async () => {
     for (let i = 1; i <= 50; i++) {
-        const game = await GameSeeding.default(true).common();
+        const game = (await GameSeeding.default(true).common()).withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };

@@ -546,8 +546,8 @@ describe('game', () => {
 
             const response = await agent.get(`/games/season/${season.id}`).send().expect(200);
 
-            chai.expect(response.body.length).to.be.eq(season.amount);
-            _.forEach(response.body, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
+            chai.expect(response.body.data.length).to.be.eq(season.amount);
+            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
         });
     });
 

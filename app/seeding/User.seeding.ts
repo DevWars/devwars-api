@@ -9,7 +9,7 @@ export default class UserSeeding {
         const role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
         const user = new User(userCard.username, bcrypt.hashSync('secret', 1), userCard.email, role);
 
-        user.avatarUrl = random.image();
+        // user.avatarUrl = random.image();
         user.lastSignIn = new Date();
 
         return user;
