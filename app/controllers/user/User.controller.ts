@@ -246,7 +246,7 @@ export async function deleteUser(request: IUserRequest, response: Response) {
     const { boundUser: removingUser } = request;
     const { id: removingUserId } = removingUser;
 
-    if (removingUser.role <= UserRole.MODERATOR) {
+    if (isRoleOrHigher(removingUser, UserRole.MODERATOR)) {
         const removalError = 'Users with roles moderator or higher cannot be deleted, ensure to demote the user first.';
         throw new ApiError({ code: 400, error: removalError });
     }
