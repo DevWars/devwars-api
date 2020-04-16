@@ -3,7 +3,7 @@ import * as express from 'express';
 import * as GameApplicationController from '../controllers/game/GameApplication.controller';
 import { bindGameFromGameParam } from '../middleware/GameApplication.middleware';
 import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middleware';
-import { mustBeAuthenticated, mustBeRole } from '../middleware/Auth.middleware';
+import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/Auth.middleware';
 import { wrapAsync } from './handlers';
 import { UserRole } from '../models/User';
 
@@ -35,7 +35,7 @@ GameApplicationRoute.post(
 
 GameApplicationRoute.post(
     '/schedule/:schedule/twitch',
-    [mustBeRole(UserRole.MODERATOR, true), bindScheduleFromScheduleParam],
+    [mustBeMinimumRole(UserRole.MODERATOR, true), bindScheduleFromScheduleParam],
     wrapAsync(GameApplicationController.applyToScheduleFromTwitch)
 );
 
@@ -47,7 +47,7 @@ GameApplicationRoute.delete(
 
 GameApplicationRoute.post(
     '/game/:game/username/:username',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindGameFromGameParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameFromGameParam],
     wrapAsync(GameApplicationController.createGameSchedule)
 );
 

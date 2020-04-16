@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import * as LinkedAccountController from '../controllers/user/LinkedAccount.controller';
-import { mustBeAuthenticated, mustBeRole } from '../middleware/Auth.middleware';
+import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/Auth.middleware';
 import { wrapAsync } from './handlers';
 import { UserRole } from '../models/User';
 
@@ -13,7 +13,7 @@ const LinkedAccountRoute: express.Router = express.Router();
 LinkedAccountRoute.get(
     '/',
     mustBeAuthenticated,
-    mustBeRole(UserRole.MODERATOR),
+    mustBeMinimumRole(UserRole.MODERATOR),
     wrapAsync(LinkedAccountController.all)
 );
 
@@ -22,7 +22,7 @@ LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAcc
 
 LinkedAccountRoute.put(
     '/twitch/coins',
-    [mustBeRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
+    [mustBeMinimumRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
     wrapAsync(LinkedAccountController.updateTwitchCoins)
 );
 

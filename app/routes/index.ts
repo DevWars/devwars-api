@@ -21,7 +21,7 @@ interface IRoute {
 export const Routes: IRoute[] = [
     {
         handler: HealthRoute,
-        path: '/',
+        path: '/health',
     },
     {
         handler: AuthRoute,

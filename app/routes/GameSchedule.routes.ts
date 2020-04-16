@@ -1,7 +1,7 @@
 import * as express from 'express';
 
 import * as GameScheduleController from '../controllers/game/GameSchedule.controller';
-import { mustBeRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
+import { mustBeMinimumRole, mustBeAuthenticated } from '../middleware/Auth.middleware';
 import { wrapAsync } from './handlers';
 import { UserRole } from '../models/User';
 import { bodyValidation } from './validators';
@@ -14,7 +14,7 @@ GameScheduleRoute.get('/', wrapAsync(GameScheduleController.all));
 
 GameScheduleRoute.post(
     '/',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bodyValidation(createGameScheduleSchema)],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bodyValidation(createGameScheduleSchema)],
     wrapAsync(GameScheduleController.create)
 );
 
@@ -25,7 +25,7 @@ GameScheduleRoute.patch(
     '/:schedule',
     [
         mustBeAuthenticated,
-        mustBeRole(UserRole.MODERATOR),
+        mustBeMinimumRole(UserRole.MODERATOR),
         bindScheduleFromScheduleParam,
         bodyValidation(updateGameScheduleSchema),
     ],
@@ -34,19 +34,19 @@ GameScheduleRoute.patch(
 
 GameScheduleRoute.delete(
     '/:schedule',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
     wrapAsync(GameScheduleController.deleteScheduleById)
 );
 
 GameScheduleRoute.post(
     '/:schedule/end',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
     wrapAsync(GameScheduleController.endScheduleById)
 );
 
 GameScheduleRoute.post(
     '/:schedule/activate',
-    [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
     wrapAsync(GameScheduleController.activate)
 );
 

@@ -35,7 +35,7 @@ export const mustBeAuthenticated = wrapAsync(async (request: IRequest, response:
     return next();
 });
 
-export const mustBeRole = (role?: UserRole, bot: boolean = false) =>
+export const mustBeMinimumRole = (role?: UserRole, bot: boolean = false) =>
     wrapAsync(async (request: IRequest, response: Response, next: NextFunction) => {
         // If the requesting user must be a bot, ensure they are a bot, if they can only be a bot and
         // failed the check, ensure that we fail the request. Otherwise continue to role validation.
@@ -66,5 +66,5 @@ export const mustBeRoleOrOwner = (role?: UserRole, bot: boolean = false) =>
         // Ensure that the requesting user is the entity they are also trying to perform the following
         // request on. For example: you can only update your own profile and not others (unless your a admin).
         if (!_.isNil(request.user) && request.user.id === requestedUserId) return next();
-        return mustBeRole(role, bot)(request, response, next);
+        return mustBeMinimumRole(role, bot)(request, response, next);
     });

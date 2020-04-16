@@ -10,7 +10,7 @@ import * as UserAvatarController from '../controllers/user/UserAvatar.controller
 import * as EmailController from '../controllers/Email.controller';
 import { UserRole } from '../models/User';
 
-import { mustBeRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
+import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 import { statsSchema, profileSchema, updateUserSchema } from './validators/user.validator';
 import { bindUserFromUserParam } from '../middleware/User.middleware';
 import { emailPermissionSchema } from './validators/email.validator';
@@ -24,7 +24,7 @@ const UserRoute: express.Router = express.Router();
  *  GENERAL
  ******************************/
 
-UserRoute.get('/', [mustBeAuthenticated, mustBeRole(UserRole.MODERATOR)], wrapAsync(UserController.all));
+UserRoute.get('/', [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)], wrapAsync(UserController.all));
 UserRoute.get('/leaderboards', wrapAsync(UserController.getUsersLeaderboards));
 
 UserRoute.get('/:user', [bindUserFromUserParam], wrapAsync(UserController.show));
