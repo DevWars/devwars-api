@@ -51,7 +51,7 @@ export function getAllServerLogs(request: Request, response: Response) {
     const logs: { logs: string[] } = { logs: [] };
 
     if (pathExists(allLogsPath) && canAccessPath(allLogsPath, fs.constants.R_OK)) {
-        logs.logs = fs.readFileSync(allLogsPath).toString().split('\r\n');
+        logs.logs = fs.readFileSync(allLogsPath).toString().split('\n');
     }
 
     return response.json(logs);
@@ -78,7 +78,7 @@ export function getErrorServerLogs(request: Request, response: Response) {
     const logs: { logs: string[] } = { logs: [] };
 
     if (pathExists(errorLogsPath) && canAccessPath(errorLogsPath, fs.constants.R_OK)) {
-        logs.logs = fs.readFileSync(errorLogsPath).toString().split('\r\n');
+        logs.logs = fs.readFileSync(errorLogsPath).toString().split('\n');
     }
 
     return response.json(logs);

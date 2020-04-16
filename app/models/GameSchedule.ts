@@ -5,9 +5,9 @@ import GameApplication from './GameApplication';
 import { IGameScheduleSetup } from '../types/gameSchedule';
 
 export enum GameStatus {
-    SCHEDULED,
-    ACTIVE,
-    ENDED,
+    SCHEDULED = 0,
+    ACTIVE = 1,
+    ENDED = 2,
 }
 
 @Entity('game_schedule')

@@ -2,11 +2,8 @@ import { EntityRepository, Repository, Like } from 'typeorm';
 import User from '../models/User';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
-import GameSchedule from '../models/GameSchedule';
-import GameApplication from '../models/GameApplication';
 
 import * as _ from 'lodash';
-import logger from '../utils/logger';
 
 interface ICredentials {
     identifier: string;

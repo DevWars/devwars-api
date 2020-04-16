@@ -12,7 +12,13 @@ import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
 import { DATABASE_MAX_ID } from '../../constants';
-import { parseIntWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
+import {
+    parseIntWithDefault,
+    parseBooleanWithDefault,
+    parseEnumFromValue,
+    parseStringWithDefault,
+} from '../../../test/helpers';
+
 import UserRepository from '../../repository/User.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
@@ -242,7 +248,7 @@ export async function create(request: ICreateGameRequest, response: Response) {
 }
 
 /**
- * @api {get} /games/season/:season Get games by season with pagination.
+ * @api {get} /games/season/:season?status=:status Get games by season with pagination.
  * @apiDescription Gets all the given games for a given season in a paging
  * format.
  * @apiName GetGamesBySeason
@@ -252,9 +258,13 @@ export async function create(request: ICreateGameRequest, response: Response) {
  * @apiParam {number} season The specified season which the games are related too.
  * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
  * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
+ * @apiParam {string=scheduled,active,ended} [status] The optional game status to filter by.
  *
  * @apiSuccess {Game[]} data The related games based on the provided season and page range.
  * @apiSuccess {object} pagination The paging information to continue forward or backward.
+ * @apiSuccess {string} pagination.after The next page in the paging of the data.
+ * @apiSuccess {string} pagination.before The previous page in the paging of the data.
+ *
  * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
  * {
  *   "data": [
@@ -266,17 +276,20 @@ export async function create(request: ICreateGameRequest, response: Response) {
  *   }
  * }
  *
- * @apiError (Error 4xx) {error} InvalidSeasonId The given season <code>id</code> provided is not valid, e.g
+ * @apiError {error} InvalidSeasonId The given season <code>id</code> provided is not valid, e.g
  * empty or not a valid number.
  */
 export async function findAllBySeason(request: Request, response: Response) {
-    const { first, after } = request.query;
+    const { first, after, status: queryStatus } = request.query;
     const { season } = request.params;
+
+    const status = parseStringWithDefault(queryStatus, null);
 
     const params = {
         first: parseIntWithDefault(first, 20, 1, 100),
         after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
         season: parseIntWithDefault(season, null, 1, DATABASE_MAX_ID),
+        status: parseEnumFromValue(GameStatus, _.isNil(status) ? status : status.toUpperCase(), null),
     };
 
     if (_.isNil(params.season)) {
@@ -290,18 +303,23 @@ export async function findAllBySeason(request: Request, response: Response) {
         first: params.first,
         after: params.after,
         season: params.season,
+        status: params.status,
         orderBy: 'updatedAt',
-        relations: ['connections'],
     });
 
     const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+    const nextStatus = _.isNil(params.status) ? '' : `&status=${status}`;
+
+    const nextValue = _.clamp(params.after - params.first, 0, params.after);
+    const beforeUrl = `${url}?first=${params.first}&after=${nextValue}${nextStatus}`;
+    const afterUrl = `${url}?first=${params.first}&after=${params.after + params.first}${nextStatus}`;
 
     const pagination = {
-        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
-        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+        before: beforeUrl,
+        after: afterUrl,
     };
 
-    if (games.length === 0) pagination.after = null;
+    if (games.length === 0 || games.length !== params.first) pagination.after = null;
     if (params.after === 0) pagination.before = null;
 
     return response.json({

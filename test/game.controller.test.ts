@@ -549,6 +549,47 @@ describe('game', () => {
             chai.expect(response.body.data.length).to.be.eq(season.amount);
             _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
         });
+
+        it('Should filter the list if a status is specified', async () => {
+            await connectionManager.transaction(async (transaction) => {
+                const game1 = GameSeeding.default().withSeason(4).withStatus(GameStatus.ACTIVE).game;
+                const game2 = GameSeeding.default().withSeason(4).withStatus(GameStatus.ENDED).game;
+                const game3 = GameSeeding.default().withSeason(4).withStatus(GameStatus.SCHEDULED).game;
+
+                await transaction.save(game1);
+                await transaction.save(game2);
+                await transaction.save(game3);
+            });
+
+            const gameRepository = getCustomRepository(GameRepository);
+            const totalEnded = await gameRepository.count({ where: { status: GameStatus.ENDED } });
+
+            const response = await agent.get('/games/season/4?status=ended').send().expect(200);
+
+            chai.expect(response.body.data.length).to.be.eq(totalEnded);
+            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(4));
+            _.forEach(response.body.data, (game: Game) => chai.expect(game.status).to.be.eq(GameStatus.ENDED));
+        });
+
+        it('Should return the full list if the specified status filter is invalid', async () => {
+            await connectionManager.transaction(async (transaction) => {
+                const game1 = GameSeeding.default().withSeason(5).withStatus(GameStatus.ACTIVE).game;
+                const game2 = GameSeeding.default().withSeason(5).withStatus(GameStatus.ENDED).game;
+                const game3 = GameSeeding.default().withSeason(5).withStatus(GameStatus.SCHEDULED).game;
+
+                await transaction.save(game1);
+                await transaction.save(game2);
+                await transaction.save(game3);
+            });
+
+            const gameRepository = getCustomRepository(GameRepository);
+            const total = await gameRepository.count();
+
+            const response = await agent.get('/games/season/5?status=cat').send().expect(200);
+
+            chai.expect(response.body.data.length).to.be.eq(total);
+            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(5));
+        });
     });
 
     describe('POST - /:game/end - Ending a game', () => {

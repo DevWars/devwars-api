@@ -73,7 +73,7 @@ const generateBasicUsers = async () => {
 };
 
 const generateGames = async () => {
-    for (let i = 1; i <= 50; i++) {
+    for (let i = 1; i <= 150; i++) {
         const game = (await GameSeeding.default(true).common()).withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }

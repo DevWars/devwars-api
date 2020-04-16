@@ -78,6 +78,25 @@ export const parseIntWithDefault = (possible: any, def: number = 0, lower?: numb
 };
 
 /**
+ * Takes in a possible enum value, ensures its a string and attempts to parse
+ * the value into the enum.
+ *
+ * @param type The type of the enum being parsed.
+ * @param possible The possible value to be parsed.
+ * @param def The fallback default value.
+ */
+export function parseEnumFromValue<T>(type: T, possible: any, def: T[keyof T] | null): T[keyof T] | null {
+    if (_.isNil(possible)) return def;
+
+    if (_.isString(possible)) {
+        const typed = possible as keyof T;
+        if (!_.isNil(typed)) return type[typed] as T[keyof T];
+    }
+
+    return def;
+}
+
+/**
  * Parses any given object and attempts to form a boolean value. This includes 1,0 (number and strings),
  * @param possible The possible value to be parsed.
  * @param def The default value ot be returned otherwise if not a boolean.

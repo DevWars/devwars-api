@@ -126,7 +126,7 @@ export async function all(request: Request, response: Response) {
         after: `${url}?first=${params.first}&after=${params.after + params.first}`,
     };
 
-    if (users.length === 0) pagination.after = null;
+    if (users.length === 0 || users.length !== params.first) pagination.after = null;
     if (params.after === 0) pagination.before = null;
 
     return response.json({
@@ -381,7 +381,7 @@ export async function getUsersLeaderboards(request: Request, response: Response)
         after: `${url}?first=${params.first}&after=${params.after + params.first}`,
     };
 
-    if (leaderboards.length === 0) pagination.after = null;
+    if (leaderboards.length === 0 || leaderboards.length !== params.first) pagination.after = null;
     if (params.after === 0) pagination.before = null;
 
     return response.json({
