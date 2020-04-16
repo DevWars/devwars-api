@@ -9,12 +9,12 @@ import Activity from '../../models/Activity';
 
 import LeaderboardRepository from '../../repository/leaderboard.repository';
 import UserRepository from '../../repository/User.repository';
-import { IUserRequest } from '../../request/IRequest';
+import { IUserRequest, IRequest } from '../../request/IRequest';
 import { DATABASE_MAX_ID } from '../../constants';
 import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
 
-import { parseBooleanWithDefault, parseIntWithDefault } from '../../../test/helpers';
+import { parseIntWithDefault } from '../../../test/helpers';
 
 import EmailVerification from '../../models/EmailVerification';
 import LinkedAccount from '../../models/LinkedAccount';
@@ -23,6 +23,7 @@ import UserGameStats from '../../models/UserGameStats';
 import EmailOptIn from '../../models/EmailOptIn';
 import User, { UserRole } from '../../models/User';
 import Game from '../../models/Game';
+import { isRoleOrHigher, isRoleHigher } from '../authentication/Authentication.controller';
 
 interface IUpdateUserRequest {
     lastSigned: Date;
@@ -166,8 +167,7 @@ export async function all(request: Request, response: Response) {
  * @apiSuccess {datetime} createdAt the time the user was created at.
  * @apiSuccess {datetime} lastSignIn the time the user last signed in.
  *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
  *     {
  *      "username": "test-admin",
  *      "email": "test-admin@example.com",
@@ -178,8 +178,13 @@ export async function all(request: Request, response: Response) {
  *      "createdAt": "2019-11-19T14:54:09.441Z",
  *      "lastSignIn": "2019-11-19T14:54:09.442Z",
  *     }
+ *
+ * @apiError NotAuthorizedForRoleChange You are not authorized to increase the
+ * role of yourself or another user higher than your own and if you are not a
+ * admin. You also cannot decrease a role of a user if you are not a higher
+ * role (including yourself).
  */
-export async function update(request: IUserRequest, response: Response) {
+export async function update(request: IRequest & IUserRequest, response: Response) {
     const params = request.body as IUpdateUserRequest;
 
     const userRepository = getCustomRepository(UserRepository);
@@ -192,8 +197,35 @@ export async function update(request: IUserRequest, response: Response) {
         });
     }
 
-    // Ensure to encrypt the updated password if it has been specified.
-    if (!_.isNil(params.password)) params.password = await hash(params.password);
+    // If the role is being updated some rule must be respected.
+    // 1. You cannot change roles if you are not at least a moderator.
+    // 2. You cannot change the role unless you are equal or higher to the new role.
+    // 3. You cannot change the role if you are equal to the current users role.
+    // 4. You cannot change the role of a admin.
+    // 5. You cannot change your own role.
+    // 6. Admins are exempt from the rules.
+    if (!_.isNil(params.role)) {
+        if (
+            (!isRoleOrHigher(request.user, UserRole.MODERATOR) ||
+                !isRoleOrHigher(request.user, params.role) ||
+                !isRoleHigher(request.user, request.boundUser.role)) &&
+            request.user.role !== UserRole.ADMIN
+        ) {
+            throw new ApiError({
+                error: `You are not authorized to change the users role to ${params.role}`,
+                code: 401,
+            });
+        } else if (request.user.role !== UserRole.ADMIN && request.user.id === request.boundUser.id) {
+            throw new ApiError({
+                error: 'You are not authorized to change your own role',
+                code: 401,
+            });
+        }
+    }
+
+    if (!_.isNil(params.password))
+        // Ensure to encrypt the updated password if it has been specified.
+        params.password = await hash(params.password);
 
     Object.assign(request.boundUser, params);
     await request.boundUser.save();

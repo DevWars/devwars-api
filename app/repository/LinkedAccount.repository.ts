@@ -26,4 +26,25 @@ export default class LinkedAccountRepository extends Repository<LinkedAccount> {
 
         return this.save(newAccounts);
     }
+
+    public async findWithPaging({
+        first,
+        after,
+        orderBy = 'createdAt',
+        relations = [],
+    }: {
+        first: number;
+        after: number;
+        orderBy: string;
+        relations?: string[];
+    }): Promise<LinkedAccount[]> {
+        return this.find({
+            skip: after,
+            take: first,
+            order: {
+                [orderBy]: 'DESC',
+            },
+            relations,
+        });
+    }
 }

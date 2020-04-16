@@ -6,30 +6,27 @@ import UserRepository from '../repository/User.repository';
 import { IUserRequest } from '../request/IRequest';
 import ApiError from '../utils/apiError';
 
-import {
-    parseBooleanWithDefault,
-    parseIntWithDefault,
-    parseStringsFromQueryParameter,
-    parseStringWithDefault,
-} from '../../test/helpers';
+import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../../test/helpers';
 
 import User from '../models/User';
 import { USERNAME_MAX_LENGTH } from '../constants';
 
 /**
- * @api {get} /search/users?username=:username&limit=:limit Looks up users by username or email (like match).
+ * @api {get} /search/users?username=:username&email=:email&limit=:limit Looks
+ * up users by username or email (like match).
  * @apiName LookupUsersByUsernameOrEmail
  * @apiGroup Search
  *
  * @apiParam {string} username  A partial or full username for a given user.
  * @apiParam {string} email     A partial or full email for a given user.
  * @apiParam {number} limit     The maximum amount of users to return (max 50)
- * @apiParam {boolean} full     If all the user details should be returned or not.
+ * @apiParam {boolean} full     If all the user details should be returned or
+ * not.
  *
- * @apiSuccess {User[]} Users    A array of user objects containing the username and id.
+ * @apiSuccess {User[]} Users    A array of user objects containing the username
+ * and id.
  *
- * @apiSuccessExample Success-Response:
- *     HTTP/1.1 200 OK
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
  *     [{
  *        "username": "Sadie_Brekke21",
  *        "email": "Sadie_Brekke21@example.com",

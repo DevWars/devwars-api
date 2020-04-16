@@ -10,7 +10,6 @@ import UserRepository from '../../repository/User.repository';
 
 import { parseStringWithDefault, parseBooleanWithDefault } from '../../../test/helpers';
 import GameApplication from '../../models/GameApplication';
-import User from '../../models/User';
 import ApiError from '../../utils/apiError';
 import { DATABASE_MAX_ID } from '../../constants';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';

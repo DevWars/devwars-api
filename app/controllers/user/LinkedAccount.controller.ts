@@ -14,22 +14,22 @@ import ApiError from '../../utils/apiError';
 import { TwitchService } from '../../services/twitch.service';
 import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
 import logger from '../../utils/logger';
+import { DATABASE_MAX_ID } from '../../constants';
 
 /**
- * @api {get} /oauth?limit={:limit}&offset={:offset} Gather all linked accounts within the constraints.
- * @apiDescription Gather all linked accounts that are organize by updatedAt. With limit and offset
- * specification to page the content.
+ * @api {get} /oauth?first={:first}&after={:after} Gather all linked accounts within the constraints.
+ * @apiDescription Gather all linked accounts that are organize by updatedAt. With paging support.
  *
  * @apiName GatherAllLinkedAccounts
  * @apiGroup LinkedAccounts
  * @apiPermission moderator
  *
- * @apiParam {string} limit The number of linked accounts to gather from the offset (limit: 100).
- * @apiParam {string} offset The offset of which place to start gathering linked accounts from.
+ * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
+ * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
+ 
+ * @apiSuccess {LinkedAccounts[]} LinkedAccounts The linked accounts within the limit and offset.
  *
- * @apiSuccess {json} LinkedAccounts The linked accounts within the limit and offset.
- *
- * @apiSuccessExample /oauth?limit=1&offset=0:
+ * @apiSuccessExample /oauth?first=1&after=0:
  *     HTTP/1.1 200 OK
  * [{
  *   username": "aten",
@@ -42,16 +42,27 @@ import logger from '../../utils/logger';
  *  }]
  */
 export async function all(request: IRequest, response: Response) {
-    const limit = parseIntWithDefault(request.query.limit, 25, 1, 100);
-    const offset = parseIntWithDefault(request.query.offset, 0, 0);
+    const { first, after } = request.query;
 
-    const accounts = await LinkedAccount.createQueryBuilder('linked')
-        .orderBy('"updatedAt"', 'DESC')
-        .limit(limit > 100 || limit < 1 ? 100 : limit)
-        .offset(offset < 0 ? 0 : offset)
-        .getMany();
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+    };
 
-    return response.json(accounts);
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    const accounts = await linkedAccountRepository.findWithPaging({ first, after, orderBy: 'updatedAt' });
+
+    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
+
+    const pagination = {
+        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
+        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
+    };
+
+    if (accounts.length === 0) pagination.after = null;
+    if (params.after === 0) pagination.before = null;
+
+    return response.json({ data: accounts, pagination });
 }
 
 export async function connect(request: IRequest, response: Response) {
@@ -74,9 +85,9 @@ export async function connect(request: IRequest, response: Response) {
  * @apiName DeleteLinkedAccount
  * @apiGroup LinkedAccounts
  *
- * @apiParam {string} Provider The name of the provider who is being removed.
+ * @apiParam {string} provider The name of the provider who is being removed.
  *
- * @apiSuccess {json} LinkedAccount The linked account that was removed.
+ * @apiSuccess {LinkedAccount} LinkedAccount The linked account that was removed.
  *
  * @apiError ProviderNotFound The provider is not a valid provider.
  * @apiError NoAccountLinkFound No link account between user and provider.

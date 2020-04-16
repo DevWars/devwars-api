@@ -1,4 +1,3 @@
-import * as chai from 'chai';
 import * as supertest from 'supertest';
 
 import { Connection } from '../app/services/Connection.service';
@@ -29,7 +28,7 @@ describe('Contact Us ', () => {
         agent = supertest.agent(server.App());
     });
 
-    describe('POST /contact - Creating a new contact us request.', () => {
+    describe('POST - /contact - Creating a new contact us request.', () => {
         it('Should pass if name, email and message are valid', async () => {
             await agent.post('/contact').send(validPost).expect(200);
         });

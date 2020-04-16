@@ -11,9 +11,9 @@ import ApiError from '../../utils/apiError';
  * @apiName GetProfileforUser
  * @apiGroup User
  * @apiPermission Moderator, Owner
- * 
+ *
  * @apiParam {string} id The id of a certain user.
- * 
+ *
  * @apiSuccess {object} profile An object containing all of the profile properties.
  * @apiSuccess {number} id The id of the user.
  * @apiSuccess {datetime} updatedAt When the profile was last updated.
@@ -36,7 +36,7 @@ import ApiError from '../../utils/apiError';
  * @apiSuccess {number} js The js skill of the user.
  * @apiSuccess {number} css The css skill of the user.
  * @apiSuccess {number} html The html skill of the user.
- * 
+ *
  * @apiSuccessExample Success-Response:
  *      {
  *       "id": 1,
@@ -81,7 +81,7 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiName UpdateProfileforUser
  * @apiGroup User
  * @apiPermission Administrator, Owner
- * 
+ *
  * @apiParam {string} [firstName] The first name of the user.
  * @apiParam {string} [lastName] The last name of the user.
  * @apiParam {string} [dob] The birthday of the user.
@@ -100,8 +100,8 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiParam {number} [js] The js skill of the user.
  * @apiParam {number} [css] The css skill of the user.
  * @apiParam {number} [html] The html skill of the user.
- * 
- * 
+ *
+ *
  * @apiParamExample {json} Request-Example:
  *      {
  *          "firstName": "Jack",
@@ -113,7 +113,7 @@ export async function show(request: IUserRequest, response: Response) {
  *              "js": 3,
  *          },
  *      }
- * 
+ *
  * @apiSuccess {string} firstName The first name of the user.
  * @apiSuccess {string} lastName The last name of the user.
  * @apiSuccess {string} dob The birthday of the user.
@@ -132,7 +132,7 @@ export async function show(request: IUserRequest, response: Response) {
  * @apiSuccess {number} skills.js The js skill of the user.
  * @apiSuccess {number} skills.css The css skill of the user.
  * @apiSuccess {number} skills.html The html skill of the user.
- * 
+ *
  * @apiSuccessExample {json} Success-Response:
  *      {
  *       "firstName": "Jack",

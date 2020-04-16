@@ -320,3 +320,43 @@ export async function updatePassword(request: IRequest, response: Response) {
 
     return response.send({ message: 'Password successfully updated.' });
 }
+
+/**
+ * Returns true if the user is that role or higher, otherwise false.
+ * @param user The user who's role is being checked.
+ * @param expectedRole The expected lower bounds role of the given user.
+ */
+export function isRoleOrHigher(user: User, expectedRole: UserRole): boolean {
+    if (
+        [UserRole.MODERATOR, UserRole.USER, UserRole.PENDING].includes(expectedRole) &&
+        [UserRole.ADMIN, UserRole.MODERATOR].includes(user.role)
+    )
+        return true;
+
+    if (expectedRole === UserRole.ADMIN && user.role === UserRole.ADMIN) return true;
+
+    return false;
+}
+
+/**
+ * Returns true if the user is higher, otherwise false.
+ * @param user The user who's role is being checked.
+ * @param expectedRole The expected lower bounds role of the given user.
+ */
+export function isRoleHigher(user: User, expectedRole: UserRole): boolean {
+    // if the user is a admin and the role is moderator, then the user is
+    // higher, otherwise if the expected role ia a admin, no one is higher, so
+    // false.
+    if (expectedRole === UserRole.MODERATOR && user.role === UserRole.ADMIN) return true;
+    if (expectedRole === UserRole.ADMIN) return false;
+
+    // if the expected role is a user or pending, then the user has to be a
+    // moderator or higher.
+    if (
+        (expectedRole === UserRole.USER || expectedRole === UserRole.PENDING) &&
+        isRoleOrHigher(user, UserRole.MODERATOR)
+    )
+        return true;
+
+    return false;
+}

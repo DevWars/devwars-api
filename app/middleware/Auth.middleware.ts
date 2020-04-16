@@ -8,6 +8,7 @@ import { AuthService } from '../services/Auth.service';
 import { IRequest } from '../request/IRequest';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
+import { isRoleOrHigher } from '../controllers/authentication/Authentication.controller';
 
 export const mustBeAuthenticated = wrapAsync(async (request: IRequest, response: Response, next: NextFunction) => {
     const { token } = request.cookies;
@@ -47,7 +48,7 @@ export const mustBeRole = (role?: UserRole, bot: boolean = false) =>
 
         // If the authorized user does meet the minimal requirement of the role or greater, then the
         // request can continue as expected.
-        if (!_.isNil(request.user) && !_.isNil(role) && role >= request.user.role) return next();
+        if (!_.isNil(request.user) && !_.isNil(role) && isRoleOrHigher(request.user, role)) return next();
 
         // Otherwise ensure that the user is made aware that they are not meeting the minimal
         // requirements of the role.

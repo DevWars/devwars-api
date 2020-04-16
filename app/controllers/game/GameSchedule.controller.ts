@@ -59,7 +59,7 @@ export async function update(request: IScheduleRequest, response: Response) {
  *
  * @apiParam {number} schedule The id of the schedule that is being ended.
  *
- * @apiSuccess {200} The given schedule has been ended.
+ * @apiSuccess {schedule} schedule The given schedule has been ended.
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided id.
@@ -88,7 +88,7 @@ export async function endScheduleById(request: IScheduleRequest, response: Respo
  *
  * @apiParam {number} schedule The id of the schedule that is being deleted.
  *
- * @apiSuccess {202} The given schedule has been deleted.
+ * @apiSuccess {schedule} schedule The given schedule has been deleted.
  *
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided id.

@@ -144,7 +144,7 @@ describe('game', () => {
         });
     });
 
-    describe('GET /games - Gathering All Games', () => {
+    describe('GET - /games - Gathering All Games', () => {
         it('Should return all games in the system.', async () => {
             const game1 = await GameSeeding.default().save();
             const game2 = await GameSeeding.default().save();
@@ -160,7 +160,7 @@ describe('game', () => {
         });
     });
 
-    describe('GET /games/latest - Gathering the latest games', () => {
+    describe('GET - /games/latest - Gathering the latest games', () => {
         it('Should gather all the latest games', async () => {
             const game1 = await GameSeeding.default().save();
             const game2 = await GameSeeding.default().save();
@@ -176,7 +176,7 @@ describe('game', () => {
         });
     });
 
-    describe('GET /games/:id - Gathering the specified game by id', () => {
+    describe('GET - /games/:id - Gathering the specified game by id', () => {
         it('Should gathering a single game', async () => {
             const game1 = await GameSeeding.default().save();
             const game2 = await GameSeeding.default().save();

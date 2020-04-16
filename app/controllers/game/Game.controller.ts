@@ -110,20 +110,92 @@ export async function active(request: Request, response: Response) {
 }
 
 /**
- * @api {post} /games/
+ * @api {post} /games/ Create a game with the given properties.
  * @apiDescription Creates a new game based on the properties.
  * @apiName CreateNewGame
  * @apiVersion 1.0.0
  * @apiGroup Games
  *
- * @apiSuccess {Game} The newly created game object.
- * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * @apiParam {number {0..}} schedule The id of the related game schedule.
+ * @apiParam {number {1..3}} season The season the game is being created for.
+ * @apiParam {string="Zen Garden","Classic","Blitz"} mode The mode the game will be playing.
+ * @apiParam {string {5..124}} title The title of the game.
+ * @apiParam {string} [videoUrl] The optional video url.
+ * @apiParam {number=0,1,2} [status] The optional game status.
+ * @apiParam {object} [storage] The optional additional storage of the game.
+ * @apiParam {datetime} storage.startTime The start time of the game.
+ * @apiParam {string} storage.templates The optional templates for the game.
+ * @apiParam {string} storage.templates.html The optional html template.
+ * @apiParam {string} storage.templates.css The optional css template.
+ * @apiParam {string} storage.templates.js The optional js template.
+ * @apiParam {object} storage.objectives The objectives that will be sent to the game server.
+ * @apiParam {number} storage.objectives.id The objective id.
+ * @apiParam {string} storage.objectives.description The objective description.
+ * @apiParam {boolean} storage.objectives.isBonus If the given game objective is a bonus objective.
+ *
+ * @apiParamExample {json} Request-Example:
  * {
- * ...
+ *   "schedule": 51,
+ *   "season": 3,
+ *   "mode": "Classic",
+ *   "title:": "Game title",
+ *   "status": 0,
+ *   "storage": {
+ *     "templates": {
+ *       "html": "<body></body>",
+ *       "css": "body { color: white; }",
+ *       "js": "console.log('hi')"
+ *     },
+ *     "startTime": "2020-04-30T12:33:00.000Z",
+ *     "objectives": {
+ *       "1": {
+ *         "id": 1,
+ *         "description": "1",
+ *         "isBonus": false
+ *       }
+ *     }
+ *   }
  * }
  *
- * @apiError NotAuthenticated The user creating the game is not authenticated.
- * @apiError NotModeratorOrHigher The requesting user is not a moderator or higher.
+ * @apiSuccess {Game} game The newly created game object.
+ * @apiSuccessExample Success-Response: 200 OK
+ * {
+ *   "mode": "Classic",
+ *   "teams": {
+ *     "0": {
+ *       "id": 0,
+ *       "name": "blue"
+ *     },
+ *     "1": {
+ *       "id": 1,
+ *       "name": "red"
+ *     }
+ *   },
+ *   "title": "1111111",
+ *   "editors": {},
+ *   "players": {},
+ *   "startTime": "2020-04-30T12:33:00.000Z",
+ *   "templates": {
+ *     "html": "<body></body>",
+ *     "css": "body { color: white; }",
+ *     "js": "console.log('hi')"
+ *   },
+ *   "objectives": {
+ *     "1": {
+ *       "id": 1,
+ *       "isBonus": false,
+ *       "description": "1"
+ *     }
+ *   },
+ *   "id": 51,
+ *   "createdAt": "2020-04-16T12:34:29.856Z",
+ *   "updatedAt": "2020-04-16T12:34:29.856Z",
+ *   "season": 3,
+ *   "videoUrl": null,
+ *   "status": 0,
+ *   "schedule": 51
+ * }
+ *
  * @apiError MissingDefinedProperties The request is missing required properties to create games.
  * @apiError ScheduleDoesNotExist The given schedule for the game does not exist.
  * @apiError ScheduleIsNotActive The given schedule is not active.
@@ -169,6 +241,34 @@ export async function create(request: ICreateGameRequest, response: Response) {
     return response.status(201).json(flattenGame(game));
 }
 
+/**
+ * @api {get} /games/season/:season Get games by season with pagination.
+ * @apiDescription Gets all the given games for a given season in a paging
+ * format.
+ * @apiName GetGamesBySeason
+ * @apiVersion 1.0.0
+ * @apiGroup Games
+ *
+ * @apiParam {number} season The specified season which the games are related too.
+ * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
+ * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
+ *
+ * @apiSuccess {Game[]} data The related games based on the provided season and page range.
+ * @apiSuccess {object} pagination The paging information to continue forward or backward.
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * {
+ *   "data": [
+ *     { ... }
+ *   ],
+ *   "pagination": {
+ *     "before": "http://localhost:8080/games/season/3?first=10&after=0",
+ *     "after": "http://localhost:8080/games/season/3?first=10&after=20"
+ *   }
+ * }
+ *
+ * @apiError (Error 4xx) {error} InvalidSeasonId The given season <code>id</code> provided is not valid, e.g
+ * empty or not a valid number.
+ */
 export async function findAllBySeason(request: Request, response: Response) {
     const { first, after } = request.query;
     const { season } = request.params;
@@ -219,12 +319,6 @@ export async function findAllBySeason(request: Request, response: Response) {
  * @apiGroup Games
  *
  * @apiParam {number} gameId The id of the game players are being auto-assigned.
- *
- * @apiSuccess {any} The players have been auto assigned to the game.
- * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
- * {
- *  ...
- *  }
  *
  * @apiError GameIdNotDefined Invalid game id provided.
  * @apiError PlayersAlreadyAssigned The game already has players assigned.

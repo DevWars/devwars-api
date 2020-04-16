@@ -19,6 +19,7 @@ import UserStats from '../app/models/UserStats';
 import Activity from '../app/models/Activity';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
+import logger from '../app/utils/logger';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -33,7 +34,7 @@ describe('user', () => {
         agent = supertest.agent(server.App());
     });
 
-    describe('DELETE /users/{{userId}} - Performing a delete request for the specified user', () => {
+    describe('DELETE - /users/{{userId}} - Performing a delete request for the specified user', () => {
         let administrator: User;
         let moderator: User;
         let tempUser: User;
@@ -367,6 +368,143 @@ describe('user', () => {
             chai.expect(resultTwo.status).to.be.equal(200);
             chai.expect(resultTwo.body.username).to.be.equal(twitch.username);
             chai.expect(resultTwo.body.provider).to.be.equal(twitch.provider.toLowerCase());
+        });
+    });
+
+    describe('PUT - /users/{userId} - Update a given user by the provided id', async () => {
+        it('Should fail if you try to update your username to a already existing user', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            const userTwo = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${userTwo.id}/`)
+                .set('Cookie', await cookieForUser(userTwo))
+                .send({ username: user.username })
+                .expect(409, { error: 'The provided username already exists for a registered user.' });
+
+            await agent
+                .put(`/users/${userTwo.id}/`)
+                .set('Cookie', await cookieForUser(userTwo))
+                .send({ username: `${user.username}1` })
+                .expect(200);
+        });
+
+        it('Should fail if you try to update your role to a higher role than your own', async () => {
+            const standardUser = await UserSeeding.withRole(UserRole.USER).save();
+            const moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
+
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                await agent
+                    .put(`/users/${standardUser.id}/`)
+                    .set('Cookie', await cookieForUser(standardUser))
+                    .send({ role })
+                    .expect(401, { error: `You are not authorized to change the users role to ${role}` });
+            }
+
+            await agent
+                .put(`/users/${moderator.id}/`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send({ role: UserRole.ADMIN })
+                .expect(401, { error: `You are not authorized to change the users role to ${UserRole.ADMIN}` });
+        });
+
+        it('Should fail if you try to update another user if you are not a moderator or higher', async () => {
+            const standardUser = await UserSeeding.withRole(UserRole.USER).save();
+            const standardUserTwo = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${standardUserTwo.id}/`)
+                .set('Cookie', await cookieForUser(standardUser))
+                .send({ role: UserRole.MODERATOR })
+                .expect(403);
+        });
+
+        it('Should fail if you try to demote yourself', async () => {
+            const user = await UserSeeding.withRole(UserRole.MODERATOR).save();
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(user))
+                .send({ role: UserRole.USER })
+                .expect(401, { error: `You are not authorized to change the users role to ${UserRole.USER}` });
+        });
+
+        it('Should allow a admin to change any users roles, including themselves', async () => {
+            const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.MODERATOR })
+                .expect(200);
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.PENDING })
+                .expect(200);
+
+            await agent
+                .put(`/users/${admin.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.MODERATOR })
+                .expect(200);
+        });
+
+        it('Should allow you to promote a user to your current role if you are at least a moderator', async () => {
+            const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            const userTwo = await UserSeeding.withRole(UserRole.PENDING).save();
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send({ role: UserRole.MODERATOR })
+                .expect(200);
+
+            await agent
+                .put(`/users/${userTwo.id}/`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send({ role: UserRole.MODERATOR })
+                .expect(200);
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.ADMIN })
+                .expect(200);
+        });
+
+        it('Should allow you demote a user if you are at least a moderator and higher than them.', async () => {
+            const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const moderatorTwo = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send({ role: UserRole.PENDING });
+
+            await agent
+                .put(`/users/${moderatorTwo.id}/`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send({ role: UserRole.USER })
+                .expect(401, { error: `You are not authorized to change the users role to ${UserRole.USER}` });
+
+            await agent
+                .put(`/users/${moderator.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.USER })
+                .expect(200);
+
+            await agent
+                .put(`/users/${moderator.id}/`)
+                .set('Cookie', await cookieForUser(admin))
+                .send({ role: UserRole.PENDING })
+                .expect(200);
         });
     });
 });
