@@ -258,7 +258,7 @@ export async function initiatePasswordReset(request: Request, response: Response
 }
 
 export async function resetPassword(request: Request, response: Response) {
-    const { token, password } = request.query;
+    const { token, password } = request.query as { token: string; password: string };
 
     const passwordResetRepository = getCustomRepository(PasswordResetRepository);
     const passwordReset = await passwordResetRepository.findByToken(token);

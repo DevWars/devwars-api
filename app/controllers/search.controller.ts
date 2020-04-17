@@ -49,8 +49,10 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     const username = parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH);
     const email = parseStringWithDefault(request.query.email, '', 0, 50);
 
-    limit = parseIntWithDefault(limit, 50, 1, 50);
-    full = parseBooleanWithDefault(full, false);
+    const params = {
+        limit: parseIntWithDefault(limit, 50, 1, 50) as number,
+        full: parseBooleanWithDefault(full, false) as boolean,
+    };
 
     if (username === '' && email === '') {
         throw new ApiError({
@@ -60,7 +62,7 @@ export async function lookupUser(request: IUserRequest, response: Response) {
     }
 
     const userRepository = getCustomRepository(UserRepository);
-    const users = await userRepository.getUsersLikeUsernameOrEmail(username, email, limit, ['connections']);
+    const users = await userRepository.getUsersLikeUsernameOrEmail(username, email, params.limit, ['connections']);
 
     _.forEach(users, (user: any) => {
         user.connections = _.map(user.connections, (a) => {
@@ -70,7 +72,7 @@ export async function lookupUser(request: IUserRequest, response: Response) {
 
     // If the user has specified full user details, then return out early
     // before performing a filter to username and ids.
-    if (full) return response.json(users);
+    if (params.full) return response.json(users);
 
     // Reduce the response down to the given username and id of the users.
     return response.json(

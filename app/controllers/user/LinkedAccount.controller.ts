@@ -42,15 +42,19 @@ import { DATABASE_MAX_ID } from '../../constants';
  *  }]
  */
 export async function all(request: IRequest, response: Response) {
-    const { first, after } = request.query;
+    const { first, after } = request.query as { first: any; after: any };
 
     const params = {
-        first: parseIntWithDefault(first, 20, 1, 100),
-        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
+        first: parseIntWithDefault(first, 20, 1, 100) as number,
+        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID) as number,
     };
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    const accounts = await linkedAccountRepository.findWithPaging({ first, after, orderBy: 'updatedAt' });
+    const accounts = await linkedAccountRepository.findWithPaging({
+        first: params.first,
+        after: params.after,
+        orderBy: 'updatedAt',
+    });
 
     const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
 
@@ -160,7 +164,7 @@ export async function updateTwitchCoins(request: Request, response: Response) {
 async function connectTwitch(request: Request, response: Response, user: User) {
     // gather a given access token for the code that was returned back from twitch, completing
     // the linkage and authorization process with twitch.
-    const token = await TwitchService.accessTokenForCode(request.query.code);
+    const token = await TwitchService.accessTokenForCode(request.query.code as string);
     if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for Twitch.', code: 400 });
 
     // Attempt to gather the related users account information for the given token, this is what
@@ -187,7 +191,7 @@ async function connectTwitch(request: Request, response: Response, user: User) {
 async function connectDiscord(request: Request, response: Response, user: User) {
     // gather a given access token for the code that was returned back from discord, completing
     // the linkage and authorization process with discord.
-    const token = await DiscordService.accessTokenForCode(request.query.code);
+    const token = await DiscordService.accessTokenForCode(request.query.code as string);
     if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for discord.', code: 400 });
 
     // Attempt to gather the related users account information for the given token, this is what

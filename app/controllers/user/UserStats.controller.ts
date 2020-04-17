@@ -8,6 +8,7 @@ import { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
 import { IUserRequest } from '../../request/IRequest';
 import ApiError from '../../utils/apiError';
+import { parseStringWithDefault } from '../../../test/helpers';
 
 /**
  * @api {get} /users/:user/stats Get the stats of a user.
@@ -114,13 +115,12 @@ export async function create(request: IUserRequest, response: Response) {
  * @apiSuccess {string} coins The number of coins the user has.
  */
 export async function getCoins(request: Request, response: Response) {
-    const { twitchId } = request.query;
-    let coins = 0;
-
     const userRepository = getCustomRepository(UserRepository);
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
 
+    let coins = 0;
     const user = await userRepository.findByToken(request.cookies.token);
+    const twitchId = parseStringWithDefault(request.query.twitchId as string, null);
 
     if (!isNil(user) && isNil(twitchId)) {
         const stats = await userRepository.findStatsByUser(user);
