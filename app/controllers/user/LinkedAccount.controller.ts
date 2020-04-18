@@ -26,7 +26,7 @@ import { DATABASE_MAX_ID } from '../../constants';
  *
  * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
  * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
- 
+ *
  * @apiSuccess {LinkedAccounts[]} LinkedAccounts The linked accounts within the limit and offset.
  *
  * @apiSuccessExample /oauth?first=1&after=0:

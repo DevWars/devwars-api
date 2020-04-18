@@ -44,7 +44,7 @@ import { USERNAME_MAX_LENGTH } from '../constants';
  *      }]
  */
 export async function lookupUser(request: IUserRequest, response: Response) {
-    let { limit, full } = request.query;
+    const { limit, full } = request.query;
 
     const username = parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH);
     const email = parseStringWithDefault(request.query.email, '', 0, 50);
