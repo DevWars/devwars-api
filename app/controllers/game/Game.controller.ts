@@ -22,6 +22,7 @@ import {
 import UserRepository from '../../repository/User.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
+import PaginationService from '../../services/pagination.service';
 
 export function flattenGame(game: Game) {
     return {
@@ -262,8 +263,8 @@ export async function create(request: ICreateGameRequest, response: Response) {
  *
  * @apiSuccess {Game[]} data The related games based on the provided season and page range.
  * @apiSuccess {object} pagination The paging information to continue forward or backward.
- * @apiSuccess {string} pagination.after The next page in the paging of the data.
- * @apiSuccess {string} pagination.before The previous page in the paging of the data.
+ * @apiSuccess {string} pagination.next The next page in the paging of the data.
+ * @apiSuccess {string} pagination.previous The previous page in the paging of the data.
  *
  * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
  * {
@@ -271,8 +272,8 @@ export async function create(request: ICreateGameRequest, response: Response) {
  *     { ... }
  *   ],
  *   "pagination": {
- *     "before": "http://localhost:8080/games/season/3?first=10&after=0",
- *     "after": "http://localhost:8080/games/season/3?first=10&after=20"
+ *     "next": "bmV4dF9fODM=",
+ *      "previous": null
  *   }
  * }
  *
@@ -280,14 +281,13 @@ export async function create(request: ICreateGameRequest, response: Response) {
  * empty or not a valid number.
  */
 export async function findAllBySeason(request: Request, response: Response) {
-    const { first, after, status: queryStatus } = request.query;
+    const { after, before, first, status: queryStatus } = request.query;
     const { season } = request.params;
 
     const status = parseStringWithDefault(queryStatus, null);
 
     const params = {
         first: parseIntWithDefault(first, 20, 1, 100),
-        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
         season: parseIntWithDefault(season, null, 1, DATABASE_MAX_ID),
         status: parseEnumFromValue(GameStatus, _.isNil(status) ? status : status.toUpperCase(), null),
     };
@@ -298,34 +298,25 @@ export async function findAllBySeason(request: Request, response: Response) {
             code: 400,
         });
     }
+
     const gameRepository = getCustomRepository(GameRepository);
-    const games = await gameRepository.findBySeasonWithPaging({
-        first: params.first,
-        after: params.after,
-        season: params.season,
-        status: params.status,
-        orderBy: 'updatedAt',
-    });
+    const where: any = { season };
 
-    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
-    const nextStatus = _.isNil(params.status) ? '' : `&status=${status}`;
+    if (!_.isNil(params.status)) where.status = params.status;
 
-    const nextValue = _.clamp(params.after - params.first, 0, params.after);
-    const beforeUrl = `${url}?first=${params.first}&after=${nextValue}${nextStatus}`;
-    const afterUrl = `${url}?first=${params.first}&after=${params.after + params.first}${nextStatus}`;
+    const result: any = await PaginationService.pageRepository<Game>(
+        gameRepository,
+        params.first,
+        after as string,
+        before as string,
+        'id',
+        true,
+        [],
+        where
+    );
 
-    const pagination = {
-        before: beforeUrl,
-        after: afterUrl,
-    };
-
-    if (games.length === 0 || games.length !== params.first) pagination.after = null;
-    if (params.after === 0) pagination.before = null;
-
-    return response.json({
-        data: games.map((game) => flattenGame(game)),
-        pagination,
-    });
+    result.data = _.map(result.data, (game) => flattenGame(game));
+    return response.json(result);
 }
 
 /**
