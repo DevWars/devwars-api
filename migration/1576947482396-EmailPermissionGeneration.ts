@@ -1,5 +1,4 @@
 import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
-import UserRepository from '../app/repository/User.repository';
 import EmailOptIn from '../app/models/EmailOptIn';
 import User from '../app/models/User';
 

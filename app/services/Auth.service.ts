@@ -9,7 +9,7 @@ import UserProfile from '../models/UserProfile';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
 
-import IRegistrationRequest from '../request/RegistrationRequest';
+import RegistrationRequest from '../request/RegistrationRequest';
 import { randomString } from '../utils/random';
 import { sendPasswordResetEmail } from './Mail.service';
 import { VerificationService } from './Verification.service';
@@ -18,7 +18,7 @@ import * as jwt from 'jsonwebtoken';
 import EmailOptIn from '../models/EmailOptIn';
 
 export class AuthService {
-    public static async register(request: IRegistrationRequest, shouldSendVerification: boolean = true) {
+    public static async register(request: RegistrationRequest, shouldSendVerification = true) {
         const { username, email, password } = request;
 
         const user = new User(username, await hash(password), email, UserRole.PENDING);

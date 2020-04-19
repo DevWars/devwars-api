@@ -3,7 +3,7 @@ import { stringify } from 'qs';
 
 import logger from '../utils/logger';
 
-export interface IDiscordUser {
+export interface DiscordUser {
     id: string;
     username: string;
 }
@@ -38,7 +38,7 @@ export class DiscordService {
         }
     }
 
-    public static async discordUserForToken(token: string): Promise<IDiscordUser> {
+    public static async discordUserForToken(token: string): Promise<DiscordUser> {
         const userEndpoint = 'https://discordapp.com/api/users/@me';
 
         try {

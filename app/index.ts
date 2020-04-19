@@ -1,6 +1,4 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
-
 import logger from './utils/logger';
 
 import * as cluster from 'cluster';
@@ -9,7 +7,9 @@ import { cpus } from 'os';
 import Server from './services/Server.service';
 import { config } from '../config';
 
-// tslint:disable-next-line: no-var-requires
+dotenv.config();
+
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const project = require('../package');
 
 /**
@@ -40,7 +40,7 @@ const handleListening = (name: string, version: string, port: number) => () => {
 if (process.env.NODE_ENV === 'production' && cluster.isMaster) {
     logger.debug(`\n-------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT\n`);
 
-    for (const cpu of cpus()) cluster.fork();
+    for (let i = 0; i < cpus().length; i++) cluster.fork();
 
     cluster.on('exit', (worker, code, signal) => {
         logger.info(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);

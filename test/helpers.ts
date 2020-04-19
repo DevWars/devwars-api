@@ -9,6 +9,29 @@ export const cookieForUser = async (user: User): Promise<string> => {
 };
 
 /**
+ * Takes in a possible string value, ensures its a string and within a given length bound. Returning
+ * the parsed string if so otherwise the fallback default value (default: null). Used during the
+ * parsing of possible string values within a query.
+ *
+ * @param possible The possible value to be parsed.
+ * @param def The fallback default value.
+ * @param min The lower bounds of the value length.
+ * @param max The upper bounds of the value length.
+ */
+export const parseStringWithDefault = (possible: any, def: any = null, min?: number, max?: number): string => {
+    if (_.isNil(possible) || !_.isString(possible)) {
+        return def;
+    }
+
+    const result = `${possible}`;
+
+    if (!_.isNil(min) && result.length < min) return def;
+    if (!_.isNil(max) && result.length > max) return def;
+
+    return result;
+};
+
+/**
  * Takes in a express query parameter and attempts to parse it out as an array of strings. Removing
  * all duplicates, values that could not be parsed, and respecting the min and max length limits.
  *
@@ -31,28 +54,6 @@ export const parseStringsFromQueryParameter = (parameter: any, min?: number, max
     return _.uniq(_.compact(_.map(parameter, (e) => parseStringWithDefault(e, null, min, max))));
 };
 
-/**
- * Takes in a possible string value, ensures its a string and within a given length bound. Returning
- * the parsed string if so otherwise the fallback default value (default: null). Used during the
- * parsing of possible string values within a query.
- *
- * @param possible The possible value to be parsed.
- * @param def The fallback default value.
- * @param lower The lower bounds of the value length.
- * @param upper The upper bounds of the value length.
- */
-export const parseStringWithDefault = (possible: any, def: any = null, min?: number, max?: number): string => {
-    if (_.isNil(possible) || !_.isString(possible)) {
-        return def;
-    }
-
-    const result = `${possible}`;
-
-    if (!_.isNil(min) && result.length < min) return def;
-    if (!_.isNil(max) && result.length > max) return def;
-
-    return result;
-};
 
 /**
  * Takes in a possible int value, ensures its a number and within a given bound. Returning the
@@ -64,7 +65,7 @@ export const parseStringWithDefault = (possible: any, def: any = null, min?: num
  * @param lower The lower bounds of the value.
  * @param upper The upper bounds of the value.
  */
-export const parseIntWithDefault = (possible: any, def: number = 0, lower?: number, upper?: number): number => {
+export const parseIntWithDefault = (possible: any, def = 0, lower?: number, upper?: number): number => {
     if (_.isNil(possible) || !_.isNumber(Number(possible)) || isNaN(Number(possible))) {
         return def;
     }
@@ -101,7 +102,7 @@ export function parseEnumFromValue<T>(type: T, possible: any, def: T[keyof T] | 
  * @param possible The possible value to be parsed.
  * @param def The default value ot be returned otherwise if not a boolean.
  */
-export const parseBooleanWithDefault = (possible: any, def: boolean = false): boolean => {
+export const parseBooleanWithDefault = (possible: any, def = false): boolean => {
     if (_.isNil(possible)) return def;
 
     if (possible === 1 || possible === 0) return Boolean(possible);

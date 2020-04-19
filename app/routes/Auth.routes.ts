@@ -2,11 +2,10 @@ import * as express from 'express';
 
 import * as authValidator from './validators/authentication.validator';
 import * as AuthController from '../controllers/authentication/Authentication.controller';
-import { mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
+import { mustBeAuthenticated } from '../middleware/Auth.middleware';
 
 import { bodyValidation, queryValidation } from './validators';
 import { wrapAsync } from './handlers';
-import { UserRole } from '../models/User';
 
 const AuthRoute: express.Router = express.Router();
 

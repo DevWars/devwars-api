@@ -16,6 +16,6 @@ export const randomString = (length: number): string => {
  * generating randomized values for verification tokens and more.
  * @param numberOfBits The number of bits to use in the generation progress.
  */
-export const randomCryptoString = (numberOfBits: number = 256): string => {
+export const randomCryptoString = (numberOfBits = 256): string => {
     return randomBytes(numberOfBits).toString('base64');
 };

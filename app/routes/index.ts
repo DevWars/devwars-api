@@ -13,12 +13,12 @@ import { ContactRoute } from './contact.routes';
 import { DocsRoute } from './docs.routes';
 import { SearchRoute } from './search.routes';
 
-interface IRoute {
+interface Route {
     path: string;
     handler: express.Router;
 }
 
-export const Routes: IRoute[] = [
+export const Routes: Route[] = [
     {
         handler: HealthRoute,
         path: '/health',

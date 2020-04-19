@@ -1,7 +1,7 @@
 /**
  * Templates that are used in the game, these will be loaded before the game starts ready for the user to use.
  */
-export interface IGameEditorTemplates {
+export interface GameEditorTemplates {
     // The template for the html editor that will be inserted before the game starts.
     html?: string;
 
@@ -17,7 +17,7 @@ export interface IGameEditorTemplates {
  * possible objectives of the given game. Including the id, bonus state and
  * description that will be given to the users.
  */
-export interface IGameObjective {
+export interface GameObjective {
     // The id of the given objective.
     id: number;
 

@@ -1,10 +1,11 @@
-import { getManager, EntityManager, getCustomRepository } from 'typeorm';
+/* eslint-disable @typescript-eslint/camelcase */
+import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 import { addHours } from 'date-fns';
 
-import { UserSeeding, EmailVerificationSeeding } from '../app/seeding';
+import { EmailVerificationSeeding, UserSeeding } from '../app/seeding';
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';

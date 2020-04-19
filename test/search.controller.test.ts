@@ -1,6 +1,5 @@
 import * as supertest from 'supertest';
 import * as chai from 'chai';
-import * as _ from 'lodash';
 
 import { UserSeeding } from '../app/seeding';
 

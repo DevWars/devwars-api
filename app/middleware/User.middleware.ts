@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import { IUserRequest } from '../request/IRequest';
+import { UserRequest } from '../request/IRequest';
 import UserRepository from '../repository/User.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
@@ -14,7 +14,7 @@ import ApiError from '../utils/apiError';
  * pull the schedule from the request object.
  */
 export const bindUserFromUserParam = wrapAsync(
-    async (request: IUserRequest, response: Response, next: NextFunction) => {
+    async (request: UserRequest, response: Response, next: NextFunction) => {
         const { user: userId } = request.params;
 
         if (_.isNil(userId) || isNaN(_.toNumber(userId)) || Number(userId) > DATABASE_MAX_ID)

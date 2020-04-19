@@ -29,7 +29,7 @@ export default class UserGameStats extends BaseModel {
     /**
      * The user who owns this user game state.
      */
-    @OneToOne((type) => User, (user) => user.id)
+    @OneToOne(() => User, (user) => user.id)
     @JoinColumn()
     public user: User;
 

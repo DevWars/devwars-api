@@ -1,8 +1,9 @@
 import * as supertest from 'supertest';
+import { SuperTest, Test } from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 
-import { UserSeeding, ActivitySeeding, GameApplicationSeeding, GameScheduleSeeding } from '../app/seeding';
+import { ActivitySeeding, GameApplicationSeeding, GameScheduleSeeding, UserSeeding } from '../app/seeding';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
@@ -19,10 +20,9 @@ import UserStats from '../app/models/UserStats';
 import Activity from '../app/models/Activity';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
-import logger from '../app/utils/logger';
 
 const server: ServerService = new ServerService();
-let agent: any;
+let agent: SuperTest<Test> = null;
 
 describe('user', () => {
     before(async () => {
@@ -55,7 +55,7 @@ describe('user', () => {
         });
 
         it('Should fail deleting the user if you are a moderator', async () => {
-            const result = await agent
+            await agent
                 .delete(`/users/${tempUser.id}`)
                 .set('Cookie', await cookieForUser(moderator))
                 .expect(403);

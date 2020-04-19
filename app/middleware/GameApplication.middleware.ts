@@ -2,12 +2,12 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import { IGameRequest } from '../request/IRequest';
+import { GameRequest } from '../request/IRequest';
 import GameRepository from '../repository/Game.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
-import { parseIntWithDefault, parseBooleanWithDefault } from '../../test/helpers';
+import { parseIntWithDefault } from '../../test/helpers';
 
 /**
  * Ensures that the requesting authorized user has provided a valid schedule id, this id will be validated,
@@ -15,7 +15,7 @@ import { parseIntWithDefault, parseBooleanWithDefault } from '../../test/helpers
  * pull the schedule from the request object.
  */
 export const bindGameFromGameParam = wrapAsync(
-    async (request: IGameRequest, response: Response, next: NextFunction) => {
+    async (request: GameRequest, response: Response, next: NextFunction) => {
         const gameId = parseIntWithDefault(request.params.game, null, 1, DATABASE_MAX_ID);
 
         if (_.isNil(gameId)) throw new ApiError({ code: 400, error: 'Invalid game id provided.' });

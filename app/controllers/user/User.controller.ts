@@ -9,7 +9,7 @@ import Activity from '../../models/Activity';
 
 import LeaderboardRepository from '../../repository/leaderboard.repository';
 import UserRepository from '../../repository/User.repository';
-import { IUserRequest, IRequest } from '../../request/IRequest';
+import { AuthorizedRequest, UserRequest } from '../../request/IRequest';
 import { DATABASE_MAX_ID } from '../../constants';
 import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
@@ -21,11 +21,11 @@ import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
 import EmailOptIn from '../../models/EmailOptIn';
-import User, { UserRole } from '../../models/User';
+import { UserRole } from '../../models/User';
 import Game from '../../models/Game';
-import { isRoleOrHigher, isRoleHigher } from '../authentication/Authentication.controller';
+import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.controller';
 
-interface IUpdateUserRequest {
+interface UpdateUserRequest {
     lastSigned: Date;
     email: string;
     username: string;
@@ -55,7 +55,7 @@ interface IUpdateUserRequest {
  *      "avatarUrl": "http://lorempixel.com/640/480/nature"
  *    }
  */
-export async function show(request: IUserRequest, response: Response) {
+export async function show(request: UserRequest, response: Response) {
     const sanitizedUser = request.boundUser.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
     return response.json(sanitizedUser);
 }
@@ -184,8 +184,8 @@ export async function all(request: Request, response: Response) {
  * admin. You also cannot decrease a role of a user if you are not a higher
  * role (including yourself).
  */
-export async function update(request: IRequest & IUserRequest, response: Response) {
-    const params = request.body as IUpdateUserRequest;
+export async function update(request: AuthorizedRequest & UserRequest, response: Response) {
+    const params = request.body as UpdateUserRequest;
 
     const userRepository = getCustomRepository(UserRepository);
     const existingUsername = await userRepository.findByUsername(params.username);
@@ -242,7 +242,7 @@ export async function update(request: IRequest & IUserRequest, response: Respons
  * @apiParam {Number} user Users unique ID.
  * @apiParam {string} [lastSigned] Users updated last signed in date.
  */
-export async function deleteUser(request: IUserRequest, response: Response) {
+export async function deleteUser(request: UserRequest, response: Response) {
     const { boundUser: removingUser } = request;
     const { id: removingUserId } = removingUser;
 

@@ -1,8 +1,6 @@
 import * as typeorm from 'typeorm';
 
 import GameApplicationSeeding from '../app/seeding/GameApplication.seeding';
-import UserGameStatsSeeding from '../app/seeding/UserGameStats.seeding';
-import GameScheduleSeeding from '../app/seeding/GameSchedule.seeding';
 import UserProfileSeeding from '../app/seeding/UserProfile.seeding';
 import UserStatsSeeding from '../app/seeding/UserStats.seeding';
 import ActivitySeeding from '../app/seeding/Activity.seeding';
@@ -21,7 +19,7 @@ import { helpers } from 'faker';
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
 
-const generateConstantUsers = async () => {
+const generateConstantUsers = async (): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
         const user = UserSeeding.withUsername(`test-${role}`);
         user.role = (UserRole as any)[role.toUpperCase()];
@@ -44,7 +42,7 @@ const generateConstantUsers = async () => {
     }
 };
 
-const generateBasicUsers = async () => {
+const generateBasicUsers = async (): Promise<any> => {
     await generateConstantUsers();
 
     for (let i = 4; i <= 100; i++) {
@@ -72,14 +70,14 @@ const generateBasicUsers = async () => {
     }
 };
 
-const generateGames = async () => {
+const generateGames = async (): Promise<any> => {
     for (let i = 1; i <= 150; i++) {
         const game = (await GameSeeding.default(true).common()).withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };
 
-const generateApplications = async () => {
+const generateApplications = async (): Promise<any> => {
     const gameScheduleRepository = typeorm.getCustomRepository(GameScheduleRepository);
     const userRepository = typeorm.getCustomRepository(UserRepository);
 
@@ -92,7 +90,7 @@ const generateApplications = async () => {
     }
 };
 
-(async () => {
+(async (): Promise<any> => {
     connection = await Connection;
     connectionManager = typeorm.getManager(connection.name);
 

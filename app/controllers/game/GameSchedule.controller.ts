@@ -2,15 +2,14 @@ import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
-import { ICreateGameScheduleRequest, IUpdateGameScheduleRequest } from '../../request/IGameScheduleRequest';
+import { CreateGameScheduleRequest, UpdateGameScheduleRequest } from '../../request/IGameScheduleRequest';
 import GameScheduleRepository from '../../repository/GameSchedule.repository';
-import { IScheduleRequest } from '../../request/IRequest';
+import { ScheduleRequest } from '../../request/IRequest';
 
-import GameSchedule from '../../models/GameSchedule';
-import { GameStatus } from '../../models/GameSchedule';
+import GameSchedule, { GameStatus } from '../../models/GameSchedule';
 import ApiError from '../../utils/apiError';
 
-function flattenSchedule(schedule: GameSchedule) {
+function flattenSchedule(schedule: GameSchedule): any {
     return {
         ...schedule.setup,
         id: schedule.id,
@@ -22,7 +21,7 @@ function flattenSchedule(schedule: GameSchedule) {
     };
 }
 
-export async function show(request: IScheduleRequest, response: Response) {
+export async function show(request: ScheduleRequest, response: Response) {
     return response.json(flattenSchedule(request.schedule));
 }
 
@@ -33,8 +32,8 @@ export async function all(request: Request, response: Response) {
     return response.json(schedules.map((schedule) => flattenSchedule(schedule)));
 }
 
-export async function update(request: IScheduleRequest, response: Response) {
-    const params = { ...(request.body as IUpdateGameScheduleRequest) };
+export async function update(request: ScheduleRequest, response: Response) {
+    const params = { ...(request.body as UpdateGameScheduleRequest) };
 
     request.schedule.startTime = params.startTime || request.schedule.startTime;
     request.schedule.setup = {
@@ -65,7 +64,7 @@ export async function update(request: IScheduleRequest, response: Response) {
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided id.
  * @apiError GameScheduleActive The ending games schedule is already ended.
  */
-export async function endScheduleById(request: IScheduleRequest, response: Response) {
+export async function endScheduleById(request: ScheduleRequest, response: Response) {
     if (request.schedule.status === GameStatus.ENDED) {
         throw new ApiError({
             error: 'Schedule cannot be ended since its not in a active state.',
@@ -94,7 +93,7 @@ export async function endScheduleById(request: IScheduleRequest, response: Respo
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided id.
  * @apiError GameScheduleActive The deleting games schedule is active and cannot be deleted.
  */
-export async function deleteScheduleById(request: IScheduleRequest, response: Response) {
+export async function deleteScheduleById(request: ScheduleRequest, response: Response) {
     if (request.schedule.status === GameStatus.ACTIVE) {
         throw new ApiError({
             error: 'Schedule cannot be deleted since its not in a scheduled state.',
@@ -132,7 +131,7 @@ export async function byStatus(request: Request, response: Response) {
 }
 
 export async function create(request: Request, response: Response) {
-    const params = { ...(request.body as ICreateGameScheduleRequest) };
+    const params = { ...(request.body as CreateGameScheduleRequest) };
 
     const schedule = new GameSchedule(params.startTime, GameStatus.SCHEDULED, {
         mode: params.mode || '',
@@ -146,7 +145,7 @@ export async function create(request: Request, response: Response) {
     return response.json(flattenSchedule(schedule));
 }
 
-export async function activate(request: IScheduleRequest, response: Response) {
+export async function activate(request: ScheduleRequest, response: Response) {
     if (request.schedule.status !== GameStatus.SCHEDULED) {
         throw new ApiError({
             error: 'schedule cannot be activated since its not in a scheduled state.',

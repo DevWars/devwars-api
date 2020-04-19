@@ -1,12 +1,12 @@
 import { Sex } from '../models/UserProfile';
 
-export interface ISkills {
+export interface Skills {
     html: number;
     css: number;
     js: number;
 }
 
-export interface IProfileRequest {
+export interface ProfileRequest {
     firstName: string;
     lastName: string;
     dob: Date;
@@ -21,5 +21,5 @@ export interface IProfileRequest {
     state: string;
     zip: string;
     country: string;
-    skills: ISkills;
+    skills: Skills;
 }

@@ -5,38 +5,44 @@ import * as _ from 'lodash';
 import { UserRole } from '../models/User';
 import UserRepository from '../repository/User.repository';
 import { AuthService } from '../services/Auth.service';
-import { IRequest } from '../request/IRequest';
+import { AuthorizedRequest } from '../request/IRequest';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
 import { isRoleOrHigher } from '../controllers/authentication/Authentication.controller';
 
-export const mustBeAuthenticated = wrapAsync(async (request: IRequest, response: Response, next: NextFunction) => {
-    const { token } = request.cookies;
+export const mustBeAuthenticated = wrapAsync(
+    async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
+        const { token } = request.cookies;
 
-    // If the token was not not provided then return that the given user is not authenticated.
-    if (_.isNil(token)) throw new ApiError({ code: 401, error: 'Authentication token was not provided.' });
+        // If the token was not not provided then return that the given user is not authenticated.
+        if (_.isNil(token)) throw new ApiError({ code: 401, error: 'Authentication token was not provided.' });
 
-    // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
-    const decodedToken = AuthService.VerifyAuthenticationToken(token);
+        // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
+        const decodedToken = AuthService.VerifyAuthenticationToken(token);
 
-    if (_.isNil(decodedToken)) throw new ApiError({ code: 401, error: 'Invalid authentication token was provided.' });
+        if (_.isNil(decodedToken))
+            throw new ApiError({
+                code: 401,
+                error: 'Invalid authentication token was provided.',
+            });
 
-    const userRepository = getCustomRepository(UserRepository);
-    const user = await userRepository.findById(decodedToken.id);
+        const userRepository = getCustomRepository(UserRepository);
+        const user = await userRepository.findById(decodedToken.id);
 
-    if (_.isNil(user) || user.token !== token)
-        throw new ApiError({ code: 401, error: 'Expired authentication token was provided.' });
+        if (_.isNil(user) || user.token !== token)
+            throw new ApiError({ code: 401, error: 'Expired authentication token was provided.' });
 
-    // Ensure that the user is correctly sanitized to remove the token, password and other core
-    // properties. Since this is the current authenticated user, there is no need to remove any more
-    // additional properties.
-    request.user = user;
+        // Ensure that the user is correctly sanitized to remove the token, password and other core
+        // properties. Since this is the current authenticated user, there is no need to remove any more
+        // additional properties.
+        request.user = user;
 
-    return next();
-});
+        return next();
+    }
+);
 
-export const mustBeMinimumRole = (role?: UserRole, bot: boolean = false) =>
-    wrapAsync(async (request: IRequest, response: Response, next: NextFunction) => {
+export const mustBeMinimumRole = (role?: UserRole, bot = false) =>
+    wrapAsync(async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
         // If the requesting user must be a bot, ensure they are a bot, if they can only be a bot and
         // failed the check, ensure that we fail the request. Otherwise continue to role validation.
         if (bot && !_.isNil(request.body.apiKey)) {
@@ -59,8 +65,8 @@ export const mustBeMinimumRole = (role?: UserRole, bot: boolean = false) =>
  *  mustOwnUser ensures that the current authenticated is the same entity as the one the following
  *  request is being performed on. e.g updating their own profile but not owners.
  */
-export const mustBeRoleOrOwner = (role?: UserRole, bot: boolean = false) =>
-    wrapAsync(async (request: IRequest, response: Response, next: NextFunction) => {
+export const mustBeRoleOrOwner = (role?: UserRole, bot = false) =>
+    wrapAsync(async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
         const requestedUserId = Number(request.params.user);
 
         // Ensure that the requesting user is the entity they are also trying to perform the following

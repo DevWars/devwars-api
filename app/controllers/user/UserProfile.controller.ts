@@ -1,9 +1,9 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import * as _ from 'lodash';
 
 import UserProfile from '../../models/UserProfile';
-import { IProfileRequest } from '../../request/IProfileRequest';
-import { IUserRequest } from '../../request/IRequest';
+import { ProfileRequest } from '../../request/ProfileRequest';
+import { UserRequest } from '../../request/IRequest';
 import ApiError from '../../utils/apiError';
 
 /**
@@ -63,7 +63,7 @@ import ApiError from '../../utils/apiError';
  *       }
  *      }
  */
-export async function show(request: IUserRequest, response: Response) {
+export async function show(request: UserRequest, response: Response) {
     const profile = await UserProfile.findOne({ where: { user: request.boundUser.id } });
 
     if (_.isNil(profile)) {
@@ -157,8 +157,8 @@ export async function show(request: IUserRequest, response: Response) {
  *      }
  */
 
-export async function update(request: IUserRequest, response: Response) {
-    const params: any = { ...(request.body as IProfileRequest) };
+export async function update(request: UserRequest, response: Response) {
+    const params: any = { ...(request.body as ProfileRequest) };
     const profile: any = await UserProfile.findOne({ where: { user: request.boundUser.id } });
 
     if (_.isNil(profile)) {

@@ -21,6 +21,7 @@ describe('Health', () => {
 
     describe('GET - /health - Get the related health information of the server', async () => {
         it('should return healthy and the current version number', async () => {
+            // eslint-disable-next-line @typescript-eslint/no-var-requires
             const packageJson = require('../package');
             await agent.get('/health').expect(200, {
                 status: 'Healthy',

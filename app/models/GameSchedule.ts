@@ -2,7 +2,7 @@ import { Column, Entity, OneToOne, OneToMany, JoinColumn } from 'typeorm';
 import BaseModel from './BaseModel';
 import Game from './Game';
 import GameApplication from './GameApplication';
-import { IGameScheduleSetup } from '../types/gameSchedule';
+import { GameScheduleSetup } from '../types/gameSchedule';
 
 export enum GameStatus {
     SCHEDULED = 0,
@@ -28,7 +28,7 @@ export default class GameSchedule extends BaseModel {
      * Any additional properties that are used to setup the game on creation.
      */
     @Column({ type: 'jsonb' })
-    public setup: IGameScheduleSetup;
+    public setup: GameScheduleSetup;
 
     // ------------------------------------------------------------
     // Relations
@@ -46,7 +46,7 @@ export default class GameSchedule extends BaseModel {
      * @param status The status of the game schedule, e.g active.
      * @param setup The setup information of the given game schedule.
      */
-    public constructor(startTime?: Date, status?: GameStatus, setup?: IGameScheduleSetup) {
+    public constructor(startTime?: Date, status?: GameStatus, setup?: GameScheduleSetup) {
         super();
 
         this.startTime = startTime;

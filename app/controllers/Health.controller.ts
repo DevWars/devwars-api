@@ -1,10 +1,10 @@
 import { Request, Response } from 'express';
-import path = require('path');
 import * as fs from 'fs';
 
-import { pathExists, canAccessPath } from '../../test/helpers';
+import { canAccessPath, pathExists } from '../../test/helpers';
+import path = require('path');
 
-// tslint:disable-next-line: no-var-requires
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../../package');
 
 /**
@@ -23,7 +23,7 @@ const packageJson = require('../../package');
  *       "version": "0.1.0",
  *     }
  */
-export function index(request: Request, response: Response) {
+export function index(request: Request, response: Response): Response {
     return response.status(200).json({
         status: 'Healthy',
         version: packageJson.version,
@@ -45,7 +45,7 @@ export function index(request: Request, response: Response) {
  *       "logs": [...]
  *     }
  */
-export function getAllServerLogs(request: Request, response: Response) {
+export function getAllServerLogs(request: Request, response: Response): Response {
     const allLogsPath = path.resolve(__dirname, '../../logs/all.log');
 
     const logs: { logs: string[] } = { logs: [] };
@@ -72,7 +72,7 @@ export function getAllServerLogs(request: Request, response: Response) {
  *       "logs": [...]
  *     }
  */
-export function getErrorServerLogs(request: Request, response: Response) {
+export function getErrorServerLogs(request: Request, response: Response): Response {
     const errorLogsPath = path.resolve(__dirname, '../../logs/error.log');
 
     const logs: { logs: string[] } = { logs: [] };

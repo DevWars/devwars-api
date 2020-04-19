@@ -1,4 +1,4 @@
-import { hacker, helpers, internet, random, lorem, date } from 'faker';
+import { date, hacker, helpers, internet, lorem, random } from 'faker';
 import * as _ from 'lodash';
 
 import Game, { GameMode } from '../models/Game';
@@ -7,23 +7,17 @@ import User from '../models/User';
 
 import UserSeeding from './User.seeding';
 import { GameScheduleSeeding } from '.';
-import { IGameStorage } from '../types/game';
+import { GameStorage } from '../types/game';
 import { getCustomRepository } from 'typeorm';
 import UserRepository from '../repository/User.repository';
-import { IGameObjective } from '../types/common';
-
-export interface IObjective {
-    id: number;
-    description: string;
-    isBonus: boolean;
-}
+import { GameObjective } from '../types/common';
 
 export default class GameSeeding {
     /**
      * Returns a creation of the default game seeding builder.
      * @param shouldCreateSchedule If it should create a related schedule or not.
      */
-    public static default(shouldCreateSchedule: boolean = false): GameSeeding {
+    public static default(shouldCreateSchedule = false): GameSeeding {
         return new GameSeeding(shouldCreateSchedule);
     }
 
@@ -31,8 +25,8 @@ export default class GameSeeding {
      * Creates a object of objectives that match the expected state.
      * @param num The number of objectives to be created.
      */
-    private static createObjectives(num: number): { [index: string]: IGameObjective } {
-        const objectives: { [index: string]: IGameObjective } = {};
+    private static createObjectives(num: number): { [index: string]: GameObjective } {
+        const objectives: { [index: string]: GameObjective } = {};
 
         for (let index = 0; index < num; index++) {
             objectives[index] = {
@@ -60,18 +54,18 @@ export default class GameSeeding {
      * when binding the editors. If no players exist, then players will be added
      * before the editors.
      */
-    private playersLoaded: boolean = false;
+    private playersLoaded = false;
 
     /**
      * If a related game schedule should be created for the given game.
      */
-    private shouldCreateSchedule: boolean;
+    private readonly shouldCreateSchedule: boolean;
 
     /**
      * Create a default seeded game object, that uses the builder method.
      * @param shouldCreateSchedule If it should create a related schedule or not.
      */
-    public constructor(shouldCreateSchedule: boolean = true) {
+    public constructor(shouldCreateSchedule = true) {
         this.shouldCreateSchedule = shouldCreateSchedule;
 
         const mode = helpers.randomize(Object.values(GameMode));
@@ -108,12 +102,14 @@ export default class GameSeeding {
         switch (language) {
             case 'js':
                 this.game.storage.templates[language] = 'console.log("hit")';
+                break;
             case 'css':
                 this.game.storage.templates[language] = 'body { background: white; }';
+                break;
             case 'html':
                 this.game.storage.templates[language] = '<html><body>hi</body></html>';
+                break;
         }
-
         return this;
     }
 
@@ -174,7 +170,7 @@ export default class GameSeeding {
      * provided.
      * @param amount The amount of generated players to be added.
      */
-    public async withGeneratedPlayers(amount: number = 6): Promise<GameSeeding> {
+    public async withGeneratedPlayers(amount = 6): Promise<GameSeeding> {
         for (let i = 1; i <= amount; i++) {
             const player = await UserSeeding.default().save();
 
@@ -220,7 +216,7 @@ export default class GameSeeding {
             }
         }
 
-        const result: IGameStorage['editors'] = {};
+        const result: GameStorage['editors'] = {};
         for (const player of Object.values(this.game.storage.players)) {
             const editor = editors.shift();
 

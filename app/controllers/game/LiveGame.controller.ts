@@ -4,7 +4,7 @@ import * as _ from 'lodash';
 
 import UserGameStatsRepository from '../../repository/userGameStats.repository';
 import UserRepository from '../../repository/User.repository';
-import { IGameRequest, IRequest } from '../../request/IRequest';
+import { GameRequest, AuthorizedRequest } from '../../request/IRequest';
 import GameService from '../../services/Game.service';
 import { GameStatus } from '../../models/GameSchedule';
 import { flattenGame } from './Game.controller';
@@ -27,7 +27,7 @@ import ApiError from '../../utils/apiError';
  * @apiError PlayerCannotChangeTeam The player has already been assigned to other team, ensure to remove first.
  * @apiError PlayerAlreadyAssignedLanguage The player has already been assigned that language for that team (e.g html).
  */
-export async function addPlayer(request: IRequest & IGameRequest, response: Response) {
+export async function addPlayer(request: AuthorizedRequest & GameRequest, response: Response) {
     const { player } = request.body;
 
     if (!request.game.storage.players) request.game.storage.players = {};
@@ -81,7 +81,7 @@ export async function addPlayer(request: IRequest & IGameRequest, response: Resp
     return response.status(201).json(flattenGame(request.game));
 }
 
-export async function removePlayer(request: IRequest & IGameRequest, response: Response) {
+export async function removePlayer(request: AuthorizedRequest & GameRequest, response: Response) {
     const { player } = request.body;
 
     delete request.game.storage.players[player.id];
@@ -114,7 +114,7 @@ export async function removePlayer(request: IRequest & IGameRequest, response: R
  *
  * @apiError GameAlreadyEnded The given game has already ended.
  */
-export async function end(request: IRequest & IGameRequest, response: Response) {
+export async function end(request: AuthorizedRequest & GameRequest, response: Response) {
     if (request.game.status === GameStatus.ENDED) {
         throw new ApiError({
             error: 'The game is already in a end state.',

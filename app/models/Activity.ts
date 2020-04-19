@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, ManyToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
@@ -25,6 +25,6 @@ export default class Activity extends BaseModel {
     /**
      * Receiving user of the activity
      */
-    @ManyToOne((type) => User, (user) => user.activities)
+    @ManyToOne(() => User, (user) => user.activities)
     public user: User;
 }

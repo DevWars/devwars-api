@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { isNil, isNumber } from 'lodash';
 
 import logger from '../utils/logger';
@@ -10,6 +10,7 @@ import { AuthService } from '../services/Auth.service';
  *  but was not caught by anything. Ensuring that regardless of the result, that
  *  the user still gets a response back from the server.
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function handleError(error: any, request: Request, response: Response, next: NextFunction) {
     const apiError = error as ApiError;
 
@@ -17,7 +18,7 @@ export function handleError(error: any, request: Request, response: Response, ne
     if (!(error instanceof ApiError) || (!isNil(apiError.code) && apiError.log)) {
         const { protocol, originalUrl } = request;
 
-        const message = process.env.NODE_ENV === 'development' ? error.stack : error;
+        const message = ['test', 'development'].includes(process.env.NODE_ENV) ? error.stack : error;
         logger.error(`error on request: ${protocol}://${request.get('host')}${originalUrl}, ${message}`);
     }
 
@@ -41,6 +42,7 @@ export function handleError(error: any, request: Request, response: Response, ne
 /**
  * Handles cases in which the route does not exist, e.g /authentication/missing
  */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function handleMissing(request: Request, response: Response, next: NextFunction) {
     const { token } = request.cookies;
 

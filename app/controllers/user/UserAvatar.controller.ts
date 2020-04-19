@@ -1,10 +1,10 @@
 import { Response } from 'express';
 
 import { AvatarService } from '../../services/Avatar.service';
-import { IUserRequest } from '../../request/IRequest';
+import { UserRequest } from '../../request/IRequest';
 import ApiError from '../../utils/apiError';
 
-export async function store(request: IUserRequest, response: Response) {
+export async function store(request: UserRequest, response: Response) {
     try {
         await AvatarService.updateAvatarForUser(request.boundUser, request.file.path);
     } catch (e) {

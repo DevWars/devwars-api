@@ -1,13 +1,13 @@
 import * as dotenv from 'dotenv';
-dotenv.config();
-
 import * as path from 'path';
 import * as firebase from 'firebase-admin';
 import * as fs from 'fs';
 
 import logger from './logger';
-import { pathExists, canAccessPath } from '../../test/helpers';
+import { canAccessPath, pathExists } from '../../test/helpers';
 import { isNil } from 'lodash';
+
+dotenv.config();
 
 // tslint:disable:no-var-requires
 const firebasePath = path.resolve(__dirname, '../../firebase.json');
@@ -40,6 +40,8 @@ export function initializeFirebase(): firebase.app.App | null {
     }
 
     available = true;
+
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const serviceAccount = require(firebasePath);
 
     const firebaseApplication = firebase.initializeApp({
