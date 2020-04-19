@@ -1,4 +1,4 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, Like, MoreThan, LessThan } from 'typeorm';
 import User from '../models/User';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
@@ -11,27 +11,6 @@ interface Credentials {
 
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
-    public async findUsersWithPaging({
-        first,
-        after,
-        orderBy = 'updatedAt',
-        relations = [],
-    }: {
-        first: number;
-        after: number;
-        orderBy: string;
-        relations: string[];
-    }): Promise<User[]> {
-        return this.find({
-            skip: after,
-            take: first,
-            order: {
-                [orderBy]: 'DESC',
-            },
-            relations,
-        });
-    }
-
     /**
      * Finds a given user by there id.
      * @param id The id of the user being found.

@@ -24,7 +24,11 @@ const UserRoute: express.Router = express.Router();
  *  GENERAL
  ******************************/
 
-UserRoute.get('/', [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)], wrapAsync(UserController.all));
+UserRoute.get(
+    '/',
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
+    wrapAsync(UserController.getAllUsersWithPaging)
+);
 UserRoute.get('/leaderboards', wrapAsync(UserController.getUsersLeaderboards));
 
 UserRoute.get('/:user', [bindUserFromUserParam], wrapAsync(UserController.show));
