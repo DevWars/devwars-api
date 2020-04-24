@@ -1,4 +1,4 @@
-import { getManager, EntityManager, getCustomRepository } from 'typeorm';
+import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
@@ -6,14 +6,13 @@ import * as _ from 'lodash';
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 
-import { GameScheduleSeeding, UserSeeding, GameSeeding } from '../app/seeding';
+import { GameScheduleSeeding, GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import GameRepository from '../app/repository/Game.repository';
 import GameSchedule, { GameStatus } from '../app/models/GameSchedule';
 import GameScheduleRepository from '../app/repository/GameSchedule.repository';
-import User, { UserRole } from '../app/models/User';
-import logger from '../app/utils/logger';
+import { UserRole } from '../app/models/User';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -123,11 +122,8 @@ describe('Game-Schedule', () => {
     describe('PATCH - /schedules/:id - updating a existing game schedule', () => {
         it('Should return 403 because user cant update a schedule', async () => {
             const Schedule = await GameScheduleSeeding.default().save();
-
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            const updateData = {
-                title: 'helloWorld',
-            };
+
 
             await agent
                 .patch(`/schedules/${Schedule.id}`)

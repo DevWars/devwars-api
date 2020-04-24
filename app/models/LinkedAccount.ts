@@ -1,4 +1,4 @@
-import { Entity, Column, JoinTable, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinTable, ManyToOne } from 'typeorm';
 import BaseModel from './BaseModel';
 import User from './User';
 
@@ -37,7 +37,7 @@ export default class LinkedAccount extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @ManyToOne((type) => User, (user) => user.connections)
+    @ManyToOne(() => User, (user) => user.connections)
     @JoinTable()
     public user: User;
 

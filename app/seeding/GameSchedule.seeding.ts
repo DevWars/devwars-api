@@ -3,7 +3,7 @@ import { date, hacker, helpers, random, lorem } from 'faker';
 import GameSchedule from '../models/GameSchedule';
 import { GameStatus } from '../models/GameSchedule';
 import Game, { GameMode } from '../models/Game';
-import { IGameObjective } from '../types/common';
+import { GameObjective } from '../types/common';
 
 export default class GameScheduleSeeding {
     /**
@@ -17,8 +17,8 @@ export default class GameScheduleSeeding {
      * Creates a object of objectives that match the expected state.
      * @param num The number of objectives to be created.
      */
-    private static createObjectives(num: number): { [index: string]: IGameObjective } {
-        const objectives: { [index: string]: IGameObjective } = {};
+    private static createObjectives(num: number): { [index: string]: GameObjective } {
+        const objectives: { [index: string]: GameObjective } = {};
 
         for (let index = 0; index < num; index++) {
             objectives[index] = {

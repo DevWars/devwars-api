@@ -1,9 +1,8 @@
 import axios from 'axios';
-import { stringify } from 'qs';
 
 import logger from '../utils/logger';
 
-export interface ITwitchUser {
+export interface TwitchUser {
     id: string;
     username: string;
 }
@@ -39,7 +38,7 @@ export class TwitchService {
         }
     }
 
-    public static async twitchUserForToken(token: string): Promise<ITwitchUser> {
+    public static async twitchUserForToken(token: string): Promise<TwitchUser> {
         const userEndpoint = 'https://api.twitch.tv/helix/users';
 
         try {

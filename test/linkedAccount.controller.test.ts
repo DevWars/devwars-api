@@ -5,8 +5,6 @@ import { isNil } from 'lodash';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
-
-import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
 
 import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';

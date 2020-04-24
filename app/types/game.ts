@@ -1,12 +1,12 @@
 import User from '../models/User';
-import { IGameEditorTemplates, IGameObjective } from './common';
+import { GameEditorTemplates, GameObjective } from './common';
 
 /**
  * The given game storage object is a json blob and is not another table. It
  * will contain additional core information about the running game and after the
  * game has been completed. This includes players, editor assignments, results.
  */
-export interface IGameStorage {
+export interface GameStorage {
     // The title of the given game, this is the display name used when showing
     // users of the site players.
     title: string;
@@ -19,37 +19,37 @@ export interface IGameStorage {
 
     // The template html code that will be used to help get the game up and
     // running faster.
-    templates?: IGameEditorTemplates;
+    templates?: GameEditorTemplates;
 
     // The objectives of the given game, what the teams must do to be win.
-    objectives?: { [index: string]: IGameObjective };
+    objectives?: { [index: string]: GameObjective };
 
     // The objective of players that have been assigned to the given game. This
     // can be expanded into the users object containing the players and users
     // information, so the type supports its self and its self with the user
     // object.
-    players?: { [index: string]: IGameStoragePlayer | (IGameStoragePlayer & User) };
+    players?: { [index: string]: GameStoragePlayer | (GameStoragePlayer & User) };
 
     // The teams objective, containing a list of the teams playing, including
     // the id of the team, name and which objectives have been completed.
-    teams?: { [index: number]: IGameStorageTeam };
+    teams?: { [index: number]: GameStorageTeam };
 
     // The object of the editors that is related to the given game. including
     // which users have been to assigned to which editor.
-    editors?: { [index: string]: IGameStorageEditor };
+    editors?: { [index: string]: GameStorageEditor };
 
     // any related meta information about hte game, typically containing all the
     // related results and scores of the finished game.
-    meta?: IGameStorageMeta;
+    meta?: GameStorageMeta;
 }
 
 /**
  * The meta object of the given game, this includes the winning team, and the
  * scores/results of each team that competed.
  */
-export interface IGameStorageMeta {
+export interface GameStorageMeta {
     // The array of scores of the teams that played.
-    teamScores: IGameStorageMetaTeamScore[];
+    teamScores: GameStorageMetaTeamScore[];
 
     // The id of the winning team.
     winningTeam: number;
@@ -67,7 +67,7 @@ export interface IGameStorageMeta {
  * The scoring result of the given game per team, this will be used for
  * rendering results on the site.
  */
-export interface IGameStorageMetaTeamScore {
+export interface GameStorageMetaTeamScore {
     // The score the team got from the ui voting stage.
     ui: number;
 
@@ -85,7 +85,7 @@ export interface IGameStorageMetaTeamScore {
  * The editor object related to a given game, this will include who, what team
  * and what language the given editor will be using.
  */
-export interface IGameStorageEditor {
+export interface GameStorageEditor {
     // The id of the given editor.
     id: number;
 
@@ -103,7 +103,7 @@ export interface IGameStorageEditor {
  * The teams objective, containing a list of the teams playing, including the id
  * of the team, name and which objectives have been completed.
  */
-export interface IGameStorageTeam {
+export interface GameStorageTeam {
     // The id of the given team.
     id: number;
 
@@ -135,7 +135,7 @@ export interface IGameStorageTeam {
  * as a reference point to the editor object that will contain the information
  * about what the player is doing on the team.
  */
-export interface IGameStoragePlayer {
+export interface GameStoragePlayer {
     // The id of the given player.
     id: number;
     // The id of the team that the given player has been assigned too.

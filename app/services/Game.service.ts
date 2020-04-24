@@ -2,8 +2,8 @@ import * as _ from 'lodash';
 
 import Game from '../models/Game';
 import GameApplication from '../models/GameApplication';
-import { default as firebase, available } from '../utils/firebase';
-import { IGameStoragePlayer } from '../types/game';
+import { available, default as firebase } from '../utils/firebase';
+import { GameStoragePlayer } from '../types/game';
 
 const firebaseGame = available ? firebase.database().ref('game') : null;
 
@@ -15,8 +15,9 @@ export default class GameService {
      * @param game The game that is being used to auto assign players.
      * @param applications The applications for the given game.
      */
-    public static autoAssignPlayersForGame(game: Game, applications: GameApplication[]): Game {
-        return game;
+    public static autoAssignPlayersForGame(game: Game, applications: GameApplication[]):
+        { game: Game, applications: GameApplication[] } {
+        return { game, applications }
     }
 
     /**
@@ -30,7 +31,7 @@ export default class GameService {
         const redPlayers: Array<{ team: number; language: string; user: any }> = [];
 
         for (const editor of Object.values(game.storage.editors)) {
-            const player: IGameStoragePlayer = game.storage.players[editor.player];
+            const player: GameStoragePlayer = game.storage.players[editor.player];
 
             // if the player index exists but is null or undefined, just
             // continue with the other players.

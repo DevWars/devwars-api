@@ -1,11 +1,11 @@
-import { EntityRepository, Repository, Like } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import User from '../models/User';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';
 
 import * as _ from 'lodash';
 
-interface ICredentials {
+interface Credentials {
     identifier: string;
 }
 
@@ -91,7 +91,7 @@ export default class UserRepository extends Repository<User> {
      *  object is returned otherwise null.
      *  @param request The requesting information for the given user.
      */
-    public async findByCredentials(request: ICredentials): Promise<User> {
+    public async findByCredentials(request: Credentials): Promise<User> {
         const byEmail = await this.findByEmail(request.identifier);
         if (!_.isNil(byEmail)) return byEmail;
 
@@ -115,7 +115,7 @@ export default class UserRepository extends Repository<User> {
     public async getUsersLikeUsernameOrEmail(
         username: string,
         email: string,
-        limit: number = 50,
+        limit = 50,
         relations: string[]
     ): Promise<User[]> {
         let query = this.createQueryBuilder('user');

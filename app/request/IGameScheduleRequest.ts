@@ -1,6 +1,6 @@
-import { IGameEditorTemplates, IGameObjective } from '../types/common';
+import { GameEditorTemplates, GameObjective } from '../types/common';
 
-export interface ICreateGameScheduleRequest {
+export interface CreateGameScheduleRequest {
     // The expected start time of the given game, this is when the game.
     startTime: Date;
 
@@ -12,14 +12,14 @@ export interface ICreateGameScheduleRequest {
     title: string;
 
     // The objectives of the given game, what the teams must do to be win.
-    objectives?: { [index: string]: IGameObjective };
+    objectives?: { [index: string]: GameObjective };
 
     // The template html code that will be used to help get the game up and
     // running faster.
-    templates?: IGameEditorTemplates;
+    templates?: GameEditorTemplates;
 }
 
-export interface IUpdateGameScheduleRequest {
+export interface UpdateGameScheduleRequest {
     // The expected start time of the given game, this is when the game.
     startTime: Date;
 
@@ -32,9 +32,9 @@ export interface IUpdateGameScheduleRequest {
     title: string;
 
     // The objectives of the given game, what the teams must do to be win.
-    objectives?: { [index: string]: IGameObjective };
+    objectives?: { [index: string]: GameObjective };
 
     // The template html code that will be used to help get the game up and
     // running faster.
-    templates?: IGameEditorTemplates;
+    templates?: GameEditorTemplates;
 }

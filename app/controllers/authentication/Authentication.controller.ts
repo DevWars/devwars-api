@@ -10,15 +10,15 @@ import PasswordReset from '../../models/PasswordReset';
 import UserRepository from '../../repository/User.repository';
 import PasswordResetRepository from '../../repository/PasswordReset.repository';
 
-import ILoginRequest from '../../request/ILoginRequest';
-import IRegistrationRequest from '../../request/RegistrationRequest';
+import LoginRequest from '../../request/LoginRequest';
+import RegistrationRequest from '../../request/RegistrationRequest';
 import { AuthService } from '../../services/Auth.service';
 import { VerificationService } from '../../services/Verification.service';
 import { ResetService } from '../../services/Reset.service';
 import { RESERVED_USERNAMES } from '../../constants';
 import { hash } from '../../utils/hash';
 
-import { IRequest } from '../../request/IRequest';
+import { AuthorizedRequest } from '../../request/IRequest';
 import ApiError from '../../utils/apiError';
 
 function flattenUser(user: User) {
@@ -43,7 +43,7 @@ function flattenUser(user: User) {
  * @apiSuccess {User} user The user of the newly created account.
  */
 export async function register(request: Request, response: Response) {
-    let { username, email, password }: IRegistrationRequest = request.body;
+    let { username, email, password }: RegistrationRequest = request.body;
     username = username.trim();
     password = password.trim();
     email = email.trim();
@@ -84,7 +84,7 @@ export async function register(request: Request, response: Response) {
  *
  * @apiSuccess {User} user The user of the newly created account.
  */
-export async function reverify(request: IRequest, response: Response) {
+export async function reverify(request: AuthorizedRequest, response: Response) {
     // If the user is not in the pending state, return out early stating that its complete with the
     // status of already being verified. This is a edge case which is unlikely to be done through
     // standard user interaction.
@@ -134,7 +134,7 @@ export async function verify(request: Request, response: Response) {
  * @apiSuccess {User} user The user of the newly created account.
  */
 export async function login(request: Request, response: Response) {
-    const { identifier, password } = { ...(request.body as ILoginRequest) };
+    const { identifier, password } = { ...(request.body as LoginRequest) };
 
     const userRepository = getCustomRepository(UserRepository);
     const user = await userRepository.findByCredentials({ identifier });
@@ -169,7 +169,7 @@ export async function login(request: Request, response: Response) {
     response.json(flattenUser(user));
 }
 
-export async function logout(request: IRequest, response: Response) {
+export async function logout(request: AuthorizedRequest, response: Response) {
     request.user.token = null;
     await User.save(request.user);
 
@@ -188,7 +188,7 @@ export async function logout(request: IRequest, response: Response) {
  *
  * @apiSuccess {User} user The user who is authenticated.
  */
-export async function currentUser(request: IRequest, response: Response) {
+export async function currentUser(request: AuthorizedRequest, response: Response) {
     return response.json(request.user);
 }
 
@@ -212,7 +212,7 @@ export async function currentUser(request: IRequest, response: Response) {
  *      "verification": true
  *     }
  */
-export async function initiateEmailReset(request: IRequest, response: Response) {
+export async function initiateEmailReset(request: AuthorizedRequest, response: Response) {
     const { password, email } = request.body;
 
     const passwordsMatch: boolean = await bcrypt.compare(password, request.user.password);
@@ -300,7 +300,7 @@ export async function resetPassword(request: Request, response: Response) {
  *      "message": "Password successfully updated.",
  *     }
  */
-export async function updatePassword(request: IRequest, response: Response) {
+export async function updatePassword(request: AuthorizedRequest, response: Response) {
     const { oldPassword, newPassword }: { oldPassword: string; newPassword: string } = request.body;
 
     // Ensure that the password provided matches the encrypted password stored in the database, this

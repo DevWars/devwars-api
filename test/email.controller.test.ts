@@ -1,7 +1,8 @@
 import * as chai from 'chai';
 import * as supertest from 'supertest';
+import { SuperTest, Test } from 'supertest';
 import { getCustomRepository } from 'typeorm';
-import { isNil, isBoolean } from 'lodash';
+import { isBoolean, isNil } from 'lodash';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
@@ -12,7 +13,7 @@ import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
 import EmailRepository from '../app/repository/EmailOptIn.repository';
 
 const server: ServerService = new ServerService();
-let agent: any;
+let agent: SuperTest<Test>;
 
 describe('Emailing', () => {
     before(async () => {
@@ -38,7 +39,7 @@ describe('Emailing', () => {
 
         it('Should update all values if specified.', async () => {
             const repository = getCustomRepository(EmailRepository);
-            const emailOptIn: any = await repository.findOne({ where: { user } });
+            const emailOptIn: any = await repository.findOne({where: {user}});
 
             chai.expect(isNil(emailOptIn)).to.be.eq(false);
 
@@ -54,7 +55,7 @@ describe('Emailing', () => {
                 .send(emailOptIn)
                 .expect(200);
 
-            const updatedOptIn: any = await repository.findOne({ where: { user } });
+            const updatedOptIn: any = await repository.findOne({where: {user}});
             chai.expect(isNil(updatedOptIn)).to.be.eq(false);
 
             // Reverse all the boolean values to the ! of its current value.
@@ -67,28 +68,28 @@ describe('Emailing', () => {
 
         it('Should not update any values if non specified.', async () => {
             const repository = getCustomRepository(EmailRepository);
-            const emailOptIn: any = await repository.findOne({ where: { user } });
+            const emailOptIn: any = await repository.findOne({where: {user}});
 
             await agent
                 .patch(`/users/${user.id}/emails/permissions`)
                 .set('Cookie', await cookieForUser(user))
                 .expect(200);
 
-            const emailOptInUpdated: any = await repository.findOne({ where: { user } });
+            const emailOptInUpdated: any = await repository.findOne({where: {user}});
             chai.expect(JSON.stringify(emailOptIn)).to.eq(JSON.stringify(emailOptInUpdated));
         });
 
         it('Should update the specified value for a given user.', async () => {
             const repository = getCustomRepository(EmailRepository);
-            const emailOptIn = await repository.findOne({ where: { user } });
+            const emailOptIn = await repository.findOne({where: {user}});
 
             await agent
                 .patch(`/users/${user.id}/emails/permissions`)
                 .set('Cookie', await cookieForUser(user))
-                .send({ news: !emailOptIn.news })
+                .send({news: !emailOptIn.news})
                 .expect(200);
 
-            const emailOptInUpdated = await repository.findOne({ where: { user } });
+            const emailOptInUpdated = await repository.findOne({where: {user}});
             chai.expect(emailOptIn.news).to.not.eq(emailOptInUpdated.news);
         });
 

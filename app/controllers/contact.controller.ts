@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { IContactRequest } from '../request/IRequest';
+import { ContactRequest } from '../request/IRequest';
 import { sendContactUsEmail } from '../services/Mail.service';
 
 /**
@@ -19,7 +19,7 @@ import { sendContactUsEmail } from '../services/Mail.service';
  *     "message": "Hi, I was wondering if you could help me... "
  *    }
  */
-export async function handleContactPost(request: IContactRequest, response: Response) {
+export async function handleContactPost(request: ContactRequest, response: Response) {
     const { name, email, message } = request.body;
 
     await sendContactUsEmail(name, email, message);

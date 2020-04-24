@@ -1,10 +1,11 @@
 import { EntityManager, getManager } from 'typeorm';
 import * as supertest from 'supertest';
+import { SuperTest, Test } from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 
-import { UserSeeding, UserProfileSeeding } from '../app/seeding';
-import { IProfileRequest } from '../app/request/IProfileRequest';
+import { UserProfileSeeding, UserSeeding } from '../app/seeding';
+import { ProfileRequest } from '../app/request/ProfileRequest';
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
@@ -13,13 +14,13 @@ import UserProfile, { Sex } from '../app/models/UserProfile';
 import User, { UserRole } from '../app/models/User';
 
 const server: ServerService = new ServerService();
-let agent: any;
+let agent: SuperTest<Test>;
 
 // used for the creation of the database transactions without the need of constantly calling into
 // get manager everytime a test needs a transaction.
 const connectionManager: EntityManager = getManager();
 
-const userProfileSettings: any | IProfileRequest = {
+const userProfileSettings: ProfileRequest | any = {
     firstName: 'damien',
     lastName: 'test',
     dob: new Date(),

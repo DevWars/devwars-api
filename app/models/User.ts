@@ -1,5 +1,5 @@
-import { Entity, Column, OneToMany, OneToOne, JoinColumn } from 'typeorm';
-import { isNil, isArray } from 'lodash';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { isArray, isNil } from 'lodash';
 
 import BaseModel from './BaseModel';
 import LinkedAccount from './LinkedAccount';
@@ -61,7 +61,7 @@ export default class User extends BaseModel {
     @OneToOne(() => EmailOptIn)
     public emailOptIn: EmailOptIn;
 
-    @OneToOne((type) => PasswordReset)
+    @OneToOne(() => PasswordReset)
     public passwordReset: PasswordReset;
 
     @OneToMany(() => Activity, (activities) => activities.user)

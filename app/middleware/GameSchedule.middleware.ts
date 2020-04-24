@@ -3,7 +3,7 @@ import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
 import GameScheduleRepository from '../repository/GameSchedule.repository';
-import { IScheduleRequest } from '../request/IRequest';
+import { ScheduleRequest } from '../request/IRequest';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
@@ -14,7 +14,7 @@ import ApiError from '../utils/apiError';
  * pull the schedule from the request object.
  */
 export const bindScheduleFromScheduleParam = wrapAsync(
-    async (request: IScheduleRequest, response: Response, next: NextFunction) => {
+    async (request: ScheduleRequest, response: Response, next: NextFunction) => {
         const { schedule: scheduleId } = request.params;
 
         if (_.isNil(scheduleId) || isNaN(_.toNumber(scheduleId)) || Number(scheduleId) > DATABASE_MAX_ID)

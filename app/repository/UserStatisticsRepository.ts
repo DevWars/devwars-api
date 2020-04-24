@@ -3,7 +3,6 @@ import { isNil } from 'lodash';
 
 import UserStats from '../models/UserStats';
 import User from '../models/User';
-import logger from '../utils/logger';
 
 @EntityRepository(UserStats)
 export default class UserStatisticsRepository extends Repository<UserStats> {

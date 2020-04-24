@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm';
 import { Response } from 'express';
 import * as _ from 'lodash';
 
-import { IGameRequest, IRequest, IScheduleRequest } from '../../request/IRequest';
+import { GameRequest, AuthorizedRequest, ScheduleRequest } from '../../request/IRequest';
 import { sendGameApplicationApplyingEmail, SendGameApplicationResignEmail } from '../../services/Mail.service';
 
 import GameApplicationRepository from '../../repository/GameApplication.repository';
@@ -70,7 +70,7 @@ import { Provider } from '../../models/LinkedAccount';
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
-export async function getCurrentUserGameApplications(request: IRequest, response: Response) {
+export async function getCurrentUserGameApplications(request: AuthorizedRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.findByUser(request.user);
 
@@ -126,7 +126,7 @@ export async function getCurrentUserGameApplications(request: IRequest, response
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id. export
  * @apiError GameApplicationAlreadyExists A game application already exists for user for schedule.
  */
-export async function applyToSchedule(request: IRequest & IScheduleRequest, response: Response) {
+export async function applyToSchedule(request: AuthorizedRequest & ScheduleRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const exists = await gameApplicationRepository.findByUserAndSchedule(request.user, request.schedule);
 
@@ -195,7 +195,7 @@ export async function applyToSchedule(request: IRequest & IScheduleRequest, resp
  * @apiError GameApplicationAlreadyExists A game application already exists for user for schedule.
  * @apiError TwitchLinkDoesNotExist No user exists with the a linked account to twitch with the specified id.
  */
-export async function applyToScheduleFromTwitch(request: IScheduleRequest, response: Response) {
+export async function applyToScheduleFromTwitch(request: ScheduleRequest, response: Response) {
     const TwitchId = parseStringWithDefault(request.query.twitch_id, null, 0, DATABASE_MAX_ID);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
@@ -242,7 +242,7 @@ export async function applyToScheduleFromTwitch(request: IScheduleRequest, respo
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
-export async function resignFromSchedule(request: IRequest & IScheduleRequest, response: Response) {
+export async function resignFromSchedule(request: AuthorizedRequest & ScheduleRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
     const application = await gameApplicationRepository.findByUserAndSchedule(request.user, request.schedule);
@@ -295,7 +295,7 @@ export async function resignFromSchedule(request: IRequest & IScheduleRequest, r
  * @apiError ScheduleIdNotDefined Invalid schedule id provided.
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  */
-export async function findApplicationsBySchedule(request: IScheduleRequest, response: Response) {
+export async function findApplicationsBySchedule(request: ScheduleRequest, response: Response) {
     const { profile, stats } = request.query;
 
     const params = {
@@ -348,7 +348,7 @@ export async function findApplicationsBySchedule(request: IScheduleRequest, resp
  * @apiError GameScheduleDoesNotExist A game schedule does not exist by the provided game id.
  *
  */
-export async function findUserApplicationsByGame(request: IGameRequest, response: Response) {
+export async function findUserApplicationsByGame(request: GameRequest, response: Response) {
     const { profile, stats } = request.query;
 
     const params = {
@@ -372,7 +372,7 @@ export async function findUserApplicationsByGame(request: IGameRequest, response
     return response.json(users);
 }
 
-export async function createGameSchedule(request: IRequest & IGameRequest, response: Response) {
+export async function createGameSchedule(request: AuthorizedRequest & GameRequest, response: Response) {
     const schedule = request.game.schedule;
 
     if (_.isNil(schedule)) {

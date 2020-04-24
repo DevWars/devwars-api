@@ -1,5 +1,4 @@
-import { Repository, EntityRepository, In } from 'typeorm';
-import * as _ from 'lodash';
+import { EntityRepository, In, Repository } from 'typeorm';
 
 import UserGameStats from '../models/UserGameStats';
 

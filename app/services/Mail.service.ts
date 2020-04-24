@@ -6,15 +6,15 @@ import { getCustomRepository } from 'typeorm';
 
 import GameApplication from '../models/GameApplication';
 import User from '../models/User';
-import LinkedAccount from '../models/LinkedAccount';
 
 import EmailRepository from '../repository/EmailOptIn.repository';
 import logger from '../utils/logger';
 
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const mjml2html = require('mjml');
 const mjmlOptions = { minify: true, keepComments: false };
 
-export async function send(to: string, subject: string, html: string) {
+export async function send(to: string, subject: string, html: string): Promise<any> {
     // We don't care about anything going on in testing, so just return out early before we attempt
     // to send anymore emails.
     if (process.env.NODE_ENV === 'test') return;
@@ -37,7 +37,7 @@ export async function send(to: string, subject: string, html: string) {
     }
 }
 
-export async function sendWelcomeEmail(user: User, verificationUrl: string) {
+export async function sendWelcomeEmail(user: User, verificationUrl: string): Promise<void> {
     const subject = 'Welcome to DevWars';
 
     const filePath = path.resolve(__dirname, '../mail/welcome.mjml');
@@ -57,7 +57,7 @@ export async function sendWelcomeEmail(user: User, verificationUrl: string) {
  * the game they are applying to with basic information about the event.
  * @param gameApplication The game application related to the email being sent.
  */
-export async function sendGameApplicationApplyingEmail(gameApplication: GameApplication) {
+export async function sendGameApplicationApplyingEmail(gameApplication: GameApplication): Promise<any> {
     const emailRepository = getCustomRepository(EmailRepository);
     const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(gameApplication.user);
 
@@ -86,7 +86,7 @@ export async function sendGameApplicationApplyingEmail(gameApplication: GameAppl
  * the game they are  resigning to with basic information about the event.
  * @param gameApplication The game application related to the email being sent.
  */
-export async function SendGameApplicationResignEmail(gameApplication: GameApplication) {
+export async function SendGameApplicationResignEmail(gameApplication: GameApplication): Promise<any> {
     const emailRepository = getCustomRepository(EmailRepository);
     const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(gameApplication.user);
 
@@ -125,7 +125,7 @@ export async function sendPasswordResetEmail(user: User, resetUrl: string) {
     await send(user.email, subject, output.html);
 }
 
-export async function sendContactUsEmail(name: string, email: string, message: string) {
+export async function sendContactUsEmail(name: string, email: string, message: string): Promise<void> {
     const subject = `DevWars Contact Us - ${name}`;
 
     const filePath = path.resolve(__dirname, '../mail/contact-us.mjml');
@@ -141,12 +141,13 @@ export async function sendContactUsEmail(name: string, email: string, message: s
     await send('contact@devwars.tv', subject, output.html);
     await send(email, subject, output.html);
 }
+
 /**
  * Send a email to th linked account user about the account status change (linked).
  * @param user The user who has unlinked a connection from there account.
  * @param provider The provider who was unlinked.
  */
-export async function SendLinkedAccountEmail(user: User, provider: string) {
+export async function SendLinkedAccountEmail(user: User, provider: string): Promise<any> {
     const emailRepository = getCustomRepository(EmailRepository);
     const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(user);
 
@@ -176,7 +177,7 @@ export async function SendLinkedAccountEmail(user: User, provider: string) {
  * @param user The user who has unlinked a connection from there account.
  * @param provider The provider who was unlinked.
  */
-export async function SendUnLinkedAccountEmail(user: User, provider: string) {
+export async function SendUnLinkedAccountEmail(user: User, provider: string): Promise<any> {
     const emailRepository = getCustomRepository(EmailRepository);
     const emailPermissions = await emailRepository.getEmailOptInPermissionForUser(user);
 

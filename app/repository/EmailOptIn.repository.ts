@@ -2,7 +2,6 @@ import { Repository, EntityRepository } from 'typeorm';
 
 import EmailOptIn from '../models/EmailOptIn';
 import User from '../models/User';
-import * as _ from 'lodash';
 
 @EntityRepository(EmailOptIn)
 export default class EmailOptInRepository extends Repository<EmailOptIn> {

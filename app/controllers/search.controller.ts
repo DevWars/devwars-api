@@ -3,7 +3,7 @@ import { Response } from 'express';
 import * as _ from 'lodash';
 
 import UserRepository from '../repository/User.repository';
-import { IUserRequest } from '../request/IRequest';
+import { UserRequest } from '../request/IRequest';
 import ApiError from '../utils/apiError';
 
 import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../../test/helpers';
@@ -43,7 +43,7 @@ import { USERNAME_MAX_LENGTH } from '../constants';
  *        "id": 83
  *      }]
  */
-export async function lookupUser(request: IUserRequest, response: Response) {
+export async function lookupUser(request: UserRequest, response: Response) {
     const { limit, full } = request.query;
 
     const username = parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH);

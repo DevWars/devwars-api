@@ -8,12 +8,11 @@ import User from '../../models/User';
 
 import { DiscordService } from '../../services/Discord.service';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
-import { IRequest, IUserRequest } from '../../request/IRequest';
+import { AuthorizedRequest, UserRequest } from '../../request/IRequest';
 import { parseIntWithDefault } from '../../../test/helpers';
 import ApiError from '../../utils/apiError';
 import { TwitchService } from '../../services/twitch.service';
 import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
-import logger from '../../utils/logger';
 import { DATABASE_MAX_ID } from '../../constants';
 
 /**
@@ -41,7 +40,7 @@ import { DATABASE_MAX_ID } from '../../constants';
  *   "createdAt": "2019-10-25T21:01:45.568Z"
  *  }]
  */
-export async function all(request: IRequest, response: Response) {
+export async function all(request: AuthorizedRequest, response: Response): Promise<any> {
     const { first, after } = request.query as { first: any; after: any };
 
     const params = {
@@ -69,7 +68,62 @@ export async function all(request: IRequest, response: Response) {
     return response.json({ data: accounts, pagination });
 }
 
-export async function connect(request: IRequest, response: Response) {
+
+async function connectTwitch(request: Request, response: Response, user: User): Promise<any> {
+    // gather a given access token for the code that was returned back from twitch, completing
+    // the linkage and authorization process with twitch.
+    const token = await TwitchService.accessTokenForCode(request.query.code as string);
+    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for Twitch.', code: 400 });
+
+    // Attempt to gather the related users account information for the given token, this is what
+    // will be used to link the accounts up with twitch.
+    const twitchUser = await TwitchService.twitchUserForToken(token);
+    if (_.isNil(twitchUser)) throw new ApiError({ error: 'Twitch user not found.', code: 403 });
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
+
+    if (_.isNil(linkedAccount)) {
+        linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    }
+
+    linkedAccount.user = user;
+    linkedAccount.username = twitchUser.username;
+
+    await linkedAccount.save();
+
+    await SendLinkedAccountEmail(user, Provider.TWITCH);
+    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
+}
+
+async function connectDiscord(request: Request, response: Response, user: User): Promise<any> {
+    // gather a given access token for the code that was returned back from discord, completing
+    // the linkage and authorization process with discord.
+    const token = await DiscordService.accessTokenForCode(request.query.code as string);
+    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for discord.', code: 400 });
+
+    // Attempt to gather the related users account information for the given token, this is what
+    // will be used to link the accounts up with discord.
+    const discordUser = await DiscordService.discordUserForToken(token);
+    if (_.isNil(discordUser)) throw new ApiError({ error: 'Discord user not found.', code: 403 });
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
+
+    if (_.isNil(linkedAccount)) {
+        linkedAccount = new LinkedAccount(user, discordUser.username, Provider.DISCORD, discordUser.id);
+    }
+
+    linkedAccount.user = user;
+    linkedAccount.username = discordUser.username;
+
+    await linkedAccount.save();
+
+    await SendLinkedAccountEmail(user, Provider.DISCORD);
+    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
+}
+
+export async function connect(request: AuthorizedRequest, response: Response): Promise<any> {
     const provider = request.params.provider.toUpperCase();
 
     if (!(provider in Provider)) {
@@ -96,7 +150,7 @@ export async function connect(request: IRequest, response: Response) {
  * @apiError ProviderNotFound The provider is not a valid provider.
  * @apiError NoAccountLinkFound No link account between user and provider.
  */
-export async function disconnect(request: IRequest, response: Response) {
+export async function disconnect(request: AuthorizedRequest, response: Response): Promise<any> {
     const provider = request.params.provider.toUpperCase();
 
     // if the given provider is not valid, then return out with a response to the user that the
@@ -129,7 +183,7 @@ export async function disconnect(request: IRequest, response: Response) {
     return response.json(linkedAccount);
 }
 
-export async function updateTwitchCoins(request: Request, response: Response) {
+export async function updateTwitchCoins(request: Request, response: Response): Promise<any> {
     const twitchUsers = request.body.updates.map((update: any) => update.twitchUser);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
@@ -146,7 +200,10 @@ export async function updateTwitchCoins(request: Request, response: Response) {
 
     for (const account of accounts) {
         const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
-        if (!_.isFinite(amount)) continue;
+        if (!
+            _.isFinite(amount)
+        )
+            continue;
 
         if (!_.isNil(account.user)) {
             // push it on the users statistics since they have there twitch accounts linked.
@@ -159,60 +216,6 @@ export async function updateTwitchCoins(request: Request, response: Response) {
 
     await LinkedAccount.save(accounts);
     return response.send();
-}
-
-async function connectTwitch(request: Request, response: Response, user: User) {
-    // gather a given access token for the code that was returned back from twitch, completing
-    // the linkage and authorization process with twitch.
-    const token = await TwitchService.accessTokenForCode(request.query.code as string);
-    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for Twitch.', code: 400 });
-
-    // Attempt to gather the related users account information for the given token, this is what
-    // will be used to link the accounts up with twitch.
-    const twitchUser = await TwitchService.twitchUserForToken(token);
-    if (_.isNil(twitchUser)) throw new ApiError({ error: 'Twitch user not found.', code: 403 });
-
-    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.TWITCH, twitchUser.id);
-
-    if (_.isNil(linkedAccount)) {
-        linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
-    }
-
-    linkedAccount.user = user;
-    linkedAccount.username = twitchUser.username;
-
-    await linkedAccount.save();
-
-    await SendLinkedAccountEmail(user, Provider.TWITCH);
-    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
-}
-
-async function connectDiscord(request: Request, response: Response, user: User) {
-    // gather a given access token for the code that was returned back from discord, completing
-    // the linkage and authorization process with discord.
-    const token = await DiscordService.accessTokenForCode(request.query.code as string);
-    if (_.isNil(token)) throw new ApiError({ error: 'Could not gather access token for discord.', code: 400 });
-
-    // Attempt to gather the related users account information for the given token, this is what
-    // will be used to link the accounts up with discord.
-    const discordUser = await DiscordService.discordUserForToken(token);
-    if (_.isNil(discordUser)) throw new ApiError({ error: 'Discord user not found.', code: 403 });
-
-    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    let linkedAccount = await linkedAccountRepository.findByProviderAndProviderId(Provider.DISCORD, discordUser.id);
-
-    if (_.isNil(linkedAccount)) {
-        linkedAccount = new LinkedAccount(user, discordUser.username, Provider.DISCORD, discordUser.id);
-    }
-
-    linkedAccount.user = user;
-    linkedAccount.username = discordUser.username;
-
-    await linkedAccount.save();
-
-    await SendLinkedAccountEmail(user, Provider.DISCORD);
-    return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
 
 /**
@@ -235,7 +238,7 @@ async function connectDiscord(request: Request, response: Response, user: User) 
  *     "createdAt": "2019-11-20T16:56:57.212Z"
  * }]
  */
-export async function gatherAllUserConnections(request: IUserRequest, response: Response) {
+export async function gatherAllUserConnections(request: UserRequest, response: Response): Promise<any> {
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
 
     const connections = await linkedAccountRepository.findAllByUserId(request.boundUser.id);
@@ -262,7 +265,7 @@ export async function gatherAllUserConnections(request: IUserRequest, response: 
  *     "createdAt": "2019-11-20T16:56:57.212Z"
  * }]
  */
-export async function gatherAllUserConnectionsByProvider(request: IUserRequest, response: Response) {
+export async function gatherAllUserConnectionsByProvider(request: UserRequest, response: Response): Promise<any> {
     const { provider } = request.params;
 
     if (_.isNil(provider) || !(provider.toUpperCase() in Provider))

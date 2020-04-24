@@ -7,7 +7,7 @@ import User from '../app/models/User';
 
 let connection: typeConnection;
 
-const updateEmailAddress = async () => {
+const updateEmailAddress = async (): Promise<any> => {
     const users = await User.find();
 
     for (const user of users) {
@@ -17,7 +17,7 @@ const updateEmailAddress = async () => {
     }
 };
 
-(async () => {
+(async (): Promise<any> => {
     connection = await Connection;
 
     logger.info('Updating user emails');

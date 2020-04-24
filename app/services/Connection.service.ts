@@ -1,8 +1,7 @@
 import { config, DIALECT } from '../../config';
 import { Connection, createConnection } from 'typeorm';
 
-let connection: Promise<Connection>;
-connection = createConnection({
+const connection: Promise<Connection> = createConnection({
     entities: [__dirname + '/../models/*{.ts,js}'],
     type: DIALECT,
     database: config.DATABASE.NAME,

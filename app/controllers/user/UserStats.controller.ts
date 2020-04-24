@@ -6,7 +6,7 @@ import UserStats from '../../models/UserStats';
 import UserRepository from '../../repository/User.repository';
 import { Provider } from '../../models/LinkedAccount';
 import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
-import { IUserRequest } from '../../request/IRequest';
+import { UserRequest } from '../../request/IRequest';
 import ApiError from '../../utils/apiError';
 import { parseStringWithDefault } from '../../../test/helpers';
 
@@ -49,7 +49,7 @@ import { parseStringWithDefault } from '../../../test/helpers';
  *       }
  *      }
  */
-export async function forUser(request: IUserRequest, response: Response) {
+export async function forUser(request: UserRequest, response: Response) {
     const { boundUser: user } = request;
 
     const userRepository = getCustomRepository(UserRepository);
@@ -88,7 +88,7 @@ export async function forUser(request: IUserRequest, response: Response) {
  * @apiSuccess {number} level The level of the user.
  * @apiSuccess {string} twitchId The twitch id of the user.
  */
-export async function create(request: IUserRequest, response: Response) {
+export async function create(request: UserRequest, response: Response) {
     const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
 
     if (!isNil(existingStatus)) {

@@ -5,7 +5,7 @@ import { map } from 'lodash';
 async function validator(
     content: any,
     schema: Joi.ObjectSchema | Joi.ArraySchema,
-    code: number = 400,
+    code = 400,
     request: Request,
     response: Response,
     next: NextFunction

@@ -1,4 +1,4 @@
-export interface IProcessEnv {
+export interface ProcessEnv {
     // #################################
     // # Master Configuration Options  #
     // #################################

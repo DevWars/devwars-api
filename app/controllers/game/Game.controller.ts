@@ -6,8 +6,8 @@ import * as _ from 'lodash';
 import Game, { GameMode } from '../../models/Game';
 import GameRepository from '../../repository/Game.repository';
 
-import { IUpdateGameRequest } from '../../request/IUpdateGameRequest';
-import { IGameRequest, IRequest, ICreateGameRequest } from '../../request/IRequest';
+import { UpdateGameRequest } from '../../request/UpdateGameRequest';
+import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../../request/IRequest';
 import { GameStatus } from '../../models/GameSchedule';
 import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
@@ -37,7 +37,7 @@ export function flattenGame(game: Game) {
     };
 }
 
-export async function show(request: IGameRequest, response: Response) {
+export async function show(request: GameRequest, response: Response) {
     const includePlayers = parseBooleanWithDefault(request.query.players, false);
     const game = flattenGame(request.game);
 
@@ -61,8 +61,8 @@ export async function all(request: Request, response: Response) {
     response.json(games.map((game) => flattenGame(game)));
 }
 
-export async function update(request: IRequest & IGameRequest, response: Response) {
-    const gameRequest = request.body as IUpdateGameRequest;
+export async function update(request: AuthorizedRequest & GameRequest, response: Response) {
+    const gameRequest = request.body as UpdateGameRequest;
 
     const game = request.game;
 
@@ -206,7 +206,7 @@ export async function active(request: Request, response: Response) {
  * @apiError ScheduleDoesNotExist The given schedule for the game does not exist.
  * @apiError ScheduleIsNotActive The given schedule is not active.
  */
-export async function create(request: ICreateGameRequest, response: Response) {
+export async function create(request: CreateGameRequest, response: Response) {
     const { season, mode, title, storage, status } = request.body;
 
     const scheduleRepository = getCustomRepository(GameScheduleRepository);
@@ -343,7 +343,7 @@ export async function findAllBySeason(request: Request, response: Response) {
  * @apiError GameScheduleDoesNotExist A game does not exist by the provided game id.
  * @apiError GameNotActive The requesting auto assign game is not in a active state.
  */
-export async function autoAssignPlayers(request: IRequest & IGameRequest, response: Response) {
+export async function autoAssignPlayers(request: AuthorizedRequest & GameRequest, response: Response) {
     if (request.game?.status !== GameStatus.ACTIVE)
         throw new ApiError({
             error: 'You cannot balance a game that is not active.',
@@ -372,12 +372,12 @@ export async function autoAssignPlayers(request: IRequest & IGameRequest, respon
 
     // Perform the auto assignment of players based on the applications.
     const updatedGame = GameService.autoAssignPlayersForGame(request.game, applications);
-    await updatedGame.save();
+    await updatedGame.game.save();
 
     return response.status(200).send();
 }
 
-export async function activate(request: IRequest & IGameRequest, response: Response) {
+export async function activate(request: AuthorizedRequest & GameRequest, response: Response) {
     request.game.status = GameStatus.ACTIVE;
     await request.game.save();
 
@@ -385,7 +385,7 @@ export async function activate(request: IRequest & IGameRequest, response: Respo
     return response.json(flattenGame(request.game));
 }
 
-export async function remove(request: IRequest & IGameRequest, response: Response) {
+export async function remove(request: AuthorizedRequest & GameRequest, response: Response) {
     await request.game.remove();
     return response.json(flattenGame(request.game));
 }

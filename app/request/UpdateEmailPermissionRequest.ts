@@ -1,4 +1,4 @@
-export interface IUpdateEmailPermissionRequest {
+export interface UpdateEmailPermissionRequest {
     [key: string]: boolean;
 
     news: boolean;

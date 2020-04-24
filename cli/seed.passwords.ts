@@ -7,7 +7,7 @@ import User from '../app/models/User';
 
 let connection: typeConnection;
 
-const updateUserPasswords = async () => {
+const updateUserPasswords = async (): Promise<any> => {
     const users = await User.find();
 
     for (const user of users) {
@@ -16,7 +16,7 @@ const updateUserPasswords = async () => {
     }
 };
 
-(async () => {
+(async (): Promise<any> => {
     connection = await Connection;
 
     logger.info('Updating user passwords');
