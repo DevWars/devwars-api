@@ -392,7 +392,7 @@ describe('user', () => {
 
         it('Should not update the username if the lastUsernameUpdatedAt is not valid', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
-            user.lastUsernameUpdateAt = addDays(new Date(), -(USERNAME_CHANGE_MIN_DAYS + 1));
+            user.lastUsernameUpdateAt = addDays(new Date(), -(USERNAME_CHANGE_MIN_DAYS - 1));
             const minDateRequired = addDays(user.lastUsernameUpdateAt, USERNAME_CHANGE_MIN_DAYS);
 
             await agent

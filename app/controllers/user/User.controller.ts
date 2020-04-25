@@ -57,7 +57,13 @@ interface UpdateUserRequest {
  *    }
  */
 export async function show(request: UserRequest, response: Response) {
-    const sanitizedUser = request.boundUser.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
+    const sanitizedUser = request.boundUser.sanitize(
+        'email',
+        'lastSignIn',
+        'createdAt',
+        'updatedAt',
+        'lastUsernameUpdateAt'
+    );
     return response.json(sanitizedUser);
 }
 
