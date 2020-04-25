@@ -1,4 +1,4 @@
-import { getConnection, getCustomRepository, Repository } from 'typeorm';
+import { getConnection, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
@@ -21,7 +21,7 @@ import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
 import EmailOptIn from '../../models/EmailOptIn';
-import { UserRole } from '../../models/User';
+import User, { UserRole } from '../../models/User';
 import Game from '../../models/Game';
 import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.controller';
 import PaginationService from '../../services/pagination.service';

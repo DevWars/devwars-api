@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, Like, MoreThan, LessThan } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import User from '../models/User';
 import UserStats from '../models/UserStats';
 import UserGameStats from '../models/UserGameStats';

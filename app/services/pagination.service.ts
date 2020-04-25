@@ -3,7 +3,7 @@ import * as assert from 'assert';
 import { Repository, MoreThan, LessThan, FindOneOptions } from 'typeorm';
 import { parseISO } from 'date-fns';
 
-export interface IPageCursor {
+export interface PageCursor {
     next: string | null;
     previous: string | null;
 }
@@ -15,7 +15,7 @@ export default class PaginationService {
         after: string | null | undefined,
         before: string | null | undefined,
         pointerKey: string | keyof T,
-        reverse: boolean = false,
+        reverse = false,
         relations: string[] = [],
         extraWhere: FindOneOptions<T>['where'] = {}
     ) {
@@ -95,10 +95,7 @@ export default class PaginationService {
      * @param cursor The cursor that is being decoded.
      * @param isDate If the decoded cursor is a date (iso) or not.
      */
-    private static decodeCursorProperties(
-        cursor: string | null | undefined,
-        isDate: boolean = false
-    ): string | Date | null {
+    private static decodeCursorProperties(cursor: string | null | undefined, isDate = false): string | Date | null {
         if (!_.isNil(cursor) && _.isString(cursor)) {
             const decodedNext = Buffer.from(cursor, 'base64').toString();
 
@@ -121,6 +118,7 @@ export default class PaginationService {
      * @param pointerKey The pointer key that will be used on the query, this is
      * a property on a record.
      * @param first If this is the first page, (previous will be null)
+     * @param forward If this page is going forward.
      */
     private static generateCursorFromResult(
         result: any[],
@@ -128,8 +126,8 @@ export default class PaginationService {
         pointerKey: string,
         first: boolean,
         forward: boolean
-    ): IPageCursor {
-        const cursor: IPageCursor = { next: null, previous: null };
+    ): PageCursor {
+        const cursor: PageCursor = { next: null, previous: null };
 
         assert(!_.isNil(result), 'cursor paging cannot be implemented for a undefined result');
         if (_.isEmpty(result)) return cursor;
