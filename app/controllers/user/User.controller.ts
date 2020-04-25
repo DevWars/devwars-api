@@ -208,7 +208,7 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
         if (
             !isRoleOrHigher(request.user, UserRole.MODERATOR) &&
             !_.isNil(lastUsernameUpdateAt) &&
-            minDateRequired < new Date()
+            minDateRequired > new Date()
         ) {
             throw new ApiError({
                 error: `You are not allowed to update your username until ${minDateRequired.toUTCString()}`,
