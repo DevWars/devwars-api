@@ -22,6 +22,12 @@ export enum UserRole {
 
 @Entity('user')
 export default class User extends BaseModel {
+    // The time at which the user actually updated there username, by default
+    // this is going to be null since it will allow the user to update there
+    // username straight after registering.
+    @Column({ default: null })
+    public lastUsernameUpdateAt: Date;
+
     @Column()
     public lastSignIn: Date;
 

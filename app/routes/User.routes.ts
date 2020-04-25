@@ -37,7 +37,7 @@ UserRoute.put(
         bindUserFromUserParam,
         bodyValidation(updateUserSchema),
     ],
-    wrapAsync(UserController.update)
+    wrapAsync(UserController.updateUserById)
 );
 
 UserRoute.delete(
