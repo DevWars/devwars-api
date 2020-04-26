@@ -27,7 +27,6 @@ import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.c
 import PaginationService from '../../services/pagination.service';
 
 interface UpdateUserRequest {
-    email: string;
     username: string;
     role: UserRole;
 }
@@ -133,18 +132,12 @@ export async function getAllUsersWithPaging(request: Request, response: Response
  *
  * @apiParam {Number} user Users unique ID.
  * @apiParam {string} [username] Users updated username.
- * @apiParam {string} [email] Users updated email.
- * @apiParam {string} [password] Users updated password.
  * @apiParam {string} [role] Users updated role.
  *
  * @apiParamExample {json} Request-Example:
  *     {
  *      "username": "test-admin",
- *      "email": "test-admin@example.com",
- *      "password": "password",
- *      "token": "token",
  *      "role": "ADMIN",
- *      "lastSigned": "2019-11-20T15:51:24.690Z",
  *     }
  *
  * @apiSuccess {string} username    the username of the User.
