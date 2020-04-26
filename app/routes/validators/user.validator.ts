@@ -43,8 +43,6 @@ export const updateUserSchema = Joi.object()
             .regex(constants.USERNAME_REGEX)
             .optional(),
 
-        password: Joi.string().min(constants.PASSWORD_MIN_LENGTH).max(constants.PASSWORD_MAX_LENGTH).optional(),
-
         role: Joi.string()
             .valid(...Object.values(UserRole))
             .optional(),

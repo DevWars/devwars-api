@@ -27,12 +27,9 @@ import Game from '../../models/Game';
 import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.controller';
 
 interface UpdateUserRequest {
-    lastSigned: Date;
     email: string;
     username: string;
-    password: string;
     role: UserRole;
-    token: string;
 }
 
 /**
@@ -253,9 +250,6 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
             updateRequest.role = params.role;
         }
     }
-
-    // Ensure to encrypt the updated password if it has been specified.
-    if (!_.isNil(params.password)) updateRequest.password = await hash(params.password);
 
     Object.assign(request.boundUser, updateRequest);
     await request.boundUser.save();
