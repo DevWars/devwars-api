@@ -214,13 +214,13 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
             (!isRoleOrHigher(request.user, UserRole.MODERATOR) ||
                 !isRoleOrHigher(request.user, params.role) ||
                 !isRoleHigher(request.user, request.boundUser.role)) &&
-            request.user.role !== UserRole.ADMIN
+            !request.user.isAdministrator()
         ) {
             throw new ApiError({
                 error: `You are not authorized to change the users role to ${params.role}`,
                 code: 401,
             });
-        } else if (request.user.role !== UserRole.ADMIN && request.user.id === request.boundUser.id) {
+        } else if (!request.user.isAdministrator() && request.user.id === request.boundUser.id) {
             throw new ApiError({
                 error: 'You are not authorized to change your own role',
                 code: 401,

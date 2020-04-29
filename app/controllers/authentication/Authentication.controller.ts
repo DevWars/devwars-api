@@ -88,7 +88,7 @@ export async function reverify(request: AuthorizedRequest, response: Response) {
     // If the user is not in the pending state, return out early stating that its complete with the
     // status of already being verified. This is a edge case which is unlikely to be done through
     // standard user interaction.
-    if (request.user.role !== UserRole.PENDING) {
+    if (!request.user.isPending()) {
         return response.json({ message: `${request.user.username} is already verified` });
     }
 
@@ -148,6 +148,16 @@ export async function login(request: Request, response: Response) {
             code: 400,
         });
     }
+
+    // If the given user is banned, they are no longer able to authenticate with
+    // the platform and thus should no longer be able to authenticate.
+    if (user.isBanned()) {
+        throw new ApiError({
+            error: 'You are currently banned and cannot login.',
+            code: 403,
+        });
+    }
+
     // Ensure that the password provided matches the encrypted password stored in the database, this
     // will be using the salt and hash with the secret in bcrypt.
     const passwordsMatch: boolean = await bcrypt.compare(password, user.password);
@@ -234,11 +244,10 @@ export async function initiateEmailReset(request: AuthorizedRequest, response: R
     }
 
     await ResetService.resetEmail(request.user, email);
-    const { role } = request.user;
 
     return response.json({
         message: 'Email reset, a verification email has been sent.',
-        verification: role === UserRole.USER || role === UserRole.PENDING,
+        verification: !request.user.isStaff() || request.user.isPending(),
     });
 }
 
@@ -327,13 +336,9 @@ export async function updatePassword(request: AuthorizedRequest, response: Respo
  * @param expectedRole The expected lower bounds role of the given user.
  */
 export function isRoleOrHigher(user: User, expectedRole: UserRole): boolean {
-    if (
-        [UserRole.MODERATOR, UserRole.USER, UserRole.PENDING].includes(expectedRole) &&
-        [UserRole.ADMIN, UserRole.MODERATOR].includes(user.role)
-    )
-        return true;
+    if ([UserRole.MODERATOR, UserRole.USER, UserRole.PENDING].includes(expectedRole) && user.isStaff()) return true;
 
-    if (expectedRole === UserRole.ADMIN && user.role === UserRole.ADMIN) return true;
+    if (expectedRole === UserRole.ADMIN && user.isAdministrator()) return true;
 
     return false;
 }
@@ -347,16 +352,12 @@ export function isRoleHigher(user: User, expectedRole: UserRole): boolean {
     // if the user is a admin and the role is moderator, then the user is
     // higher, otherwise if the expected role ia a admin, no one is higher, so
     // false.
-    if (expectedRole === UserRole.MODERATOR && user.role === UserRole.ADMIN) return true;
+    if (expectedRole === UserRole.MODERATOR && user.isAdministrator()) return true;
     if (expectedRole === UserRole.ADMIN) return false;
 
     // if the expected role is a user or pending, then the user has to be a
     // moderator or higher.
-    if (
-        (expectedRole === UserRole.USER || expectedRole === UserRole.PENDING) &&
-        isRoleOrHigher(user, UserRole.MODERATOR)
-    )
-        return true;
+    if ((expectedRole === UserRole.USER || expectedRole === UserRole.PENDING) && user.isStaff()) return true;
 
     return false;
 }
