@@ -98,32 +98,27 @@ export default class User extends BaseModel {
     }
 
     /**
-     * Returns true if the given user is banned or not. Checks to see that the
-     * given banned bit is set on the account status or not.
+     * Returns true if the given user is banned or not.
      */
     public isBanned = (): boolean => this.role === UserRole.BANNED;
 
     /**
-     * Returns true if the given user is pending or not. Checks to see that the
-     * given pending bit is set on the account status or not.
+     * Returns true if the given user is in pending state or not.
      */
     public isPending = (): boolean => this.role === UserRole.PENDING;
 
     /**
-     * Returns true if the given user is a moderator or not. Checks to see that
-     * the given moderator bit is set on the account status or not.
+     * Returns true if the given user is a moderator or not.
      */
     public isModerator = (): boolean => this.role === UserRole.MODERATOR;
 
     /**
-     * Returns true if the given user is a administrator or not. Checks to see
-     * that the given administrator bit is set on the account status or not.
+     * Returns true if the given user is a administrator or not.
      */
     public isAdministrator = (): boolean => this.role === UserRole.ADMIN;
 
     /**
-     * Returns true if the given user is a staff member or not. Checks to see
-     * that the given moderator or admin bit is set on the account status or not.
+     * Returns true if the given user is a staff member or not.
      */
     public isStaff = (): boolean => this.isAdministrator() || this.isModerator();
 

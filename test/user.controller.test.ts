@@ -440,10 +440,8 @@ describe('user', () => {
                 .expect(200);
         });
 
-        it('Should only be able to ban if Administrator', async () => {
+        it('Should only be able to ban if Administrator or Moderator', async () => {
             const standardUser = await UserSeeding.withRole(UserRole.USER).save();
-            const moderatorUser = await UserSeeding.withRole(UserRole.MODERATOR).save();
-            const adminUser = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             await agent
                 .put(`/users/${standardUser.id}/`)
@@ -451,17 +449,20 @@ describe('user', () => {
                 .send({ role: UserRole.BANNED })
                 .expect(401, { error: `You are not authorized to change the users role to ${UserRole.BANNED}` });
 
-            await agent
-                .put(`/users/${standardUser.id}/`)
-                .set('Cookie', await cookieForUser(moderatorUser))
-                .send({ role: UserRole.BANNED })
-                .expect(401, { error: `You are not authorized to change the users role to ${UserRole.BANNED}` });
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                const user = await UserSeeding.withRole(role).save();
+                await agent
+                    .put(`/users/${standardUser.id}/`)
+                    .set('Cookie', await cookieForUser(user))
+                    .send({ role: UserRole.USER })
+                    .expect(200);
 
-            await agent
-                .put(`/users/${standardUser.id}/`)
-                .set('Cookie', await cookieForUser(adminUser))
-                .send({ role: UserRole.BANNED })
-                .expect(200);
+                await agent
+                    .put(`/users/${standardUser.id}/`)
+                    .set('Cookie', await cookieForUser(user))
+                    .send({ role: UserRole.BANNED })
+                    .expect(200);
+            }
 
             const userRepository = getCustomRepository(UserRepository);
             const updatedUser = await userRepository.findById(standardUser.id);

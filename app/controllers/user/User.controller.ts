@@ -227,6 +227,11 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
             });
         } else {
             updateRequest.role = params.role;
+
+            // If the update request is to ban the given user, ensure to kick
+            // them out of there current authenticated seasons. And thus
+            // enforcing a login which will fail due to being banned.
+            if (params.role === UserRole.BANNED) request.boundUser.token = null;
         }
     }
 

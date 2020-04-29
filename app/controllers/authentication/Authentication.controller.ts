@@ -336,7 +336,8 @@ export async function updatePassword(request: AuthorizedRequest, response: Respo
  * @param expectedRole The expected lower bounds role of the given user.
  */
 export function isRoleOrHigher(user: User, expectedRole: UserRole): boolean {
-    if ([UserRole.MODERATOR, UserRole.USER, UserRole.PENDING].includes(expectedRole) && user.isStaff()) return true;
+    if ([UserRole.MODERATOR, UserRole.USER, UserRole.PENDING, UserRole.BANNED].includes(expectedRole) && user.isStaff())
+        return true;
 
     if (expectedRole === UserRole.ADMIN && user.isAdministrator()) return true;
 
@@ -357,7 +358,7 @@ export function isRoleHigher(user: User, expectedRole: UserRole): boolean {
 
     // if the expected role is a user or pending, then the user has to be a
     // moderator or higher.
-    if ((expectedRole === UserRole.USER || expectedRole === UserRole.PENDING) && user.isStaff()) return true;
+    if ([UserRole.USER, UserRole.PENDING, UserRole.BANNED].includes(expectedRole) && user.isStaff()) return true;
 
     return false;
 }
