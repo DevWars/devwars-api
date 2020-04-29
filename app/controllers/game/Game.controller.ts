@@ -45,10 +45,11 @@ export async function show(request: GameRequest, response: Response) {
         const userRepository = getCustomRepository(UserRepository);
         const players = await userRepository.findByIds(Object.keys(game.players), {
             relations: ['connections'],
+            select: ['id', 'avatarUrl', 'username'],
         });
 
         for (const player of players) {
-            game.players[player.id] = Object.assign(player, game.players[player.id]);
+            game.players[player.id] = Object.assign(game.players[player.id], player);
         }
     }
 
