@@ -22,7 +22,7 @@ LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAcc
 
 LinkedAccountRoute.put(
     '/twitch/coins',
-    [mustBeMinimumRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
     wrapAsync(LinkedAccountController.updateTwitchCoins)
 );
 

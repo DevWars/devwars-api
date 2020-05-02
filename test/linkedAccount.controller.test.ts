@@ -11,6 +11,8 @@ import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.
 import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding, UserStatsSeeding } from '../app/seeding';
 import UserStatisticsRepository from '../app/repository/UserStatisticsRepository';
+import { UserRole } from '../app/models/User';
+import { cookieForUser } from './helpers';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -43,6 +45,29 @@ describe('Linked Account - Twitch', () => {
     describe('PUT - /oauth/twitch/coins - Updating Coins', () => {
         const coinsRoute = '/oauth/twitch/coins';
 
+        it('Should allow if the requesting user is a admin.', async () => {
+            const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
+            const linkedUser = await createDefaultAccountWithTwitch();
+
+            const requestBody = {
+                updates: [
+                    {
+                        twitchUser: { id: linkedUser.providerId, username: linkedUser.username },
+                        amount: 100,
+                    },
+                ],
+                apiKey: process.env.API_KEY,
+            };
+
+            const failResponse = await agent
+                .put(coinsRoute)
+                .set('Cookie', await cookieForUser(admin))
+                .send(requestBody);
+
+            console.log(failResponse.body);
+            chai.expect(failResponse.status).to.eq(200);
+        });
+
         it('Should not pass if the API_KEY is empty or not valid', async () => {
             chai.expect(isNil(process.env.API_KEY)).to.not.eq(true);
             chai.expect(process.env.API_KEY).to.not.eq('');
@@ -50,12 +75,9 @@ describe('Linked Account - Twitch', () => {
 
         it('Should not allow updating twitch coins if not a bot.', async () => {
             const failResponse = await agent.put(coinsRoute).send();
-            chai.expect(failResponse.status).to.eq(403);
+            chai.expect(failResponse.status).to.eq(401);
 
-            await agent
-                .put(coinsRoute)
-                .send({ apiKey: process.env.API_KEY })
-                .expect(400);
+            await agent.put(coinsRoute).send({ apiKey: process.env.API_KEY }).expect(400);
         });
 
         it('Should not allow updating twitch coins if the amount is not specified.', async () => {
@@ -152,10 +174,7 @@ describe('Linked Account - Twitch', () => {
             const userStatsRepository = getCustomRepository(UserStatisticsRepository);
             const beforeUserStats = await userStatsRepository.findOne({ where: { user } });
 
-            await agent
-                .put(coinsRoute)
-                .send(requestBody)
-                .expect(200);
+            await agent.put(coinsRoute).send(requestBody).expect(200);
 
             const userStats = await userStatsRepository.findOne({ where: { user } });
             chai.expect(beforeUserStats.coins + 100).to.equal(userStats.coins);

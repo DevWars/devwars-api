@@ -2,7 +2,7 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import { UserRole } from '../models/User';
+import User, { UserRole } from '../models/User';
 import UserRepository from '../repository/User.repository';
 import { AuthService } from '../services/Auth.service';
 import { AuthorizedRequest } from '../request/IRequest';
@@ -14,9 +14,26 @@ export const mustBeAuthenticated = wrapAsync(
     async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
         const { token } = request.cookies;
 
-        // If the token was not not provided then return that the given user is not authenticated.
-        if (_.isNil(token)) throw new ApiError({ code: 401, error: 'Authentication token was not provided.' });
+        // Ensure that if we are a bot, and that if the api key is given, that
+        // it is a valid token.
+        if (!_.isNil(request.body?.apiKey) && request.body.apiKey === process.env.API_KEY) {
+            // Dummy user to be used as the bot. All checks should ensure that
+            // the given bot value is checked before the role is checked, so the
+            // users role will be kept at the min just in case.
+            request.user = new User('bot', process.env.API_KEY, 'bot@devwars.tv', UserRole.USER);
+            request.user.id = -1;
 
+            return next();
+        }
+
+        if (_.isNil(token)) {
+            // If the token was not not provided then return that the given user
+            // is not authenticated.
+            throw new ApiError({
+                error: 'Authentication token was not provided.',
+                code: 401,
+            });
+        }
         // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
         const decodedToken = AuthService.VerifyAuthenticationToken(token);
 
@@ -43,10 +60,11 @@ export const mustBeAuthenticated = wrapAsync(
 
 export const mustBeMinimumRole = (role?: UserRole, bot = false) =>
     wrapAsync(async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
-        // If the requesting user must be a bot, ensure they are a bot, if they can only be a bot and
-        // failed the check, ensure that we fail the request. Otherwise continue to role validation.
-        if (bot && !_.isNil(request.body.apiKey)) {
-            const apiKey = request.body.apiKey;
+        // If the requesting user must be a bot, ensure they are a bot, if they
+        // can only be a bot and failed the check, ensure that we fail the
+        // request. Otherwise continue to role validation.
+        if (bot && !_.isNil(request.user)) {
+            const apiKey = request.user.password;
             if (apiKey === process.env.API_KEY) return next();
         }
 
