@@ -19,7 +19,7 @@ import { bodyValidation } from './validators';
 
 const GameRoute: express.Router = express.Router();
 
-GameRoute.get('/', wrapAsync(GameController.all));
+GameRoute.get('/', wrapAsync(GameController.gatheringAllGamesWithPaging));
 
 GameRoute.post(
     '/',
@@ -28,7 +28,6 @@ GameRoute.post(
 );
 
 GameRoute.get('/latest', wrapAsync(GameController.latest));
-GameRoute.get('/active', wrapAsync(GameController.active));
 GameRoute.get('/:game', [bindGameFromGameParam], wrapAsync(GameController.show));
 
 GameRoute.patch(
@@ -93,7 +92,5 @@ GameRoute.delete(
     ],
     wrapAsync(LiveGameController.removePlayer)
 );
-
-GameRoute.get('/season/:season', wrapAsync(GameController.findAllBySeason));
 
 export { GameRoute };
