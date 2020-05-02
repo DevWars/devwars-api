@@ -21,9 +21,10 @@ import LinkedAccount from '../../models/LinkedAccount';
 import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
 import EmailOptIn from '../../models/EmailOptIn';
-import { UserRole } from '../../models/User';
+import User, { UserRole } from '../../models/User';
 import Game from '../../models/Game';
 import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.controller';
+import PaginationService from '../../services/pagination.service';
 
 interface UpdateUserRequest {
     lastSigned: Date;
@@ -76,7 +77,7 @@ export async function show(request: UserRequest, response: Response) {
  * {
  *   "data": [
  *     {
- *       "username": "tehstun",
+ *       "username": "example",
  *       "email": "example@gmail.com",
  *       "role": "MODERATOR",
  *       "id": 1354,
@@ -96,43 +97,29 @@ export async function show(request: UserRequest, response: Response) {
  *       ]
  *     }
  *   ],
- *   "pagination": {
- *     "before": null,
- *     "after": "http://localhost:8080/users/?first=1&after=1"
- *   }
+ *  "pagination": {
+ *      "next": "bmV4dF9fQWxleGFubmVfQWx0ZW53ZXJ0aA==",
+ *      "previous": null
+ *  }
  * }
- *
  */
-export async function all(request: Request, response: Response) {
-    const { first, after } = request.query;
+export async function getAllUsersWithPaging(request: Request, response: Response) {
+    const { after, before, first } = request.query as { after: any; before: any; first: any };
 
-    const params = {
-        first: parseIntWithDefault(first, 20, 1, 100),
-        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
-    };
+    const limit = parseIntWithDefault(first, 20, 1, 100);
 
     const userRepository = getCustomRepository(UserRepository);
-    const users: any = await userRepository.findUsersWithPaging({
-        first: params.first,
-        after: params.after,
-        orderBy: 'updatedAt',
-        relations: ['connections'],
-    });
+    const result = await PaginationService.pageRepository<User>(
+        userRepository,
+        limit,
+        after,
+        before,
+        'username',
+        false,
+        ['connections']
+    );
 
-    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
-
-    const pagination = {
-        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
-        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
-    };
-
-    if (users.length === 0 || users.length !== params.first) pagination.after = null;
-    if (params.after === 0) pagination.before = null;
-
-    return response.json({
-        data: users,
-        pagination,
-    });
+    return response.json(result);
 }
 
 /**

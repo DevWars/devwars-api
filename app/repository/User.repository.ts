@@ -11,27 +11,6 @@ interface Credentials {
 
 @EntityRepository(User)
 export default class UserRepository extends Repository<User> {
-    public async findUsersWithPaging({
-        first,
-        after,
-        orderBy = 'updatedAt',
-        relations = [],
-    }: {
-        first: number;
-        after: number;
-        orderBy: string;
-        relations: string[];
-    }): Promise<User[]> {
-        return this.find({
-            skip: after,
-            take: first,
-            order: {
-                [orderBy]: 'DESC',
-            },
-            relations,
-        });
-    }
-
     /**
      * Finds a given user by there id.
      * @param id The id of the user being found.
