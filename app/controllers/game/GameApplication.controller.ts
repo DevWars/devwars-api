@@ -313,7 +313,7 @@ export async function findApplicationsBySchedule(request: ScheduleRequest, respo
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.findBySchedule(request.schedule, _.compact(relations));
 
-    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
+    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email', 'lastUsernameUpdateAt'];
     const users = applications.map((app) => app.user.sanitize(...sanitizationFields));
 
     return response.json(users);
@@ -366,7 +366,7 @@ export async function findUserApplicationsByGame(request: GameRequest, response:
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.findBySchedule(request.game.schedule, _.compact(relations));
 
-    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email'];
+    const sanitizationFields = ['updatedAt', 'createdAt', 'lastSignIn', 'email', 'lastUsernameUpdateAt'];
     const users = applications.map((app) => app.user.sanitize(...sanitizationFields));
 
     return response.json(users);

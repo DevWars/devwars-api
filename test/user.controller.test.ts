@@ -1,9 +1,9 @@
-import * as supertest from 'supertest';
-import { SuperTest, Test } from 'supertest';
-import * as chai from 'chai';
 import * as _ from 'lodash';
-
+import * as chai from 'chai';
+import * as supertest from 'supertest';
 import { ActivitySeeding, GameApplicationSeeding, GameScheduleSeeding, UserSeeding } from '../app/seeding';
+import { SuperTest, Test } from 'supertest';
+import { addDays } from 'date-fns';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
@@ -20,6 +20,7 @@ import UserStats from '../app/models/UserStats';
 import Activity from '../app/models/Activity';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
+import { USERNAME_CHANGE_MIN_DAYS } from '../app/constants';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test> = null;
@@ -372,6 +373,55 @@ describe('user', () => {
     });
 
     describe('PUT - /users/{userId} - Update a given user by the provided id', async () => {
+        it('Should update the username if the lastUsernameUpdatedAt is null or valid', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(user))
+                .send({ username: `${user.username}1` })
+                .expect(200);
+
+            user.lastUsernameUpdateAt = addDays(new Date(), USERNAME_CHANGE_MIN_DAYS + 1);
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(user))
+                .send({ username: `${user.username}` });
+        });
+
+        it('Should not update the username if the lastUsernameUpdatedAt is not valid', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            user.lastUsernameUpdateAt = addDays(new Date(), -(USERNAME_CHANGE_MIN_DAYS - 1));
+            const minDateRequired = addDays(user.lastUsernameUpdateAt, USERNAME_CHANGE_MIN_DAYS);
+
+            await agent
+                .put(`/users/${user.id}/`)
+                .set('Cookie', await cookieForUser(user))
+                .send({ username: `${user.username}1` })
+                .expect(409, {
+                    error: `You are not allowed to update your username until ${minDateRequired.toUTCString()}`,
+                });
+        });
+
+        it('Should allow a admin or moderator to update the username regardless of last updated at.', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+            let usernameExtra = 1;
+
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                const updatingUser = await UserSeeding.withRole(role).save();
+                user.lastUsernameUpdateAt = addDays(new Date(), -(USERNAME_CHANGE_MIN_DAYS + 1));
+
+                await agent
+                    .put(`/users/${user.id}/`)
+                    .set('Cookie', await cookieForUser(updatingUser))
+                    .send({ username: `${user.username}${usernameExtra}` })
+                    .expect(200);
+
+                usernameExtra += 1;
+            }
+        });
+
         it('Should fail if you try to update your username to a already existing user', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
             const userTwo = await UserSeeding.withRole(UserRole.USER).save();

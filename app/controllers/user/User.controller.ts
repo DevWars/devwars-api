@@ -1,6 +1,7 @@
 import { getConnection, getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 import * as _ from 'lodash';
+import { addDays } from 'date-fns';
 
 import GameApplication from '../../models/GameApplication';
 import UserProfile from '../../models/UserProfile';
@@ -10,7 +11,7 @@ import Activity from '../../models/Activity';
 import LeaderboardRepository from '../../repository/leaderboard.repository';
 import UserRepository from '../../repository/User.repository';
 import { AuthorizedRequest, UserRequest } from '../../request/IRequest';
-import { DATABASE_MAX_ID } from '../../constants';
+import { DATABASE_MAX_ID, USERNAME_CHANGE_MIN_DAYS } from '../../constants';
 import ApiError from '../../utils/apiError';
 import { hash } from '../../utils/hash';
 
@@ -27,12 +28,9 @@ import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.c
 import PaginationService from '../../services/pagination.service';
 
 interface UpdateUserRequest {
-    lastSigned: Date;
     email: string;
     username: string;
-    password: string;
     role: UserRole;
-    token: string;
 }
 
 /**
@@ -57,7 +55,13 @@ interface UpdateUserRequest {
  *    }
  */
 export async function show(request: UserRequest, response: Response) {
-    const sanitizedUser = request.boundUser.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt');
+    const sanitizedUser = request.boundUser.sanitize(
+        'email',
+        'lastSignIn',
+        'createdAt',
+        'updatedAt',
+        'lastUsernameUpdateAt'
+    );
     return response.json(sanitizedUser);
 }
 
@@ -133,8 +137,6 @@ export async function getAllUsersWithPaging(request: Request, response: Response
  * @apiParam {string} [email] Users updated email.
  * @apiParam {string} [password] Users updated password.
  * @apiParam {string} [role] Users updated role.
- * @apiParam {string} [token] Users updated token.
- * @apiParam {string} [lastSigned] Users updated last signed in date.
  *
  * @apiParamExample {json} Request-Example:
  *     {
@@ -171,7 +173,7 @@ export async function getAllUsersWithPaging(request: Request, response: Response
  * admin. You also cannot decrease a role of a user if you are not a higher
  * role (including yourself).
  */
-export async function update(request: AuthorizedRequest & UserRequest, response: Response) {
+export async function updateUserById(request: AuthorizedRequest & UserRequest, response: Response) {
     const params = request.body as UpdateUserRequest;
 
     const userRepository = getCustomRepository(UserRepository);
@@ -182,6 +184,30 @@ export async function update(request: AuthorizedRequest & UserRequest, response:
             error: 'The provided username already exists for a registered user.',
             code: 409,
         });
+    }
+
+    // Use a direct object over the params, since if anything other breaks that
+    // is outside our control, we still have access to what data is being
+    // updated.
+    const updateRequest = {} as UpdateUserRequest;
+
+    if (!_.isNil(params.username)) {
+        const { lastUsernameUpdateAt } = request.boundUser;
+        const minDateRequired = addDays(lastUsernameUpdateAt, USERNAME_CHANGE_MIN_DAYS);
+
+        if (
+            !isRoleOrHigher(request.user, UserRole.MODERATOR) &&
+            !_.isNil(lastUsernameUpdateAt) &&
+            minDateRequired > new Date()
+        ) {
+            throw new ApiError({
+                error: `You are not allowed to update your username until ${minDateRequired.toUTCString()}`,
+                code: 409,
+            });
+        }
+
+        updateRequest.username = params.username;
+        request.boundUser.lastUsernameUpdateAt = new Date();
     }
 
     // If the role is being updated some rule must be respected.
@@ -207,14 +233,12 @@ export async function update(request: AuthorizedRequest & UserRequest, response:
                 error: 'You are not authorized to change your own role',
                 code: 401,
             });
+        } else {
+            updateRequest.role = params.role;
         }
     }
 
-    if (!_.isNil(params.password))
-        // Ensure to encrypt the updated password if it has been specified.
-        params.password = await hash(params.password);
-
-    Object.assign(request.boundUser, params);
+    Object.assign(request.boundUser, updateRequest);
     await request.boundUser.save();
 
     return response.json(request.boundUser);

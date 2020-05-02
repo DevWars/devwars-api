@@ -6,6 +6,10 @@ export const RESERVED_USERNAMES = ['admin', 'devwars', 'administrator', 'adminis
 export const USERNAME_MIN_LENGTH = 4;
 export const USERNAME_MAX_LENGTH = 25;
 
+// The minimum number of days required for someone to wait to change there
+// username again after the first change.
+export const USERNAME_CHANGE_MIN_DAYS = 7;
+
 // Does not allow special characters in the beginning or end of username
 export const USERNAME_REGEX = /^[a-zA-Z0-9.-][A-z0-9.-_]{2,23}[a-zA-Z0-9.-]$/;
 
