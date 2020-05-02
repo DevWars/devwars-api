@@ -13,7 +13,6 @@ import UserRepository from '../../repository/User.repository';
 import { AuthorizedRequest, UserRequest } from '../../request/IRequest';
 import { DATABASE_MAX_ID, USERNAME_CHANGE_MIN_DAYS } from '../../constants';
 import ApiError from '../../utils/apiError';
-import { hash } from '../../utils/hash';
 
 import { parseIntWithDefault } from '../../../test/helpers';
 
