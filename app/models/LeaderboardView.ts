@@ -22,6 +22,7 @@ import { ViewEntity, ViewColumn } from 'typeorm';
          ) leaderboards;
     `,
     materialized: false,
+    synchronize: false,
 })
 export default class Leaderboard {
     @ViewColumn()
