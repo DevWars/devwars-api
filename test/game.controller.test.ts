@@ -227,7 +227,9 @@ describe('game', () => {
             // How the server would merge the given users when specifying to include players.
             const mergedPlayer = JSON.stringify(
                 Object.assign(game.storage.players[player], {
-                    ...storedPlayer.toJSON(),
+                    avatarUrl: storedPlayer.avatarUrl,
+                    username: storedPlayer.username,
+                    id: storedPlayer.id,
                     connections: [],
                 })
             );
