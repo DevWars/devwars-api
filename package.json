@@ -22,9 +22,9 @@
         "seed:password": "node -r ts-node/register ./cli/SeedPassword.ts",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
-        "typeorm": "ts-node-dev -P ./tsconfig.json ./node_modules/.bin/typeorm",
-        "migrate": "ts-node-dev ./node_modules/.bin/typeorm migration:run",
-        "migrate:revert": "ts-node ./node_modules/.bin/typeorm migration:revert"
+        "typeorm": "ts-node-dev -P ./tsconfig.json ./node_modules/typeorm/cli.js",
+        "migrate": "ts-node-dev ./node_modules/typeorm/cli.js migration:run",
+        "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert"
     },
     "husky": {
         "hooks": {
@@ -76,6 +76,7 @@
         "winston": "^3.2.1"
     },
     "devDependencies": {
+        "@babel/code-frame": "^7.8.3",
         "@types/bcrypt": "^3.0.0",
         "@types/chai": "^4.2.11",
         "@types/cookie-parser": "^1.4.2",
