@@ -39,9 +39,9 @@ export default class PaginationService {
         // Support for reverse requires flipping the ordering when we perform
         // the queries, this supports cases in which you want to order by the
         // newer value rather than the older at the top, e.g recent games list.
-        if (forward && !reverse) {
+        if (!reverse) {
             order[pointerKey as keyof T] = forward ? 'ASC' : 'DESC';
-        } else if (forward && reverse) {
+        } else if (reverse) {
             order[pointerKey as keyof T] = forward ? 'DESC' : 'ASC';
         }
 
