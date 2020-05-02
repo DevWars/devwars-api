@@ -10,7 +10,7 @@ import { bindScheduleFromScheduleParam } from '../middleware/GameSchedule.middle
 
 const GameScheduleRoute: express.Router = express.Router();
 
-GameScheduleRoute.get('/', wrapAsync(GameScheduleController.all));
+GameScheduleRoute.get('/', wrapAsync(GameScheduleController.getAllSchedulesWithPaging));
 
 GameScheduleRoute.post(
     '/',
@@ -49,7 +49,5 @@ GameScheduleRoute.post(
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindScheduleFromScheduleParam],
     wrapAsync(GameScheduleController.activate)
 );
-
-GameScheduleRoute.get('/status/:status', wrapAsync(GameScheduleController.byStatus));
 
 export { GameScheduleRoute };

@@ -171,14 +171,18 @@ describe('game', () => {
             }
         });
 
-        it('Should return if a given season id is larger than the database max or less than one, working as if no season was given', async () => {
-            await GameSeeding.default().save();
+        it(
+            'Should return if a given season id is larger than the database max' +
+                'or less than one, working as if no season was given',
+            async () => {
+                await GameSeeding.default().save();
 
-            for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
-                const response = await agent.get(`/games?season=${season}&first=1`).expect(200);
-                chai.expect(response.body.data.length).to.be.equal(1);
+                for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
+                    const response = await agent.get(`/games?season=${season}&first=1`).expect(200);
+                    chai.expect(response.body.data.length).to.be.equal(1);
+                }
             }
-        });
+        );
 
         it('Should be able to gather a season by id if it exists', async () => {
             await connectionManager.transaction(async (transaction) => {

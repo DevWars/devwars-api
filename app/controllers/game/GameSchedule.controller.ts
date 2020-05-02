@@ -8,6 +8,8 @@ import { ScheduleRequest } from '../../request/IRequest';
 
 import GameSchedule, { GameStatus } from '../../models/GameSchedule';
 import ApiError from '../../utils/apiError';
+import { parseIntWithDefault, parseEnumFromValue, parseStringWithDefault } from '../../../test/helpers';
+import PaginationService from '../../services/pagination.service';
 
 function flattenSchedule(schedule: GameSchedule): any {
     return {
@@ -25,11 +27,62 @@ export async function show(request: ScheduleRequest, response: Response) {
     return response.json(flattenSchedule(request.schedule));
 }
 
-export async function all(request: Request, response: Response) {
-    const scheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedules = await scheduleRepository.all();
+/**
+ * @api {get} /schedules?status=:status Get schedules
+ * @apiDescription Gets all the given schedules.
+ * format.
+ * @apiName GetSchedules
+ * @apiVersion 1.0.0
+ * @apiGroup Schedules
+ *
+ * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
+ * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
+ * @apiParam {string=scheduled,active,ended} [status] The optional game status to filter by.
+ *
+ * @apiSuccess {Schedule[]} data The related games based on the provided season and page range.
+ * @apiSuccess {object} pagination The paging information to continue forward or backward.
+ * @apiSuccess {string} pagination.next The next page in the paging of the data.
+ * @apiSuccess {string} pagination.previous The previous page in the paging of the data.
+ *
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * {
+ *   "data": [
+ *     { ... }
+ *   ],
+ *   "pagination": {
+ *     "next": "bmV4dF9fODM=",
+ *      "previous": null
+ *   }
+ * }
+ */
+export async function getAllSchedulesWithPaging(request: Request, response: Response) {
+    const { after, before, first, status: queryStatus } = request.query;
 
-    return response.json(schedules.map((schedule) => flattenSchedule(schedule)));
+    const status = parseStringWithDefault(queryStatus, null);
+
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        status: parseEnumFromValue(GameStatus, _.isNil(status) ? status : status.toUpperCase(), null),
+    };
+
+    const gameScheduleRepository = getCustomRepository(GameScheduleRepository);
+    const where: any = {};
+
+    if (!_.isNil(params.status)) where.status = params.status;
+
+    const result = await PaginationService.pageRepository<GameSchedule>(
+        gameScheduleRepository,
+        params.first,
+        after as string,
+        before as string,
+        'id',
+        true,
+        [],
+        where
+    );
+
+    result.data = _.map(result.data, (schedule) => flattenSchedule(schedule));
+    return response.json(result);
 }
 
 export async function update(request: ScheduleRequest, response: Response) {
