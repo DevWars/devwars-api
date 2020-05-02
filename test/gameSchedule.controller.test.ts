@@ -40,6 +40,20 @@ describe('Game-Schedule', () => {
     });
 
     describe('GET - /schedules - Gathering all schedules', () => {
+        it('Should return a list of schedules by status', async () => {
+            const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
+
+            await connectionManager.transaction(async (transaction) => {
+                for (const state of gameStates) {
+                    const schedule = GameScheduleSeeding.default().withStatus(state).gameSchedule;
+                    await transaction.save(schedule);
+                }
+            });
+
+            const request = await agent.get('/schedules?status=active').expect(200);
+            chai.expect(request.body.data).to.have.lengthOf(2);
+        });
+
         it('Should retrieve all schedules', async () => {
             const scheduleOne = GameScheduleSeeding.default().gameSchedule;
             const scheduleTwo = GameScheduleSeeding.default().gameSchedule;
@@ -50,7 +64,7 @@ describe('Game-Schedule', () => {
             });
 
             const response = await agent.get('/schedules').send();
-            chai.expect(response.body.length).to.be.equal(2);
+            chai.expect(response.body.data.length).to.be.equal(2);
         });
     });
 
@@ -123,7 +137,6 @@ describe('Game-Schedule', () => {
         it('Should return 403 because user cant update a schedule', async () => {
             const Schedule = await GameScheduleSeeding.default().save();
             const user = await UserSeeding.withRole(UserRole.USER).save();
-
 
             await agent
                 .patch(`/schedules/${Schedule.id}`)
@@ -262,22 +275,6 @@ describe('Game-Schedule', () => {
                     .set('Cookie', await cookieForUser(user))
                     .expect(202);
             }
-        });
-    });
-
-    describe('GET - /schedules/status/:status - Gathering schedules by status', () => {
-        it('Should return a list of schedules by status', async () => {
-            const gameStates = [GameStatus.ACTIVE, GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED];
-
-            await connectionManager.transaction(async (transaction) => {
-                for (const state of gameStates) {
-                    const schedule = GameScheduleSeeding.default().withStatus(state).gameSchedule;
-                    await transaction.save(schedule);
-                }
-            });
-
-            const request = await agent.get('/schedules/status/active').expect(200);
-            chai.expect(request.body).to.have.lengthOf(2);
         });
     });
 
