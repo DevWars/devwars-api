@@ -14,6 +14,8 @@ import PasswordReset from './PasswordReset';
 import UserGameStats from './UserGameStats';
 
 export enum UserRole {
+    BANNED = 'BANNED',
+
     PENDING = 'PENDING',
     USER = 'USER',
     MODERATOR = 'MODERATOR',
@@ -94,6 +96,31 @@ export default class User extends BaseModel {
         this.email = email;
         this.role = role;
     }
+
+    /**
+     * Returns true if the given user is banned or not.
+     */
+    public isBanned = (): boolean => this.role === UserRole.BANNED;
+
+    /**
+     * Returns true if the given user is in pending state or not.
+     */
+    public isPending = (): boolean => this.role === UserRole.PENDING;
+
+    /**
+     * Returns true if the given user is a moderator or not.
+     */
+    public isModerator = (): boolean => this.role === UserRole.MODERATOR;
+
+    /**
+     * Returns true if the given user is a administrator or not.
+     */
+    public isAdministrator = (): boolean => this.role === UserRole.ADMIN;
+
+    /**
+     * Returns true if the given user is a staff member or not.
+     */
+    public isStaff = (): boolean => this.isAdministrator() || this.isModerator();
 
     /**
      * Removes a collection of properties from the current user.

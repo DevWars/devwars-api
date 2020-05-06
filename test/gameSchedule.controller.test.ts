@@ -124,7 +124,6 @@ describe('Game-Schedule', () => {
             const Schedule = await GameScheduleSeeding.default().save();
             const user = await UserSeeding.withRole(UserRole.USER).save();
 
-
             await agent
                 .patch(`/schedules/${Schedule.id}`)
                 .set('Cookie', await cookieForUser(user))

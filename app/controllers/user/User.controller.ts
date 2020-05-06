@@ -27,7 +27,6 @@ import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.c
 import PaginationService from '../../services/pagination.service';
 
 interface UpdateUserRequest {
-    email: string;
     username: string;
     role: UserRole;
 }
@@ -133,18 +132,12 @@ export async function getAllUsersWithPaging(request: Request, response: Response
  *
  * @apiParam {Number} user Users unique ID.
  * @apiParam {string} [username] Users updated username.
- * @apiParam {string} [email] Users updated email.
- * @apiParam {string} [password] Users updated password.
  * @apiParam {string} [role] Users updated role.
  *
  * @apiParamExample {json} Request-Example:
  *     {
  *      "username": "test-admin",
- *      "email": "test-admin@example.com",
- *      "password": "password",
- *      "token": "token",
  *      "role": "ADMIN",
- *      "lastSigned": "2019-11-20T15:51:24.690Z",
  *     }
  *
  * @apiSuccess {string} username    the username of the User.
@@ -221,19 +214,24 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
             (!isRoleOrHigher(request.user, UserRole.MODERATOR) ||
                 !isRoleOrHigher(request.user, params.role) ||
                 !isRoleHigher(request.user, request.boundUser.role)) &&
-            request.user.role !== UserRole.ADMIN
+            !request.user.isAdministrator()
         ) {
             throw new ApiError({
                 error: `You are not authorized to change the users role to ${params.role}`,
                 code: 401,
             });
-        } else if (request.user.role !== UserRole.ADMIN && request.user.id === request.boundUser.id) {
+        } else if (!request.user.isAdministrator() && request.user.id === request.boundUser.id) {
             throw new ApiError({
                 error: 'You are not authorized to change your own role',
                 code: 401,
             });
         } else {
             updateRequest.role = params.role;
+
+            // If the update request is to ban the given user, ensure to kick
+            // them out of there current authenticated seasons. And thus
+            // enforcing a login which will fail due to being banned.
+            if (params.role === UserRole.BANNED) request.boundUser.token = null;
         }
     }
 
