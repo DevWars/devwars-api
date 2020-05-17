@@ -2,8 +2,6 @@ import * as express from 'express';
 import { ActivityRoute } from './Activity.routes';
 import { AuthRoute } from './Auth.routes';
 import { GameRoute } from './Game.routes';
-import { GameScheduleRoute } from './GameSchedule.routes';
-import { GameApplicationRoute } from './GameApplication.routes';
 import { HealthRoute } from './health.routes';
 import { LeaderboardRoute } from './Leaderboard.route';
 import { LinkedAccountRoute } from './LinkedAccount.routes';
@@ -30,14 +28,6 @@ export const Routes: Route[] = [
     {
         handler: GameRoute,
         path: '/games',
-    },
-    {
-        handler: GameScheduleRoute,
-        path: '/schedules',
-    },
-    {
-        handler: GameApplicationRoute,
-        path: '/applications',
     },
     {
         handler: ActivityRoute,

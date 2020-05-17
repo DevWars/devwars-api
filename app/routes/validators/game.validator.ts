@@ -1,87 +1,65 @@
 import * as Joi from '@hapi/joi';
 
 import * as constants from '../../constants';
-import { GameStatus } from '../../models/GameSchedule';
+import { GameStatus } from '../../models/Game';
 
-export const createGameSchema = Joi.object()
-    .keys({
-        // The schedule id of the game that is being created. A game must have a
-        // related game schedule on creation.
-        schedule: Joi.number().min(0).max(constants.DATABASE_MAX_ID).required(),
+export const createGameSchema = Joi.object().keys({
+    startTime: Joi.date().required(),
 
-        season: Joi.number().min(constants.GAME_SEASON_MIN).required(),
+    season: Joi.number().min(constants.GAME_SEASON_MIN).required(),
 
-        mode: Joi.string().required(),
+    mode: Joi.string().required(),
 
-        title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).required(),
+    title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).required(),
 
-        videoUrl: Joi.string().allow(null).optional(),
+    videoUrl: Joi.string().allow(null).optional(),
 
-        status: Joi.string()
-            .valid(...Object.values(GameStatus))
-            .optional(),
+    status: Joi.string().valid(...Object.values(GameStatus)),
 
-        // Allowing since Storage is just JSON without a specific structure
-        storage: Joi.object()
-            .keys({
-                // The templates that are going to be used on the live editors. Any set
-                // would be used on the setup process of the editor.
-                templates: Joi.object()
-                    .keys({
-                        html: Joi.string().allow(null).optional(),
-                        css: Joi.string().allow(null).optional(),
-                        js: Joi.string().allow(null).optional(),
-                    })
-                    .required()
-                    .unknown(false),
-            })
-            .allow(null)
-            .optional()
-            .unknown(true),
-    })
-    .unknown(true);
+    templates: Joi.object()
+        .keys({
+            html: Joi.string().allow(null).optional(),
+            css: Joi.string().allow(null).optional(),
+            js: Joi.string().allow(null).optional(),
+        })
+        .optional(),
+});
 
-export const PatchGameSchema = Joi.object()
-    .keys({
-        season: Joi.number().min(constants.GAME_SEASON_MIN).optional(),
+export const PatchGameSchema = Joi.object().keys({
+    startTime: Joi.date().optional(),
 
-        mode: Joi.string().required(),
+    season: Joi.number().min(constants.GAME_SEASON_MIN).optional(),
 
-        title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).optional(),
+    mode: Joi.string().required(),
 
-        videoUrl: Joi.string().allow(null).optional(),
+    title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).optional(),
 
-        status: Joi.string().valid(...Object.values(GameStatus)),
+    videoUrl: Joi.string().allow(null).optional(),
 
-        // Allowing since Storage is just JSON without a specific structure
-        storage: Joi.object().allow(null).optional(),
-    })
-    .unknown(true);
+    status: Joi.string().valid(...Object.values(GameStatus)),
 
-export const addGamePlayerSchema = Joi.object()
-    .keys({
-        player: Joi.object()
-            .keys({
-                id: Joi.alternatives(Joi.string(), Joi.number()).required(),
+    // Allowing since Storage is just JSON without a specific structure
+    storage: Joi.object().allow(null).optional(),
+});
 
-                username: Joi.string().required(),
+export const addGamePlayerSchema = Joi.object().keys({
+    player: Joi.object()
+        .keys({
+            id: Joi.alternatives(Joi.string(), Joi.number()).required(),
 
-                language: Joi.string()
-                    .valid(...Object.values(['html', 'css', 'js']))
-                    .required(),
-            })
-            .required()
-            .unknown(true),
-    })
-    .unknown(true);
+            language: Joi.string()
+                .valid(...Object.values(['html', 'css', 'js']))
+                .required(),
 
-export const removeGamePlayerSchema = Joi.object()
-    .keys({
-        player: Joi.object()
-            .keys({
-                id: Joi.alternatives(Joi.string(), Joi.number()).required(),
-            })
-            .required()
-            .unknown(true),
-    })
-    .unknown(true);
+            team: Joi.alternatives(Joi.number()).required(),
+        })
+        .required(),
+});
+
+export const removeGamePlayerSchema = Joi.object().keys({
+    player: Joi.object()
+        .keys({
+            id: Joi.alternatives(Joi.string(), Joi.number()).required(),
+        })
+        .required(),
+});

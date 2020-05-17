@@ -75,8 +75,8 @@ export async function sendGameApplicationApplyingEmail(gameApplication: GameAppl
     // prettier-ignore
     output.html = output.html
         .replace(/__USERNAME__/g, gameApplication.user.username)
-        .replace(/__GAME_TIME__/g, gameApplication.schedule.startTime.toUTCString())
-        .replace(/__GAME_MODE__/g, `${gameApplication.schedule.setup.mode || 'specified'}`);
+        .replace(/__GAME_TIME__/g, gameApplication.game.startTime.toUTCString())
+        .replace(/__GAME_MODE__/g, `${gameApplication.game.mode || 'specified'}`);
 
     await send(gameApplication.user.email, subject, output.html);
 }
@@ -104,8 +104,8 @@ export async function SendGameApplicationResignEmail(gameApplication: GameApplic
     // prettier-ignore
     output.html = output.html
         .replace(/__USERNAME__/g, gameApplication.user.username)
-        .replace(/__GAME_TIME__/g, gameApplication.schedule.startTime.toUTCString())
-        .replace(/__GAME_MODE__/g, `${gameApplication.schedule.setup.mode || 'specified'}`);
+        .replace(/__GAME_TIME__/g, gameApplication.game.startTime.toUTCString())
+        .replace(/__GAME_MODE__/g, `${gameApplication.game.mode || 'specified'}`);
 
     await send(gameApplication.user.email, subject, output.html);
 }

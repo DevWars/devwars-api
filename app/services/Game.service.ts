@@ -3,7 +3,8 @@ import * as _ from 'lodash';
 import Game from '../models/Game';
 import GameApplication from '../models/GameApplication';
 import { available, default as firebase } from '../utils/firebase';
-import { GameStoragePlayer } from '../types/game';
+import GameApplicationRepository from '../repository/GameApplication.repository';
+import { getCustomRepository } from 'typeorm';
 
 const firebaseGame = available ? firebase.database().ref('game') : null;
 
@@ -15,9 +16,11 @@ export default class GameService {
      * @param game The game that is being used to auto assign players.
      * @param applications The applications for the given game.
      */
-    public static autoAssignPlayersForGame(game: Game, applications: GameApplication[]):
-        { game: Game, applications: GameApplication[] } {
-        return { game, applications }
+    public static autoAssignPlayersForGame(
+        game: Game,
+        applications: GameApplication[]
+    ): { game: Game; applications: GameApplication[] } {
+        return { game, applications };
     }
 
     /**
@@ -30,20 +33,20 @@ export default class GameService {
         const bluePlayers: Array<{ team: number; language: string; user: any }> = [];
         const redPlayers: Array<{ team: number; language: string; user: any }> = [];
 
-        for (const editor of Object.values(game.storage.editors)) {
-            const player: GameStoragePlayer = game.storage.players[editor.player];
+        const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+        const assignedPlayers = await gameApplicationRepository.findAssignedPlayersForGame(game, ['user']);
 
+        for (const { user: player, team, assignedLanguage: language } of assignedPlayers) {
             // if the player index exists but is null or undefined, just
             // continue with the other players.
             if (_.isNil(player)) continue;
 
-            const playerArr = player.team === 0 ? bluePlayers : redPlayers;
-            const { id, username, team, avatarUrl } = player;
+            const playerArr = team === 0 ? bluePlayers : redPlayers;
 
             playerArr.push({
                 team,
-                language: editor.language,
-                user: { id, username, avatarUrl: _.defaultTo(avatarUrl, null) },
+                language: language,
+                user: { id: player.id, username: player.username, avatarUrl: _.defaultTo(player.avatarUrl, null) },
             });
         }
 
@@ -56,8 +59,7 @@ export default class GameService {
      * @param game The game that is being updated in firebase.
      */
     public static async sendGameToFirebase(game: Game) {
-        const { storage, id, mode: name } = game;
-        const { title: theme } = storage;
+        const { storage, id, mode: name, title } = game;
 
         let objectives: Array<{ number: number; description: string }> = [];
         if (!_.isNil(storage.editors)) await this.sendGamePlayersToFirebase(game);
@@ -69,7 +71,7 @@ export default class GameService {
             };
         });
 
-        await firebaseGame?.update({ id, theme, name, objectives, templates: game.storage?.templates || {} });
+        await firebaseGame?.update({ id, theme: title, name, objectives, templates: game.storage?.templates || {} });
     }
 
     /**

@@ -1,14 +1,16 @@
-import { getManager, getCustomRepository } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { Response } from 'express';
 import * as _ from 'lodash';
 
+import GameApplicationRepository from '../../repository/GameApplication.repository';
 import UserGameStatsRepository from '../../repository/userGameStats.repository';
 import UserRepository from '../../repository/User.repository';
+
 import { GameRequest, AuthorizedRequest } from '../../request/IRequest';
 import GameService from '../../services/Game.service';
-import { GameStatus } from '../../models/GameSchedule';
 import { flattenGame } from './Game.controller';
 import ApiError from '../../utils/apiError';
+import { GameStatus } from '../../models/Game';
 
 /**
  * @api {get} /games/:game/player Assign player to team.
@@ -28,19 +30,11 @@ import ApiError from '../../utils/apiError';
  * @apiError PlayerAlreadyAssignedLanguage The player has already been assigned that language for that team (e.g html).
  */
 export async function addPlayer(request: AuthorizedRequest & GameRequest, response: Response) {
-    const { player } = request.body;
+    const { id, language, team }: { id: number; language: string; team: number } = request.body.player;
 
-    if (!request.game.storage.players) request.game.storage.players = {};
-    const players = request.game.storage.players;
-
-    const existingPlayer = players[player.id];
-
-    if (existingPlayer && existingPlayer.team !== player.team) {
-        return response.status(409).json({ error: "Can't change player's team." });
-    }
-
+    const applicationRepository = getCustomRepository(GameApplicationRepository);
     const usersRepository = getCustomRepository(UserRepository);
-    const user = await usersRepository.findById(player?.id);
+    const user = await usersRepository.findById(id);
 
     if (_.isNil(user)) {
         throw new ApiError({
@@ -49,30 +43,23 @@ export async function addPlayer(request: AuthorizedRequest & GameRequest, respon
         });
     }
 
-    const { username, id, avatarUrl } = user;
-    players[id] = { avatarUrl, id, team: player.team, username };
-
-    if (!request.game.storage.editors) request.game.storage.editors = {};
-
-    const editors = request.game.storage.editors;
-    const nextEditorId = Object.keys(editors).length;
-
-    for (const editor of Object.values(editors) as any) {
-        if (editor.player === id && editor.language === player.language) {
-            throw new ApiError({
-                error: 'Player already assigned to that language.',
-                code: 409,
-            });
-        }
+    const alreadyAssigned = await applicationRepository.isPlayerAlreadyAssigned(user, request.game);
+    if (alreadyAssigned) {
+        throw new ApiError({
+            error: 'The given user is already assigned to a team.',
+            code: 409,
+        });
     }
-    editors[nextEditorId] = {
-        id: nextEditorId,
-        player: id,
-        team: player.team,
-        language: player.language,
-    };
 
-    await request.game.save();
+    const alreadyLanguageAssigned = await applicationRepository.isGameLanguageAssigned(request.game, team, language);
+    if (alreadyLanguageAssigned) {
+        throw new ApiError({
+            error: 'The given language is already assigned within the team',
+            code: 409,
+        });
+    }
+
+    await applicationRepository.assignUserToGame(user, request.game, team, language);
 
     if (request.game.status === GameStatus.ACTIVE) {
         await GameService.sendGamePlayersToFirebase(request.game);
@@ -82,17 +69,10 @@ export async function addPlayer(request: AuthorizedRequest & GameRequest, respon
 }
 
 export async function removePlayer(request: AuthorizedRequest & GameRequest, response: Response) {
-    const { player } = request.body;
+    const { id } = request.body.player;
 
-    delete request.game.storage.players[player.id];
-
-    for (const editor of Object.values(request.game.storage.editors) as any) {
-        if (editor.player === player.id) {
-            delete request.game.storage.editors[editor.id];
-        }
-    }
-
-    await request.game.save();
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+    await gameApplicationRepository.removeUserFromGame(id, request.game);
 
     if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);
     return response.status(201).json(flattenGame(request.game));
@@ -123,30 +103,17 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
     }
 
     const { game } = request;
-
-    if (!_.isNil(game.schedule)) game.schedule.status = GameStatus.ENDED;
     game.status = GameStatus.ENDED;
 
     // Update the results on the object of the game.
     const results = await GameService.getCompletedGameResult();
+    console.log(results);
 
     game.storage.meta = {
-        teamScores: [
-            {
-                ui: results?.votes?.ui.blue || 0,
-                ux: results?.votes?.ux.blue || 0,
-                tie: results.winner === 'tie',
-                objectives: _.filter(results.objectives, (o) => o.blue === 'complete').length,
-            },
-            {
-                ui: results?.votes?.ui.red || 0,
-                ux: results?.votes?.ux.red || 0,
-                tie: results.winner === 'tie',
-                objectives: _.filter(results.objectives, (o) => o.red === 'complete').length,
-            },
-        ],
         bets: results.bets || {},
         winningTeam: results.winner === 'blue' ? 0 : 1,
+        teamScores: { '0': { bets: 0, id: 0, ui: 0, ux: 0 }, '1': { bets: 0, id: 0, ui: 0, ux: 0 } },
+        tie: results.winner === 'tie',
     };
 
     const objectivesForTeam = (team: string) => {
@@ -159,26 +126,22 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
         return result;
     };
 
-    game.storage.teams[0].objectives = objectivesForTeam('blue');
-    game.storage.teams[0].votes = {
-        ui: results?.votes?.ui.blue || 0,
-        ux: results?.votes?.ui.blue || 0,
-        tie: results.winner === 'tie',
-    };
+    game.storage.meta.teamScores[0].objectives = objectivesForTeam('blue');
+    game.storage.meta.teamScores[0].ui = results?.votes?.ui.blue || 0;
+    game.storage.meta.teamScores[0].ux = results?.votes?.ux.blue || 0;
 
-    game.storage.teams[1].objectives = objectivesForTeam('red');
-    game.storage.teams[1].votes = {
-        ui: results?.votes?.ui.red || 0,
-        ux: results?.votes?.ui.red || 0,
-        tie: results.winner === 'tie',
-    };
+    game.storage.meta.teamScores[1].objectives = objectivesForTeam('red');
+    game.storage.meta.teamScores[1].ui = results?.votes?.ui.red || 0;
+    game.storage.meta.teamScores[1].ux = results?.votes?.ux.red || 0;
 
     if (!_.isNil(results)) {
         const winnerTeamId = results.winner === 'blue' ? 0 : 1;
-        const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
 
-        const winners = _.filter(game.storage.players, (player) => player.team === winnerTeamId);
-        const losers = _.filter(game.storage.players, (player) => player.team !== winnerTeamId);
+        const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
+        const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+
+        const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winnerTeamId, ['user']);
+        const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, winnerTeamId, ['user']);
 
         // Increment all the winners wins by one.
         if (!_.isNil(winners) && _.size(winners) > 0) {
@@ -191,13 +154,87 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
         }
     }
 
-    await getManager().transaction(async (transaction) => {
-        if (!_.isNil(game.schedule)) {
-            await transaction.save(game.schedule);
-        }
-
-        await transaction.save(game);
-    });
-
+    await game.save();
     return response.status(200).send();
+}
+
+/*******************************
+ *  Applications
+ ******************************/
+
+/**
+ * @api {get} /games/:game/applications Get all applications for the game.
+ * @apiVersion 1.0.0
+ *
+ * @apiName GetApplicationsForGame
+ * @apiDescription Gets all the game applications for the given game, requiring
+ * that the given user is a moderator or higher.
+ *
+ * @apiGroup LiveGame
+ *
+ * @apiParam {number} game The id of the game.
+ */
+// export async function getAllGameApplications(request: AuthorizedRequest, response: Response) {
+export async function getAllGameApplications() {
+    throw new Error('Not Implemented');
+}
+
+/**
+ * @api {post} /games/:game/applications?user=:user Apply to the given game for
+ * the user.
+ * @apiVersion 1.0.0
+ *
+ * @apiName ApplyApplicationsForGame
+ * @apiDescription Apply for the given game by the given user. If the user who
+ * is authenticated is not the applying user, then only allow it if the
+ * authenticated user is a moderator or higher.
+ *
+ * @apiGroup LiveGame
+ *
+ * @apiParam {number} game The id of the game.
+ * @apiParam {number} user The id of the user.
+ */
+// export async function applyToGameWithApplication(request: AuthorizedRequest & UserRequest, response: Response) {
+export async function applyToGameWithApplication() {
+    throw new Error('Not Implemented');
+}
+
+/**
+ * @api {get} /games/:game/applications/:user Get a given application by the
+ * user.
+ * @apiVersion 1.0.0
+ *
+ * @apiName GetApplicationForGameByUser
+ * @apiDescription Gets the game application for the current specified user,
+ * this can only be the authenticated user if the authenticated user is not a
+ * moderator or higher.
+ *
+ * @apiGroup LiveGame
+ *
+ * @apiParam {number} game The id of the game.
+ * @apiParam {number} user The id of the user.
+ */
+// export async function getApplicationByUser(request: AuthorizedRequest & UserRequest, response: Response) {
+export async function getApplicationByUser() {
+    throw new Error('Not Implemented');
+}
+
+/**
+ * @api {delete} /games/:game/applications/:user remove a given application by the
+ * user.
+ * @apiVersion 1.0.0
+ *
+ * @apiName RemoveApplicationForGameByUser
+ * @apiDescription Removes the game application for the current specified user,
+ * this can only be the authenticated user if the authenticated user is not a
+ * moderator or higher.
+ *
+ * @apiGroup LiveGame
+ *
+ * @apiParam {number} game The id of the game.
+ * @apiParam {number} user The id of the user.
+ */
+// export async function deleteApplicationById(request: AuthorizedRequest & UserRequest, response: Response) {
+export async function deleteApplicationById() {
+    throw new Error('Not Implemented');
 }

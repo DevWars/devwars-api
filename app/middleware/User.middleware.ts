@@ -8,21 +8,19 @@ import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
 
-/**
- * Ensures that the requesting authorized user has provided a valid schedule id, this id will be validated,
- * gathered and bound to the request. Allowing future requests that implement this interface to
- * pull the schedule from the request object.
- */
-export const bindUserFromUserParam = wrapAsync(
-    async (request: UserRequest, response: Response, next: NextFunction) => {
-        const { user: userId } = request.params;
+export const bindUserById = (id: any, optional = false) =>
+    wrapAsync(async (request: UserRequest, response: Response, next: NextFunction) => {
+        if (_.isNil(id) && optional) return next();
 
-        if (_.isNil(userId) || isNaN(_.toNumber(userId)) || Number(userId) > DATABASE_MAX_ID)
+        if (_.isNil(id) || isNaN(_.toNumber(id)) || Number(id) > DATABASE_MAX_ID)
             throw new ApiError({ code: 400, error: 'Invalid user id provided.' });
 
         const userRepository = getCustomRepository(UserRepository);
-        const user = await userRepository.findById(userId);
+        const user = await userRepository.findById(id);
 
+        // if the user does not exist, we cannot fulfil the complete request. SO lets
+        // go and let the user know that the user does not exist and return out of
+        // the request.
         if (_.isNil(user)) {
             throw new ApiError({
                 error: 'A user does not exist for the given id.',
@@ -31,6 +29,29 @@ export const bindUserFromUserParam = wrapAsync(
         }
 
         request.boundUser = user;
-        return next();
-    }
-);
+        next();
+    });
+
+/**
+ * A middleware designed to automatically bind a given user that was specified
+ * in the url paramter, this is used as a point of entry so that future
+ * requests do not have to go through the process of ensuring that a given user
+ * exists or not. If it made it to the request then the user exits.
+ */
+export const bindUserByParamId = (identifier = 'user', optional = false) => async (
+    request: UserRequest,
+    response: Response,
+    next: NextFunction
+) => bindUserById(request.params[identifier], optional)(request, response, next);
+
+/**
+ * A middleware designed to automatically bind a given user that was specified
+ * in the url query, this is used as a point of entry so that future
+ * requests do not have to go through the process of ensuring that a given user
+ * exists or not. If it made it to the request then the user exits.
+ */
+export const bindUserByQueryId = (identifer = 'user', optional = false) => async (
+    request: UserRequest,
+    response: Response,
+    next: NextFunction
+) => bindUserById(request.query[identifer], optional)(request, response, next);

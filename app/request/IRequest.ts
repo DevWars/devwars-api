@@ -1,9 +1,8 @@
 import { Request } from 'express';
 
 import User from '../models/User';
-import GameSchedule from '../models/GameSchedule';
 import Game, { GameMode, GameStatus } from '../models/Game';
-import { GameStorage } from '../types/game';
+import { GameEditorTemplates } from '../types/common';
 
 /**
  * Extends the default express request to contain a localized object of the DevWars user, this will
@@ -23,14 +22,6 @@ export interface UserRequest extends Request {
 }
 
 /**
- * Extends the default express request to contain a localized object of the DevWars game schedule, this will
- * be pushed on during the requests that specify the schedule id in the url. And accessible if required.
- */
-export interface ScheduleRequest extends Request {
-    schedule: GameSchedule;
-}
-
-/**
  * Extends the default express request to contain a localized object of the DevWars game, this will
  * be pushed on during the requests that specify the game id in the url. And accessible if required.
  */
@@ -44,8 +35,8 @@ export interface GameRequest extends Request {
  */
 export interface CreateGameRequest extends Omit<Request, 'body'> {
     body: {
-        // The schedule id that the game is going to be kept too.
-        schedule: number;
+        // The start time the game is going to take place.
+        startTime: Date;
 
         // The season the game that is being created will be associated with.
         season: number;
@@ -56,12 +47,14 @@ export interface CreateGameRequest extends Omit<Request, 'body'> {
         // The title of the game that is being created.
         title: string;
 
+        // The video url of the game that is being created.
+        videoUrl?: string;
+
         // The status the game is going to be in on the creation of the game.
         status?: GameStatus;
 
-        // Any additional storage related information about the game that would
-        // exist on the storage.
-        storage?: GameStorage;
+        // The related templates for the given game.
+        templates?: GameEditorTemplates;
     };
 }
 

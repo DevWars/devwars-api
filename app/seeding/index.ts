@@ -1,5 +1,3 @@
-export { default as GameScheduleSeeding } from './GameSchedule.seeding';
-
 export { default as GameApplicationSeeding } from './GameApplication.seeding';
 
 export { default as ActivitySeeding } from './Activity.seeding';

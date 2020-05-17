@@ -11,11 +11,10 @@ import { Connection } from '../app/services/Connection.service';
 import { UserRole } from '../app/models/User';
 import logger from '../app/utils/logger';
 
-import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 import UserRepository from '../app/repository/User.repository';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
 import { helpers } from 'faker';
-import { GameStatus } from '../app/models/GameSchedule';
+import GameRepository from '../app/repository/Game.repository';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -72,28 +71,21 @@ const generateBasicUsers = async (): Promise<any> => {
 };
 
 const generateGames = async (): Promise<any> => {
-    for (let i = 1; i <= 40; i++) {
-        const game = (await GameSeeding.default(true).common())
-            .withSeason(helpers.randomize([1, 2, 3]))
-            .withStatus(GameStatus.ENDED);
-        await game.save();
-    }
-
-    for (let i = 1; i <= 3; i++) {
-        const game = (await GameSeeding.default(true).common()).withStatus(GameStatus.ACTIVE);
+    for (let i = 1; i <= 150; i++) {
+        const game = (await GameSeeding.default().common()).withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };
 
 const generateApplications = async (): Promise<any> => {
-    const gameScheduleRepository = typeorm.getCustomRepository(GameScheduleRepository);
+    const gameRepository = typeorm.getCustomRepository(GameRepository);
     const userRepository = typeorm.getCustomRepository(UserRepository);
 
     for (let i = 1; i <= 25; i++) {
-        const schedule = await gameScheduleRepository.findOne(i);
+        const game = await gameRepository.findOne(i);
         const user = await userRepository.findOne(i);
 
-        const application = GameApplicationSeeding.withScheduleAndUser(schedule, user);
+        const application = GameApplicationSeeding.withGameAndUser(game, user);
         await connection.manager.save(application);
     }
 };

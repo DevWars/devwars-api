@@ -1,10 +1,10 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import BaseModel from './BaseModel';
-import GameSchedule from './GameSchedule';
-import { GameStorage } from '../types/game';
+import { Column, Entity, OneToMany } from 'typeorm';
 import * as _ from 'lodash';
 
-// TEMPORARY: Status on game until Editor refactor is completed
+import GameApplication from './GameApplication';
+import { GameStorage } from '../types/game';
+import BaseModel from './BaseModel';
+
 export enum GameStatus {
     SCHEDULED = 0,
     ACTIVE = 1,
@@ -19,39 +19,32 @@ export enum GameMode {
 
 @Entity('game')
 export default class Game extends BaseModel {
-    /**
-     * Season number game was broadcasted
-     */
+    @Column()
+    // The title of the given game, this is the display name used when showing
+    // users of the site players.
+    public title: string;
+
+    // The expected start time of the given game.
+    @Column()
+    public startTime: Date;
+
+    // Season number game was broadcasted
     @Column()
     public season: number;
 
-    /**
-     * Represents which game mode we are playing
-     */
+    // Represents which game mode we are playing
     @Column()
     public mode: GameMode;
 
-    /**
-     * Name or theme of the game
-     */
-    @Column()
-    public title: string;
-
-    /**
-     * Link to the video recording for this game
-     */
+    // Link to the video recording for this game
     @Column({ nullable: true })
     public videoUrl: string;
 
-    /**
-     * TEMPORARY: Status on game until Editor refactor is completed
-     */
+    // TEMPORARY: Status on game until Editor refactor is completed
     @Column({ default: GameStatus.SCHEDULED })
     public status: GameStatus;
 
-    /**
-     * Big json object with all game information
-     */
+    // Big json object with all game information
     @Column({ type: 'jsonb', default: {} })
     public storage: GameStorage;
 
@@ -59,9 +52,8 @@ export default class Game extends BaseModel {
     // Relations
     // ------------------------------------------------------------
 
-    @JoinColumn()
-    @OneToOne(() => GameSchedule, (schedule) => schedule.id, { cascade: true })
-    public schedule: GameSchedule;
+    @OneToMany(() => GameApplication, (applications) => applications.game)
+    public applications: GameApplication;
 
     /**
      * Creates a new instance of the games model.
@@ -71,7 +63,6 @@ export default class Game extends BaseModel {
      * @param videoUrl The video url of the games recording.
      * @param status The status of the game.
      * @param storage Any additional storage of the game.
-     * @param schedule The game schedule that is related to the given game.
      */
     public constructor(
         season?: number,
@@ -79,8 +70,8 @@ export default class Game extends BaseModel {
         title?: string,
         videoUrl?: string,
         status?: GameStatus,
-        storage?: GameStorage,
-        schedule?: GameSchedule
+        startTime?: Date,
+        storage?: GameStorage
     ) {
         super();
 
@@ -89,8 +80,8 @@ export default class Game extends BaseModel {
         this.title = title;
         this.videoUrl = videoUrl;
         this.status = status;
+        this.startTime = startTime;
         this.storage = storage;
-        this.schedule = schedule;
     }
 
     /**

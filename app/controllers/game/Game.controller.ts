@@ -8,7 +8,7 @@ import GameRepository from '../../repository/Game.repository';
 
 import { UpdateGameRequest } from '../../request/UpdateGameRequest';
 import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../../request/IRequest';
-import { GameStatus } from '../../models/GameSchedule';
+import { GameStatus } from '../../models/Game';
 import GameService from '../../services/Game.service';
 import ApiError from '../../utils/apiError';
 import { DATABASE_MAX_ID } from '../../constants';
@@ -18,11 +18,9 @@ import {
     parseEnumFromValue,
     parseStringWithDefault,
 } from '../../../test/helpers';
-
-import UserRepository from '../../repository/User.repository';
 import GameApplicationRepository from '../../repository/GameApplication.repository';
-import GameScheduleRepository from '../../repository/GameSchedule.repository';
 import PaginationService from '../../services/pagination.service';
+import { GameStorage } from '../../types/game';
 
 export function flattenGame(game: Game) {
     return {
@@ -34,27 +32,28 @@ export function flattenGame(game: Game) {
         mode: game.mode,
         videoUrl: game.videoUrl,
         status: game.status, // TEMPORARY
-        schedule: game.schedule?.id || null,
+        startTime: game.startTime,
     };
 }
 
 export async function show(request: GameRequest, response: Response) {
+    const gameId = parseIntWithDefault(request.params.game, null, 1, DATABASE_MAX_ID);
     const includePlayers = parseBooleanWithDefault(request.query.players, false);
-    const game = flattenGame(request.game);
 
-    if (includePlayers && !_.isNil(game.players)) {
-        const userRepository = getCustomRepository(UserRepository);
-        const players = await userRepository.findByIds(Object.keys(game.players), {
-            relations: ['connections'],
-            select: ['id', 'avatarUrl', 'username'],
-        });
+    if (_.isNil(gameId)) throw new ApiError({ code: 400, error: 'Invalid game id provided.' });
 
-        for (const player of players) {
-            game.players[player.id] = Object.assign(game.players[player.id], player);
-        }
+    const gameRepository = getCustomRepository(GameRepository);
+    let findGameQuery = gameRepository.createQueryBuilder('game').where('game.id = :gameId', { gameId });
+
+    if (includePlayers) {
+        findGameQuery = findGameQuery
+            .innerJoin('game.applications', 'game_application')
+            .where('game_application.selected = :selected', { selected: true });
     }
 
-    return response.json(game);
+    const foundGame = await findGameQuery.getOne();
+
+    return response.json(flattenGame(foundGame));
 }
 
 /**
@@ -126,14 +125,13 @@ export async function update(request: AuthorizedRequest & GameRequest, response:
 
     const game = request.game;
 
+    game.startTime = gameRequest.startTime || game.startTime;
     game.mode = gameRequest.mode || game.mode || GameMode.Classic;
     game.videoUrl = gameRequest.videoUrl;
+    game.title = gameRequest.title || '';
     game.storage = {
         ...game.storage,
-        title: gameRequest.title || game.storage?.title || '',
-        mode: gameRequest.mode || game.storage?.mode || GameMode.Classic,
         objectives: gameRequest.objectives || game.storage?.objectives,
-        teams: gameRequest.teams || game.storage?.teams,
         meta: gameRequest.meta || game.storage?.meta,
     };
 
@@ -252,43 +250,15 @@ export async function latest(request: Request, response: Response) {
  * @apiError ScheduleDoesNotExist The given schedule for the game does not exist.
  * @apiError ScheduleIsNotActive The given schedule is not active.
  */
-export async function create(request: CreateGameRequest, response: Response) {
-    const { season, mode, title, storage, status } = request.body;
+export async function createNewGame(request: CreateGameRequest, response: Response) {
+    const { season, mode, title, templates, videoUrl, startTime, status } = request.body;
 
-    const scheduleRepository = getCustomRepository(GameScheduleRepository);
-    const schedule = await scheduleRepository.findById(request.body.schedule);
+    const game = new Game(season, mode, title, videoUrl, status, startTime, {
+        editors: {},
+        templates,
+    });
 
-    if (_.isNil(schedule)) {
-        throw new ApiError({
-            message: 'The given game schedule does not exist.',
-            code: 404,
-        });
-    }
-
-    if (schedule.status !== GameStatus.ACTIVE) {
-        throw new ApiError({
-            message: 'The given game cannot be created if the schedule is not active.',
-            code: 400,
-        });
-    }
-
-    const teams = {
-        '0': {
-            id: 0,
-            name: 'blue',
-        },
-        '1': {
-            id: 1,
-            name: 'red',
-        },
-    };
-
-    const updatedStorage = Object.assign({ mode, title, players: {}, editors: {}, teams }, storage);
-    const game = new Game(season, mode, title, null, status, updatedStorage, schedule);
     await game.save();
-
-    schedule.game = game;
-    await schedule.save();
 
     return response.status(201).json(flattenGame(game));
 }
@@ -305,7 +275,6 @@ export async function create(request: CreateGameRequest, response: Response) {
  *
  * @apiError GameIdNotDefined Invalid game id provided.
  * @apiError PlayersAlreadyAssigned The game already has players assigned.
- * @apiError GameScheduleDoesNotExist A game does not exist by the provided game id.
  * @apiError GameNotActive The requesting auto assign game is not in a active state.
  */
 export async function autoAssignPlayers(request: AuthorizedRequest & GameRequest, response: Response) {
@@ -313,12 +282,6 @@ export async function autoAssignPlayers(request: AuthorizedRequest & GameRequest
         throw new ApiError({
             error: 'You cannot balance a game that is not active.',
             code: 400,
-        });
-
-    if (_.isNil(request.game.schedule))
-        throw new ApiError({
-            error: 'The game does not have a corresponding game schedule.',
-            code: 404,
         });
 
     if (_.size(request.game.storage.editors) > 0)
@@ -329,7 +292,7 @@ export async function autoAssignPlayers(request: AuthorizedRequest & GameRequest
 
     // Grab a list of all the related game applications for the given game.
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-    const applications = await gameApplicationRepository.findBySchedule(request.game.schedule, [
+    const applications = await gameApplicationRepository.findByGame(request.game, [
         'user',
         'user.stats',
         'user.gameStats',

@@ -12,7 +12,7 @@ import { UserRole } from '../models/User';
 
 import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
 import { statsSchema, profileSchema, updateUserSchema } from './validators/user.validator';
-import { bindUserFromUserParam } from '../middleware/User.middleware';
+import { bindUserByParamId } from '../middleware/User.middleware';
 import { emailPermissionSchema } from './validators/email.validator';
 import { bodyValidation } from './validators';
 import { wrapAsync } from './handlers';
@@ -31,14 +31,14 @@ UserRoute.get(
 );
 UserRoute.get('/leaderboards', wrapAsync(UserController.getUsersLeaderboards));
 
-UserRoute.get('/:user', [bindUserFromUserParam], wrapAsync(UserController.show));
+UserRoute.get('/:user', [bindUserByParamId('user')], wrapAsync(UserController.show));
 
 UserRoute.put(
     '/:user',
     [
         mustBeAuthenticated,
         mustBeRoleOrOwner(UserRole.MODERATOR),
-        bindUserFromUserParam,
+        bindUserByParamId('user'),
         bodyValidation(updateUserSchema),
     ],
     wrapAsync(UserController.updateUserById)
@@ -46,13 +46,13 @@ UserRoute.put(
 
 UserRoute.delete(
     '/:user',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserByParamId('user')],
     wrapAsync(UserController.deleteUser)
 );
 
 UserRoute.put(
     '/:user/avatar',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam, upload.single('avatar')],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user'), upload.single('avatar')],
     wrapAsync(UserAvatarController.store)
 );
 
@@ -60,16 +60,16 @@ UserRoute.put(
  *  STATS
  ******************************/
 
-UserRoute.get('/:user/stats', [bindUserFromUserParam], wrapAsync(UserStatsController.forUser));
+UserRoute.get('/:user/stats', [bindUserByParamId('user')], wrapAsync(UserStatsController.forUser));
 
 UserRoute.post(
     '/:user/stats',
-    [bodyValidation(statsSchema), bindUserFromUserParam],
+    [bodyValidation(statsSchema), bindUserByParamId('user')],
     wrapAsync(UserStatsController.create)
 );
 
 UserRoute.get('/stats/coins', wrapAsync(UserStatsController.getCoins));
-UserRoute.get('/:user/stats/game', [bindUserFromUserParam], wrapAsync(UserGameStatsController.forUser));
+UserRoute.get('/:user/stats/game', [bindUserByParamId('user')], wrapAsync(UserGameStatsController.forUser));
 
 /******************************
  *  PROFILE
@@ -77,13 +77,13 @@ UserRoute.get('/:user/stats/game', [bindUserFromUserParam], wrapAsync(UserGameSt
 
 UserRoute.get(
     '/:user/profile',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(UserProfileController.show)
 );
 
 UserRoute.patch(
     '/:user/profile',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bodyValidation(profileSchema), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bodyValidation(profileSchema), bindUserByParamId('user')],
     wrapAsync(UserProfileController.update)
 );
 
@@ -93,7 +93,7 @@ UserRoute.patch(
 
 UserRoute.get(
     '/:user/emails/permissions',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserByParamId('user')],
     wrapAsync(EmailController.gatherEmailPermissions)
 );
 
@@ -102,7 +102,7 @@ UserRoute.patch(
     [
         mustBeAuthenticated,
         mustBeRoleOrOwner(UserRole.ADMIN),
-        bindUserFromUserParam,
+        bindUserByParamId('user'),
         bodyValidation(emailPermissionSchema),
     ],
     wrapAsync(EmailController.updateEmailPermissions)
@@ -114,12 +114,12 @@ UserRoute.patch(
 
 UserRoute.get(
     '/:user/connections',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(LinkedAccountController.gatherAllUserConnections)
 );
 UserRoute.get(
     '/:user/connections/:provider',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserFromUserParam],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProvider)
 );
 

@@ -2,7 +2,7 @@ import { EntityRepository, Repository } from 'typeorm';
 import * as _ from 'lodash';
 
 import Game from '../models/Game';
-import { GameStatus } from '../models/GameSchedule';
+import { GameStatus } from '../models/Game';
 
 @EntityRepository(Game)
 export default class GameRepository extends Repository<Game> {

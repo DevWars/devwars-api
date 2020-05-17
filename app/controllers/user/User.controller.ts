@@ -22,7 +22,6 @@ import PasswordReset from '../../models/PasswordReset';
 import UserGameStats from '../../models/UserGameStats';
 import EmailOptIn from '../../models/EmailOptIn';
 import User, { UserRole } from '../../models/User';
-import Game from '../../models/Game';
 import { isRoleHigher, isRoleOrHigher } from '../authentication/Authentication.controller';
 import PaginationService from '../../services/pagination.service';
 
@@ -297,34 +296,6 @@ export async function deleteUser(request: UserRequest, response: Response) {
         // they are purged from the players and editors body.
         const gameApplications = await transaction.find(GameApplication, whereOptions);
         await transaction.remove(gameApplications);
-
-        const userRelatedGames = await transaction
-            .getRepository(Game)
-            .createQueryBuilder('games')
-            .select()
-            .where("(storage ->> 'players')::json ->:id IS NOT NULL", { id: removingUserId })
-            .getMany();
-
-        for (const game of userRelatedGames) {
-            const gameStorage = game?.storage;
-
-            // Update the inner game players model to replace the removing user with the replacement
-            // user. Since these will be rendered on the home page.
-            if (!_.isNil(gameStorage?.players) && !_.isNil(gameStorage.players[removingUserId])) {
-                const player = gameStorage.players[removingUserId];
-
-                // Set the internal id of the player is 0, since the front end will process based on
-                // the internal Id of 0, if we change the actual key id, then it does not support
-                // multiple deleted users.
-                gameStorage.players[removingUserId] = {
-                    id: 0,
-                    team: player.team,
-                    username: 'Competitor',
-                    avatarUrl: undefined,
-                };
-                await transaction.save(game);
-            }
-        }
 
         // Finally delete the user.
         await transaction.remove(removingUser);

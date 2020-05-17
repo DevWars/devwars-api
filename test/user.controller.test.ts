@@ -1,7 +1,7 @@
 import * as _ from 'lodash';
 import * as chai from 'chai';
 import * as supertest from 'supertest';
-import { ActivitySeeding, GameApplicationSeeding, GameScheduleSeeding, UserSeeding } from '../app/seeding';
+import { ActivitySeeding, GameApplicationSeeding, UserSeeding, GameSeeding } from '../app/seeding';
 import { SuperTest, Test } from 'supertest';
 import { addDays } from 'date-fns';
 
@@ -222,11 +222,11 @@ describe('user', () => {
         });
 
         it('Should remove all the users game applications if any', async () => {
-            const gameScheduleOne = await GameScheduleSeeding.default().save();
-            const gameScheduleTwo = await GameScheduleSeeding.default().save();
+            const gameOne = await GameSeeding.default().save();
+            const gameTwo = await GameSeeding.default().save();
 
-            await GameApplicationSeeding.withScheduleAndUser(gameScheduleOne, tempUser).save();
-            await GameApplicationSeeding.withScheduleAndUser(gameScheduleTwo, tempUser).save();
+            await GameApplicationSeeding.withGameAndUser(gameOne, tempUser).save();
+            await GameApplicationSeeding.withGameAndUser(gameTwo, tempUser).save();
 
             const gameApplications = await GameApplication.find({ where: { user: tempUser } });
             chai.expect(gameApplications.length).to.eq(2);
