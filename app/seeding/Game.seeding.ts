@@ -312,12 +312,14 @@ export default class GameSeeding {
      */
     public async save(): Promise<Game> {
         if (this.shouldCreateSchedule) {
-            const status =
-                this.game.status === GameStatus.ACTIVE
-                    ? GameStatus.SCHEDULED
-                    : helpers.randomize([GameStatus.ACTIVE, GameStatus.ENDED]);
+            const gameStatus = this.game.status;
 
-            this.gameScheduleSeeding = GameScheduleSeeding.default().withStatus(status);
+            const status =
+                gameStatus === GameStatus.ACTIVE || gameStatus === GameStatus.SCHEDULED
+                    ? GameStatus.ACTIVE
+                    : GameStatus.ENDED;
+
+            this.gameScheduleSeeding = GameScheduleSeeding.default().withStatus(status).withStartTime(new Date());
             this.game.schedule = await this.gameScheduleSeeding.save();
         }
 
