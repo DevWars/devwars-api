@@ -10,6 +10,8 @@ import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } 
 
 import User from '../models/user.model';
 import { USERNAME_MAX_LENGTH } from '../constants';
+import GameRepository from '../repository/Game.repository';
+import Game from '../models/game.model';
 
 /**
  * @api {get} /search/users?username=:username&email=:email&limit=:limit Looks
@@ -78,6 +80,57 @@ export async function lookupUser(request: UserRequest, response: Response) {
     return response.json(
         users.map((e: User) => {
             return { username: e.username, email: e.email, id: e.id, connections: e.connections };
+        })
+    );
+}
+
+/**
+ * @api {get} /search/games?title=:title Looks up games by title.
+ * @apiName LookupGamesByTitle
+ * @apiGroup Search
+ *
+ * @apiParam {string} title  A partial or full title for a given game.
+ * @apiParam {number} limit     The maximum amount of users to return (max 50)
+ * @apiParam {boolean} full     If all the user details should be returned or
+ * not.
+ *
+ * @apiSuccess {Games[]} Games    A array of games objects containing the username
+ * and id.
+ *
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ *     [{
+ *        "title": "Fighting Bots",
+ *        "id": 27
+ *      }]
+ */
+export async function lookupGames(request: UserRequest, response: Response) {
+    const { limit, full } = request.query;
+
+    const title = parseStringWithDefault(request.query.title, '', 0, USERNAME_MAX_LENGTH);
+
+    const params = {
+        limit: parseIntWithDefault(limit, 50, 1, 50) as number,
+        full: parseBooleanWithDefault(full, false) as boolean,
+    };
+
+    if (title === '') {
+        throw new ApiError({
+            error: 'The specified title within the query must not be empty.',
+            code: 400,
+        });
+    }
+
+    const gameRepository = getCustomRepository(GameRepository);
+    const games = await gameRepository.getGamesLikeTitle(title, params.limit);
+
+    // If the games has specified full user details, then return out early
+    // before performing a filter to username and ids.
+    if (params.full) return response.json(games);
+
+    // Reduce the response down to the given title and id of the games.
+    return response.json(
+        games.map((e: Game) => {
+            return { title: e.title, id: e.id };
         })
     );
 }
