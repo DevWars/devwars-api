@@ -10,7 +10,7 @@ import { UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 import { UserRole } from '../app/models/user.model';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
-import EmailRepository from '../app/repository/EmailOptIn.repository';
+import EmailRepository from '../app/repository/emailOptIn.repository';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test>;

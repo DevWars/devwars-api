@@ -6,6 +6,7 @@ import * as UserProfileController from '../controllers/userProfile.controller';
 import * as UserStatsController from '../controllers/userStats.controller';
 import * as UserGameStatsController from '../controllers/userGameStats.controller';
 import * as LinkedAccountController from '../controllers/linkedAccount.controller';
+import * as ActivityController from '../controllers/activity.controller';
 import * as UserAvatarController from '../controllers/userAvatar.controller';
 import * as EmailController from '../controllers/email.controller';
 import { UserRole } from '../models/user.model';
@@ -119,6 +120,21 @@ UserRoute.get(
     '/:user/connections/:provider',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProvider)
+);
+
+/******************************
+ *  Activities
+ ******************************/
+
+UserRoute.get(
+    '/:user/activities',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(ActivityController.gatherAllUsersActivities)
+);
+UserRoute.get(
+    '/:user/activities/:activity',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(ActivityController.gatherUserActivityById)
 );
 
 export { UserRoute };

@@ -7,7 +7,7 @@ import { getCustomRepository } from 'typeorm';
 import GameApplication from '../models/gameApplication.model';
 import User from '../models/user.model';
 
-import EmailRepository from '../repository/EmailOptIn.repository';
+import EmailRepository from '../repository/emailOptIn.repository';
 import logger from '../utils/logger';
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

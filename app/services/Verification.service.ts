@@ -5,7 +5,7 @@ import User, { UserRole } from '../models/user.model';
 import { randomString } from '../utils/random';
 import { sendWelcomeEmail } from './Mail.service';
 
-import EmailVerificationRepository from '../repository/EmailVerification.repository';
+import EmailVerificationRepository from '../repository/emailVerification.repository';
 
 export class VerificationService {
     /**
