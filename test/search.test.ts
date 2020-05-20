@@ -3,8 +3,8 @@ import * as chai from 'chai';
 
 import { UserSeeding, GameSeeding } from '../app/seeding';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { cookieForUser } from './helpers';
 
 import User, { UserRole } from '../app/models/user.model';

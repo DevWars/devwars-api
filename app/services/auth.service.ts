@@ -10,11 +10,11 @@ import UserProfile from '../models/userProfile.model';
 import EmailOptIn from '../models/emailOptIn.model';
 import UserStats from '../models/userStats.model';
 
-import RegistrationRequest from '../request/RegistrationRequest';
+import RegistrationRequest from '../request/registrationRequest';
 import { randomString } from '../utils/random';
 
 import { VerificationService } from './Verification.service';
-import { sendPasswordResetEmail } from './Mail.service';
+import { sendPasswordResetEmail } from './mail.service';
 
 export class AuthService {
     public static async register(request: RegistrationRequest, shouldSendVerification = true) {

@@ -2,8 +2,8 @@ import { Response } from 'express';
 import * as _ from 'lodash';
 
 import UserProfile from '../models/userProfile.model';
-import { ProfileRequest } from '../request/ProfileRequest';
-import { UserRequest } from '../request/IRequest';
+import { ProfileRequest } from '../request/profileRequest';
+import { UserRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 
 /**

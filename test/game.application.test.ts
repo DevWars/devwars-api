@@ -1,8 +1,8 @@
 import * as supertest from 'supertest';
 // import { SuperTest, Test } from 'supertest';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 const server: ServerService = new ServerService();
 /* eslint-disable @typescript-eslint/no-unused-vars */
 let agent;

@@ -5,8 +5,8 @@ import { ActivitySeeding, GameApplicationSeeding, UserSeeding, GameSeeding } fro
 import { SuperTest, Test } from 'supertest';
 import { addDays } from 'date-fns';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { cookieForUser } from './helpers';
 
 import EmailVerification from '../app/models/emailVerification.model';
@@ -18,10 +18,10 @@ import UserProfile from '../app/models/userProfile.model';
 import User, { UserRole } from '../app/models/user.model';
 import UserStats from '../app/models/userStats.model';
 import Activity from '../app/models/activity.model';
-import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
+import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
 import { USERNAME_CHANGE_MIN_DAYS } from '../app/constants';
-import UserRepository from '../app/repository/User.repository';
+import UserRepository from '../app/repository/user.repository';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test> = null;

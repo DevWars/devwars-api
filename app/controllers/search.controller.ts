@@ -2,15 +2,15 @@ import { getCustomRepository } from 'typeorm';
 import { Response } from 'express';
 import * as _ from 'lodash';
 
-import UserRepository from '../repository/User.repository';
-import { UserRequest } from '../request/IRequest';
+import UserRepository from '../repository/user.repository';
+import { UserRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 
 import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../../test/helpers';
 
 import User from '../models/user.model';
 import { USERNAME_MAX_LENGTH } from '../constants';
-import GameRepository from '../repository/Game.repository';
+import GameRepository from '../repository/game.repository';
 import Game from '../models/game.model';
 
 /**

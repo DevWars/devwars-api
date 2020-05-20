@@ -1,20 +1,20 @@
 import * as typeorm from 'typeorm';
 
-import GameApplicationSeeding from '../app/seeding/GameApplication.seeding';
-import UserProfileSeeding from '../app/seeding/UserProfile.seeding';
-import UserStatsSeeding from '../app/seeding/UserStats.seeding';
+import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
+import UserProfileSeeding from '../app/seeding/userProfile.seeding';
+import UserStatsSeeding from '../app/seeding/userStats.seeding';
 import ActivitySeeding from '../app/seeding/Activity.seeding';
-import GameSeeding from '../app/seeding/Game.seeding';
-import UserSeeding from '../app/seeding/User.seeding';
+import GameSeeding from '../app/seeding/game.seeding';
+import UserSeeding from '../app/seeding/user.seeding';
 
-import { Connection } from '../app/services/Connection.service';
+import { Connection } from '../app/services/connection.service';
 import { UserRole } from '../app/models/user.model';
 import logger from '../app/utils/logger';
 
-import UserRepository from '../app/repository/User.repository';
-import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
+import UserRepository from '../app/repository/user.repository';
+import EmailOptInSeeding from '../app/seeding/emailOptIn.seeding';
 import { helpers } from 'faker';
-import GameRepository from '../app/repository/Game.repository';
+import GameRepository from '../app/repository/game.repository';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;

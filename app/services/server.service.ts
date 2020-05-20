@@ -6,7 +6,7 @@ import * as http from 'http';
 import * as morgan from 'morgan';
 
 import * as errorController from '../controllers/error.controller';
-import * as Connection from './Connection.service';
+import * as Connection from './connection.service';
 import logger from '../utils/logger';
 import { Routes } from '../routes';
 

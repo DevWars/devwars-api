@@ -4,17 +4,17 @@ import { Request, Response } from 'express';
 import * as _ from 'lodash';
 
 import Game, { GameMode, GameStatus } from '../models/game.model';
-import GameRepository from '../repository/Game.repository';
+import GameRepository from '../repository/game.repository';
 
 import { parseIntWithDefault, parseEnumFromValue, parseStringWithDefault } from '../../test/helpers';
-import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/IRequest';
-import { UpdateGameRequest } from '../request/UpdateGameRequest';
+import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/requests';
+import { UpdateGameRequest } from '../request/updateGameRequest';
 
 import { DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';
 
 import PaginationService from '../services/pagination.service';
-import GameService from '../services/Game.service';
+import GameService from '../services/game.service';
 
 /**
  * Takes a game and flattens it within a top level object containing the core
@@ -73,6 +73,20 @@ export async function latest(request: Request, response: Response) {
     // ensure that if we don't have any future games, (meaning that there are no games in the
     // database at all) that we let the user know that no games exist..
     if (_.isNil(game)) throw new ApiError({ code: 404, error: 'Currently no future games exist.' });
+
+    return response.json(flattenGame(game));
+}
+
+export async function active(request: Request, response: Response) {
+    const gameRepository = getCustomRepository(GameRepository);
+    const game = await gameRepository.active(['schedule']);
+
+    if (_.isNil(game)) {
+        throw new ApiError({
+            error: 'There currently is no active game.',
+            code: 404,
+        });
+    }
 
     return response.json(flattenGame(game));
 }

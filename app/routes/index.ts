@@ -1,10 +1,10 @@
 import * as express from 'express';
-import { AuthRoute } from './Auth.routes';
-import { GameRoute } from './Game.routes';
+import { AuthRoute } from './auth.routes';
+import { GameRoute } from './game.routes';
 import { HealthRoute } from './health.routes';
-import { LeaderboardRoute } from './Leaderboard.route';
-import { LinkedAccountRoute } from './LinkedAccount.routes';
-import { UserRoute } from './User.routes';
+import { LeaderboardRoute } from './leaderboard.routes';
+import { LinkedAccountRoute } from './linkedAccount.routes';
+import { UserRoute } from './user.routes';
 import { ContactRoute } from './contact.routes';
 import { DocsRoute } from './docs.routes';
 import { SearchRoute } from './search.routes';

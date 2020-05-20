@@ -5,9 +5,9 @@ import * as chai from 'chai';
 import * as _ from 'lodash';
 
 import { UserProfileSeeding, UserSeeding } from '../app/seeding';
-import { ProfileRequest } from '../app/request/ProfileRequest';
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { ProfileRequest } from '../app/request/profileRequest';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { cookieForUser } from './helpers';
 
 import UserProfile, { Sex } from '../app/models/userProfile.model';

@@ -3,7 +3,7 @@ import EmailVerification from '../models/emailVerification.model';
 import User, { UserRole } from '../models/user.model';
 
 import { randomString } from '../utils/random';
-import { sendWelcomeEmail } from './Mail.service';
+import { sendWelcomeEmail } from './mail.service';
 
 import EmailVerificationRepository from '../repository/emailVerification.repository';
 

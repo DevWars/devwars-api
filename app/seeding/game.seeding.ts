@@ -6,7 +6,7 @@ import GameApplication from '../models/gameApplication.model';
 import User from '../models/user.model';
 
 import { GameObjective } from '../types/common';
-import UserSeeding from './User.seeding';
+import UserSeeding from './user.seeding';
 import logger from '../utils/logger';
 
 export default class GameSeeding {

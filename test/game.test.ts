@@ -4,9 +4,9 @@ import { random } from 'faker';
 import * as chai from 'chai';
 import * as _ from 'lodash';
 
-import GameRepository from '../app/repository/Game.repository';
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import GameRepository from '../app/repository/game.repository';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 
 import { GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';

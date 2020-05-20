@@ -3,14 +3,14 @@ import * as supertest from 'supertest';
 import { getCustomRepository } from 'typeorm';
 import { isNil } from 'lodash';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import LinkedAccount, { Provider } from '../app/models/linkedAccount.model';
 
+import UserStatisticsRepository from '../app/repository/userStatistics.repository';
 import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';
 import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding, UserStatsSeeding } from '../app/seeding';
-import UserStatisticsRepository from '../app/repository/UserStatisticsRepository';
 import { UserRole } from '../app/models/user.model';
 import { cookieForUser } from './helpers';
 

@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 
 import Game from '../models/game.model';
 import { available, default as firebase } from '../utils/firebase';
-import GameApplicationRepository from '../repository/GameApplication.repository';
+import GameApplicationRepository from '../repository/gameApplication.repository';
 import { getCustomRepository } from 'typeorm';
 
 const firebaseGame = available ? firebase.database().ref('game') : null;

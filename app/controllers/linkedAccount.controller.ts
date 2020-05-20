@@ -2,17 +2,17 @@ import { Request, Response } from 'express';
 import { getCustomRepository, In } from 'typeorm';
 import * as _ from 'lodash';
 
-import LinkedAccountRepository from '../repository/LinkedAccount.repository';
+import UserStatisticsRepository from '../repository/userStatistics.repository';
+import LinkedAccountRepository from '../repository/linkedAccount.repository';
 import LinkedAccount, { Provider } from '../models/linkedAccount.model';
 import User from '../models/user.model';
 
-import { DiscordService } from '../services/Discord.service';
-import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../services/Mail.service';
-import { AuthorizedRequest, UserRequest } from '../request/IRequest';
+import { DiscordService } from '../services/discord.service';
+import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../services/mail.service';
+import { AuthorizedRequest, UserRequest } from '../request/requests';
 import { parseIntWithDefault } from '../../test/helpers';
 import ApiError from '../utils/apiError';
 import { TwitchService } from '../services/twitch.service';
-import UserStatisticsRepository from '../repository/UserStatisticsRepository';
 import { DATABASE_MAX_ID } from '../constants';
 
 /**

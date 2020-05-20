@@ -4,12 +4,12 @@ import { SuperTest, Test } from 'supertest';
 import { getCustomRepository } from 'typeorm';
 import { isBoolean, isNil } from 'lodash';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 import { UserRole } from '../app/models/user.model';
-import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
+import EmailOptInSeeding from '../app/seeding/emailOptIn.seeding';
 import EmailRepository from '../app/repository/emailOptIn.repository';
 
 const server: ServerService = new ServerService();

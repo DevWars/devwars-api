@@ -1,6 +1,6 @@
 import { Response } from 'express';
-import { ContactRequest } from '../request/IRequest';
-import { sendContactUsEmail } from '../services/Mail.service';
+import { ContactRequest } from '../request/requests';
+import { sendContactUsEmail } from '../services/mail.service';
 
 /**
  * @api {post} /contact Endpoint for contact us forms to be posted too.

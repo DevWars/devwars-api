@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import ActivityRepository from '../repository/activity.repository';
 
 import { parseIntWithDefault } from '../../test/helpers';
-import { UserRequest } from '../request/IRequest';
+import { UserRequest } from '../request/requests';
 import { DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';
 

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 
-import { AuthService } from '../app/services/Auth.service';
+import { AuthService } from '../app/services/auth.service';
 import User from '../app/models/user.model';
 
 export const cookieForUser = async (user: User): Promise<string> => {

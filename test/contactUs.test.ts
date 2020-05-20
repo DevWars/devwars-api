@@ -1,7 +1,7 @@
 import * as supertest from 'supertest';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import {
     CONTACT_US_MESSAGE_MAX,
     CONTACT_US_MESSAGE_MIN,
@@ -58,7 +58,8 @@ describe('Contact Us ', () => {
                 .post('/contact')
                 .send({ name, email: validPost.email, message: validPost.message })
                 .expect(400, {
-                    error: 'name length must be less than or equal to 64 characters long, ' +
+                    error:
+                        'name length must be less than or equal to 64 characters long, ' +
                         'please check your content and try again.',
                 });
         });
@@ -86,10 +87,14 @@ describe('Contact Us ', () => {
 
             while (message.length < CONTACT_US_MESSAGE_MAX + 1) message += 'A';
 
-            await agent.post('/contact').send({ message, email: validPost.email, name: validPost.name }).expect(400, {
-                error: 'message length must be less than or equal to 500 characters long, ' +
-                    'please check your content and try again.',
-            });
+            await agent
+                .post('/contact')
+                .send({ message, email: validPost.email, name: validPost.name })
+                .expect(400, {
+                    error:
+                        'message length must be less than or equal to 500 characters long, ' +
+                        'please check your content and try again.',
+                });
         });
     });
 });

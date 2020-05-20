@@ -1,8 +1,8 @@
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { UserSeeding, ActivitySeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 import User, { UserRole } from '../app/models/user.model';

@@ -7,18 +7,18 @@ import EmailVerification from '../models/emailVerification.model';
 import PasswordReset from '../models/passwordReset.model';
 import User, { UserRole } from '../models/user.model';
 
-import UserRepository from '../repository/User.repository';
+import UserRepository from '../repository/user.repository';
 import PasswordResetRepository from '../repository/PasswordReset.repository';
 
-import LoginRequest from '../request/LoginRequest';
-import RegistrationRequest from '../request/RegistrationRequest';
-import { AuthService } from '../services/Auth.service';
+import LoginRequest from '../request/loginRequest';
+import RegistrationRequest from '../request/registrationRequest';
+import { AuthService } from '../services/auth.service';
 import { VerificationService } from '../services/Verification.service';
-import { ResetService } from '../services/Reset.service';
+import { ResetService } from '../services/reset.service';
 import { RESERVED_USERNAMES } from '../constants';
 import { hash } from '../utils/hash';
 
-import { AuthorizedRequest } from '../request/IRequest';
+import { AuthorizedRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 
 function flattenUser(user: User) {

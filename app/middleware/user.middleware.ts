@@ -2,8 +2,8 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import { UserRequest } from '../request/IRequest';
-import UserRepository from '../repository/User.repository';
+import { UserRequest } from '../request/requests';
+import UserRepository from '../repository/user.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';

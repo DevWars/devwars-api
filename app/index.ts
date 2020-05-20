@@ -4,7 +4,7 @@ import logger from './utils/logger';
 import * as cluster from 'cluster';
 import { cpus } from 'os';
 
-import Server from './services/Server.service';
+import Server from './services/server.service';
 import { config } from '../config';
 
 dotenv.config();

@@ -2,8 +2,8 @@ import { Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { isNil } from 'lodash';
 
-import { UpdateEmailPermissionRequest } from '../request/UpdateEmailPermissionRequest';
-import { UserRequest } from '../request/IRequest';
+import { UpdateEmailPermissionRequest } from '../request/updateEmailPermissionRequest';
+import { UserRequest } from '../request/requests';
 import EmailRepository from '../repository/emailOptIn.repository';
 import EmailOptIn from '../models/emailOptIn.model';
 import ApiError from '../utils/apiError';

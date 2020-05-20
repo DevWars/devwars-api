@@ -14,8 +14,8 @@ import EmailOptIn from '../models/emailOptIn.model';
 import UserStats from '../models/userStats.model';
 import Activity from '../models/activity.model';
 
-import UserRepository from '../repository/User.repository';
-import { AuthorizedRequest, UserRequest } from '../request/IRequest';
+import UserRepository from '../repository/user.repository';
+import { AuthorizedRequest, UserRequest } from '../request/requests';
 import { USERNAME_CHANGE_MIN_DAYS, DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';
 

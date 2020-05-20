@@ -3,9 +3,9 @@ import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
 import User, { UserRole } from '../models/user.model';
-import UserRepository from '../repository/User.repository';
-import { AuthService } from '../services/Auth.service';
-import { AuthorizedRequest } from '../request/IRequest';
+import UserRepository from '../repository/user.repository';
+import { AuthService } from '../services/auth.service';
+import { AuthorizedRequest } from '../request/requests';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
 

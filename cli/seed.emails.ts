@@ -1,7 +1,7 @@
 import { Connection as typeConnection } from 'typeorm';
 import * as faker from 'faker';
 
-import { Connection } from '../app/services/Connection.service';
+import { Connection } from '../app/services/connection.service';
 import logger from '../app/utils/logger';
 import User from '../app/models/user.model';
 

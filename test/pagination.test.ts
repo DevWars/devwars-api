@@ -3,9 +3,9 @@ import * as _ from 'lodash';
 import { getCustomRepository } from 'typeorm';
 
 import PaginationService from '../app/services/pagination.service';
-import { Connection } from '../app/services/Connection.service';
+import { Connection } from '../app/services/connection.service';
 
-import UserRepository from '../app/repository/User.repository';
+import UserRepository from '../app/repository/user.repository';
 import { UserSeeding } from '../app/seeding';
 import User from '../app/models/user.model';
 

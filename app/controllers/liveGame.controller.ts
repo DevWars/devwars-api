@@ -2,12 +2,12 @@ import { getCustomRepository, Not, IsNull } from 'typeorm';
 import { Response } from 'express';
 import * as _ from 'lodash';
 
-import GameApplicationRepository from '../repository/GameApplication.repository';
+import GameApplicationRepository from '../repository/gameApplication.repository';
 import UserGameStatsRepository from '../repository/userGameStats.repository';
-import UserRepository from '../repository/User.repository';
+import UserRepository from '../repository/user.repository';
 
-import { GameRequest, AuthorizedRequest } from '../request/IRequest';
-import GameService from '../services/Game.service';
+import { GameRequest, AuthorizedRequest } from '../request/requests';
+import GameService from '../services/game.service';
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import { GameStatus } from '../models/game.model';

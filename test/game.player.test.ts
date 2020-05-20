@@ -2,8 +2,8 @@ import * as supertest from 'supertest';
 import { SuperTest, Test } from 'supertest';
 import * as _ from 'lodash';
 
-import { Connection } from '../app/services/Connection.service';
-import ServerService from '../app/services/Server.service';
+import { Connection } from '../app/services/connection.service';
+import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding, GameApplicationSeeding } from '../app/seeding';
 import { UserRole } from '../app/models/user.model';
 import { GameMode } from '../app/models/game.model';

@@ -3,10 +3,10 @@ import { getCustomRepository } from 'typeorm';
 import { isNil, defaultTo } from 'lodash';
 
 import UserStats from '../models/userStats.model';
-import UserRepository from '../repository/User.repository';
+import UserRepository from '../repository/user.repository';
 import { Provider } from '../models/linkedAccount.model';
-import LinkedAccountRepository from '../repository/LinkedAccount.repository';
-import { UserRequest } from '../request/IRequest';
+import LinkedAccountRepository from '../repository/linkedAccount.repository';
+import { UserRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 import { parseStringWithDefault } from '../../test/helpers';
 

@@ -2,8 +2,8 @@ import { NextFunction, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
-import { GameRequest } from '../request/IRequest';
-import GameRepository from '../repository/Game.repository';
+import { GameRequest } from '../request/requests';
+import GameRepository from '../repository/game.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
