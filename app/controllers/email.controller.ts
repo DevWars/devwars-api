@@ -5,7 +5,7 @@ import { isNil } from 'lodash';
 import { UpdateEmailPermissionRequest } from '../request/UpdateEmailPermissionRequest';
 import { UserRequest } from '../request/IRequest';
 import EmailRepository from '../repository/EmailOptIn.repository';
-import EmailOptIn from '../models/EmailOptIn';
+import EmailOptIn from '../models/emailOptIn.model';
 import ApiError from '../utils/apiError';
 
 /**

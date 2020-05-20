@@ -1,8 +1,8 @@
 import * as Joi from '@hapi/joi';
 
 import * as constants from '../../constants';
-import { Sex } from '../../models/UserProfile';
-import { UserRole } from '../../models/User';
+import { Sex } from '../../models/userProfile.model';
+import { UserRole } from '../../models/user.model';
 
 export const statsSchema = Joi.object()
     .keys({

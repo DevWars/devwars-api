@@ -1,7 +1,6 @@
 import { getManager, getCustomRepository } from 'typeorm';
-import EmailVerification from '../models/EmailVerification';
-import User from '../models/User';
-import { UserRole } from '../models/User';
+import EmailVerification from '../models/emailVerification.model';
+import User, { UserRole } from '../models/user.model';
 
 import { randomString } from '../utils/random';
 import { sendWelcomeEmail } from './Mail.service';

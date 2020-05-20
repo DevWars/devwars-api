@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne } from 'typeorm';
-import BaseModel from './BaseModel';
-import User from './User';
+import BaseModel from './base.model';
+import User from './user.model';
 
 @Entity('activity')
 export default class Activity extends BaseModel {

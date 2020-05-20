@@ -1,18 +1,18 @@
 import * as express from 'express';
 import * as multer from 'multer';
 
-import * as UserController from '../controllers/user/User.controller';
-import * as UserProfileController from '../controllers/user/UserProfile.controller';
-import * as UserStatsController from '../controllers/user/UserStats.controller';
-import * as UserGameStatsController from '../controllers/user/UserGameStats.controller';
-import * as LinkedAccountController from '../controllers/user/LinkedAccount.controller';
-import * as UserAvatarController from '../controllers/user/UserAvatar.controller';
-import * as EmailController from '../controllers/Email.controller';
-import { UserRole } from '../models/User';
+import * as UserController from '../controllers/user.controller';
+import * as UserProfileController from '../controllers/userProfile.controller';
+import * as UserStatsController from '../controllers/userStats.controller';
+import * as UserGameStatsController from '../controllers/userGameStats.controller';
+import * as LinkedAccountController from '../controllers/linkedAccount.controller';
+import * as UserAvatarController from '../controllers/userAvatar.controller';
+import * as EmailController from '../controllers/email.controller';
+import { UserRole } from '../models/user.model';
 
-import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
+import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/authentication.middleware';
 import { statsSchema, profileSchema, updateUserSchema } from './validators/user.validator';
-import { bindUserByParamId } from '../middleware/User.middleware';
+import { bindUserByParamId } from '../middleware/user.middleware';
 import { emailPermissionSchema } from './validators/email.validator';
 import { bodyValidation } from './validators';
 import { wrapAsync } from './handlers';
@@ -29,8 +29,6 @@ UserRoute.get(
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
     wrapAsync(UserController.getAllUsersWithPaging)
 );
-UserRoute.get('/leaderboards', wrapAsync(UserController.getUsersLeaderboards));
-
 UserRoute.get('/:user', [bindUserByParamId('user')], wrapAsync(UserController.show));
 
 UserRoute.put(

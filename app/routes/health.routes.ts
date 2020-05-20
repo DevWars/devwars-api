@@ -1,8 +1,8 @@
 import * as express from 'express';
 
-import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/Auth.middleware';
-import * as HealthController from '../controllers/Health.controller';
-import { UserRole } from '../models/User';
+import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/authentication.middleware';
+import * as HealthController from '../controllers/health.controller';
+import { UserRole } from '../models/user.model';
 
 const HealthRoute = express.Router();
 

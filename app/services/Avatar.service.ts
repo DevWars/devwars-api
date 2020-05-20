@@ -4,7 +4,7 @@ import * as fs from 'fs';
 import { PutObjectRequest } from 'aws-sdk/clients/s3';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
 
-import User from '../models/User';
+import User from '../models/user.model';
 
 import { randomString } from '../utils/random';
 

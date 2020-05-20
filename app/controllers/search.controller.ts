@@ -8,7 +8,7 @@ import ApiError from '../utils/apiError';
 
 import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../../test/helpers';
 
-import User from '../models/User';
+import User from '../models/user.model';
 import { USERNAME_MAX_LENGTH } from '../constants';
 
 /**

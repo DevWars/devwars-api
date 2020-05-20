@@ -1,13 +1,14 @@
 import * as express from 'express';
 
-import * as LiveGameController from '../controllers/game/LiveGame.controller';
-import * as GameController from '../controllers/game/Game.controller';
+import * as LiveGameController from '../controllers/liveGame.controller';
+import * as GameController from '../controllers/game.controller';
 
-import { bindGameByParamId } from '../middleware/GameApplication.middleware';
-import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/Auth.middleware';
+import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/authentication.middleware';
+import { bindGameByParamId } from '../middleware/gameApplication.middleware';
+import { bindUserByParamId } from '../middleware/user.middleware';
 
+import { UserRole } from '../models/user.model';
 import { wrapAsync } from './handlers';
-import { UserRole } from '../models/User';
 
 import {
     createGameSchema,
@@ -15,12 +16,16 @@ import {
     addGamePlayerSchema,
     removeGamePlayerSchema,
 } from './validators/game.validator';
+
 import { bodyValidation } from './validators';
-import { bindUserByParamId } from '../middleware/User.middleware';
 
 const GameRoute: express.Router = express.Router();
 
-GameRoute.get('/', wrapAsync(GameController.gatheringAllGamesWithPaging));
+/*******************************
+ *  Games/Root
+ ******************************/
+
+GameRoute.get('/', wrapAsync(GameController.getAllGames));
 
 GameRoute.post(
     '/',
@@ -28,7 +33,10 @@ GameRoute.post(
     wrapAsync(GameController.createNewGame)
 );
 
-GameRoute.get('/latest', wrapAsync(GameController.latest));
+/*******************************
+ *  Game
+ ******************************/
+
 GameRoute.get('/:game', [bindGameByParamId('game')], wrapAsync(GameController.show));
 
 GameRoute.patch(
@@ -48,26 +56,18 @@ GameRoute.delete(
     wrapAsync(GameController.remove)
 );
 
-GameRoute.post(
-    '/:game/auto-assign',
-    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameByParamId('game')],
-    wrapAsync(GameController.autoAssignPlayers)
-);
+/*******************************
+ *  Actions
+ ******************************/
 
 GameRoute.post(
-    '/:game/activate',
+    '/:game/actions/activate',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameByParamId('game')],
     wrapAsync(GameController.activate)
 );
 
 GameRoute.post(
-    '/:game/end',
-    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameByParamId('game')],
-    wrapAsync(LiveGameController.end)
-);
-
-GameRoute.post(
-    '/:game/end/bot',
+    '/:game/actions/end',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true), bindGameByParamId('game')],
     wrapAsync(LiveGameController.end)
 );
@@ -76,26 +76,28 @@ GameRoute.post(
  *  Players
  ******************************/
 
+GameRoute.get('/:game/players', [bindGameByParamId('game')], wrapAsync(LiveGameController.GetAllGameAssignedPlayers));
+
 GameRoute.post(
-    '/:game/player',
+    '/:game/players',
     [
         mustBeAuthenticated,
         mustBeMinimumRole(UserRole.MODERATOR),
         bindGameByParamId('game'),
         bodyValidation(addGamePlayerSchema),
     ],
-    wrapAsync(LiveGameController.addPlayer)
+    wrapAsync(LiveGameController.assignPlayerToGame)
 );
 
 GameRoute.delete(
-    '/:game/player',
+    '/:game/players',
     [
         mustBeAuthenticated,
         mustBeMinimumRole(UserRole.MODERATOR),
         bindGameByParamId('game'),
         bodyValidation(removeGamePlayerSchema),
     ],
-    wrapAsync(LiveGameController.removePlayer)
+    wrapAsync(LiveGameController.removePlayerFromGame)
 );
 
 /*******************************

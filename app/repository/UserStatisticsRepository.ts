@@ -1,8 +1,8 @@
 import { EntityRepository, Repository } from 'typeorm';
 import { isNil } from 'lodash';
 
-import UserStats from '../models/UserStats';
-import User from '../models/User';
+import UserStats from '../models/userStats.model';
+import User from '../models/user.model';
 
 @EntityRepository(UserStats)
 export default class UserStatisticsRepository extends Repository<UserStats> {

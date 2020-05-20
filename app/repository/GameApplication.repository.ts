@@ -1,8 +1,9 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, Repository, IsNull, Not } from 'typeorm';
+import * as _ from 'lodash';
 
-import GameApplication from '../models/GameApplication';
-import User from '../models/User';
-import Game from '../models/Game';
+import GameApplication from '../models/gameApplication.model';
+import User from '../models/user.model';
+import Game from '../models/game.model';
 
 @EntityRepository(GameApplication)
 export default class GameApplicationRepository extends Repository<GameApplication> {
@@ -46,12 +47,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * to expand.
      */
     public async findByGame(game: Game, relations: string[] = []): Promise<GameApplication[]> {
-        return this.find({
-            where: {
-                game,
-            },
-            relations,
-        });
+        return this.find({ where: { game }, relations });
     }
 
     /**
@@ -61,13 +57,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * to expand.
      */
     public async findAssignedPlayersForGame(game: Game, relations: string[] = []): Promise<GameApplication[]> {
-        return this.find({
-            where: {
-                game,
-                selected: true,
-            },
-            relations,
-        });
+        return this.find({ where: { game, team: Not(IsNull()) }, relations });
     }
 
     /**
@@ -79,14 +69,9 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param language  The language that is being checked.
      */
     public async isGameLanguageAssigned(game: Game, team: number, language: string): Promise<boolean> {
-        const result = await this.count({
-            where: {
-                game,
-                team,
-                assignedLanguage: language.toLowerCase(),
-            },
-        });
+        const assignedLanguage = language.toLowerCase();
 
+        const result = await this.count({ where: { game, team, assignedLanguage } });
         return result >= 1;
     }
 
@@ -96,14 +81,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param game The game which is being checked.
      */
     public async isPlayerAlreadyAssigned(user: User, game: Game): Promise<boolean> {
-        const result = await this.count({
-            where: {
-                user,
-                game,
-                selected: true,
-            },
-        });
-
+        const result = await this.count({ where: { user, game } });
         return result >= 1;
     }
 
@@ -115,17 +93,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param language The language the user has been applied too.
      */
     public async assignUserToGame(user: User, game: Game, team: number, language: string): Promise<void> {
-        await this.update(
-            {
-                user,
-                game,
-            },
-            {
-                selected: true,
-                team: team,
-                assignedLanguage: language.toLowerCase(),
-            }
-        );
+        await this.update({ user, game }, { team: team, assignedLanguage: language.toLowerCase() });
     }
 
     /**
@@ -135,16 +103,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      */
 
     public async removeUserFromGame(user: User, game: Game) {
-        this.update(
-            {
-                user,
-                game,
-            },
-            {
-                selected: false,
-                team: null,
-            }
-        );
+        this.update({ user, game }, { team: null });
     }
 
     /**
@@ -158,13 +117,8 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
         team: number,
         relations: string[] = []
     ): Promise<GameApplication[]> {
-        return this.find({
-            where: {
-                game,
-                selected: true,
-                team,
-            },
-            relations,
-        });
+        if (_.isNil(team)) return [];
+
+        return this.find({ where: { game, team }, relations });
     }
 }

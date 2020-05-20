@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import BaseModel from './BaseModel';
-import User from './User';
+import BaseModel from './base.model';
+import User from './user.model';
 
 @Entity('password_reset')
 export default class PasswordReset extends BaseModel {

@@ -1,7 +1,7 @@
 import { Request } from 'express';
 
-import User from '../models/User';
-import Game, { GameMode, GameStatus } from '../models/Game';
+import User from '../models/user.model';
+import Game, { GameMode, GameStatus } from '../models/game.model';
 import { GameEditorTemplates } from '../types/common';
 
 /**

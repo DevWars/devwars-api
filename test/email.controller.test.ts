@@ -8,7 +8,7 @@ import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
-import { UserRole } from '../app/models/User';
+import { UserRole } from '../app/models/user.model';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
 import EmailRepository from '../app/repository/EmailOptIn.repository';
 

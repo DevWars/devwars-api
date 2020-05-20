@@ -2,13 +2,13 @@ import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 import { isNil, defaultTo } from 'lodash';
 
-import UserStats from '../../models/UserStats';
-import UserRepository from '../../repository/User.repository';
-import { Provider } from '../../models/LinkedAccount';
-import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
-import { UserRequest } from '../../request/IRequest';
-import ApiError from '../../utils/apiError';
-import { parseStringWithDefault } from '../../../test/helpers';
+import UserStats from '../models/userStats.model';
+import UserRepository from '../repository/User.repository';
+import { Provider } from '../models/linkedAccount.model';
+import LinkedAccountRepository from '../repository/LinkedAccount.repository';
+import { UserRequest } from '../request/IRequest';
+import ApiError from '../utils/apiError';
+import { parseStringWithDefault } from '../../test/helpers';
 
 /**
  * @api {get} /users/:user/stats Get the stats of a user.

@@ -7,7 +7,7 @@ import { Connection } from '../app/services/Connection.service';
 
 import UserRepository from '../app/repository/User.repository';
 import { UserSeeding } from '../app/seeding';
-import User from '../app/models/User';
+import User from '../app/models/user.model';
 
 describe('pagination service', () => {
     before(async () => {

@@ -1,5 +1,5 @@
 import { EntityRepository, Repository, In } from 'typeorm';
-import LinkedAccount, { Provider } from '../models/LinkedAccount';
+import LinkedAccount, { Provider } from '../models/linkedAccount.model';
 
 @EntityRepository(LinkedAccount)
 export default class LinkedAccountRepository extends Repository<LinkedAccount> {

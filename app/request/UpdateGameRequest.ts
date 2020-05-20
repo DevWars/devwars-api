@@ -1,6 +1,5 @@
-import { GameStatus } from '../models/Game';
+import { GameStatus, GameMode } from '../models/game.model';
 import { GameStorageMeta } from '../types/game';
-import { GameMode } from '../models/Game';
 import { GameObjective } from '../types/common';
 
 export interface UpdateGameRequest {

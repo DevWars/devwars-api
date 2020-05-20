@@ -1,11 +1,12 @@
 import { hacker, helpers, internet, lorem, random, date } from 'faker';
 import * as _ from 'lodash';
 
-import Game, { GameMode } from '../models/Game';
-import { GameStatus } from '../models/Game';
-import User from '../models/User';
+import Game, { GameMode, GameStatus } from '../models/game.model';
+import GameApplication from '../models/gameApplication.model';
+import User from '../models/user.model';
 
 import { GameObjective } from '../types/common';
+import UserSeeding from './User.seeding';
 import logger from '../utils/logger';
 
 export default class GameSeeding {
@@ -47,9 +48,9 @@ export default class GameSeeding {
     private playersLoaded = false;
 
     /**
-     * If a related game schedule should be created for the given game.
+     * The list of game applications, these can not be saved until the given game is saved first.
      */
-    private readonly shouldCreateSchedule: boolean;
+    private gameApplications: GameApplication[] = [];
 
     /**
      * Create a default seeded game object, that uses the builder method.
@@ -134,8 +135,21 @@ export default class GameSeeding {
      * Adds the provided players to the given game.
      * @param players Adds the given players to the given game.
      */
-    public withPlayers(players: User[]): GameSeeding {
-        logger.warn('withPlayer not implemented yet');
+    public async withPlayers(players: User[]): Promise<GameSeeding> {
+        const languages = ['js', 'css', 'html', 'js', 'css', 'html'];
+
+        for (let index = 0; index < players.length; index++) {
+            const player = players[index];
+
+            const gameApplication = new GameApplication(this.game, player);
+            if (languages.length >= 1) {
+                gameApplication.assignedLanguage = languages.shift();
+                gameApplication.team = index <= 2 ? 0 : 1;
+            }
+
+            this.gameApplications.push(gameApplication);
+        }
+
         this.playersLoaded = true;
         return this;
     }
@@ -146,9 +160,14 @@ export default class GameSeeding {
      * @param amount The amount of generated players to be added.
      */
     public async withGeneratedPlayers(amount = 6): Promise<GameSeeding> {
-        logger.warn('withGeneratedPlayer not implemented yet');
-        this.playersLoaded = true;
-        return this;
+        const players = [];
+
+        for (let index = 0; index < amount; index++) {
+            const player = await UserSeeding.default().save();
+            players.push(player);
+        }
+
+        return await this.withPlayers(players);
     }
 
     /**
@@ -157,15 +176,15 @@ export default class GameSeeding {
      * seeder.
      */
     public async withEditors(): Promise<GameSeeding> {
-        const editors = [
-            { id: 0, team: 0, language: 'html', player: 0 },
-            { id: 1, team: 0, language: 'css', player: 0 },
-            { id: 2, team: 0, language: 'js', player: 0 },
+        // const editors = [
+        //     { id: 0, team: 0, language: 'html', player: 0 },
+        //     { id: 1, team: 0, language: 'css', player: 0 },
+        //     { id: 2, team: 0, language: 'js', player: 0 },
 
-            { id: 3, team: 1, language: 'html', player: 0 },
-            { id: 4, team: 1, language: 'css', player: 0 },
-            { id: 5, team: 1, language: 'js', player: 0 },
-        ];
+        //     { id: 3, team: 1, language: 'html', player: 0 },
+        //     { id: 4, team: 1, language: 'css', player: 0 },
+        //     { id: 5, team: 1, language: 'js', player: 0 },
+        // ];
 
         logger.warn('withEditors not implemented yet');
         //  this.game.storage.editors = result;
@@ -231,6 +250,13 @@ export default class GameSeeding {
      * specified within the construction.
      */
     public async save(): Promise<Game> {
-        return await this.game.save();
+        const game = await this.game.save();
+
+        for (const application of this.gameApplications) {
+            application.game = game;
+            await application.save();
+        }
+
+        return game;
     }
 }

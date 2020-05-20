@@ -1,7 +1,6 @@
 import * as _ from 'lodash';
 
-import Game from '../models/Game';
-import GameApplication from '../models/GameApplication';
+import Game from '../models/game.model';
 import { available, default as firebase } from '../utils/firebase';
 import GameApplicationRepository from '../repository/GameApplication.repository';
 import { getCustomRepository } from 'typeorm';
@@ -9,20 +8,6 @@ import { getCustomRepository } from 'typeorm';
 const firebaseGame = available ? firebase.database().ref('game') : null;
 
 export default class GameService {
-    /**
-     * Auto assigns players to the given game based on the users related
-     * properties, including the users wins, loses, last played, and xp / level.
-     * By doing so reduces the amount of work and bias on the moderators.
-     * @param game The game that is being used to auto assign players.
-     * @param applications The applications for the given game.
-     */
-    public static autoAssignPlayersForGame(
-        game: Game,
-        applications: GameApplication[]
-    ): { game: Game; applications: GameApplication[] } {
-        return { game, applications };
-    }
-
     /**
      * Sends the updated players to the firebase database, these will be
      * rendered on the related editor screen with the players information and

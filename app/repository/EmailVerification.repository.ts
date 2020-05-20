@@ -1,7 +1,7 @@
 import { Repository, EntityRepository } from 'typeorm';
 
-import User from '../models/User';
-import EmailVerification from '../models/EmailVerification';
+import User from '../models/user.model';
+import EmailVerification from '../models/emailVerification.model';
 import * as _ from 'lodash';
 
 @EntityRepository(EmailVerification)

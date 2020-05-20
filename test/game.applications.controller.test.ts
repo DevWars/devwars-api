@@ -1,11 +1,11 @@
-import * as chai from 'chai';
 import * as supertest from 'supertest';
-import { SuperTest, Test } from 'supertest';
+// import { SuperTest, Test } from 'supertest';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 const server: ServerService = new ServerService();
-let agent: SuperTest<Test>;
+/* eslint-disable @typescript-eslint/no-unused-vars */
+let agent;
 
 describe('Game Applications', () => {
     before(async () => {

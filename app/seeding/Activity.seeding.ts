@@ -1,6 +1,6 @@
 import { random } from 'faker';
-import Activity from '../models/Activity';
-import User from '../models/User';
+import Activity from '../models/activity.model';
+import User from '../models/user.model';
 
 export default class ActivitySeeding {
     public static default(): Activity {

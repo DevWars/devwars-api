@@ -7,7 +7,7 @@ import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
-import User, { UserRole } from '../app/models/User';
+import User, { UserRole } from '../app/models/user.model';
 
 const server: ServerService = new ServerService();
 let agent: any;

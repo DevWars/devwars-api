@@ -3,7 +3,7 @@ import * as chai from 'chai';
 import * as _ from 'lodash';
 
 import ServerService from '../app/services/Server.service';
-import { UserRole } from '../app/models/User';
+import { UserRole } from '../app/models/user.model';
 import { UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 

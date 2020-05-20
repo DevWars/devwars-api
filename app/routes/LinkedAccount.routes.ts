@@ -1,9 +1,9 @@
 import * as express from 'express';
 
-import * as LinkedAccountController from '../controllers/user/LinkedAccount.controller';
-import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/Auth.middleware';
+import * as LinkedAccountController from '../controllers/linkedAccount.controller';
+import { mustBeAuthenticated, mustBeMinimumRole } from '../middleware/authentication.middleware';
 import { wrapAsync } from './handlers';
-import { UserRole } from '../models/User';
+import { UserRole } from '../models/user.model';
 
 import { bodyValidation } from './validators';
 import { updateTwitchCoinsSchema } from './validators/linkedAccount.validator';

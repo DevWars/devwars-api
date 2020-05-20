@@ -1,7 +1,8 @@
 import { Request, Response } from 'express';
-import User from '../../models/User';
-import { parseIntWithDefault } from '../../../test/helpers';
-import { DATABASE_MAX_ID } from '../../constants';
+
+import User from '../models/user.model';
+import { parseIntWithDefault } from '../../test/helpers';
+import { DATABASE_MAX_ID } from '../constants';
 
 export async function leaderboards(request: Request, response: Response) {
     const page: number = parseIntWithDefault(request.query.page, 0, 0, DATABASE_MAX_ID);

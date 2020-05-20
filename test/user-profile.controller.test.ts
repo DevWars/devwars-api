@@ -10,8 +10,8 @@ import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
-import UserProfile, { Sex } from '../app/models/UserProfile';
-import User, { UserRole } from '../app/models/User';
+import UserProfile, { Sex } from '../app/models/userProfile.model';
+import User, { UserRole } from '../app/models/user.model';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test>;

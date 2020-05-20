@@ -2,18 +2,18 @@ import { Request, Response } from 'express';
 import { getCustomRepository, In } from 'typeorm';
 import * as _ from 'lodash';
 
-import LinkedAccountRepository from '../../repository/LinkedAccount.repository';
-import LinkedAccount, { Provider } from '../../models/LinkedAccount';
-import User from '../../models/User';
+import LinkedAccountRepository from '../repository/LinkedAccount.repository';
+import LinkedAccount, { Provider } from '../models/linkedAccount.model';
+import User from '../models/user.model';
 
-import { DiscordService } from '../../services/Discord.service';
-import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../../services/Mail.service';
-import { AuthorizedRequest, UserRequest } from '../../request/IRequest';
-import { parseIntWithDefault } from '../../../test/helpers';
-import ApiError from '../../utils/apiError';
-import { TwitchService } from '../../services/twitch.service';
-import UserStatisticsRepository from '../../repository/UserStatisticsRepository';
-import { DATABASE_MAX_ID } from '../../constants';
+import { DiscordService } from '../services/Discord.service';
+import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../services/Mail.service';
+import { AuthorizedRequest, UserRequest } from '../request/IRequest';
+import { parseIntWithDefault } from '../../test/helpers';
+import ApiError from '../utils/apiError';
+import { TwitchService } from '../services/twitch.service';
+import UserStatisticsRepository from '../repository/UserStatisticsRepository';
+import { DATABASE_MAX_ID } from '../constants';
 
 /**
  * @api {get} /oauth?first={:first}&after={:after} Gather all linked accounts within the constraints.
@@ -67,7 +67,6 @@ export async function all(request: AuthorizedRequest, response: Response): Promi
 
     return response.json({ data: accounts, pagination });
 }
-
 
 async function connectTwitch(request: Request, response: Response, user: User): Promise<any> {
     // gather a given access token for the code that was returned back from twitch, completing
@@ -200,10 +199,7 @@ export async function updateTwitchCoins(request: Request, response: Response): P
 
     for (const account of accounts) {
         const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
-        if (!
-            _.isFinite(amount)
-        )
-            continue;
+        if (!_.isFinite(amount)) continue;
 
         if (!_.isNil(account.user)) {
             // push it on the users statistics since they have there twitch accounts linked.

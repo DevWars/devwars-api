@@ -1,8 +1,8 @@
 import * as express from 'express';
 
 import * as authValidator from './validators/authentication.validator';
-import * as AuthController from '../controllers/authentication/Authentication.controller';
-import { mustBeAuthenticated } from '../middleware/Auth.middleware';
+import * as AuthController from '../controllers/authentication.controller';
+import { mustBeAuthenticated } from '../middleware/authentication.middleware';
 
 import { bodyValidation, queryValidation } from './validators';
 import { wrapAsync } from './handlers';

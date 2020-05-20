@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
 
-import Leaderboard from '../models/LeaderboardView';
+import Leaderboard from '../models/leaderboardView.model';
 
 @EntityRepository(Leaderboard)
 export default class LeaderboardRepository extends Repository<Leaderboard> {

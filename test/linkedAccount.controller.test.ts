@@ -5,13 +5,13 @@ import { isNil } from 'lodash';
 
 import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
-import LinkedAccount, { Provider } from '../app/models/LinkedAccount';
+import LinkedAccount, { Provider } from '../app/models/linkedAccount.model';
 
 import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';
 import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding, UserStatsSeeding } from '../app/seeding';
 import UserStatisticsRepository from '../app/repository/UserStatisticsRepository';
-import { UserRole } from '../app/models/User';
+import { UserRole } from '../app/models/user.model';
 import { cookieForUser } from './helpers';
 
 const server: ServerService = new ServerService();

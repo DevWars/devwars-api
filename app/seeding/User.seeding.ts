@@ -1,6 +1,6 @@
 import * as bcrypt from 'bcrypt';
 import { helpers, random } from 'faker';
-import User, { UserRole } from '../models/User';
+import User, { UserRole } from '../models/user.model';
 
 export default class UserSeeding {
     public static default(): User {

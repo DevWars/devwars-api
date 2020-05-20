@@ -10,9 +10,9 @@ import { Connection } from '../app/services/Connection.service';
 import ServerService from '../app/services/Server.service';
 import { cookieForUser } from './helpers';
 
-import EmailVerification from '../app/models/EmailVerification';
-import PasswordReset from '../app/models/PasswordReset';
-import User, { UserRole } from '../app/models/User';
+import EmailVerification from '../app/models/emailVerification.model';
+import PasswordReset from '../app/models/passwordReset.model';
+import User, { UserRole } from '../app/models/user.model';
 
 import PasswordResetRepository from '../app/repository/PasswordReset.repository';
 import UserRepository from '../app/repository/User.repository';

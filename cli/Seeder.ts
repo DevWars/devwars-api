@@ -8,7 +8,7 @@ import GameSeeding from '../app/seeding/Game.seeding';
 import UserSeeding from '../app/seeding/User.seeding';
 
 import { Connection } from '../app/services/Connection.service';
-import { UserRole } from '../app/models/User';
+import { UserRole } from '../app/models/user.model';
 import logger from '../app/utils/logger';
 
 import UserRepository from '../app/repository/User.repository';

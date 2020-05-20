@@ -1,7 +1,7 @@
 import { Repository, EntityRepository } from 'typeorm';
 
-import EmailOptIn from '../models/EmailOptIn';
-import User from '../models/User';
+import EmailOptIn from '../models/emailOptIn.model';
+import User from '../models/user.model';
 
 @EntityRepository(EmailOptIn)
 export default class EmailOptInRepository extends Repository<EmailOptIn> {

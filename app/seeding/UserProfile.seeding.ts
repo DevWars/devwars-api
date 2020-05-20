@@ -1,5 +1,5 @@
 import { name, date, random, lorem, helpers, internet, address, company } from 'faker';
-import UserProfile, { Sex } from '../models/UserProfile';
+import UserProfile, { Sex } from '../models/userProfile.model';
 
 export default class UserProfileSeeding {
     public static default(): UserProfile {

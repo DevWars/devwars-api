@@ -1,7 +1,7 @@
 import * as Joi from '@hapi/joi';
 
 import * as constants from '../../constants';
-import { GameStatus } from '../../models/Game';
+import { GameStatus } from '../../models/game.model';
 
 export const createGameSchema = Joi.object().keys({
     startTime: Joi.date().required(),

@@ -1,4 +1,4 @@
-import User from '../models/User';
+import User from '../models/user.model';
 import { VerificationService } from './Verification.service';
 
 export class ResetService {

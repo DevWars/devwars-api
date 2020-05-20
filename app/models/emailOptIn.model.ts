@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
-import BaseModel from './BaseModel';
-import User from './User';
+import BaseModel from './base.model';
+import User from './user.model';
 
 @Entity('email_opt_in')
 export default class EmailOptIn extends BaseModel {

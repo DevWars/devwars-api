@@ -1,8 +1,8 @@
 import { Response } from 'express';
 
-import { AvatarService } from '../../services/Avatar.service';
-import { UserRequest } from '../../request/IRequest';
-import ApiError from '../../utils/apiError';
+import { AvatarService } from '../services/Avatar.service';
+import { UserRequest } from '../request/IRequest';
+import ApiError from '../utils/apiError';
 
 export async function store(request: UserRequest, response: Response) {
     try {

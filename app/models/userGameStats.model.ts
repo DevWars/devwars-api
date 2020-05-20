@@ -1,6 +1,6 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
-import BaseModel from './BaseModel';
-import User from './User';
+import BaseModel from './base.model';
+import User from './user.model';
 
 @Entity('user_game_stats')
 export default class UserGameStats extends BaseModel {

@@ -4,8 +4,8 @@ import * as path from 'path';
 import * as createMailgun from 'mailgun-js';
 import { getCustomRepository } from 'typeorm';
 
-import GameApplication from '../models/GameApplication';
-import User from '../models/User';
+import GameApplication from '../models/gameApplication.model';
+import User from '../models/user.model';
 
 import EmailRepository from '../repository/EmailOptIn.repository';
 import logger from '../utils/logger';

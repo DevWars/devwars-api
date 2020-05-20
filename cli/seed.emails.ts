@@ -3,7 +3,7 @@ import * as faker from 'faker';
 
 import { Connection } from '../app/services/Connection.service';
 import logger from '../app/utils/logger';
-import User from '../app/models/User';
+import User from '../app/models/user.model';
 
 let connection: typeConnection;
 

@@ -1,6 +1,6 @@
 import { EntityRepository, Repository } from 'typeorm';
-import Activity from '../models/Activity';
-import User from '../models/User';
+import Activity from '../models/activity.model';
+import User from '../models/user.model';
 
 @EntityRepository(Activity)
 export default class ActivityRepository extends Repository<Activity> {

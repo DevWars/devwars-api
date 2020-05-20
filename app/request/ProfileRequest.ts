@@ -1,4 +1,4 @@
-import { Sex } from '../models/UserProfile';
+import { Sex } from '../models/userProfile.model';
 
 export interface Skills {
     html: number;

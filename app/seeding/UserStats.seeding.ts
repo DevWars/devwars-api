@@ -1,5 +1,5 @@
 import { random } from 'faker';
-import UserStats from '../models/UserStats';
+import UserStats from '../models/userStats.model';
 
 export default class UserStatsSeeding {
     public static default(): UserStats {

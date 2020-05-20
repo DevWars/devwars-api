@@ -1,7 +1,7 @@
 import { EntityRepository, Repository } from 'typeorm';
-import User from '../models/User';
-import UserStats from '../models/UserStats';
-import UserGameStats from '../models/UserGameStats';
+import User from '../models/user.model';
+import UserStats from '../models/userStats.model';
+import UserGameStats from '../models/userGameStats.model';
 
 import * as _ from 'lodash';
 

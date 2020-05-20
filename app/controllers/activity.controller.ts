@@ -1,7 +1,7 @@
 import { Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import ActivityRepository from '../../repository/Activity.repository';
-import { AuthorizedRequest } from '../../request/IRequest';
+import ActivityRepository from '../repository/Activity.repository';
+import { AuthorizedRequest } from '../request/IRequest';
 
 /**
  * @api {get} /activity/:user Get activities from user

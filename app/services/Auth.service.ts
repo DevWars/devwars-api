@@ -1,21 +1,20 @@
+import * as jwt from 'jsonwebtoken';
 import { getManager } from 'typeorm';
 import { hash } from '../utils/hash';
 import { addHours } from 'date-fns';
 
-import PasswordReset from '../models/PasswordReset';
-import User from '../models/User';
-import { UserRole } from '../models/User';
-import UserProfile from '../models/UserProfile';
-import UserStats from '../models/UserStats';
-import UserGameStats from '../models/UserGameStats';
+import PasswordReset from '../models/passwordReset.model';
+import UserGameStats from '../models/userGameStats.model';
+import User, { UserRole } from '../models/user.model';
+import UserProfile from '../models/userProfile.model';
+import EmailOptIn from '../models/emailOptIn.model';
+import UserStats from '../models/userStats.model';
 
 import RegistrationRequest from '../request/RegistrationRequest';
 import { randomString } from '../utils/random';
-import { sendPasswordResetEmail } from './Mail.service';
-import { VerificationService } from './Verification.service';
 
-import * as jwt from 'jsonwebtoken';
-import EmailOptIn from '../models/EmailOptIn';
+import { VerificationService } from './Verification.service';
+import { sendPasswordResetEmail } from './Mail.service';
 
 export class AuthService {
     public static async register(request: RegistrationRequest, shouldSendVerification = true) {

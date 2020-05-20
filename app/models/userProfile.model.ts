@@ -1,6 +1,6 @@
 import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
-import BaseModel from './BaseModel';
-import User from './User';
+import BaseModel from './base.model';
+import User from './user.model';
 
 export enum Sex {
     MALE = 0,

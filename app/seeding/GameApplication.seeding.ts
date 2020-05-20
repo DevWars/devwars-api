@@ -1,6 +1,6 @@
-import Game from '../models/Game';
-import GameApplication from '../models/GameApplication';
-import User from '../models/User';
+import GameApplication from '../models/gameApplication.model';
+import Game from '../models/game.model';
+import User from '../models/user.model';
 
 export default class GameApplicationSeeding {
     public static default(): GameApplication {

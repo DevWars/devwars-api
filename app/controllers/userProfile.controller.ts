@@ -1,10 +1,10 @@
 import { Response } from 'express';
 import * as _ from 'lodash';
 
-import UserProfile from '../../models/UserProfile';
-import { ProfileRequest } from '../../request/ProfileRequest';
-import { UserRequest } from '../../request/IRequest';
-import ApiError from '../../utils/apiError';
+import UserProfile from '../models/userProfile.model';
+import { ProfileRequest } from '../request/ProfileRequest';
+import { UserRequest } from '../request/IRequest';
+import ApiError from '../utils/apiError';
 
 /**
  * @api {get} /users/:userId/profile Get all of the profile information for a certain user.
