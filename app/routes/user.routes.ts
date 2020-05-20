@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as multer from 'multer';
 
+import * as GameApplicationsController from '../controllers/gameApplication.controller';
 import * as UserController from '../controllers/user.controller';
 import * as UserProfileController from '../controllers/userProfile.controller';
 import * as UserStatsController from '../controllers/userStats.controller';
@@ -120,6 +121,21 @@ UserRoute.get(
     '/:user/connections/:provider',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProvider)
+);
+
+/******************************
+ *  Applications
+ ******************************/
+
+UserRoute.get(
+    '/:user/applications',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(GameApplicationsController.gatherAllUsersApplications)
+);
+UserRoute.get(
+    '/:user/applications/:application',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(GameApplicationsController.gatherUserApplicationById)
 );
 
 /******************************

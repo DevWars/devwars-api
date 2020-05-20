@@ -1,15 +1,20 @@
+import { random } from 'faker';
+
 import GameApplication from '../models/gameApplication.model';
 import Game from '../models/game.model';
 import User from '../models/user.model';
 
 export default class GameApplicationSeeding {
     public static default(): GameApplication {
-        const schedule = new GameApplication();
+        const gameApplication = new GameApplication();
 
-        schedule.game = null;
-        schedule.user = null;
+        gameApplication.game = null;
+        gameApplication.user = null;
+        gameApplication.team = random.arrayElement([0, 1, null]);
+        gameApplication.assignedLanguage =
+            gameApplication.team != null ? random.arrayElement(['js', 'css', 'html']) : null;
 
-        return schedule;
+        return gameApplication;
     }
 
     public static withGameAndUser(game: Game, user: User): GameApplication {

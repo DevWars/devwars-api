@@ -18,9 +18,17 @@ export default class GameApplication extends BaseModel {
     // Relations
     // ------------------------------------------------------------
 
+    // The id of the game.
+    @Column({ nullable: true })
+    gameId: number;
+
     // The game that the user is applying too.
     @ManyToOne(() => Game, (game) => game.applications, { onDelete: 'CASCADE' })
     public game: Game;
+
+    // The id of the user.
+    @Column({ nullable: true })
+    userId: number;
 
     // The user who applied to the given game.
     @ManyToOne(() => User, (user) => user.applications)

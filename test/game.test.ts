@@ -135,22 +135,6 @@ describe('game', () => {
         });
     });
 
-    describe('GET - /games/latest - Gathering the latest games', () => {
-        it('Should gather all the latest games', async () => {
-            const game1 = await GameSeeding.default().save();
-            const game2 = await GameSeeding.default().save();
-
-            await connectionManager.transaction(async (transaction) => {
-                await transaction.save(game2);
-                await transaction.save(game1);
-            });
-
-            const response = await agent.get('/games/latest').send().expect(200);
-
-            chai.expect(response.body.id).to.equal(game2.id);
-        });
-    });
-
     describe('GET - /games/:id - Gathering the specified game by id', () => {
         it('Should gathering a single game', async () => {
             const game1 = await GameSeeding.default().save();
@@ -260,97 +244,13 @@ describe('game', () => {
         });
     });
 
-    describe('GET - games/season/:season - Gathering a season by id', () => {
-        it('Should reject if a given season id is not a number', async () => {
-            for (const season of [null, undefined, 'test', {}]) {
-                await agent.get(`/games/season/${season}`).expect(400, {
-                    error: 'Invalid season id provided.',
-                });
-            }
-        });
-
-        it('Should reject if a given season id is larger than the database max or less than one', async () => {
-            for (const season of [0, -10, DATABASE_MAX_ID + 1]) {
-                await agent.get(`/games/season/${season}`).expect(400, {
-                    error: 'Invalid season id provided.',
-                });
-            }
-        });
-
-        it('Should be able to gather a season by id if it exists', async () => {
-            await connectionManager.transaction(async (transaction) => {
-                const game1 = GameSeeding.default().withSeason(2).game;
-                const game2 = GameSeeding.default().withSeason(2).game;
-                const game3 = GameSeeding.default().withSeason(3).game;
-                const game4 = GameSeeding.default().withSeason(1).game;
-
-                await transaction.save(game1);
-                await transaction.save(game2);
-                await transaction.save(game3);
-                await transaction.save(game4);
-            });
-
-            const season = random.arrayElement([
-                { id: 1, amount: 1 },
-                { id: 2, amount: 2 },
-                { id: 3, amount: 1 },
-            ]);
-
-            const response = await agent.get(`/games/season/${season.id}`).send().expect(200);
-
-            chai.expect(response.body.data.length).to.be.eq(season.amount);
-            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(season.id));
-        });
-
-        it('Should filter the list if a status is specified', async () => {
-            await connectionManager.transaction(async (transaction) => {
-                const game1 = GameSeeding.default().withSeason(4).withStatus(GameStatus.ACTIVE).game;
-                const game2 = GameSeeding.default().withSeason(4).withStatus(GameStatus.ENDED).game;
-                const game3 = GameSeeding.default().withSeason(4).withStatus(GameStatus.SCHEDULED).game;
-
-                await transaction.save(game1);
-                await transaction.save(game2);
-                await transaction.save(game3);
-            });
-
-            const gameRepository = getCustomRepository(GameRepository);
-            const totalEnded = await gameRepository.count({ where: { status: GameStatus.ENDED } });
-
-            const response = await agent.get('/games/season/4?status=ended').send().expect(200);
-
-            chai.expect(response.body.data.length).to.be.eq(totalEnded);
-            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(4));
-            _.forEach(response.body.data, (game: Game) => chai.expect(game.status).to.be.eq(GameStatus.ENDED));
-        });
-
-        it('Should return the full list if the specified status filter is invalid', async () => {
-            await connectionManager.transaction(async (transaction) => {
-                const game1 = GameSeeding.default().withSeason(5).withStatus(GameStatus.ACTIVE).game;
-                const game2 = GameSeeding.default().withSeason(5).withStatus(GameStatus.ENDED).game;
-                const game3 = GameSeeding.default().withSeason(5).withStatus(GameStatus.SCHEDULED).game;
-
-                await transaction.save(game1);
-                await transaction.save(game2);
-                await transaction.save(game3);
-            });
-
-            const gameRepository = getCustomRepository(GameRepository);
-            const total = await gameRepository.count();
-
-            const response = await agent.get('/games/season/5?status=cat').send().expect(200);
-
-            chai.expect(response.body.data.length).to.be.eq(total);
-            _.forEach(response.body.data, (game: Game) => chai.expect(game.season).to.be.eq(5));
-        });
-    });
-
-    describe('POST - /:game/end - Ending a game', () => {
+    describe('POST - /:game/actions/end - Ending a game', () => {
         it('Should fail to end the game if a standard user', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
             const game = await GameSeeding.default().withStatus(GameStatus.ACTIVE).save();
 
             await agent
-                .post(`/games/${game.id}/end`)
+                .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
                 .expect(403);
         });
@@ -365,7 +265,7 @@ describe('game', () => {
                 await game.save();
 
                 await agent
-                    .post(`/games/${game.id}/end`)
+                    .post(`/games/${game.id}/actions/end`)
                     .set('Cookie', await cookieForUser(user))
                     .expect(200);
             }
@@ -376,7 +276,7 @@ describe('game', () => {
             const game = await GameSeeding.default().withStatus(GameStatus.ENDED).save();
 
             await agent
-                .post(`/games/${game.id}/end`)
+                .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
                 .expect(400, { error: 'The game is already in a end state.' });
         });

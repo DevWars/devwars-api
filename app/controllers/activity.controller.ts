@@ -14,7 +14,7 @@ import ApiError from '../utils/apiError';
  ******************************/
 
 /**
- * @api {get} /:user/activities Get all users activities
+ * @api {get} users/:user/activities Get all users activities
  * @apiName GetUsersActivities
  * @apiGroup Activity
  * @apiPermission moderator, owner
@@ -59,7 +59,7 @@ export async function gatherAllUsersActivities(request: UserRequest, response: R
 }
 
 /**
- * @api {get} /:user/activities/:activity Get a activity for a user.
+ * @api {get} users/:user/activities/:activity Get a activity for a user.
  * @apiName GetUsersActivityById
  * @apiGroup Activity
  * @apiPermission moderator, owner
