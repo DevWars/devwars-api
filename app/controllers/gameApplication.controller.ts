@@ -1,5 +1,5 @@
 import { Response } from 'express';
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, Not, IsNull } from 'typeorm';
 import * as _ from 'lodash';
 
 import { parseIntWithDefault } from '../../test/helpers';
@@ -97,6 +97,81 @@ export async function gatherUserApplicationById(request: UserRequest, response: 
     }
 
     return response.json(application);
+}
+
+/******************************
+ *  User Games
+ ******************************/
+
+/**
+ * @api {get} /users/:user/games Get all the games the user played in.
+ * @apiName GetUsersPlayedGames
+ * @apiGroup Games
+ * @apiPermission moderator, owner
+ *
+ * @apiSuccess {Game[]} Games The games the user played in.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *     [
+ *       {
+ *          ...
+ *       }
+ *     ]
+ */
+export async function gatherUsersPlayedGames(request: UserRequest, response: Response) {
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+
+    const applications = await gameApplicationRepository.find({
+        where: {
+            team: Not(IsNull()),
+            user: request.boundUser,
+        },
+        relations: ['game'],
+    });
+
+    return response.json(applications.map((e) => e.game));
+}
+
+/**
+ * @api {get} /users/:user/games/:game Get a single game by id of the game the user played in.
+ * @apiName GetUsersPlayedGame
+ * @apiGroup Games
+ * @apiPermission moderator, owner
+ *
+ * @apiSuccess {Game} Game The game the user played in.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ *       {
+ *        ...
+ *       }
+ */
+export async function gatherUsersPlayedGameById(request: UserRequest, response: Response) {
+    const gameId = parseIntWithDefault(request.params.game, null, 1, DATABASE_MAX_ID);
+
+    if (_.isNil(gameId)) {
+        throw new ApiError({
+            message: 'Invalid game id was provided.',
+            code: 400,
+        });
+    }
+
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+
+    const game = await gameApplicationRepository.findOne({
+        where: { user: request.boundUser, gameId },
+        relations: ['game'],
+    });
+
+    if (_.isNil(game)) {
+        throw new ApiError({
+            message: 'The user did not play in the provided game or it does not exist.',
+            code: 404,
+        });
+    }
+
+    return response.json(game.game);
 }
 
 /**

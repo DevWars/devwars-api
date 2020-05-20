@@ -11,7 +11,7 @@ import Game from '../app/models/game.model';
 const server: ServerService = new ServerService();
 let agent: any;
 
-describe('User Application', () => {
+describe('User Games', () => {
     let user: User;
     let game: Game;
 
@@ -29,21 +29,26 @@ describe('User Application', () => {
         agent = supertest.agent(server.App());
     });
 
-    describe('GET - /users/:user/applications - Get the related users applications.', () => {
-        it('Should return no applications when the given user has none', async () => {
+    describe('GET - /users/:user/games - Get the related users games.', () => {
+        it('Should return no games when the given user has none', async () => {
             await agent
-                .get(`/users/${user.id}/applications`)
+                .get(`/users/${user.id}/games`)
                 .set('cookie', await cookieForUser(user))
                 .expect(200, []);
         });
 
-        it('Should return the users applications if the user has them', async () => {
-            await GameApplicationSeeding.withGameAndUser(game, user).save();
-            await GameApplicationSeeding.withGameAndUser(game, user).save();
-            await GameApplicationSeeding.withGameAndUser(game, user).save();
+        it('Should return the users games if the user has them', async () => {
+            for (let index = 0; index < 3; index++) {
+                const game = await GameSeeding.default().save();
+                const application = GameApplicationSeeding.withGameAndUser(game, user);
+                application.assignedLanguage = 'js';
+                application.team = 0;
+
+                await application.save();
+            }
 
             const response = await agent
-                .get(`/users/${user.id}/applications`)
+                .get(`/users/${user.id}/games`)
                 .set('cookie', await cookieForUser(user))
                 .send();
 
@@ -55,7 +60,7 @@ describe('User Application', () => {
             const notOwning = await UserSeeding.withRole(UserRole.USER).save();
 
             const response = await agent
-                .get(`/users/${user.id}/applications`)
+                .get(`/users/${user.id}/games`)
                 .set('cookie', await cookieForUser(notOwning))
                 .send();
 
@@ -67,7 +72,7 @@ describe('User Application', () => {
                 const notOwning = await UserSeeding.withRole(role).save();
 
                 const response = await agent
-                    .get(`/users/${user.id}/applications`)
+                    .get(`/users/${user.id}/games`)
                     .set('cookie', await cookieForUser(notOwning))
                     .send();
 
@@ -76,37 +81,47 @@ describe('User Application', () => {
         });
     });
 
-    describe('GET - /users/:user/applications/:application - Get the related users application.', () => {
-        it('Should fail if the user has no application for that id', async () => {
+    describe('GET - /users/:user/games/:game - Get the related users game.', () => {
+        it('Should fail if the user has no game for that id', async () => {
             const response = await agent
-                .get(`/users/${user.id}/applications/99`)
+                .get(`/users/${user.id}/games/99`)
                 .set('cookie', await cookieForUser(user))
                 .send();
 
             chai.expect(response.status).to.be.equal(404);
-            chai.expect(response.body.error).to.be.equal('The application does not exist by the provided id.');
+            chai.expect(response.body.error).to.be.equal(
+                'The user did not play in the provided game or it does not exist.'
+            );
         });
 
-        it('Should return the users application if the user has one', async () => {
-            const application = await GameApplicationSeeding.withGameAndUser(game, user).save();
+        it('Should return the users game if the user has one', async () => {
+            const application = GameApplicationSeeding.withGameAndUser(game, user);
+            application.assignedLanguage = 'js';
+            application.team = 0;
+
+            await application.save();
 
             const response = await agent
-                .get(`/users/${user.id}/applications/${application.id}`)
+                .get(`/users/${user.id}/games/${game.id}`)
                 .set('cookie', await cookieForUser(user))
                 .send();
 
             chai.expect(response.status).to.be.equal(200);
-            chai.expect(response.body.id).to.be.equal(application.id);
-            chai.expect(response.body.assignedLanguage).to.be.equal(application.assignedLanguage);
-            chai.expect(response.body.team).to.be.equal(application.team);
+            chai.expect(response.body.id).to.be.equal(game.id);
+            chai.expect(response.body.id).to.be.equal(game.id);
         });
 
         it('Should fail if you are not the owning user and not a admin or moderator', async () => {
-            const application = await GameApplicationSeeding.withGameAndUser(game, user).save();
+            const application = GameApplicationSeeding.withGameAndUser(game, user);
+            application.assignedLanguage = 'js';
+            application.team = 0;
+
+            await application.save();
+
             const notOwning = await UserSeeding.withRole(UserRole.USER).save();
 
             const response = await agent
-                .get(`/users/${user.id}/applications/${application.id}`)
+                .get(`/users/${user.id}/games/${game.id}`)
                 .set('cookie', await cookieForUser(notOwning))
                 .send();
 
@@ -114,12 +129,17 @@ describe('User Application', () => {
         });
 
         it('Should pass if you are not the owning user and a admin or moderator', async () => {
+            const application = GameApplicationSeeding.withGameAndUser(game, user);
+            application.assignedLanguage = 'js';
+            application.team = 0;
+
+            await application.save();
+
             for (const role of [UserRole.ADMIN, UserRole.MODERATOR]) {
-                const application = await GameApplicationSeeding.withGameAndUser(game, user).save();
                 const notOwning = await UserSeeding.withRole(role).save();
 
                 const response = await agent
-                    .get(`/users/${user.id}/applications/${application.id}`)
+                    .get(`/users/${user.id}/games/${game.id}`)
                     .set('cookie', await cookieForUser(notOwning))
                     .send();
 

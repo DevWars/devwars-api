@@ -6,14 +6,13 @@ import * as _ from 'lodash';
 import Game, { GameMode, GameStatus } from '../models/game.model';
 import GameRepository from '../repository/game.repository';
 
-import { parseIntWithDefault, parseEnumFromValue, parseStringWithDefault } from '../../test/helpers';
+import { parseIntWithDefault } from '../../test/helpers';
 import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/requests';
 import { UpdateGameRequest } from '../request/updateGameRequest';
 
 import { DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';
 
-import PaginationService from '../services/pagination.service';
 import GameService from '../services/game.service';
 
 /**

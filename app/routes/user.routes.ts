@@ -1,6 +1,7 @@
 import * as express from 'express';
 import * as multer from 'multer';
 
+import * as GameController from '../controllers/game.controller';
 import * as GameApplicationsController from '../controllers/gameApplication.controller';
 import * as UserController from '../controllers/user.controller';
 import * as UserProfileController from '../controllers/userProfile.controller';
@@ -124,6 +125,22 @@ UserRoute.get(
 );
 
 /******************************
+ *  Games
+ ******************************/
+
+UserRoute.get(
+    '/:user/games',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(GameApplicationsController.gatherUsersPlayedGames)
+);
+
+UserRoute.get(
+    '/:user/games/:game',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(GameApplicationsController.gatherUsersPlayedGameById)
+);
+
+/******************************
  *  Applications
  ******************************/
 
@@ -132,6 +149,7 @@ UserRoute.get(
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(GameApplicationsController.gatherAllUsersApplications)
 );
+
 UserRoute.get(
     '/:user/applications/:application',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
@@ -147,6 +165,7 @@ UserRoute.get(
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(ActivityController.gatherAllUsersActivities)
 );
+
 UserRoute.get(
     '/:user/activities/:activity',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
