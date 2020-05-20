@@ -33,12 +33,16 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
  *          "id": 1,
  *          "team": 1,
  *          "assignedLanguage": "js",
+ *          "gameId": 1,
+ *          "userId": 1,
  *          "createdAt": "2018-10-21T21:45:45.000Z",
  *          "updatedAt": "2018-10-21T21:45:45.000Z",
  *       },
  *       {
  *          "id": 2,
  *          "team": 0,
+ *          "gameId": 1,
+ *          "userId": 1,
  *          "assignedLanguage": "css",
  *          "createdAt": "2018-10-21T21:45:45.000Z",
  *          "updatedAt": "2018-10-21T21:45:45.000Z",
@@ -55,7 +59,7 @@ export async function gatherAllUsersApplications(request: UserRequest, response:
 /**
  * @api {get} /users/:user/applications/:application Get a application for a user.
  * @apiName GetUsersApplicationById
- * @apiGroup Applications
+ * @apiGroup GameApplications
  * @apiPermission moderator, owner
  *
  * @apiSuccess {Application} Application The users application.
@@ -72,6 +76,8 @@ export async function gatherAllUsersApplications(request: UserRequest, response:
  *          "id": 1,
  *          "team": 1,
  *          "assignedLanguage": "js",
+ *          "gameId": 1,
+ *          "userId": 1,
  *          "createdAt": "2018-10-21T21:45:45.000Z",
  *          "updatedAt": "2018-10-21T21:45:45.000Z",
  *       }

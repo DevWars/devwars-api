@@ -84,7 +84,12 @@ UserRoute.get(
 
 UserRoute.patch(
     '/:user/profile',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bodyValidation(profileSchema), bindUserByParamId('user')],
+    [
+        mustBeAuthenticated,
+        mustBeRoleOrOwner(UserRole.MODERATOR),
+        bodyValidation(profileSchema),
+        bindUserByParamId('user'),
+    ],
     wrapAsync(UserProfileController.update)
 );
 
@@ -94,7 +99,7 @@ UserRoute.patch(
 
 UserRoute.get(
     '/:user/emails/permissions',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserByParamId('user')],
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
     wrapAsync(EmailController.gatherEmailPermissions)
 );
 
@@ -102,7 +107,7 @@ UserRoute.patch(
     '/:user/emails/permissions',
     [
         mustBeAuthenticated,
-        mustBeRoleOrOwner(UserRole.ADMIN),
+        mustBeRoleOrOwner(UserRole.MODERATOR),
         bindUserByParamId('user'),
         bodyValidation(emailPermissionSchema),
     ],

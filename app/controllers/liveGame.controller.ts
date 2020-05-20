@@ -41,7 +41,6 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
 
     // Update the results on the object of the game.
     const results = await GameService.getCompletedGameResult();
-    console.log(results);
 
     game.storage.meta = {
         bets: results.bets || {},

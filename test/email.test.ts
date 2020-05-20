@@ -15,7 +15,7 @@ import EmailRepository from '../app/repository/emailOptIn.repository';
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test>;
 
-describe('Emailing', () => {
+describe('User Email Permissions', () => {
     before(async () => {
         await server.Start();
         await (await Connection).synchronize(true);

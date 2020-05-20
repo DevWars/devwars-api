@@ -64,7 +64,6 @@ describe('Linked Account - Twitch', () => {
                 .set('Cookie', await cookieForUser(admin))
                 .send(requestBody);
 
-            console.log(failResponse.body);
             chai.expect(failResponse.status).to.eq(200);
         });
 
