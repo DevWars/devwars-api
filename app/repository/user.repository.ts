@@ -109,7 +109,11 @@ export default class UserRepository extends Repository<User> {
         return query.take(limit).getMany();
     }
 
-    public async findStatsByUser(user: User) {
+    /**
+     * Gathers and merges the users core and game statistics.
+     * @param user The user who's game nd user stats will be returned.
+     */
+    public async findStatisticsForUser(user: User) {
         const [stats, game] = await Promise.all([UserStats.findOne({ user }), UserGameStats.findOne({ user })]);
         return { ...stats, game };
     }

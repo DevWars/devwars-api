@@ -15,15 +15,17 @@ export default class LinkedAccountRepository extends Repository<LinkedAccount> {
         return this.findOne({ where: { provider, providerId }, relations: ['user'] });
     }
 
-    public async createMissingAccounts(twitchUsers: any[], provider: Provider): Promise<LinkedAccount[]> {
-        const userIds = twitchUsers.map((user) => user.id);
-        const existingAccounts = await this.find({ providerId: In(userIds) });
+    public async createMissingAccounts(
+        providerIds: { id: any; username: string }[],
+        provider: Provider
+    ): Promise<LinkedAccount[]> {
+        const existingAccounts = await this.find({ providerId: In(providerIds) });
 
-        const newUsers = twitchUsers.filter(
-            (user) => !existingAccounts.find((account) => account.providerId === user.id)
+        const newUsers = providerIds.filter(
+            (providerAccount) => !existingAccounts.find((account) => account.providerId === providerAccount.id)
         );
-        const newAccounts = newUsers.map((user) => new LinkedAccount(null, user.username, provider, user.id));
 
+        const newAccounts = newUsers.map((user) => new LinkedAccount(null, user.username, provider, user.id));
         return this.save(newAccounts);
     }
 

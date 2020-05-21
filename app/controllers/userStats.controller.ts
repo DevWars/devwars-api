@@ -49,62 +49,19 @@ import { parseStringWithDefault } from '../../test/helpers';
  *       }
  *      }
  */
-export async function forUser(request: UserRequest, response: Response) {
+export async function getUserStatistics(request: UserRequest, response: Response) {
     const { boundUser: user } = request;
 
     const userRepository = getCustomRepository(UserRepository);
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
 
-    const stats = await userRepository.findStatsByUser(user);
+    const statistics = await userRepository.findStatisticsForUser(user);
 
     // gather all related link account coins.
     const linkedAccounts = await linkedAccountRepository.findAllByUserId(user.id);
-    linkedAccounts.forEach((account) => (stats.coins += defaultTo(account.storage?.coins, 0)));
+    linkedAccounts.forEach((account) => (statistics.coins += defaultTo(account.storage?.coins, 0)));
 
-    return response.json(stats);
-}
-
-/**
- * @api {post} /users/:user/stats Create stats for a user.
- * @apiName CreateStatsForUser
- * @apiGroup User
- *
- * @apiParam {string} user The id of the user.
- * @apiParam {number} coins The number of coins the user has. minimum is 0.
- * @apiParam {number} xp The amount of xp the user has. minimum is 0.
- * @apiParam {number} level The level of the user. minimum is 1.
- * @apiParam {string} twitchId The twitch id of the user.
- *
- * @apiParamExample {json} Request-Example:
- *      {
- *          "coins": 10,
- *          "xp": 3,
- *          "level": 4,
- *          "twitchId": "24485211"
- *      }
- *
- * @apiSuccess {number} coins The number of coins the user has.
- * @apiSuccess {number} xp The amount of xp the user has.
- * @apiSuccess {number} level The level of the user.
- * @apiSuccess {string} twitchId The twitch id of the user.
- */
-export async function create(request: UserRequest, response: Response) {
-    const existingStatus = await UserStats.findOne({ where: { user: request.boundUser.id } });
-
-    if (!isNil(existingStatus)) {
-        throw new ApiError({
-            error: `The user ${request.boundUser.username} already has existing user stats.`,
-            code: 409,
-        });
-    }
-
-    const stats = new UserStats();
-    stats.user = request.boundUser;
-
-    Object.assign(stats, request.body);
-
-    await stats.save();
-    return response.json(stats);
+    return response.json(statistics);
 }
 
 /**
@@ -123,7 +80,7 @@ export async function getCoins(request: Request, response: Response) {
     const twitchId = parseStringWithDefault(request.query.twitchId as string, null);
 
     if (!isNil(user) && isNil(twitchId)) {
-        const stats = await userRepository.findStatsByUser(user);
+        const stats = await userRepository.findStatisticsForUser(user);
         coins += stats.coins;
 
         // Update the coins if the given user has a linked account and that linked account has a
@@ -139,7 +96,7 @@ export async function getCoins(request: Request, response: Response) {
         if (!isNil(account) && !isNil(account.storage?.coins)) coins += account.storage.coins;
 
         if (isNil(user) && !isNil(account.user)) {
-            const stats = await userRepository.findStatsByUser(account.user);
+            const stats = await userRepository.findStatisticsForUser(account.user);
             coins += stats.coins;
         }
     }

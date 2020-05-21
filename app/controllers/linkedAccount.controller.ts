@@ -10,62 +10,20 @@ import User from '../models/user.model';
 import { DiscordService } from '../services/discord.service';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../services/mail.service';
 import { AuthorizedRequest, UserRequest } from '../request/requests';
-import { parseIntWithDefault } from '../../test/helpers';
 import ApiError from '../utils/apiError';
 import { TwitchService } from '../services/twitch.service';
-import { DATABASE_MAX_ID } from '../constants';
+import UserRepository from '../repository/user.repository';
+import { parseStringWithDefault } from '../../test/helpers';
 
-/**
- * @api {get} /oauth?first={:first}&after={:after} Gather all linked accounts within the constraints.
- * @apiDescription Gather all linked accounts that are organize by updatedAt. With paging support.
- *
- * @apiName GatherAllLinkedAccounts
- * @apiGroup LinkedAccounts
- * @apiPermission moderator
- *
- * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
- * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
- *
- * @apiSuccess {LinkedAccounts[]} LinkedAccounts The linked accounts within the limit and offset.
- *
- * @apiSuccessExample /oauth?first=1&after=0:
- *     HTTP/1.1 200 OK
- * [{
- *   username": "aten",
- *   "provider": "TWITCH",
- *   "providerId": "100106087",
- *   "storage": { ... },
- *   "id": 405,
- *   "updatedAt": "2020-01-05T23:52:49.229Z",
- *   "createdAt": "2019-10-25T21:01:45.568Z"
- *  }]
- */
-export async function all(request: AuthorizedRequest, response: Response): Promise<any> {
-    const { first, after } = request.query as { first: any; after: any };
+function getProviderFromString(provider: string) {
+    switch (provider.toUpperCase()) {
+        case 'TWITCH':
+            return Provider.TWITCH;
+        case 'DISCORD':
+            return Provider.DISCORD;
+    }
 
-    const params = {
-        first: parseIntWithDefault(first, 20, 1, 100) as number,
-        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID) as number,
-    };
-
-    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
-    const accounts = await linkedAccountRepository.findWithPaging({
-        first: params.first,
-        after: params.after,
-        orderBy: 'updatedAt',
-    });
-
-    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
-
-    const pagination = {
-        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
-        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
-    };
-
-    if (accounts.length === 0 || accounts.length !== params.first) pagination.after = null;
-    if (params.after === 0) pagination.before = null;
-
-    return response.json({ data: accounts, pagination });
+    return null;
 }
 
 async function connectTwitch(request: Request, response: Response, user: User): Promise<any> {
@@ -182,35 +140,63 @@ export async function disconnect(request: AuthorizedRequest, response: Response)
     return response.json(linkedAccount);
 }
 
-export async function updateTwitchCoins(request: Request, response: Response): Promise<any> {
-    const twitchUsers = request.body.updates.map((update: any) => update.twitchUser);
+export async function getCoinsForUserByProvider(request: Request, response: Response): Promise<any> {
+    const { provider, id } = request.params;
+
+    const providerService = getProviderFromString(provider);
+    const accountId = parseStringWithDefault(id, null, 1, 10);
+
+    const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
+    const userRepository = getCustomRepository(UserRepository);
+
+    const account = await linkedAccountRepository.findOne({
+        where: { providerId: accountId, provider: providerService },
+        relations: ['user'],
+    });
+
+    if (_.isNil(account)) return response.json({ coins: 0 });
+
+    let coins = 0;
+
+    if (!_.isNil(account.user)) {
+        const stats = await userRepository.findStatisticsForUser(account.user);
+        coins = stats.coins;
+    } else {
+        coins = account.storage?.coins || 0;
+    }
+
+    return response.json({ coins });
+}
+
+export async function updateCoinsForUserByProvider(request: Request, response: Response): Promise<any> {
+    const { provider, id } = request.params;
+    const { amount } = request.body;
+
+    const providerService = getProviderFromString(provider);
+    const accountId = parseStringWithDefault(id, null, 1, 10);
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
 
-    await linkedAccountRepository.createMissingAccounts(twitchUsers, Provider.TWITCH);
+    await linkedAccountRepository.createMissingAccounts(
+        [{ id: accountId, username: request.body.username }],
+        providerService
+    );
 
-    const accounts = await linkedAccountRepository.find({
-        where: {
-            providerId: In(twitchUsers.map((u: any) => u.id)),
-        },
+    const account = await linkedAccountRepository.findOne({
+        where: { providerId: accountId, provider: providerService },
         relations: ['user'],
     });
 
-    for (const account of accounts) {
-        const { amount } = request.body.updates.find((update: any) => update.twitchUser.id === account.providerId);
-        if (!_.isFinite(amount)) continue;
-
-        if (!_.isNil(account.user)) {
-            // push it on the users statistics since they have there twitch accounts linked.
-            await userStatisticsRepository.updateCoinsForUser(account.user, amount);
-        } else {
-            if (_.isNil(account.storage.coins)) account.storage.coins = 0;
-            account.storage.coins += amount;
-        }
+    if (!_.isNil(account.user)) {
+        // push it on the users statistics since they have there twitch accounts linked.
+        await userStatisticsRepository.updateCoinsForUser(account.user, amount);
+    } else {
+        if (_.isNil(account.storage.coins)) account.storage.coins = 0;
+        account.storage.coins += amount;
     }
 
-    await LinkedAccount.save(accounts);
+    await LinkedAccount.save(account);
     return response.send();
 }
 

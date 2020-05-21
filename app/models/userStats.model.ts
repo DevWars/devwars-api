@@ -15,9 +15,6 @@ export default class UserStats extends BaseModel {
     @Column({ default: 1 })
     public level: number;
 
-    @Column({ unique: true, nullable: true })
-    public twitchId: string;
-
     // ------------------------------------------------------------
     // Relations
     @OneToOne(() => User)

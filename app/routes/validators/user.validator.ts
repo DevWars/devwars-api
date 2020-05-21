@@ -8,7 +8,6 @@ export const statsSchema = Joi.object().keys({
     coins: Joi.number().min(constants.STATS_COINS_MIN_AMOUNT).max(constants.STATS_COINS_MAX_AMOUNT).required(),
     xp: Joi.number().min(constants.STATS_XP_MIN_AMOUNT).max(constants.STATS_XP_MAX_AMOUNT).required(),
     level: Joi.number().min(constants.STATS_LEVEL_MIN_AMOUNT).max(constants.STATS_LEVEL_MAX_AMOUNT).required(),
-    twitchId: Joi.number().optional(),
 });
 
 export const profileSchema = Joi.object().keys({

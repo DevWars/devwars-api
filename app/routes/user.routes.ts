@@ -58,19 +58,20 @@ UserRoute.put(
 );
 
 /******************************
- *  STATS
+ *  STATISTICS
  ******************************/
 
-UserRoute.get('/:user/stats', [bindUserByParamId('user')], wrapAsync(UserStatsController.forUser));
-
-UserRoute.post(
-    '/:user/stats',
-    [bodyValidation(statsSchema), bindUserByParamId('user')],
-    wrapAsync(UserStatsController.create)
+UserRoute.get(
+    '/:user/statistics',
+    [mustBeAuthenticated, bindUserByParamId('user')],
+    wrapAsync(UserStatsController.getUserStatistics)
 );
 
-UserRoute.get('/stats/coins', wrapAsync(UserStatsController.getCoins));
-UserRoute.get('/:user/stats/game', [bindUserByParamId('user')], wrapAsync(UserGameStatsController.forUser));
+UserRoute.get(
+    '/:user/statistics/game',
+    [mustBeAuthenticated, bindUserByParamId('user')],
+    wrapAsync(UserGameStatsController.forUser)
+);
 
 /******************************
  *  PROFILE
