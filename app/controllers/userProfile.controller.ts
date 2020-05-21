@@ -63,8 +63,8 @@ import ApiError from '../utils/apiError';
  *       }
  *      }
  */
-export async function show(request: UserRequest, response: Response) {
-    const profile = await UserProfile.findOne({ where: { user: request.boundUser.id } });
+export async function getUserProfile(request: UserRequest, response: Response) {
+    const profile = await UserProfile.findOne({ where: { user: request.boundUser } });
 
     if (_.isNil(profile)) {
         throw new ApiError({
@@ -157,9 +157,9 @@ export async function show(request: UserRequest, response: Response) {
  *      }
  */
 
-export async function update(request: UserRequest, response: Response) {
+export async function updateUserProfile(request: UserRequest, response: Response) {
     const params: any = { ...(request.body as ProfileRequest) };
-    const profile: any = await UserProfile.findOne({ where: { user: request.boundUser.id } });
+    const profile: any = await UserProfile.findOne({ where: { user: request.boundUser } });
 
     if (_.isNil(profile)) {
         throw new ApiError({

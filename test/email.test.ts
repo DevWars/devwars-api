@@ -106,12 +106,12 @@ describe('User Email Permissions', () => {
                 .expect(403);
         });
 
-        it('Should fail if updating another user as a moderator', async () => {
+        it('Should allow if updating another user as a moderator', async () => {
             const moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
             await agent
                 .patch(`/users/${user.id}/emails/permissions`)
                 .set('Cookie', await cookieForUser(moderator))
-                .expect(403);
+                .expect(200);
         });
 
         it('Should update if updating another user as a administrator', async () => {
@@ -152,13 +152,13 @@ describe('User Email Permissions', () => {
                 .expect(403);
         });
 
-        it('Should fail if the user is gathering for another user and is a moderator.', async () => {
+        it('Should pass if the user is gathering for another user and is a moderator.', async () => {
             const mod = await UserSeeding.withRole(UserRole.MODERATOR).save();
 
             await agent
                 .get(`/users/${user.id}/emails/permissions`)
                 .set('Cookie', await cookieForUser(mod))
-                .expect(403);
+                .expect(200);
         });
 
         it('Should pass if the user exists.', async () => {

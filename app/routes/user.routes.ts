@@ -79,7 +79,7 @@ UserRoute.get('/:user/stats/game', [bindUserByParamId('user')], wrapAsync(UserGa
 UserRoute.get(
     '/:user/profile',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(UserProfileController.show)
+    wrapAsync(UserProfileController.getUserProfile)
 );
 
 UserRoute.patch(
@@ -90,7 +90,7 @@ UserRoute.patch(
         bodyValidation(profileSchema),
         bindUserByParamId('user'),
     ],
-    wrapAsync(UserProfileController.update)
+    wrapAsync(UserProfileController.updateUserProfile)
 );
 
 /******************************

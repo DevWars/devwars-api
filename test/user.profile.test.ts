@@ -63,6 +63,56 @@ describe('user-profile', () => {
         });
     });
 
+    describe('GET - /users/:id/profile - Gather the users profile', () => {
+        it('Should return the users profile if the authenticated user', async () => {
+            const response = await agent
+                .get(`/users/${user.id}/profile`)
+                .set('cookie', await cookieForUser(user))
+                .send();
+
+            delete userProfile.user;
+
+            const profile = userProfile as any;
+
+            for (const dateVal of ['dob', 'createdAt', 'updatedAt']) {
+                delete profile[dateVal];
+                delete response.body[dateVal];
+            }
+
+            chai.expect(response.status).to.be.equal(200);
+
+            for (const key in profile) {
+                if (response.body[key]) {
+                    chai.expect(response.body[key]).to.be.deep.equal(profile[key]);
+                }
+            }
+        });
+
+        it('Should fail if you are not the owning user and not a admin or moderator', async () => {
+            const notOwning = await UserSeeding.withRole(UserRole.USER).save();
+
+            const response = await agent
+                .get(`/users/${user.id}/profile`)
+                .set('cookie', await cookieForUser(notOwning))
+                .send();
+
+            chai.expect(response.status).to.be.equal(403);
+        });
+
+        it('Should pass if you are not the owning user and a admin or moderator', async () => {
+            for (const role of [UserRole.ADMIN, UserRole.MODERATOR]) {
+                const notOwning = await UserSeeding.withRole(role).save();
+
+                const response = await agent
+                    .get(`/users/${user.id}/profile`)
+                    .set('cookie', await cookieForUser(notOwning))
+                    .send();
+
+                chai.expect(response.status).to.be.equal(200);
+            }
+        });
+    });
+
     describe('PATCH - /users/:id/profile - Updating a users profile', () => {
         it('Should reject a sex update if its not a valid sex', async () => {
             const profileUpdate = { ...userProfileSettings };
@@ -112,20 +162,23 @@ describe('user-profile', () => {
             chai.expect(filteredData).to.be.deep.equal(userProfileSettings);
         });
 
-        it('Moderators should not update another user profile', async () => {
-            const userModerator = UserSeeding.withRole(UserRole.MODERATOR);
+        it('Moderators should be able to update another user profile', async () => {
             const localUser = UserSeeding.withRole(UserRole.USER);
+            const localUserProfile = UserProfileSeeding.withUser(localUser);
+            const userModerator = UserSeeding.withRole(UserRole.ADMIN);
 
             await connectionManager.transaction(async (transaction) => {
-                await transaction.save(userModerator);
                 await transaction.save(localUser);
+                await transaction.save(localUserProfile);
+                await transaction.save(userModerator);
             });
 
-            await agent
+            const response = await agent
                 .patch(`/users/${localUser.id}/profile`)
                 .set('cookie', await cookieForUser(userModerator))
-                .send(userProfileSettings)
-                .expect(403);
+                .send(userProfileSettings);
+
+            chai.expect(response.status).to.be.equal(200);
         });
 
         it('Administrators should be able to update another user profile', async () => {
