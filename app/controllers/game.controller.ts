@@ -203,6 +203,13 @@ export async function createNewGame(request: CreateGameRequest, response: Respon
 }
 
 export async function activate(request: AuthorizedRequest & GameRequest, response: Response) {
+    if (request.game.status === GameStatus.ACTIVE) {
+        throw new ApiError({
+            message: 'The specified game is already activated.',
+            code: 409,
+        });
+    }
+
     request.game.status = GameStatus.ACTIVE;
     await request.game.save();
 

@@ -10,7 +10,7 @@ import { GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/user.model';
-import { GameMode, GameStatus } from '../app/models/game.model';
+import { GameMode } from '../app/models/game.model';
 
 const server: ServerService = new ServerService();
 let agent: any;

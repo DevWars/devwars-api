@@ -72,22 +72,23 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
     game.storage.meta.teamScores[1].ux = results?.votes?.ux.red || 0;
 
     if (!_.isNil(results)) {
-        const winnerTeamId = results.winner === 'blue' ? 0 : 1;
+        const winnerTeamId = game.storage.meta.winningTeam;
+        const losingTeamId = winnerTeamId === 1 ? 0 : 1;
 
         const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
         const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
         const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winnerTeamId, ['user']);
-        const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, winnerTeamId, ['user']);
+        const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, losingTeamId, ['user']);
 
         // Increment all the winners wins by one.
         if (!_.isNil(winners) && _.size(winners) > 0) {
-            await gameStatsRepository.incrementUsersWinsByIds(_.map(winners, (winner) => winner.id));
+            await gameStatsRepository.incrementUsersWinsByIds(_.map(winners, (winner) => winner.user.id));
         }
 
         // Increment all the losers loses by one.
         if (!_.isNil(losers) && _.size(losers) > 0) {
-            await gameStatsRepository.incrementUsersLosesByIds(_.map(losers, (loser) => loser.id));
+            await gameStatsRepository.incrementUsersLosesByIds(_.map(losers, (loser) => loser.user.id));
         }
     }
 

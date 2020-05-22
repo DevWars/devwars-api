@@ -49,7 +49,7 @@ export default class GameSeeding {
     /**
      * The list of game applications, these can not be saved until the given game is saved first.
      */
-    private gameApplications: GameApplication[] = [];
+    public gameApplications: GameApplication[] = [];
 
     /**
      * Create a default seeded game object, that uses the builder method.
@@ -215,7 +215,7 @@ export default class GameSeeding {
      */
     public async common(): Promise<GameSeeding> {
         let game = this.WithTemplates().withSeason(3).withTeamScores();
-        game = await game.withGeneratedPlayers();
+        game = await game.withGeneratedPlayers(6);
 
         return game;
     }
