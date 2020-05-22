@@ -1,8 +1,6 @@
 import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
-import { random } from 'faker';
 import * as chai from 'chai';
-import * as _ from 'lodash';
 
 import GameRepository from '../app/repository/game.repository';
 import { Connection } from '../app/services/connection.service';
@@ -12,8 +10,7 @@ import { GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
 import { UserRole } from '../app/models/user.model';
-import Game, { GameMode, GameStatus } from '../app/models/game.model';
-import { DATABASE_MAX_ID } from '../app/constants';
+import { GameMode, GameStatus } from '../app/models/game.model';
 
 const server: ServerService = new ServerService();
 let agent: any;

@@ -112,6 +112,7 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
  */
 export async function GetAllGameAssignedPlayers(request: GameRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+
     const result = await gameApplicationRepository.find({
         where: {
             game: request.game,
@@ -154,6 +155,15 @@ export async function assignPlayerToGame(request: AuthorizedRequest & GameReques
         });
     }
 
+    const application = await applicationRepository.findByUserAndGame(user, request.game);
+
+    if (_.isNil(application)) {
+        throw new ApiError({
+            message: 'The specified user is not applied to the specified game.',
+            code: 400,
+        });
+    }
+
     const alreadyAssigned = await applicationRepository.isPlayerAlreadyAssigned(user, request.game);
     if (alreadyAssigned) {
         throw new ApiError({
@@ -186,7 +196,7 @@ export async function removePlayerFromGame(request: AuthorizedRequest & GameRequ
     await gameApplicationRepository.removeUserFromGame(id, request.game);
 
     if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);
-    return response.status(201).json(flattenGame(request.game));
+    return response.status(200).json(flattenGame(request.game));
 }
 
 /*******************************

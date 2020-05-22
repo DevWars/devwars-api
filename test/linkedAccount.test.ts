@@ -15,7 +15,6 @@ import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding, UserStatsSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
-import UserRepository from '../app/repository/user.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;

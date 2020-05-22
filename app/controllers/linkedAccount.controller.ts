@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { getCustomRepository, In } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import * as _ from 'lodash';
 
 import UserStatisticsRepository from '../repository/userStatistics.repository';

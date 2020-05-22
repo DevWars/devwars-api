@@ -7,7 +7,6 @@ import User from '../models/user.model';
 
 import { GameObjective } from '../types/common';
 import UserSeeding from './user.seeding';
-import logger from '../utils/logger';
 
 export default class GameSeeding {
     /**
@@ -171,28 +170,6 @@ export default class GameSeeding {
     }
 
     /**
-     * Includes editors within the game seeding process, this will generate the
-     * related users if non exist or none have already been created with the
-     * seeder.
-     */
-    public async withEditors(): Promise<GameSeeding> {
-        // const editors = [
-        //     { id: 0, team: 0, language: 'html', player: 0 },
-        //     { id: 1, team: 0, language: 'css', player: 0 },
-        //     { id: 2, team: 0, language: 'js', player: 0 },
-
-        //     { id: 3, team: 1, language: 'html', player: 0 },
-        //     { id: 4, team: 1, language: 'css', player: 0 },
-        //     { id: 5, team: 1, language: 'js', player: 0 },
-        // ];
-
-        logger.warn('withEditors not implemented yet');
-        //  this.game.storage.editors = result;
-
-        return this;
-    }
-
-    /**
      * With generated team scores, this includes the teams votes for ui, ux and
      * tie, and the stream meta score results for both teams. This also includes
      * objective totals and tie state.
@@ -239,7 +216,6 @@ export default class GameSeeding {
     public async common(): Promise<GameSeeding> {
         let game = this.WithTemplates().withSeason(3).withTeamScores();
         game = await game.withGeneratedPlayers();
-        game = await game.withEditors();
 
         return game;
     }

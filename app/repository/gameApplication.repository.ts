@@ -81,7 +81,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param game The game which is being checked.
      */
     public async isPlayerAlreadyAssigned(user: User, game: Game): Promise<boolean> {
-        const result = await this.count({ where: { user, game } });
+        const result = await this.count({ where: { user, game, team: Not(IsNull()) } });
         return result >= 1;
     }
 

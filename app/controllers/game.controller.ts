@@ -6,11 +6,8 @@ import * as _ from 'lodash';
 import Game, { GameMode, GameStatus } from '../models/game.model';
 import GameRepository from '../repository/game.repository';
 
-import { parseIntWithDefault } from '../../test/helpers';
 import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/requests';
 import { UpdateGameRequest } from '../request/updateGameRequest';
-
-import { DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';
 
 import GameService from '../services/game.service';
@@ -22,7 +19,18 @@ import GameService from '../services/game.service';
  * @param game The game that is being flattened.
  */
 export function flattenGame(game: Game) {
-    const picked = _.pick(game, 'id', 'mode', 'season', 'title', 'videoUrl', 'startTime', 'updatedAt', 'createdAt');
+    const picked = _.pick(
+        game,
+        'id',
+        'mode',
+        'season',
+        'status',
+        'title',
+        'videoUrl',
+        'startTime',
+        'updatedAt',
+        'createdAt'
+    );
 
     return _.merge(picked, game.storage);
 }

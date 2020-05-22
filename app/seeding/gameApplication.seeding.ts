@@ -17,11 +17,16 @@ export default class GameApplicationSeeding {
         return gameApplication;
     }
 
-    public static withGameAndUser(game: Game, user: User): GameApplication {
+    public static withGameAndUser(game: Game, user: User, blankAssignment = false): GameApplication {
         const application = this.default();
 
         application.game = game;
         application.user = user;
+
+        if (blankAssignment) {
+            application.assignedLanguage = null;
+            application.team = null;
+        }
 
         return application;
     }

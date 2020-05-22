@@ -16,14 +16,13 @@ import Activity from '../models/activity.model';
 
 import UserRepository from '../repository/user.repository';
 import { AuthorizedRequest, UserRequest } from '../request/requests';
-import { USERNAME_CHANGE_MIN_DAYS, DATABASE_MAX_ID } from '../constants';
+import { USERNAME_CHANGE_MIN_DAYS } from '../constants';
 import ApiError from '../utils/apiError';
 
 import { parseIntWithDefault } from '../../test/helpers';
 
 import { isRoleHigher, isRoleOrHigher } from './authentication.controller';
 import PaginationService from '../services/pagination.service';
-import ActivityRepository from '../repository/activity.repository';
 
 interface UpdateUserRequest {
     username: string;
