@@ -6,11 +6,15 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
 import UserGameStatsRepository from '../repository/userGameStats.repository';
 import UserRepository from '../repository/user.repository';
 
-import { GameRequest, AuthorizedRequest } from '../request/requests';
+import { sendGameApplicationApplyingEmail, SendGameApplicationResignEmail } from '../services/mail.service';
 import GameService from '../services/game.service';
+
+import GameApplication from '../models/gameApplication.model';
+import { GameStatus } from '../models/game.model';
+
+import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests';
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
-import { GameStatus } from '../models/game.model';
 
 /**
  * @api {post} /games/:game/end Ends a game by a given id.
@@ -224,9 +228,23 @@ export async function getAllGameApplications(request: GameRequest, response: Res
  * @apiParam {number} game The id of the game.
  * @apiParam {number} user The id of the user.
  */
-// export async function applyToGameWithApplication(request: AuthorizedRequest & UserRequest, response: Response) {
-export async function applyToGameWithApplication() {
-    throw new Error('Not Implemented');
+export async function applyToGameWithApplication(request: GameRequest & UserRequest, response: Response) {
+    const applicationRepository = getCustomRepository(GameApplicationRepository);
+
+    const existingApplication = await applicationRepository.existsByUserAndGame(request.boundUser, request.game);
+
+    if (existingApplication) {
+        throw new ApiError({
+            message: 'A application already exists for the specified game.',
+            code: 409,
+        });
+    }
+
+    const application = new GameApplication(request.game, request.boundUser);
+    await application.save();
+
+    await sendGameApplicationApplyingEmail(application);
+    return response.json(application);
 }
 
 /**
@@ -244,9 +262,19 @@ export async function applyToGameWithApplication() {
  * @apiParam {number} game The id of the game.
  * @apiParam {number} user The id of the user.
  */
-// export async function getApplicationByUser(request: AuthorizedRequest & UserRequest, response: Response) {
-export async function getApplicationByUser() {
-    throw new Error('Not Implemented');
+export async function getApplicationByUser(request: GameRequest & UserRequest, response: Response) {
+    const applicationRepository = getCustomRepository(GameApplicationRepository);
+
+    const existingApplication = await applicationRepository.findByUserAndGame(request.boundUser, request.game);
+
+    if (!existingApplication) {
+        throw new ApiError({
+            message: 'A application does not exists for the specified game.',
+            code: 409,
+        });
+    }
+
+    return response.json(existingApplication);
 }
 
 /**
@@ -264,7 +292,24 @@ export async function getApplicationByUser() {
  * @apiParam {number} game The id of the game.
  * @apiParam {number} user The id of the user.
  */
-// export async function deleteApplicationById(request: AuthorizedRequest & UserRequest, response: Response) {
-export async function deleteApplicationById() {
-    throw new Error('Not Implemented');
+export async function deleteApplicationById(request: GameRequest & UserRequest, response: Response) {
+    const applicationRepository = getCustomRepository(GameApplicationRepository);
+
+    const existingApplication = await applicationRepository.existsByUserAndGame(request.boundUser, request.game);
+
+    if (!existingApplication) {
+        throw new ApiError({
+            message: 'A application does not exists for the specified game.',
+            code: 409,
+        });
+    }
+
+    const application = await applicationRepository.findByUserAndGame(request.boundUser, request.game);
+    application.user = request.boundUser;
+    application.game = request.game;
+
+    await application.remove();
+
+    await SendGameApplicationResignEmail(application);
+    return response.send();
 }
