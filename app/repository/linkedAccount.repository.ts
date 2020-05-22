@@ -1,5 +1,6 @@
 import { EntityRepository, Repository, In } from 'typeorm';
 import LinkedAccount, { Provider } from '../models/linkedAccount.model';
+import * as _ from 'lodash';
 
 @EntityRepository(LinkedAccount)
 export default class LinkedAccountRepository extends Repository<LinkedAccount> {
@@ -15,18 +16,24 @@ export default class LinkedAccountRepository extends Repository<LinkedAccount> {
         return this.findOne({ where: { provider, providerId }, relations: ['user'] });
     }
 
-    public async createMissingAccounts(
-        providerIds: { id: any; username: string }[],
-        provider: Provider
-    ): Promise<LinkedAccount[]> {
-        const existingAccounts = await this.find({ providerId: In(providerIds) });
+    /**
+     * Creates the missing provider account.
+     * @param username The username of the account being created.
+     * @param providerId The provider id of the account.
+     * @param provider The provider of the account, e.g twitch.
+     */
+    public async createOrFindMissingAccount(
+        username: string,
+        providerId: string,
+        provider: Provider,
+        relations: string[] = []
+    ): Promise<LinkedAccount> {
+        const existingAccount = await this.findOne({ where: { providerId, provider }, relations });
 
-        const newUsers = providerIds.filter(
-            (providerAccount) => !existingAccounts.find((account) => account.providerId === providerAccount.id)
-        );
+        if (!_.isNil(existingAccount)) return existingAccount;
 
-        const newAccounts = newUsers.map((user) => new LinkedAccount(null, user.username, provider, user.id));
-        return this.save(newAccounts);
+        const newAccount = new LinkedAccount(null, username, provider, providerId);
+        return this.save(newAccount);
     }
 
     public async findWithPaging({

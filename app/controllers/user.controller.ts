@@ -51,7 +51,7 @@ interface UpdateUserRequest {
  *      "avatarUrl": "http://lorempixel.com/640/480/nature"
  *    }
  */
-export async function show(request: UserRequest, response: Response) {
+export async function getUserById(request: UserRequest, response: Response) {
     const sanitizedUser = request.boundUser.sanitize(
         'email',
         'lastSignIn',

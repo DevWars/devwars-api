@@ -1,30 +1,31 @@
 import * as express from 'express';
 import * as multer from 'multer';
 
-import * as GameController from '../controllers/game.controller';
 import * as GameApplicationsController from '../controllers/gameApplication.controller';
-import * as UserController from '../controllers/user.controller';
-import * as UserProfileController from '../controllers/userProfile.controller';
-import * as UserStatsController from '../controllers/userStats.controller';
 import * as UserGameStatsController from '../controllers/userGameStats.controller';
 import * as LinkedAccountController from '../controllers/linkedAccount.controller';
-import * as ActivityController from '../controllers/activity.controller';
+import * as UserProfileController from '../controllers/userProfile.controller';
 import * as UserAvatarController from '../controllers/userAvatar.controller';
+import * as UserStatsController from '../controllers/userStats.controller';
+import * as ActivityController from '../controllers/activity.controller';
 import * as EmailController from '../controllers/email.controller';
+import * as UserController from '../controllers/user.controller';
 import { UserRole } from '../models/user.model';
 
 import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/authentication.middleware';
-import { statsSchema, profileSchema, updateUserSchema } from './validators/user.validator';
 import { bindUserByParamId } from '../middleware/user.middleware';
+
+import { profileSchema, updateUserSchema } from './validators/user.validator';
 import { emailPermissionSchema } from './validators/email.validator';
 import { bodyValidation } from './validators';
+
 import { wrapAsync } from './handlers';
 
 const upload = multer({ dest: 'uploads/' });
 const UserRoute: express.Router = express.Router();
 
 /******************************
- *  GENERAL
+ *  USER
  ******************************/
 
 UserRoute.get(
@@ -32,9 +33,9 @@ UserRoute.get(
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
     wrapAsync(UserController.getAllUsersWithPaging)
 );
-UserRoute.get('/:user', [bindUserByParamId('user')], wrapAsync(UserController.show));
+UserRoute.get('/:user', [bindUserByParamId('user')], wrapAsync(UserController.getUserById));
 
-UserRoute.put(
+UserRoute.patch(
     '/:user',
     [
         mustBeAuthenticated,
@@ -50,6 +51,10 @@ UserRoute.delete(
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserByParamId('user')],
     wrapAsync(UserController.deleteUser)
 );
+
+/******************************
+ *  AVATAR
+ ******************************/
 
 UserRoute.put(
     '/:user/avatar',

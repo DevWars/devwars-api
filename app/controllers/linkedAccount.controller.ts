@@ -144,7 +144,14 @@ export async function getCoinsForUserByProvider(request: Request, response: Resp
     const { provider, id } = request.params;
 
     const providerService = getProviderFromString(provider);
-    const accountId = parseStringWithDefault(id, null, 1, 10);
+    const accountId = parseStringWithDefault(id, null, 1, 15);
+
+    if (_.isNil(accountId) || _.isEmpty(accountId)) {
+        throw new ApiError({
+            message: 'The provider account id is not valid or not specified.',
+            code: 400,
+        });
+    }
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const userRepository = getCustomRepository(UserRepository);
@@ -170,23 +177,24 @@ export async function getCoinsForUserByProvider(request: Request, response: Resp
 
 export async function updateCoinsForUserByProvider(request: Request, response: Response): Promise<any> {
     const { provider, id } = request.params;
-    const { amount } = request.body;
+    const { amount, username } = request.body;
 
     const providerService = getProviderFromString(provider);
-    const accountId = parseStringWithDefault(id, null, 1, 10);
+    const accountId = parseStringWithDefault(id, null, 1, 15);
+
+    if (_.isNil(accountId) || _.isEmpty(accountId)) {
+        throw new ApiError({
+            message: 'The provider account id is not valid or not specified.',
+            code: 400,
+        });
+    }
 
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
     const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
 
-    await linkedAccountRepository.createMissingAccounts(
-        [{ id: accountId, username: request.body.username }],
-        providerService
-    );
-
-    const account = await linkedAccountRepository.findOne({
-        where: { providerId: accountId, provider: providerService },
-        relations: ['user'],
-    });
+    const account = await linkedAccountRepository.createOrFindMissingAccount(username, accountId, providerService, [
+        'user',
+    ]);
 
     if (!_.isNil(account.user)) {
         // push it on the users statistics since they have there twitch accounts linked.

@@ -27,7 +27,7 @@ LinkedAccountRoute.get(
     wrapAsync(LinkedAccountController.getCoinsForUserByProvider)
 );
 
-LinkedAccountRoute.put(
+LinkedAccountRoute.patch(
     '/:provider/:id/coins',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
     wrapAsync(LinkedAccountController.updateCoinsForUserByProvider)
