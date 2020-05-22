@@ -110,6 +110,17 @@ describe('Game Actions', () => {
     });
 
     describe('POST - /:game/actions/end - Ending a game', () => {
+        it('Should allow being ended if the requesting user is the bot', async () => {
+            const game = await GameSeeding.default().withStatus(GameStatus.ACTIVE).save();
+
+            await agent
+                .post(`/games/${game.id}/actions/end`)
+                .send({
+                    apiKey: process.env.API_KEY,
+                })
+                .expect(200);
+        });
+
         it('Should fail to end the game if a standard user', async () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
             const game = await GameSeeding.default().withStatus(GameStatus.ACTIVE).save();
