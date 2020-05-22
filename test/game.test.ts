@@ -1,6 +1,7 @@
 import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
+import * as _ from 'lodash';
 
 import GameRepository from '../app/repository/game.repository';
 import { Connection } from '../app/services/connection.service';
@@ -9,8 +10,9 @@ import ServerService from '../app/services/server.service';
 import { GameSeeding, UserSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
 
-import { UserRole } from '../app/models/user.model';
-import { GameMode } from '../app/models/game.model';
+import User, { UserRole } from '../app/models/user.model';
+import Game, { GameMode } from '../app/models/game.model';
+import GameApplicationRepository from '../app/repository/gameApplication.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -238,6 +240,79 @@ describe('game', () => {
                 .expect(200);
 
             chai.expect(response.body.mode).to.be.eq('Classic');
+        });
+    });
+
+    describe('DELETE - /games/:game - Remove the game', () => {
+        let game: Game;
+        let administrator: User;
+
+        beforeEach(async () => {
+            game = await GameSeeding.default().save();
+            administrator = await UserSeeding.withRole(UserRole.ADMIN).save();
+        });
+
+        it('Should fail if the user is not authenticated', async () => {
+            const response = await agent.delete(`/games/${game.id}`);
+            chai.expect(response.status).to.be.equal(401);
+        });
+
+        it('Should fail if the user is not a moderator or higher and not set user', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            const response = await agent
+                .delete(`/games/${game.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .send();
+
+            chai.expect(response.status).to.be.equal(403);
+        });
+
+        it('Should pass if the user is a admin or higher and not set user', async () => {
+            for (const role of [UserRole.ADMIN]) {
+                const user = await UserSeeding.withRole(role).save();
+
+                const response = await agent
+                    .delete(`/games/${game.id}`)
+                    .set('Cookie', await cookieForUser(user))
+                    .send();
+
+                chai.expect(response.status).to.be.equal(200);
+            }
+        });
+
+        it('Should remove the game if completed', async () => {
+            const response = await agent
+                .delete(`/games/${game.id}`)
+                .set('Cookie', await cookieForUser(administrator))
+                .send();
+
+            chai.expect(response.status).to.be.equal(200);
+
+            const gameRepository = getCustomRepository(GameRepository);
+            const gameRemoved = await gameRepository.findOne({ where: { id: game.id } });
+
+            chai.expect(_.isNil(gameRemoved)).to.be.equal(true);
+        });
+
+        it('Should remove the game applications if the any when deleting the game.', async () => {
+            const gamePrepare = await GameSeeding.default().common();
+            const game = await gamePrepare.save();
+
+            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+            const applications = await gameApplicationRepository.findByGame(game);
+
+            chai.expect(applications.length).to.be.greaterThan(0);
+
+            const response = await agent
+                .delete(`/games/${game.id}`)
+                .set('Cookie', await cookieForUser(administrator))
+                .send();
+
+            chai.expect(response.status).to.be.equal(200);
+
+            const updatedApplications = await gameApplicationRepository.findByGame(game);
+            chai.expect(updatedApplications.length).to.be.equal(0);
         });
     });
 });
