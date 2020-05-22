@@ -150,40 +150,6 @@ describe('game', () => {
 
             chai.expect(response.body.id).to.equal(game2.id);
         });
-
-        it.skip('should gather additional player details if specified', async () => {
-            //     const game = await (await GameSeeding.default().common()).save();
-            //     const playerIds = Object.keys(game.storage.players);
-            //     const [player] = playerIds;
-            //     // standard endpoint test (no specification).
-            //     const standardResponse = await agent.get(`/games/${game.id}`).expect(200);
-            //     chai.expect(standardResponse.body.id).to.equal(game.id);
-            //     chai.expect(Object.keys(standardResponse.body.players)).to.deep.equal(playerIds);
-            //     chai.expect(standardResponse.body.players[player]).to.deep.equal(game.storage.players[player]);
-            //     // standard endpoint test with false specification
-            //     const standardFalseResponse = await agent.get(`/games/${game.id}?players=false`).expect(200);
-            //     chai.expect(standardFalseResponse.body.id).to.deep.equal(game.id);
-            //     chai.expect(Object.keys(standardFalseResponse.body.players)).to.deep.equal(playerIds);
-            //     chai.expect(standardFalseResponse.body.players[player]).to.deep.equal(game.storage.players[player]);
-            //     // standard endpoint call specifying true for players.
-            //     const playersResponse = await agent.get(`/games/${game.id}?players=true`).expect(200);
-            //     chai.expect(playersResponse.body.id).to.deep.equal(game.id);
-            //     chai.expect(Object.keys(playersResponse.body.players)).to.deep.equal(playerIds);
-            //     chai.expect(playersResponse.body.players[player]).to.not.equal(game.storage.players[player]);
-            //     const userRepository = getCustomRepository(UserRepository);
-            //     const storedPlayer = await userRepository.findById(player);
-            //     chai.expect(_.isNil(storedPlayer)).to.not.be.equal(true);
-            //     // How the server would merge the given users when specifying to include players.
-            //     const mergedPlayer = JSON.stringify(
-            //         Object.assign(game.storage.players[player], {
-            //             avatarUrl: storedPlayer.avatarUrl,
-            //             username: storedPlayer.username,
-            //             id: storedPlayer.id,
-            //             connections: [],
-            //         })
-            //     );
-            //     chai.expect(JSON.parse(mergedPlayer)).to.deep.equal(playersResponse.body.players[player]);
-        });
     });
 
     describe('PATCH - /games/:id - Patching/Updating a game by id', () => {

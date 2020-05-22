@@ -37,7 +37,7 @@ GameRoute.post(
  *  Game
  ******************************/
 
-GameRoute.get('/:game', [bindGameByParamId('game')], wrapAsync(GameController.show));
+GameRoute.get('/:game', [bindGameByParamId('game')], wrapAsync(GameController.getGameById));
 
 GameRoute.patch(
     '/:game',

@@ -35,7 +35,7 @@ export function flattenGame(game: Game) {
     return _.merge(picked, game.storage);
 }
 
-export async function show(request: GameRequest, response: Response) {
+export async function getGameById(request: GameRequest, response: Response) {
     return response.json(flattenGame(request.game));
 }
 
