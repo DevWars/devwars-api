@@ -63,7 +63,7 @@ import ApiError from '../utils/apiError';
  *       }
  *      }
  */
-export async function getUserProfile(request: UserRequest, response: Response) {
+export async function getUserProfileById(request: UserRequest, response: Response) {
     const profile = await UserProfile.findOne({ where: { user: request.boundUser } });
 
     if (_.isNil(profile)) {
@@ -157,7 +157,7 @@ export async function getUserProfile(request: UserRequest, response: Response) {
  *      }
  */
 
-export async function updateUserProfile(request: UserRequest, response: Response) {
+export async function updateUserProfileById(request: UserRequest, response: Response) {
     const params: any = { ...(request.body as ProfileRequest) };
     const profile: any = await UserProfile.findOne({ where: { user: request.boundUser } });
 

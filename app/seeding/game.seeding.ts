@@ -197,7 +197,7 @@ export default class GameSeeding {
         this.game.storage.meta.teamScores[1].ui = random.number({ min: 0, max: 100 });
         this.game.storage.meta.teamScores[1].ux = random.number({ min: 0, max: 100 });
 
-        this.game.storage.meta.winningTeam = random.number({ max: 1 });
+        this.game.storage.meta.winningTeam = random.arrayElement([0, 1]);
         const numberOfObjectives = _.size(this.game.storage.objectives);
 
         const teamOneObjectives = random.number({ min: 0, max: numberOfObjectives });

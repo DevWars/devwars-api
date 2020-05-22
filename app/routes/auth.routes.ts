@@ -9,12 +9,18 @@ import { wrapAsync } from './handlers';
 
 const AuthRoute: express.Router = express.Router();
 
-AuthRoute.get('/user', [mustBeAuthenticated], wrapAsync(AuthController.currentUser));
-AuthRoute.post('/login', [bodyValidation(authValidator.loginSchema)], wrapAsync(AuthController.login));
-AuthRoute.post('/logout', [mustBeAuthenticated], wrapAsync(AuthController.logout));
-AuthRoute.post('/register', [bodyValidation(authValidator.registrationSchema)], wrapAsync(AuthController.register));
-AuthRoute.get('/verify', wrapAsync(AuthController.verify));
-AuthRoute.post('/reverify', [mustBeAuthenticated], wrapAsync(AuthController.reverify));
+AuthRoute.get('/user', [mustBeAuthenticated], wrapAsync(AuthController.getCurrentAuthenticatedUser));
+AuthRoute.post('/login', [bodyValidation(authValidator.loginSchema)], wrapAsync(AuthController.loginUser));
+AuthRoute.post('/logout', [mustBeAuthenticated], wrapAsync(AuthController.logoutUser));
+
+AuthRoute.post(
+    '/register',
+    [bodyValidation(authValidator.registrationSchema)],
+    wrapAsync(AuthController.registerNewUser)
+);
+
+AuthRoute.get('/verify', wrapAsync(AuthController.verifyUser));
+AuthRoute.post('/reverify', [mustBeAuthenticated], wrapAsync(AuthController.reverifyUser));
 
 AuthRoute.post(
     '/forgot/password',

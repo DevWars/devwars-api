@@ -49,7 +49,7 @@ UserRoute.patch(
 UserRoute.delete(
     '/:user',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.ADMIN), bindUserByParamId('user')],
-    wrapAsync(UserController.deleteUser)
+    wrapAsync(UserController.deleteUserById)
 );
 
 /******************************
@@ -59,7 +59,7 @@ UserRoute.delete(
 UserRoute.put(
     '/:user/avatar',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user'), upload.single('avatar')],
-    wrapAsync(UserAvatarController.store)
+    wrapAsync(UserAvatarController.updateUserAvatarById)
 );
 
 /******************************
@@ -69,13 +69,13 @@ UserRoute.put(
 UserRoute.get(
     '/:user/statistics',
     [mustBeAuthenticated, bindUserByParamId('user')],
-    wrapAsync(UserStatsController.getUserStatistics)
+    wrapAsync(UserStatsController.getUserStatisticsById)
 );
 
 UserRoute.get(
     '/:user/statistics/game',
     [mustBeAuthenticated, bindUserByParamId('user')],
-    wrapAsync(UserGameStatsController.forUser)
+    wrapAsync(UserGameStatsController.getUserGameStatisticsById)
 );
 
 /******************************
@@ -85,7 +85,7 @@ UserRoute.get(
 UserRoute.get(
     '/:user/profile',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(UserProfileController.getUserProfile)
+    wrapAsync(UserProfileController.getUserProfileById)
 );
 
 UserRoute.patch(
@@ -96,7 +96,7 @@ UserRoute.patch(
         bodyValidation(profileSchema),
         bindUserByParamId('user'),
     ],
-    wrapAsync(UserProfileController.updateUserProfile)
+    wrapAsync(UserProfileController.updateUserProfileById)
 );
 
 /******************************
@@ -106,7 +106,7 @@ UserRoute.patch(
 UserRoute.get(
     '/:user/emails/permissions',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(EmailController.gatherEmailPermissions)
+    wrapAsync(EmailController.gatherEmailPermissionsById)
 );
 
 UserRoute.patch(
@@ -117,7 +117,7 @@ UserRoute.patch(
         bindUserByParamId('user'),
         bodyValidation(emailPermissionSchema),
     ],
-    wrapAsync(EmailController.updateEmailPermissions)
+    wrapAsync(EmailController.updateEmailPermissionsById)
 );
 
 /******************************
@@ -127,12 +127,12 @@ UserRoute.patch(
 UserRoute.get(
     '/:user/connections',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(LinkedAccountController.gatherAllUserConnections)
+    wrapAsync(LinkedAccountController.gatherAllUserConnectionsById)
 );
 UserRoute.get(
     '/:user/connections/:provider',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProvider)
+    wrapAsync(LinkedAccountController.gatherAllUserConnectionsByProviderIdAndUserId)
 );
 
 /******************************
@@ -142,7 +142,7 @@ UserRoute.get(
 UserRoute.get(
     '/:user/games',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(GameApplicationsController.gatherUsersPlayedGames)
+    wrapAsync(GameApplicationsController.gatherUsersPlayedGamesById)
 );
 
 UserRoute.get(
@@ -158,7 +158,7 @@ UserRoute.get(
 UserRoute.get(
     '/:user/applications',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(GameApplicationsController.gatherAllUsersApplications)
+    wrapAsync(GameApplicationsController.gatherAllUsersApplicationsById)
 );
 
 UserRoute.get(
@@ -174,7 +174,7 @@ UserRoute.get(
 UserRoute.get(
     '/:user/activities',
     [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
-    wrapAsync(ActivityController.gatherAllUsersActivities)
+    wrapAsync(ActivityController.gatherAllUsersActivitiesById)
 );
 
 UserRoute.get(

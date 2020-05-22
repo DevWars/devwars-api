@@ -49,7 +49,7 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
  *       }
  *     ]
  */
-export async function gatherAllUsersApplications(request: UserRequest, response: Response) {
+export async function gatherAllUsersApplicationsById(request: UserRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const applications = await gameApplicationRepository.find({ user: request.boundUser });
 
@@ -125,7 +125,7 @@ export async function gatherUserApplicationById(request: UserRequest, response: 
  *       }
  *     ]
  */
-export async function gatherUsersPlayedGames(request: UserRequest, response: Response) {
+export async function gatherUsersPlayedGamesById(request: UserRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
     const applications = await gameApplicationRepository.find({

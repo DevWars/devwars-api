@@ -51,7 +51,7 @@ import ApiError from '../utils/apiError';
  *       }
  *     ]
  */
-export async function gatherAllUsersActivities(request: UserRequest, response: Response) {
+export async function gatherAllUsersActivitiesById(request: UserRequest, response: Response) {
     const activityRepository = getCustomRepository(ActivityRepository);
     const activities = await activityRepository.find({ user: request.boundUser });
 

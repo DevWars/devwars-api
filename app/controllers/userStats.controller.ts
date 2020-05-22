@@ -9,7 +9,7 @@ import { UserRequest } from '../request/requests';
 import { parseStringWithDefault } from '../../test/helpers';
 
 /**
- * @api {get} /users/:user/stats Get the stats of a user.
+ * @api {get} /users/:user/statistics/ Get the statistics of a user.
  * @apiName GetStatsOfUser
  * @apiGroup User
  *
@@ -47,7 +47,7 @@ import { parseStringWithDefault } from '../../test/helpers';
  *       }
  *      }
  */
-export async function getUserStatistics(request: UserRequest, response: Response) {
+export async function getUserStatisticsById(request: UserRequest, response: Response) {
     const { boundUser: user } = request;
 
     const userRepository = getCustomRepository(UserRepository);

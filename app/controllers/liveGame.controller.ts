@@ -17,7 +17,7 @@ import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 
 /**
- * @api {post} /games/:game/end Ends a game by a given id.
+ * @api {post} /games/:game/actions/end Ends a game by a given id.
  * @apiVersion 1.0.0
  * @apiName EndGame
  * @apiDescription Ends a game by the given id, ensuring to gather results from
@@ -32,7 +32,7 @@ import ApiError from '../utils/apiError';
  *
  * @apiError GameAlreadyEnded The given game has already ended.
  */
-export async function end(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function endGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     if (request.game.status === GameStatus.ENDED) {
         throw new ApiError({
             error: 'The game is already in a end state.',
@@ -111,7 +111,7 @@ export async function end(request: AuthorizedRequest & GameRequest, response: Re
  *
  * @apiParam {number} game The id of the game.
  */
-export async function GetAllGameAssignedPlayers(request: GameRequest, response: Response) {
+export async function GetAllGameAssignedPlayersById(request: GameRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
     const result = await gameApplicationRepository.find({
@@ -126,7 +126,7 @@ export async function GetAllGameAssignedPlayers(request: GameRequest, response: 
 }
 
 /**
- * @api {get} /games/:game/player Assign player to team.
+ * @api {get} /games/:game/players Assign player to team.
  * @apiVersion 1.0.0
  * @apiName AddPlayerToTeamRole
  * @apiDescription Assigns the player to the given team with the given language.
@@ -142,7 +142,7 @@ export async function GetAllGameAssignedPlayers(request: GameRequest, response: 
  * @apiError PlayerCannotChangeTeam The player has already been assigned to other team, ensure to remove first.
  * @apiError PlayerAlreadyAssignedLanguage The player has already been assigned that language for that team (e.g html).
  */
-export async function assignPlayerToGame(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function assignPlayerToGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     const { id, language, team }: { id: number; language: string; team: number } = request.body.player;
 
     const applicationRepository = getCustomRepository(GameApplicationRepository);
@@ -190,7 +190,7 @@ export async function assignPlayerToGame(request: AuthorizedRequest & GameReques
     return response.status(201).json(flattenGame(request.game));
 }
 
-export async function removePlayerFromGame(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function removePlayerFromGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     const { id } = request.body.player;
 
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
@@ -217,7 +217,7 @@ export async function removePlayerFromGame(request: AuthorizedRequest & GameRequ
  * @apiParam {number} game The id of the game.
  */
 // export async function getAllGameApplications(request: AuthorizedRequest, response: Response) {
-export async function getAllGameApplications(request: GameRequest, response: Response) {
+export async function getAllGameApplicationsById(request: GameRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     const result = await gameApplicationRepository.find({ game: request.game });
 
@@ -239,7 +239,7 @@ export async function getAllGameApplications(request: GameRequest, response: Res
  * @apiParam {number} game The id of the game.
  * @apiParam {number} user The id of the user.
  */
-export async function applyToGameWithApplication(request: GameRequest & UserRequest, response: Response) {
+export async function applyToGameWithApplicationByIdAndGameId(request: GameRequest & UserRequest, response: Response) {
     const applicationRepository = getCustomRepository(GameApplicationRepository);
 
     const existingApplication = await applicationRepository.existsByUserAndGame(request.boundUser, request.game);
@@ -273,7 +273,7 @@ export async function applyToGameWithApplication(request: GameRequest & UserRequ
  * @apiParam {number} game The id of the game.
  * @apiParam {number} user The id of the user.
  */
-export async function getApplicationByUser(request: GameRequest & UserRequest, response: Response) {
+export async function getApplicationByUserIdAndGameId(request: GameRequest & UserRequest, response: Response) {
     const applicationRepository = getCustomRepository(GameApplicationRepository);
 
     const existingApplication = await applicationRepository.findByUserAndGame(request.boundUser, request.game);

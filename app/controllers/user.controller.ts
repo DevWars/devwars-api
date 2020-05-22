@@ -248,7 +248,7 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
  * @apiParam {Number} user Users unique ID.
  * @apiParam {string} [lastSigned] Users updated last signed in date.
  */
-export async function deleteUser(request: UserRequest, response: Response) {
+export async function deleteUserById(request: UserRequest, response: Response) {
     const { boundUser: removingUser } = request;
     const { id: removingUserId } = removingUser;
 

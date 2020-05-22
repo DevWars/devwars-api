@@ -80,7 +80,7 @@ async function connectDiscord(request: Request, response: Response, user: User):
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }
 
-export async function connect(request: AuthorizedRequest, response: Response): Promise<any> {
+export async function connectToProvider(request: AuthorizedRequest, response: Response): Promise<any> {
     const provider = request.params.provider.toUpperCase();
 
     if (!(provider in Provider)) {
@@ -107,7 +107,7 @@ export async function connect(request: AuthorizedRequest, response: Response): P
  * @apiError ProviderNotFound The provider is not a valid provider.
  * @apiError NoAccountLinkFound No link account between user and provider.
  */
-export async function disconnect(request: AuthorizedRequest, response: Response): Promise<any> {
+export async function disconnectFromProvider(request: AuthorizedRequest, response: Response): Promise<any> {
     const provider = request.params.provider.toUpperCase();
 
     // if the given provider is not valid, then return out with a response to the user that the
@@ -140,7 +140,7 @@ export async function disconnect(request: AuthorizedRequest, response: Response)
     return response.json(linkedAccount);
 }
 
-export async function getCoinsForUserByProvider(request: Request, response: Response): Promise<any> {
+export async function getCoinsForUserByProviderAndUserId(request: Request, response: Response): Promise<any> {
     const { provider, id } = request.params;
 
     const providerService = getProviderFromString(provider);
@@ -175,7 +175,7 @@ export async function getCoinsForUserByProvider(request: Request, response: Resp
     return response.json({ coins });
 }
 
-export async function updateCoinsForUserByProvider(request: Request, response: Response): Promise<any> {
+export async function updateCoinsForUserByProviderAndUserId(request: Request, response: Response): Promise<any> {
     const { provider, id } = request.params;
     const { amount, username } = request.body;
 
@@ -228,7 +228,7 @@ export async function updateCoinsForUserByProvider(request: Request, response: R
  *     "createdAt": "2019-11-20T16:56:57.212Z"
  * }]
  */
-export async function gatherAllUserConnections(request: UserRequest, response: Response): Promise<any> {
+export async function gatherAllUserConnectionsById(request: UserRequest, response: Response): Promise<any> {
     const linkedAccountRepository = getCustomRepository(LinkedAccountRepository);
 
     const connections = await linkedAccountRepository.findAllByUserId(request.boundUser.id);
@@ -255,7 +255,10 @@ export async function gatherAllUserConnections(request: UserRequest, response: R
  *     "createdAt": "2019-11-20T16:56:57.212Z"
  * }]
  */
-export async function gatherAllUserConnectionsByProvider(request: UserRequest, response: Response): Promise<any> {
+export async function gatherAllUserConnectionsByProviderIdAndUserId(
+    request: UserRequest,
+    response: Response
+): Promise<any> {
     const { provider } = request.params;
 
     if (_.isNil(provider) || !(provider.toUpperCase() in Provider))

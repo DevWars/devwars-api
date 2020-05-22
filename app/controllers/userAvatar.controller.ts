@@ -4,7 +4,7 @@ import { AvatarService } from '../services/avatar.service';
 import { UserRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 
-export async function store(request: UserRequest, response: Response) {
+export async function updateUserAvatarById(request: UserRequest, response: Response) {
     try {
         await AvatarService.updateAvatarForUser(request.boundUser, request.file.path);
     } catch (e) {

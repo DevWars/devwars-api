@@ -14,8 +14,8 @@ const LinkedAccountRoute: express.Router = express.Router();
  *  CONNECTIONS
  ******************************/
 
-LinkedAccountRoute.get('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.connect));
-LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.disconnect));
+LinkedAccountRoute.get('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.connectToProvider));
+LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAccountController.disconnectFromProvider));
 
 /******************************
  *  COINS
@@ -24,13 +24,13 @@ LinkedAccountRoute.delete('/:provider', mustBeAuthenticated, wrapAsync(LinkedAcc
 LinkedAccountRoute.get(
     '/:provider/:id/coins',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true)],
-    wrapAsync(LinkedAccountController.getCoinsForUserByProvider)
+    wrapAsync(LinkedAccountController.getCoinsForUserByProviderAndUserId)
 );
 
 LinkedAccountRoute.patch(
     '/:provider/:id/coins',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.ADMIN, true), bodyValidation(updateTwitchCoinsSchema)],
-    wrapAsync(LinkedAccountController.updateCoinsForUserByProvider)
+    wrapAsync(LinkedAccountController.updateCoinsForUserByProviderAndUserId)
 );
 
 export { LinkedAccountRoute };

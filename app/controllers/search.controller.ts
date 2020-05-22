@@ -45,7 +45,7 @@ import Game from '../models/game.model';
  *        "id": 83
  *      }]
  */
-export async function lookupUser(request: UserRequest, response: Response) {
+export async function searchForUsers(request: UserRequest, response: Response) {
     const { limit, full } = request.query;
 
     const username = parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH);
@@ -103,7 +103,7 @@ export async function lookupUser(request: UserRequest, response: Response) {
  *        "id": 27
  *      }]
  */
-export async function lookupGames(request: UserRequest, response: Response) {
+export async function searchForGames(request: UserRequest, response: Response) {
     const { limit, full } = request.query;
 
     const title = parseStringWithDefault(request.query.title, '', 0, USERNAME_MAX_LENGTH);

@@ -4,7 +4,7 @@ import User from '../models/user.model';
 import { parseIntWithDefault } from '../../test/helpers';
 import { DATABASE_MAX_ID } from '../constants';
 
-export async function leaderboards(request: Request, response: Response) {
+export async function getLeaderboardsForUsers(request: Request, response: Response) {
     const page: number = parseIntWithDefault(request.query.page, 0, 0, DATABASE_MAX_ID);
 
     const users = await User.createQueryBuilder('user')

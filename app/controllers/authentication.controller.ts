@@ -42,7 +42,7 @@ function flattenUser(user: User) {
  *
  * @apiSuccess {User} user The user of the newly created account.
  */
-export async function register(request: Request, response: Response) {
+export async function registerNewUser(request: Request, response: Response) {
     let { username, email, password }: RegistrationRequest = request.body;
     username = username.trim();
     password = password.trim();
@@ -84,7 +84,7 @@ export async function register(request: Request, response: Response) {
  *
  * @apiSuccess {User} user The user of the newly created account.
  */
-export async function reverify(request: AuthorizedRequest, response: Response) {
+export async function reverifyUser(request: AuthorizedRequest, response: Response) {
     // If the user is not in the pending state, return out early stating that its complete with the
     // status of already being verified. This is a edge case which is unlikely to be done through
     // standard user interaction.
@@ -96,7 +96,7 @@ export async function reverify(request: AuthorizedRequest, response: Response) {
     return response.json({ message: 'Resent verification email.' });
 }
 
-export async function verify(request: Request, response: Response) {
+export async function verifyUser(request: Request, response: Response) {
     const { token } = request.query;
 
     // Gather the verification / user link based on the provided token in the query. ensuring to
@@ -133,7 +133,7 @@ export async function verify(request: Request, response: Response) {
  *
  * @apiSuccess {User} user The user of the newly created account.
  */
-export async function login(request: Request, response: Response) {
+export async function loginUser(request: Request, response: Response) {
     const { identifier, password } = { ...(request.body as LoginRequest) };
 
     const userRepository = getCustomRepository(UserRepository);
@@ -179,7 +179,7 @@ export async function login(request: Request, response: Response) {
     response.json(flattenUser(user));
 }
 
-export async function logout(request: AuthorizedRequest, response: Response) {
+export async function logoutUser(request: AuthorizedRequest, response: Response) {
     request.user.token = null;
     await User.save(request.user);
 
@@ -198,7 +198,7 @@ export async function logout(request: AuthorizedRequest, response: Response) {
  *
  * @apiSuccess {User} user The user who is authenticated.
  */
-export async function currentUser(request: AuthorizedRequest, response: Response) {
+export async function getCurrentAuthenticatedUser(request: AuthorizedRequest, response: Response) {
     return response.json(request.user);
 }
 

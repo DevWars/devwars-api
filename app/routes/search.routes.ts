@@ -10,11 +10,11 @@ export const SearchRoute: express.Router = express.Router();
 SearchRoute.get(
     '/users',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
-    wrapAsync(SearchController.lookupUser)
+    wrapAsync(SearchController.searchForUsers)
 );
 
 SearchRoute.get(
     '/games',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
-    wrapAsync(SearchController.lookupGames)
+    wrapAsync(SearchController.searchForGames)
 );

@@ -6,7 +6,7 @@ import { UserRole } from '../models/user.model';
 
 const HealthRoute = express.Router();
 
-HealthRoute.get('/', HealthController.index);
+HealthRoute.get('/', HealthController.getBasicServerHealth);
 
 HealthRoute.get(
     '/logs/',

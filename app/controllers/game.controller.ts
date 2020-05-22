@@ -1,10 +1,8 @@
-import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
 import * as _ from 'lodash';
 
 import Game, { GameMode, GameStatus } from '../models/game.model';
-import GameRepository from '../repository/game.repository';
 
 import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/requests';
 import { UpdateGameRequest } from '../request/updateGameRequest';
@@ -45,7 +43,7 @@ export async function getAllGames(request: Request, response: Response) {
     response.json(games.map((game) => flattenGame(game)));
 }
 
-export async function update(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function updateGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     const gameRequest = request.body as UpdateGameRequest;
 
     const game = request.game;
@@ -64,35 +62,6 @@ export async function update(request: AuthorizedRequest & GameRequest, response:
 
     if (game.status === GameStatus.ACTIVE) {
         await GameService.sendGameToFirebase(game);
-    }
-
-    return response.json(flattenGame(game));
-}
-
-/**
- * Returns the latest game that is in the queue for devwars, this could of already occurred but
- * otherwise would be the latest of the games.
- */
-export async function latest(request: Request, response: Response) {
-    const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.latest();
-
-    // ensure that if we don't have any future games, (meaning that there are no games in the
-    // database at all) that we let the user know that no games exist..
-    if (_.isNil(game)) throw new ApiError({ code: 404, error: 'Currently no future games exist.' });
-
-    return response.json(flattenGame(game));
-}
-
-export async function active(request: Request, response: Response) {
-    const gameRepository = getCustomRepository(GameRepository);
-    const game = await gameRepository.active(['schedule']);
-
-    if (_.isNil(game)) {
-        throw new ApiError({
-            error: 'There currently is no active game.',
-            code: 404,
-        });
     }
 
     return response.json(flattenGame(game));
@@ -201,8 +170,22 @@ export async function createNewGame(request: CreateGameRequest, response: Respon
 
     return response.status(201).json(flattenGame(game));
 }
-
-export async function activate(request: AuthorizedRequest & GameRequest, response: Response) {
+/**
+ * @api {post} /games/:game/actions/activate Activates a game by a given id.
+ * @apiVersion 1.0.0
+ * @apiName ActivateGame
+ * @apiDescription Activates a game by the given id
+ *
+ * @apiGroup LiveGame
+ *
+ * @apiParam {number} game The id of the game.
+ *
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * { }
+ *
+ * @apiError GameAlreadyEnded The given game has already been activated.
+ */
+export async function activateById(request: AuthorizedRequest & GameRequest, response: Response) {
     if (request.game.status === GameStatus.ACTIVE) {
         throw new ApiError({
             message: 'The specified game is already activated.',
@@ -217,7 +200,7 @@ export async function activate(request: AuthorizedRequest & GameRequest, respons
     return response.json(flattenGame(request.game));
 }
 
-export async function remove(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function deleteGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     await request.game.remove();
     return response.json(flattenGame(request.game));
 }

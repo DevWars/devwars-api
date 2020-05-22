@@ -23,7 +23,7 @@ const packageJson = require('../../package');
  *       "version": "0.1.0",
  *     }
  */
-export function index(request: Request, response: Response): Response {
+export function getBasicServerHealth(request: Request, response: Response): Response {
     return response.status(200).json({
         status: 'Healthy',
         version: packageJson.version,

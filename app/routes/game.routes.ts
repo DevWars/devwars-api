@@ -47,13 +47,13 @@ GameRoute.patch(
         bindGameByParamId('game'),
         bodyValidation(PatchGameSchema),
     ],
-    wrapAsync(GameController.update)
+    wrapAsync(GameController.updateGameById)
 );
 
 GameRoute.delete(
     '/:game',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.ADMIN), bindGameByParamId('game')],
-    wrapAsync(GameController.remove)
+    wrapAsync(GameController.deleteGameById)
 );
 
 /*******************************
@@ -63,20 +63,24 @@ GameRoute.delete(
 GameRoute.post(
     '/:game/actions/activate',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameByParamId('game')],
-    wrapAsync(GameController.activate)
+    wrapAsync(GameController.activateById)
 );
 
 GameRoute.post(
     '/:game/actions/end',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true), bindGameByParamId('game')],
-    wrapAsync(LiveGameController.end)
+    wrapAsync(LiveGameController.endGameById)
 );
 
 /*******************************
  *  Players
  ******************************/
 
-GameRoute.get('/:game/players', [bindGameByParamId('game')], wrapAsync(LiveGameController.GetAllGameAssignedPlayers));
+GameRoute.get(
+    '/:game/players',
+    [bindGameByParamId('game')],
+    wrapAsync(LiveGameController.GetAllGameAssignedPlayersById)
+);
 
 GameRoute.post(
     '/:game/players',
@@ -86,7 +90,7 @@ GameRoute.post(
         bindGameByParamId('game'),
         bodyValidation(addGamePlayerSchema),
     ],
-    wrapAsync(LiveGameController.assignPlayerToGame)
+    wrapAsync(LiveGameController.assignPlayerToGameById)
 );
 
 GameRoute.delete(
@@ -97,7 +101,7 @@ GameRoute.delete(
         bindGameByParamId('game'),
         bodyValidation(removeGamePlayerSchema),
     ],
-    wrapAsync(LiveGameController.removePlayerFromGame)
+    wrapAsync(LiveGameController.removePlayerFromGameById)
 );
 
 /*******************************
@@ -107,19 +111,19 @@ GameRoute.delete(
 GameRoute.get(
     '/:game/applications',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR), bindGameByParamId('game')],
-    wrapAsync(LiveGameController.getAllGameApplications)
+    wrapAsync(LiveGameController.getAllGameApplicationsById)
 );
 
 GameRoute.post(
     '/:game/applications/:user',
     [mustBeAuthenticated, bindGameByParamId('game'), bindUserByParamId('user'), mustBeRoleOrOwner(UserRole.MODERATOR)],
-    wrapAsync(LiveGameController.applyToGameWithApplication)
+    wrapAsync(LiveGameController.applyToGameWithApplicationByIdAndGameId)
 );
 
 GameRoute.get(
     '/:game/applications/:user',
     [mustBeAuthenticated, bindGameByParamId('game'), bindUserByParamId('user'), mustBeRoleOrOwner(UserRole.MODERATOR)],
-    wrapAsync(LiveGameController.getApplicationByUser)
+    wrapAsync(LiveGameController.getApplicationByUserIdAndGameId)
 );
 
 GameRoute.delete(

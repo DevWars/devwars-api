@@ -30,7 +30,7 @@ import ApiError from '../utils/apiError';
  *
  * @apiError EmailPermissionsDontExist No user email permissions exist for the given user.
  */
-export async function gatherEmailPermissions(request: UserRequest, response: Response) {
+export async function gatherEmailPermissionsById(request: UserRequest, response: Response) {
     const emailOptInRepository = getCustomRepository(EmailRepository);
     const permissions = await emailOptInRepository.getEmailOptInPermissionForUser(request.boundUser);
 
@@ -76,7 +76,7 @@ export async function gatherEmailPermissions(request: UserRequest, response: Res
  *
  * @apiError EmailPermissionsDontExist No user email permissions exist for the given user.
  */
-export async function updateEmailPermissions(request: UserRequest, response: Response) {
+export async function updateEmailPermissionsById(request: UserRequest, response: Response) {
     const emailOptInRepository = getCustomRepository(EmailRepository);
     const permissions: any = await emailOptInRepository.getEmailOptInPermissionForUser(request.boundUser);
 
