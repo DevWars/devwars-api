@@ -58,14 +58,6 @@ export default class UserRepository extends Repository<User> {
     }
 
     /**
-     * Finds the user by a given authentication token.
-     * @param token The authentication token for the given user.
-     */
-    public findByToken(token: string): Promise<User> {
-        return this.findOne({ where: { token } });
-    }
-
-    /**
      *  Attempts to find a given user by the email address or the username. If found the whole user
      *  object is returned otherwise null.
      *  @param request The requesting information for the given user.

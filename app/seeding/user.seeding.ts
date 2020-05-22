@@ -25,6 +25,16 @@ export default class UserSeeding {
         });
     }
 
+    /**
+     * Creates a default user with the provided email (this will be forced to lowercase)
+     * @param email The email of the default user.
+     */
+    public static withEmail(email: string): User {
+        return Object.assign(this.default(), {
+            email,
+        });
+    }
+
     public static withRole(role: UserRole) {
         const user = this.default();
 

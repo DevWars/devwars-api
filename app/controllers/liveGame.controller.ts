@@ -189,7 +189,15 @@ export async function assignPlayerToGameById(request: AuthorizedRequest & GameRe
 
     return response.status(201).json(flattenGame(request.game));
 }
-
+/**
+ * @api {delete} /games/:game/players/:user Remove the assigned player to the given game.
+ * @apiName RemoveAssignedPlayerFromGame
+ * @apiGroup Games
+ * @apiPermission admin
+ *
+ * @apiParam {Number} user The users id being removed.
+ * @apiParam {Number} game The games id which the player has been assigned.
+ */
 export async function removePlayerFromGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     const { id } = request.body.player;
 

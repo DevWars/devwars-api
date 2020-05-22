@@ -107,6 +107,28 @@ describe('search', () => {
                 chai.expect(user.id).to.not.eq(null);
             }
         });
+
+        it("Should return related users when looking up 'bob@example.com'", async () => {
+            const lookupUrl = '/search/users?email=example.com&limit=3';
+            const users = ['one', 'two', 'three'];
+
+            for (const user of users) {
+                await UserSeeding.withEmail(`bob-${user}@example.com`).save();
+            }
+
+            const response = await agent
+                .get(lookupUrl)
+                .set('Cookie', await cookieForUser(moderator))
+                .send();
+
+            chai.expect(response.body.length).to.be.eq(3);
+
+            for (const user of response.body) {
+                chai.expect(users).to.include(user.email.split('-')[1].split('@')[0]);
+                chai.expect(user.id).to.not.eq(undefined);
+                chai.expect(user.id).to.not.eq(null);
+            }
+        });
     });
 
     describe('GET - /search/games?title=:title&limit=:limit - Performing games title based like lookup', () => {

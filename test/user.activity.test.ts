@@ -84,6 +84,16 @@ describe('User Activity', () => {
             chai.expect(response.body.error).to.be.equal('The activity does not exist by the provided id.');
         });
 
+        it('Should fail if the activity is not a number', async () => {
+            const response = await agent
+                .get(`/users/${user.id}/activities/null`)
+                .set('cookie', await cookieForUser(user))
+                .send();
+
+            chai.expect(response.status).to.be.equal(400);
+            chai.expect(response.body.error).to.be.equal('Invalid activity id was provided.');
+        });
+
         it('Should return the users activity if the user has one', async () => {
             const activity = await ActivitySeeding.withUser(user).save();
 

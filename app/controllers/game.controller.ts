@@ -33,16 +33,65 @@ export function flattenGame(game: Game) {
     return _.merge(picked, game.storage);
 }
 
-export async function getGameById(request: GameRequest, response: Response) {
-    return response.json(flattenGame(request.game));
-}
-
+/**
+ * @api {get} /users Request all games with paging.
+ * @apiName GetGames
+ * @apiGroup Games
+ *
+ * @apiParam {string} limit The number of users to gather from the offset. (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering users from.
+ *
+ * @apiSuccess {json} Users The users within the limit and offset.
+ *
+ * @apiSuccessExample Success-Response:
+ *     HTTP/1.1 200 OK
+ * {
+ *   "data": [
+ *     {
+ *     ...
+ *     }
+ *   ],
+ *  "pagination": {
+ *      "next": "bmV4dF9fQWxleGFubmVfQWx0ZW53ZXJ0aA==",
+ *      "previous": null
+ *  }
+ * }
+ */
 export async function getAllGames(request: Request, response: Response) {
     const games = await Game.find({ order: { createdAt: 'DESC' } });
 
     response.json(games.map((game) => flattenGame(game)));
 }
 
+/**
+ * @api {get} /games/:game Get game by id.
+ * @apiName GetGame
+ * @apiGroup Games
+ *
+ * @apiParam {Number} game  The games id being gathered.
+ *
+ * @apiSuccess {number} id
+ * @apiSuccess {string} mode
+ * @apiSuccess {number} season
+ * @apiSuccess {string} status
+ * @apiSuccess {string} title
+ * @apiSuccess {string} videoUrl
+ * @apiSuccess {date} startTime
+ * @apiSuccess {object} templates
+ * @apiSuccess {object} objectives
+ * @apiSuccess {object} meta
+ */
+export async function getGameById(request: GameRequest, response: Response) {
+    return response.json(flattenGame(request.game));
+}
+
+/**
+ * @api {patch} /games/:game Update game by id.
+ * @apiName UpdateGame
+ * @apiGroup Games
+ *
+ * @apiParam {Number} game  The games id being gathered.
+ */
 export async function updateGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     const gameRequest = request.body as UpdateGameRequest;
 
@@ -199,7 +248,14 @@ export async function activateById(request: AuthorizedRequest & GameRequest, res
     await GameService.sendGameToFirebase(request.game);
     return response.json(flattenGame(request.game));
 }
-
+/**
+ * @api {delete} /games/:game Deletes the game from the system
+ * @apiName DeleteGameById
+ * @apiGroup Games
+ * @apiPermission admin
+ *
+ * @apiParam {Number} game The given game being removed.
+ */
 export async function deleteGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     await request.game.remove();
     return response.json(flattenGame(request.game));

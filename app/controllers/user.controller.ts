@@ -30,7 +30,7 @@ interface UpdateUserRequest {
 }
 
 /**
- * @api {get} /:user Request User basic information
+ * @api {get} /users/:user Request User basic information
  * @apiName GetUserById
  * @apiGroup User
  *
@@ -62,7 +62,7 @@ export async function getUserById(request: UserRequest, response: Response) {
 }
 
 /**
- * @api {get} /:user Request All User basic information
+ * @api {get} /users Request all users with paging.
  * @apiName GetUsers
  * @apiGroup User
  * @apiPermission moderator
@@ -240,13 +240,12 @@ export async function updateUserById(request: AuthorizedRequest & UserRequest, r
 }
 
 /**
- * @api {delete} /:user Deletes the user from the system
+ * @api {delete} /users/:user Deletes the user from the system
  * @apiName DeleteUserById
  * @apiGroup User
  * @apiPermission admin, owner
  *
  * @apiParam {Number} user Users unique ID.
- * @apiParam {string} [lastSigned] Users updated last signed in date.
  */
 export async function deleteUserById(request: UserRequest, response: Response) {
     const { boundUser: removingUser } = request;

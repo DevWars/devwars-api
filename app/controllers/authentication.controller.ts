@@ -96,6 +96,19 @@ export async function reverifyUser(request: AuthorizedRequest, response: Respons
     return response.json({ message: 'Resent verification email.' });
 }
 
+/**
+ * @api {post} /auth/verify?token=:token Verifies the users email address.
+ * @apiDescription Goes through the verification process with the provided token
+ * from the email sent to the user. This token will be validated and used to
+ * mark them as verified.
+ *
+ * @apiVersion 1.0.0
+ * @apiName Verify
+ * @apiGroup Authentication
+ *
+ * @apiParam {string} token The verification token within the query
+ * @apiSuccess {User} user The user of the newly created account.
+ */
 export async function verifyUser(request: Request, response: Response) {
     const { token } = request.query;
 
@@ -179,6 +192,13 @@ export async function loginUser(request: Request, response: Response) {
     response.json(flattenUser(user));
 }
 
+/**
+ *
+ * @api {post} /logout Logs out the authenticated user.
+ * @apiVersion 1.0.0
+ * @apiName Logout
+ * @apiGroup Authentication
+ */
 export async function logoutUser(request: AuthorizedRequest, response: Response) {
     request.user.token = null;
     await User.save(request.user);
@@ -251,6 +271,17 @@ export async function initiateEmailReset(request: AuthorizedRequest, response: R
     });
 }
 
+/**
+ * @api {post} /auth/forgot/password Triggers password reset process.
+ * @apiDescription Goes through the process of resetting a users password.
+ * Sending the user a reset email that can be used to update there password.
+ *
+ * @apiVersion 1.0.0
+ * @apiName ForgotPassword
+ * @apiGroup Authentication
+ *
+ * @apiParam {string} username_or_email The username or email used to locate teh user.
+ */
 export async function initiatePasswordReset(request: Request, response: Response) {
     const { username_or_email } = request.body;
 
@@ -266,6 +297,18 @@ export async function initiatePasswordReset(request: Request, response: Response
     return response.json({ message: 'Reset password, check your email.' });
 }
 
+/**
+ * @api {post} /auth/reset/password Resets the users password.
+ * @apiDescription Verifies the password reset token and then updates the given
+ * users password with the newly provided password.
+ *
+ * @apiVersion 1.0.0
+ * @apiName ResetPassword
+ * @apiGroup Authentication
+ *
+ * @apiParam {string} token The reset verification token.
+ * @apiParam {string} password The updated password.
+ */
 export async function resetPassword(request: Request, response: Response) {
     const { token, password } = request.query as { token: string; password: string };
 
