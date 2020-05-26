@@ -1,12 +1,10 @@
-import { Request, Response } from 'express';
+import { Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import { isNil, defaultTo } from 'lodash';
+import { defaultTo } from 'lodash';
 
 import UserRepository from '../repository/user.repository';
-import { Provider } from '../models/linkedAccount.model';
 import LinkedAccountRepository from '../repository/linkedAccount.repository';
 import { UserRequest } from '../request/requests';
-import { parseStringWithDefault } from '../../test/helpers';
 
 /**
  * @api {get} /users/:user/statistics/ Get the statistics of a user.

@@ -17,7 +17,10 @@ export const mustBeAuthenticated = wrapAsync(
 
         // Ensure that if we are a bot, and that if the api key is given, that
         // it is a valid token.
-        if (!_.isNil(request.body?.apiKey) && request.body.apiKey === process.env.API_KEY) {
+        if (
+            (!_.isNil(request.body?.apiKey) && request.body.apiKey === process.env.API_KEY) ||
+            (!_.isNil(request.query?.apiKey) && request.query.apiKey === process.env.API_KEY)
+        ) {
             // Dummy user to be used as the bot. All checks should ensure that
             // the given bot value is checked before the role is checked, so the
             // users role will be kept at the min just in case.
