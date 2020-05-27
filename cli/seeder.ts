@@ -15,6 +15,7 @@ import UserRepository from '../app/repository/user.repository';
 import EmailOptInSeeding from '../app/seeding/emailOptIn.seeding';
 import { helpers } from 'faker';
 import GameRepository from '../app/repository/game.repository';
+import { UserGameStatsSeeding } from '../app/seeding';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -50,16 +51,19 @@ const generateBasicUsers = async (): Promise<any> => {
             const profile = UserProfileSeeding.default();
             const emailOptIn = EmailOptInSeeding.default();
             const stats = UserStatsSeeding.default();
+            const gameStats = UserGameStatsSeeding.default();
             const user = UserSeeding.default();
 
             await transaction.save(user);
 
             profile.user = user;
             stats.user = user;
+            gameStats.user = user;
             emailOptIn.user = user;
 
             await transaction.save(profile);
             await transaction.save(stats);
+            await transaction.save(gameStats);
             await transaction.save(emailOptIn);
 
             for (let j = 1; j <= 25; j++) {
