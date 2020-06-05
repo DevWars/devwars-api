@@ -15,6 +15,7 @@ import GameScheduleRepository from '../app/repository/GameSchedule.repository';
 import UserRepository from '../app/repository/User.repository';
 import EmailOptInSeeding from '../app/seeding/EmailOptIn.seeding';
 import { helpers } from 'faker';
+import { GameStatus } from '../app/models/GameSchedule';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
@@ -71,8 +72,15 @@ const generateBasicUsers = async (): Promise<any> => {
 };
 
 const generateGames = async (): Promise<any> => {
-    for (let i = 1; i <= 150; i++) {
-        const game = (await GameSeeding.default(true).common()).withSeason(helpers.randomize([1, 2, 3]));
+    for (let i = 1; i <= 40; i++) {
+        const game = (await GameSeeding.default(true).common())
+            .withSeason(helpers.randomize([1, 2, 3]))
+            .withStatus(GameStatus.ENDED);
+        await game.save();
+    }
+
+    for (let i = 1; i <= 3; i++) {
+        const game = (await GameSeeding.default(true).common()).withStatus(GameStatus.ACTIVE);
         await game.save();
     }
 };
