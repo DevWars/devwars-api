@@ -35,8 +35,6 @@ export const profileSchema = Joi.object()
 
 export const updateUserSchema = Joi.object()
     .keys({
-        email: Joi.string().email().optional(),
-
         username: Joi.string()
             .min(constants.USERNAME_MIN_LENGTH)
             .max(constants.USERNAME_MAX_LENGTH)

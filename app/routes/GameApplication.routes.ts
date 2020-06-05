@@ -35,7 +35,7 @@ GameApplicationRoute.post(
 
 GameApplicationRoute.post(
     '/schedule/:schedule/twitch',
-    [mustBeMinimumRole(UserRole.MODERATOR, true), bindScheduleFromScheduleParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true), bindScheduleFromScheduleParam],
     wrapAsync(GameApplicationController.applyToScheduleFromTwitch)
 );
 

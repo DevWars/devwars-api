@@ -52,16 +52,25 @@ describe('Authentication', () => {
         it('Should retrieve 401 because user does not exist / not authorized', async () => {
             await UserSeeding.default().save();
 
-            const request = await agent
-                .get('/auth/user')
-                .set('Cookie', 'token=test')
-                .send();
+            const request = await agent.get('/auth/user').set('Cookie', 'token=test').send();
 
             chai.expect(request.status).to.be.eq(401);
         });
     });
 
     describe('POST - /auth/login - Authenticating with the system', () => {
+        it('Should fail if the given user is banned', async () => {
+            const user = await UserSeeding.withRole(UserRole.BANNED).save();
+
+            await agent
+                .post('/auth/login')
+                .send({
+                    identifier: user.username,
+                    password: user.password,
+                })
+                .expect(403, { error: 'You are currently banned and cannot login.' });
+        });
+
         it('Should failed because user does not exist ', async () => {
             const user = await UserSeeding.default().save();
 
@@ -103,19 +112,13 @@ describe('Authentication', () => {
         it('Should not work because no token', async () => {
             await UserSeeding.default().save();
 
-            await agent
-                .post('/auth/logout')
-                .send()
-                .expect(401);
+            await agent.post('/auth/logout').send().expect(401);
         });
 
         it('Should not work invalid token', async () => {
             await UserSeeding.default().save();
 
-            await agent
-                .post('/auth/logout')
-                .set('Cookie', 'token=test')
-                .expect(401);
+            await agent.post('/auth/logout').set('Cookie', 'token=test').expect(401);
         });
 
         it('Should logout correctly with valid login', async () => {
@@ -163,17 +166,11 @@ describe('Authentication', () => {
             const newUserBody = { email: newUser.email, username: newUser.username, password: newUser.password };
             newUserBody.username = existingUser.username.toUpperCase();
 
-            await agent
-                .post('/auth/register')
-                .send(newUserBody)
-                .expect(409, { error: errorMessage });
+            await agent.post('/auth/register').send(newUserBody).expect(409, { error: errorMessage });
 
             newUserBody.username = newUserBody.username.toLowerCase();
 
-            await agent
-                .post('/auth/register')
-                .send(newUserBody)
-                .expect(409, { error: errorMessage });
+            await agent.post('/auth/register').send(newUserBody).expect(409, { error: errorMessage });
         });
 
         it('Should fail if you attempt to register with a email already in use, regardless of case', async () => {
@@ -184,17 +181,11 @@ describe('Authentication', () => {
             const newUserBody = { email: newUser.email, username: newUser.username, password: newUser.password };
             newUserBody.email = existingUser.email.toUpperCase();
 
-            await agent
-                .post('/auth/register')
-                .send(newUserBody)
-                .expect(409, { error: errorMessage });
+            await agent.post('/auth/register').send(newUserBody).expect(409, { error: errorMessage });
 
             newUserBody.email = newUserBody.email.toLowerCase();
 
-            await agent
-                .post('/auth/register')
-                .send(newUserBody)
-                .expect(409, { error: errorMessage });
+            await agent.post('/auth/register').send(newUserBody).expect(409, { error: errorMessage });
         });
 
         it('Should not allow invalid username formats', async () => {
@@ -257,17 +248,11 @@ describe('Authentication', () => {
         const forgotPasswordRoute = '/auth/forgot/password';
 
         it('Should reject the request if the username does not meet requirements', async () => {
-            await agent
-                .post(forgotPasswordRoute)
-                .send({ username_or_email: 'bad' })
-                .expect(400);
+            await agent.post(forgotPasswordRoute).send({ username_or_email: 'bad' }).expect(400);
         });
 
         it('Should reject the request if the email does not meet requirements', async () => {
-            await agent
-                .post(forgotPasswordRoute)
-                .send({ username_or_email: 'bad@' })
-                .expect(400);
+            await agent.post(forgotPasswordRoute).send({ username_or_email: 'bad@' }).expect(400);
         });
 
         it('Should reject the request if the user does not exist by username', async () => {
@@ -389,19 +374,11 @@ describe('Authentication', () => {
         });
 
         it('Should reject when the password is not in the body', async () => {
-            await agent
-                .post(resetEmailRoute)
-                .set('Cookie', token)
-                .send({ email: 'updated@example.com' })
-                .expect(400);
+            await agent.post(resetEmailRoute).set('Cookie', token).send({ email: 'updated@example.com' }).expect(400);
         });
 
         it('Should reject when the email is not in the body', async () => {
-            await agent
-                .post(resetEmailRoute)
-                .set('Cookie', token)
-                .send({ password: 'secret' })
-                .expect(400);
+            await agent.post(resetEmailRoute).set('Cookie', token).send({ password: 'secret' }).expect(400);
         });
 
         it('Should reject if the new email address is not a valid email', async () => {
@@ -413,10 +390,7 @@ describe('Authentication', () => {
         });
 
         it('Should reject if the user is not authenticated', async () => {
-            await agent
-                .post(resetEmailRoute)
-                .send({ password: 'secret', email: 'valid@sample.com' })
-                .expect(401);
+            await agent.post(resetEmailRoute).send({ password: 'secret', email: 'valid@sample.com' }).expect(401);
         });
 
         it('Should reject if the password is invalid', async () => {

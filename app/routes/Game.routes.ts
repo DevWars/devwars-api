@@ -67,7 +67,7 @@ GameRoute.post(
 
 GameRoute.post(
     '/:game/end/bot',
-    [mustBeMinimumRole(null, true), bindGameFromGameParam],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true), bindGameFromGameParam],
     wrapAsync(LiveGameController.end)
 );
 

@@ -21,6 +21,7 @@ import Activity from '../app/models/Activity';
 import LinkedAccountRepository from '../app/repository/LinkedAccount.repository';
 import { getCustomRepository } from 'typeorm';
 import { USERNAME_CHANGE_MIN_DAYS } from '../app/constants';
+import UserRepository from '../app/repository/User.repository';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test> = null;
@@ -437,6 +438,36 @@ describe('user', () => {
                 .set('Cookie', await cookieForUser(userTwo))
                 .send({ username: `${user.username}1` })
                 .expect(200);
+        });
+
+        it('Should only be able to ban if Administrator or Moderator', async () => {
+            const standardUser = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .put(`/users/${standardUser.id}/`)
+                .set('Cookie', await cookieForUser(standardUser))
+                .send({ role: UserRole.BANNED })
+                .expect(401, { error: `You are not authorized to change the users role to ${UserRole.BANNED}` });
+
+            for (const role of [UserRole.MODERATOR, UserRole.ADMIN]) {
+                const user = await UserSeeding.withRole(role).save();
+                await agent
+                    .put(`/users/${standardUser.id}/`)
+                    .set('Cookie', await cookieForUser(user))
+                    .send({ role: UserRole.USER })
+                    .expect(200);
+
+                await agent
+                    .put(`/users/${standardUser.id}/`)
+                    .set('Cookie', await cookieForUser(user))
+                    .send({ role: UserRole.BANNED })
+                    .expect(200);
+            }
+
+            const userRepository = getCustomRepository(UserRepository);
+            const updatedUser = await userRepository.findById(standardUser.id);
+
+            chai.expect(updatedUser.role).to.be.equal(UserRole.BANNED);
         });
 
         it('Should fail if you try to update your role to a higher role than your own', async () => {
