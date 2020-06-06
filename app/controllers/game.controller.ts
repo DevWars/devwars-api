@@ -9,6 +9,11 @@ import { UpdateGameRequest } from '../request/updateGameRequest';
 import ApiError from '../utils/apiError';
 
 import GameService from '../services/game.service';
+import { parseStringWithDefault, parseIntWithDefault, parseEnumFromValue } from '../../test/helpers';
+import { getCustomRepository } from 'typeorm';
+import PaginationService from '../services/pagination.service';
+import { DATABASE_MAX_ID } from '../constants';
+import GameRepository from '../repository/game.repository';
 
 /**
  * Takes a game and flattens it within a top level object containing the core
@@ -61,6 +66,70 @@ export async function getAllGames(request: Request, response: Response) {
     const games = await Game.find({ order: { createdAt: 'DESC' } });
 
     response.json(games.map((game) => flattenGame(game)));
+}
+
+/**
+ * @api {get} /games?season=:season&status=:status Get games
+ * @apiDescription Gets all the given games.
+ * format.
+ * @apiName GetGames
+ * @apiVersion 1.0.0
+ * @apiGroup Games
+ *
+ * @apiParam {number {1..100}} [first=20] The number of games to return for the given page.
+ * @apiParam {number {0..}} [after=0] The point of which the games should be gathered after.
+ * @apiParam {string=scheduled,active,ended} [status] The optional game status to filter by.
+ * @apiParam {number {1..3}} [season] The optional specified season which the games are related too.
+ *
+ * @apiSuccess {Game[]} data The related games based on the provided season and page range.
+ * @apiSuccess {object} pagination The paging information to continue forward or backward.
+ * @apiSuccess {string} pagination.next The next page in the paging of the data.
+ * @apiSuccess {string} pagination.previous The previous page in the paging of the data.
+ *
+ * @apiSuccessExample Success-Response: HTTP/1.1 200 OK
+ * {
+ *   "data": [
+ *     { ... }
+ *   ],
+ *   "pagination": {
+ *     "next": "bmV4dF9fODM=",
+ *      "previous": null
+ *   }
+ * }
+ *
+ * @apiError {error} InvalidSeasonId The given season <code>id</code> provided is not valid, e.g
+ * empty or not a valid number.
+ */
+export async function gatheringAllGamesWithPaging(request: Request, response: Response) {
+    const { after, before, first, status: queryStatus, season } = request.query;
+
+    const status = parseStringWithDefault(queryStatus, null);
+
+    const params = {
+        first: parseIntWithDefault(first, 20, 1, 100),
+        season: parseIntWithDefault(season, null, 1, DATABASE_MAX_ID),
+        status: parseEnumFromValue(GameStatus, _.isNil(status) ? status : status.toUpperCase(), null),
+    };
+
+    const gameRepository = getCustomRepository(GameRepository);
+    const where: any = {};
+
+    if (!_.isNil(params.status)) where.status = params.status;
+    if (!_.isNil(params.season)) where.season = params.season;
+
+    const result: any = await PaginationService.pageRepository<Game>(
+        gameRepository,
+        params.first,
+        after as string,
+        before as string,
+        'id',
+        true,
+        [],
+        where
+    );
+
+    result.data = _.map(result.data, (game) => flattenGame(game));
+    return response.json(result);
 }
 
 /**

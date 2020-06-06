@@ -9,8 +9,7 @@ const connection: Promise<Connection> = createConnection({
     port: Number(config.DATABASE.PORT),
     username: config.DATABASE.USER,
     password: config.DATABASE.PASS,
-    logging: config.DATABASE.LOGGING,
-    synchronize: config.DATABASE.SYNC,
+    logging: false,
 });
 
 export { connection as Connection };

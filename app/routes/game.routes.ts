@@ -25,7 +25,7 @@ const GameRoute: express.Router = express.Router();
  *  Games/Root
  ******************************/
 
-GameRoute.get('/', wrapAsync(GameController.getAllGames));
+GameRoute.get('/', wrapAsync(GameController.gatheringAllGamesWithPaging));
 
 GameRoute.post(
     '/',
