@@ -51,7 +51,7 @@
         "@hapi/joi": "^17.1.1",
         "aws-sdk": "^2.681.0",
         "axios": "^0.19.2",
-        "bcrypt": "^4.0.1",
+        "bcrypt": "^5.0.0",
         "body-parser": "^1.18.2",
         "cookie-parser": "^1.4.5",
         "cors": "^2.8.4",
