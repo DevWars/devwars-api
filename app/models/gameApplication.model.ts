@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, Column } from 'typeorm';
+import { Entity, ManyToOne, Column, JoinColumn } from 'typeorm';
 
 import BaseModel from './base.model';
 import User from './user.model';
@@ -31,6 +31,7 @@ export default class GameApplication extends BaseModel {
     userId: number;
 
     // The user who applied to the given game.
+    @JoinColumn()
     @ManyToOne(() => User, (user) => user.applications)
     public user: User;
 

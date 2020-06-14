@@ -15,6 +15,7 @@ import { GameStatus } from '../models/game.model';
 import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests';
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
+import User from '../models/user.model';
 
 /**
  * @api {post} /games/:game/actions/end Ends a game by a given id.
@@ -202,7 +203,9 @@ export async function removePlayerFromGameById(request: AuthorizedRequest & Game
     const { id } = request.body.player;
 
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-    await gameApplicationRepository.removeUserFromGame(id, request.game);
+
+    console.log(id, request.game);
+    await gameApplicationRepository.removeUserFromGame({ id } as User, request.game);
 
     if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);
     return response.status(200).json(flattenGame(request.game));
@@ -227,9 +230,23 @@ export async function removePlayerFromGameById(request: AuthorizedRequest & Game
 // export async function getAllGameApplications(request: AuthorizedRequest, response: Response) {
 export async function getAllGameApplicationsById(request: GameRequest, response: Response) {
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-    const result = await gameApplicationRepository.find({ game: request.game });
 
-    return response.json(result);
+    const result = await gameApplicationRepository.find({
+        where: { game: request.game },
+        relations: ['user', 'user.profile', 'user.gameStats'],
+    });
+
+    return response.json(
+        result.map((application) => {
+            const skills = application.user.profile.skills;
+            const { wins, loses } = application.user.gameStats;
+
+            delete application.user.profile;
+            delete application.user.gameStats;
+
+            return { skills, ...application, statistics: { wins, loses } };
+        })
+    );
 }
 
 /**
@@ -284,7 +301,11 @@ export async function applyToGameWithApplicationByIdAndGameId(request: GameReque
 export async function getApplicationByUserIdAndGameId(request: GameRequest & UserRequest, response: Response) {
     const applicationRepository = getCustomRepository(GameApplicationRepository);
 
-    const existingApplication = await applicationRepository.findByUserAndGame(request.boundUser, request.game);
+    const existingApplication = await applicationRepository.findByUserAndGame(request.boundUser, request.game, [
+        'user',
+        'user.profile',
+        'user.gameStats',
+    ]);
 
     if (!existingApplication) {
         throw new ApiError({
@@ -293,7 +314,13 @@ export async function getApplicationByUserIdAndGameId(request: GameRequest & Use
         });
     }
 
-    return response.json(existingApplication);
+    const skills = existingApplication.user.profile.skills;
+    const { wins, loses } = existingApplication.user.gameStats;
+
+    delete existingApplication.user.profile;
+    delete existingApplication.user.gameStats;
+
+    return response.json({ skills, ...existingApplication, statistics: { wins, loses } });
 }
 
 /**

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne, JoinColumn } from 'typeorm';
 import { isArray, isNil } from 'lodash';
 
 import BaseModel from './base.model';
@@ -53,7 +53,7 @@ export default class User extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
-    @OneToOne(() => UserProfile, (user) => user.user)
+    @OneToOne(() => UserProfile, (profile) => profile.user)
     public profile: UserProfile;
 
     @OneToOne(() => UserStats, (stats) => stats.user)

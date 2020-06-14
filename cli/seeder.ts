@@ -8,7 +8,7 @@ import GameSeeding from '../app/seeding/game.seeding';
 import UserSeeding from '../app/seeding/user.seeding';
 
 import { Connection } from '../app/services/connection.service';
-import { UserRole } from '../app/models/user.model';
+import User, { UserRole } from '../app/models/user.model';
 import logger from '../app/utils/logger';
 
 import UserRepository from '../app/repository/user.repository';
@@ -19,6 +19,8 @@ import { UserGameStatsSeeding } from '../app/seeding';
 
 let connection: typeorm.Connection;
 let connectionManager: typeorm.EntityManager;
+
+const players: User[] = [];
 
 const generateConstantUsers = async (): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
@@ -39,6 +41,8 @@ const generateConstantUsers = async (): Promise<any> => {
             await transaction.save(profile);
             await transaction.save(stats);
             await transaction.save(emailOptIn);
+
+            players.push(user);
         });
     }
 };
@@ -70,13 +74,16 @@ const generateBasicUsers = async (): Promise<any> => {
                 const activity = ActivitySeeding.withUser(user);
                 await transaction.save(activity);
             }
+
+            players.push(user);
         });
     }
 };
 
 const generateGames = async (): Promise<any> => {
     for (let i = 1; i <= 150; i++) {
-        const game = (await GameSeeding.default().common()).withSeason(helpers.randomize([1, 2, 3]));
+        const gamePlayers = players.slice(i % players.length, (i + 6) % players.length);
+        const game = (await GameSeeding.default().common(gamePlayers)).withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };

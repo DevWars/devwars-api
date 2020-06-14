@@ -212,10 +212,13 @@ export default class GameSeeding {
     /**
      * Performs the common operations that are typically done with game seeding,
      * this includes template, season, team score, editors and generated users.
+     * @param players Players to be used instead of generated players, if null, generate.
      */
-    public async common(): Promise<GameSeeding> {
+    public async common(players?: any[]): Promise<GameSeeding> {
         let game = this.WithTemplates().withSeason(3).withTeamScores();
-        game = await game.withGeneratedPlayers(6);
+
+        if (_.isNil(players)) game = await game.withGeneratedPlayers(6);
+        else game = await game.withPlayers(players);
 
         return game;
     }

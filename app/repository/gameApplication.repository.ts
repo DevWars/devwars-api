@@ -103,7 +103,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      */
 
     public async removeUserFromGame(user: User, game: Game) {
-        this.update({ user, game }, { team: null });
+        this.update({ user, game }, { team: null, assignedLanguage: null });
     }
 
     /**
