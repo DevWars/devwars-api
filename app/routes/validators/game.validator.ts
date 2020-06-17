@@ -28,18 +28,27 @@ export const createGameSchema = Joi.object().keys({
 export const PatchGameSchema = Joi.object().keys({
     startTime: Joi.date().optional(),
 
+    status: Joi.string().valid(...Object.values(GameStatus)),
+
+    meta: Joi.object().optional(),
+
+    objectives: Joi.object().optional(),
+
+    title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).optional(),
+
     season: Joi.number().min(constants.GAME_SEASON_MIN).optional(),
 
     mode: Joi.string().required(),
 
-    title: Joi.string().min(constants.GAME_TITLE_MIN_LENGTH).max(constants.GAME_TITLE_MAX_LENGTH).optional(),
-
     videoUrl: Joi.string().allow(null).optional(),
 
-    status: Joi.string().valid(...Object.values(GameStatus)),
-
-    // Allowing since Storage is just JSON without a specific structure
-    storage: Joi.object().allow(null).optional(),
+    templates: Joi.object()
+        .keys({
+            html: Joi.string().allow(null).allow('').optional(),
+            css: Joi.string().allow(null).allow('').optional(),
+            js: Joi.string().allow(null).allow('').optional(),
+        })
+        .optional(),
 });
 
 export const addGamePlayerSchema = Joi.object().keys({

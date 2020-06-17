@@ -203,8 +203,6 @@ export async function removePlayerFromGameById(request: AuthorizedRequest & Game
     const { id } = request.body.player;
 
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-
-    console.log(id, request.game);
     await gameApplicationRepository.removeUserFromGame({ id } as User, request.game);
 
     if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);

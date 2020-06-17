@@ -1,8 +1,6 @@
 import * as typeorm from 'typeorm';
 
 import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
-import UserProfileSeeding from '../app/seeding/userProfile.seeding';
-import UserStatsSeeding from '../app/seeding/userStats.seeding';
 import ActivitySeeding from '../app/seeding/Activity.seeding';
 import GameSeeding from '../app/seeding/game.seeding';
 import UserSeeding from '../app/seeding/user.seeding';
@@ -12,38 +10,16 @@ import User, { UserRole } from '../app/models/user.model';
 import logger from '../app/utils/logger';
 
 import UserRepository from '../app/repository/user.repository';
-import EmailOptInSeeding from '../app/seeding/emailOptIn.seeding';
 import { helpers } from 'faker';
 import GameRepository from '../app/repository/game.repository';
-import { UserGameStatsSeeding } from '../app/seeding';
 
 let connection: typeorm.Connection;
-let connectionManager: typeorm.EntityManager;
 
 const players: User[] = [];
 
 const generateConstantUsers = async (): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
-        const user = UserSeeding.withUsername(`test-${role}`);
-        user.role = (UserRole as any)[role.toUpperCase()];
-
-        await connectionManager.transaction(async (transaction) => {
-            await transaction.save(user);
-
-            const profile = UserProfileSeeding.default();
-            const emailOptIn = EmailOptInSeeding.default();
-            const stats = UserStatsSeeding.default();
-
-            profile.user = user;
-            stats.user = user;
-            emailOptIn.user = user;
-
-            await transaction.save(profile);
-            await transaction.save(stats);
-            await transaction.save(emailOptIn);
-
-            players.push(user);
-        });
+        await UserSeeding.withComponents(`test-${role}`, null, (UserRole as any)[role.toUpperCase()]).save();
     }
 };
 
@@ -51,32 +27,14 @@ const generateBasicUsers = async (): Promise<any> => {
     await generateConstantUsers();
 
     for (let i = 4; i <= 100; i++) {
-        await connectionManager.transaction(async (transaction) => {
-            const profile = UserProfileSeeding.default();
-            const emailOptIn = EmailOptInSeeding.default();
-            const stats = UserStatsSeeding.default();
-            const gameStats = UserGameStatsSeeding.default();
-            const user = UserSeeding.default();
+        const user = await UserSeeding.withComponents().save();
 
-            await transaction.save(user);
+        for (let j = 1; j <= 25; j++) {
+            const activity = ActivitySeeding.withUser(user);
+            await activity.save();
+        }
 
-            profile.user = user;
-            stats.user = user;
-            gameStats.user = user;
-            emailOptIn.user = user;
-
-            await transaction.save(profile);
-            await transaction.save(stats);
-            await transaction.save(gameStats);
-            await transaction.save(emailOptIn);
-
-            for (let j = 1; j <= 25; j++) {
-                const activity = ActivitySeeding.withUser(user);
-                await transaction.save(activity);
-            }
-
-            players.push(user);
-        });
+        players.push(user);
     }
 };
 
@@ -103,7 +61,6 @@ const generateApplications = async (): Promise<any> => {
 
 (async (): Promise<any> => {
     connection = await Connection;
-    connectionManager = typeorm.getManager(connection.name);
 
     logger.info('Seeding database');
     logger.info('Synchronizing database, dropTablesBeforeSync = true');

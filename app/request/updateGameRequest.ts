@@ -1,6 +1,6 @@
 import { GameStatus, GameMode } from '../models/game.model';
 import { GameStorageMeta } from '../types/game';
-import { GameObjective } from '../types/common';
+import { GameObjective, GameEditorTemplates } from '../types/common';
 
 export interface UpdateGameRequest {
     // The updated start time.
@@ -16,9 +16,15 @@ export interface UpdateGameRequest {
     // The objectives of the given game, what the teams must do to be win.
     objectives?: { [index: string]: GameObjective };
 
+    // The templates of the given game.
+    templates?: GameEditorTemplates;
+
     // The title of the given game, this is the display name used when showing
     // users of the site players.
     title: string;
+
+    // The season the game is apart of.
+    season: number;
 
     // The mode the game is currently playing, e.g Classic, Blitz.
     mode: GameMode;

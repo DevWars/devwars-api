@@ -128,9 +128,8 @@ describe('game', () => {
                 await transaction.save(game2);
             });
 
-            const response = await agent.get('/games').send().expect(200);
-
-            chai.expect(response.body.length).to.be.equal(2);
+            const response = await agent.get('/games?first=2').send().expect(200);
+            chai.expect(response.body.data.length).to.be.equal(2);
         });
     });
 

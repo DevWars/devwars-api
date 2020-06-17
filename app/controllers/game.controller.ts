@@ -167,12 +167,16 @@ export async function updateGameById(request: AuthorizedRequest & GameRequest, r
     const game = request.game;
 
     game.startTime = gameRequest.startTime || game.startTime;
+    game.status = gameRequest.status || game.status;
+    game.title = gameRequest.title || '';
+    game.season = gameRequest.season || game.season;
     game.mode = gameRequest.mode || game.mode || GameMode.Classic;
     game.videoUrl = gameRequest.videoUrl;
-    game.title = gameRequest.title || '';
+
     game.storage = {
         ...game.storage,
         objectives: gameRequest.objectives || game.storage?.objectives,
+        templates: gameRequest.templates || game.storage?.templates,
         meta: gameRequest.meta || game.storage?.meta,
     };
 
@@ -281,6 +285,7 @@ export async function createNewGame(request: CreateGameRequest, response: Respon
 
     const game = new Game(season, mode, title, videoUrl, status, startTime, {
         editors: {},
+        objectives: {},
         templates,
     });
 

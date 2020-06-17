@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { helpers, random } from 'faker';
 import User, { UserRole } from '../models/user.model';
+import { UserProfileSeeding, UserStatsSeeding, UserGameStatsSeeding } from '.';
+import EmailOptInSeeding from './emailOptIn.seeding';
 
 export default class UserSeeding {
     public static default(): User {
@@ -40,5 +42,36 @@ export default class UserSeeding {
 
         user.role = role;
         return user;
+    }
+
+    public static withComponents(username: string = null, email: string = null, role: UserRole = null) {
+        return {
+            save: async (): Promise<User> => {
+                const user = UserSeeding.default();
+
+                if (username != null) user.username = username;
+                if (email != null) user.email = email;
+                if (role != null) user.role = role;
+
+                const profile = UserProfileSeeding.default();
+                const emailOptIn = EmailOptInSeeding.default();
+                const stats = UserStatsSeeding.default();
+                const gameStats = UserGameStatsSeeding.default();
+
+                await user.save();
+
+                profile.user = user;
+                stats.user = user;
+                gameStats.user = user;
+                emailOptIn.user = user;
+
+                await profile.save();
+                await stats.save();
+                await gameStats.save();
+                await emailOptIn.save();
+
+                return user;
+            },
+        };
     }
 }

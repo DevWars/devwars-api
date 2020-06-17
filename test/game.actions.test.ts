@@ -5,7 +5,6 @@ import * as chai from 'chai';
 import GameApplicationRepository from '../app/repository/gameApplication.repository';
 import GameRepository from '../app/repository/game.repository';
 
-import UserGameStats from '../app/models/userGameStats.model';
 import { GameStatus } from '../app/models/game.model';
 import { UserRole } from '../app/models/user.model';
 
@@ -160,11 +159,22 @@ describe('Game Actions', () => {
         it('Should increment the winners and loses wins/loses', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
 
-            const gameSetup = await GameSeeding.default().withStatus(GameStatus.ACTIVE).common();
-            const game = await gameSetup.save();
+            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+            const gameRepository = getCustomRepository(GameRepository);
 
-            for (const player of gameSetup.gameApplications) {
-                await new UserGameStats(player.user).save();
+            const gameSetup = await GameSeeding.default().withStatus(GameStatus.ACTIVE).common();
+            let game = await gameSetup.save();
+
+            const allUsers = await gameApplicationRepository.findAssignedPlayersForGame(game, [
+                'user',
+                'user.gameStats',
+            ]);
+
+            for (const player of allUsers) {
+                player.user.gameStats.wins = 0;
+                player.user.gameStats.loses = 0;
+
+                await player.user.gameStats.save();
             }
 
             await agent
@@ -172,8 +182,7 @@ describe('Game Actions', () => {
                 .set('Cookie', await cookieForUser(user))
                 .expect(200);
 
-            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-
+            game = await gameRepository.findOne(game.id);
             const winner = game.storage.meta.winningTeam;
             const loser = game.storage.meta.winningTeam === 1 ? 0 : 1;
 

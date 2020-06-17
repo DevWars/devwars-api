@@ -1,4 +1,4 @@
-import { Column, Entity, OneToMany, OneToOne, JoinColumn } from 'typeorm';
+import { Column, Entity, OneToMany, OneToOne } from 'typeorm';
 import { isArray, isNil } from 'lodash';
 
 import BaseModel from './base.model';

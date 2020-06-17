@@ -162,7 +162,7 @@ export default class GameSeeding {
         const players = [];
 
         for (let index = 0; index < amount; index++) {
-            const player = await UserSeeding.default().save();
+            const player = await UserSeeding.withComponents().save();
             players.push(player);
         }
 
