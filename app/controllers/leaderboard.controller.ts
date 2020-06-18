@@ -4,7 +4,8 @@ import * as _ from 'lodash';
 
 import LeaderboardRepository from '../repository/leaderboard.repository';
 import { parseIntWithDefault } from '../../test/helpers';
-import { DATABASE_MAX_ID } from '../constants';
+import PaginationService from '../services/pagination.service';
+import Leaderboard from '../models/leaderboardView.model';
 
 /**
  * @api {get} /users/leaderboards Get the current win based leaderboards for all users.
@@ -12,14 +13,16 @@ import { DATABASE_MAX_ID } from '../constants';
  * @apiName GetLeaderboardsForUser
  * @apiGroup User
  *
- * @apiParam {number} first How many users to be returned, default 20, min: 1, max: 100
- * @apiParam {number} after A offset at which point to start gathering users, default: 0, min: 0
+ * @apiParam {string} limit The number of users to gather from the offset. (limit: 100)
+ * @apiParam {string} offset The offset of which place to start gathering users from.
  *
- * @apiSuccessExample Success-Response /users/leaderboards?first=5&after=40:
+ * @apiSuccess {json} Leaderboards The users leaderboards within the limit and offset.
+ *
+ * @apiSuccessExample Success-Response:
  *     HTTP/1.1 200 OK
  * {
- *     "data": [
- *       {
+ *   "data": [
+ *     {
  *         "userId": 46,
  *         "username": "Sigurd.Harber",
  *         "wins": 5,
@@ -27,46 +30,29 @@ import { DATABASE_MAX_ID } from '../constants';
  *         "xp": 15039,
  *         "coins": 18316,
  *         "level": 3
- *       },
- *       {
- *         "userId": 42,
- *         "username": "Carolyne_McClure85",
- *         "wins": 5,
- *         "loses": 13,
- *         "xp": 13695,
- *         "coins": 1888,
- *         "level": 2
- *       },
- *     ],
- *     "pagination": {
- *       "before": "http://localhost:8080/users/leaderboards?first=5&after=35",
- *       "after": "http://localhost:8080/users/leaderboards?first=5&after=45"
+ *       ]
  *     }
- *   }
+ *   ],
+ *  "pagination": {
+ *      "next": "bmV4dF9fQWxleGFubmVfQWx0ZW53ZXJ0aA==",
+ *      "previous": null
+ *  }
+ * }
  */
 export async function getUsersLeaderboards(request: Request, response: Response) {
-    const { first, after } = request.query;
+    const { after, before, first } = request.query as { after: any; before: any; first: any };
 
-    const params = {
-        first: parseIntWithDefault(first, 20, 1, 100),
-        after: parseIntWithDefault(after, 0, 0, DATABASE_MAX_ID),
-    };
+    const limit = parseIntWithDefault(first, 20, 1, 100);
 
     const leaderboardRepository = getCustomRepository(LeaderboardRepository);
-    const leaderboards = await leaderboardRepository.findUsers(params.first, params.after);
+    const result = await PaginationService.pageRepository<Leaderboard>(
+        leaderboardRepository,
+        limit,
+        after,
+        before,
+        'userId',
+        false
+    );
 
-    const url = `${request.protocol}://${request.get('host')}${request.baseUrl}${request.path}`;
-
-    const pagination = {
-        before: `${url}?first=${params.first}&after=${_.clamp(params.after - params.first, 0, params.after)}`,
-        after: `${url}?first=${params.first}&after=${params.after + params.first}`,
-    };
-
-    if (leaderboards.length === 0 || leaderboards.length !== params.first) pagination.after = null;
-    if (params.after === 0) pagination.before = null;
-
-    return response.json({
-        data: leaderboards,
-        pagination,
-    });
+    return response.json(result);
 }
