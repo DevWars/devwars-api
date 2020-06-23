@@ -90,7 +90,7 @@
         "@types/mailgun-js": "^0.22.7",
         "@types/mjml": "^4.0.4",
         "@types/mocha": "^7.0.2",
-        "@types/morgan": "^1.7.37",
+        "@types/morgan": "^1.9.1",
         "@types/multer": "^1.4.2",
         "@types/node": "^14.0.5",
         "@types/qs": "^6.9.3",
