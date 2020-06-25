@@ -76,7 +76,7 @@
         "winston": "^3.2.1"
     },
     "devDependencies": {
-        "@babel/code-frame": "^7.10.1",
+        "@babel/code-frame": "^7.10.3",
         "@types/bcrypt": "^3.0.0",
         "@types/chai": "^4.2.11",
         "@types/cookie-parser": "^1.4.2",
