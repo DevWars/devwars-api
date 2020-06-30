@@ -1,11 +1,7 @@
 import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
-import * as _ from 'lodash';
 
-import LeaderboardRepository from '../repository/leaderboard.repository';
-import { parseIntWithDefault } from '../../test/helpers';
-import PaginationService from '../services/pagination.service';
-import Leaderboard from '../models/leaderboardView.model';
+import UserRepository from '../repository/user.repository';
 
 /**
  * @api {get} /users/leaderboards Get the current win based leaderboards for all users.
@@ -40,19 +36,15 @@ import Leaderboard from '../models/leaderboardView.model';
  * }
  */
 export async function getUsersLeaderboards(request: Request, response: Response) {
-    const { after, before, first } = request.query as { after: any; before: any; first: any };
+    const userRepository = getCustomRepository(UserRepository);
 
-    const limit = parseIntWithDefault(first, 20, 1, 100);
+    const results = await userRepository
+        .createQueryBuilder('user')
+        .leftJoinAndSelect('user.gameStats', 'gameStats')
+        .leftJoinAndSelect('user.stats', 'stats')
+        .orderBy('gameStats.wins', 'DESC')
+        .take(30)
+        .getMany();
 
-    const leaderboardRepository = getCustomRepository(LeaderboardRepository);
-    const result = await PaginationService.pageRepository<Leaderboard>(
-        leaderboardRepository,
-        limit,
-        after,
-        before,
-        'userId',
-        false
-    );
-
-    return response.json(result);
+    return response.json({ data: results });
 }

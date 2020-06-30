@@ -12,6 +12,7 @@ import logger from '../app/utils/logger';
 import UserRepository from '../app/repository/user.repository';
 import { helpers } from 'faker';
 import GameRepository from '../app/repository/game.repository';
+import { GameStatus } from '../app/models/game.model';
 
 let connection: typeorm.Connection;
 
@@ -41,7 +42,9 @@ const generateBasicUsers = async (): Promise<any> => {
 const generateGames = async (): Promise<any> => {
     for (let i = 1; i <= 150; i++) {
         const gamePlayers = players.slice(i % players.length, (i + 6) % players.length);
-        const game = (await GameSeeding.default().common(gamePlayers)).withSeason(helpers.randomize([1, 2, 3]));
+        const game = (await GameSeeding.default().common(gamePlayers))
+            .withStatus(GameStatus.ENDED)
+            .withSeason(helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };
