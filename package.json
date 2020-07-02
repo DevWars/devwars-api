@@ -110,6 +110,6 @@
         "mocha": "^8.0.1",
         "nyc": "^15.1.0",
         "supertest": "^4.0.2",
-        "ts-node-dev": "^1.0.0-pre.44"
+        "ts-node-dev": "^1.0.0-pre.50"
     }
 }
