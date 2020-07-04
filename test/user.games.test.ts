@@ -41,7 +41,7 @@ describe('User Games', () => {
             for (let index = 0; index < 3; index++) {
                 const game = await GameSeeding.default().save();
                 const application = GameApplicationSeeding.withGameAndUser(game, user);
-                application.assignedLanguage = 'js';
+                application.assignedLanguages = ['js'];
                 application.team = 0;
 
                 await application.save();
@@ -96,7 +96,7 @@ describe('User Games', () => {
 
         it('Should return the users game if the user has one', async () => {
             const application = GameApplicationSeeding.withGameAndUser(game, user);
-            application.assignedLanguage = 'js';
+            application.assignedLanguages = ['js'];
             application.team = 0;
 
             await application.save();
@@ -113,7 +113,7 @@ describe('User Games', () => {
 
         it('Should fail if you are not the owning user and not a admin or moderator', async () => {
             const application = GameApplicationSeeding.withGameAndUser(game, user);
-            application.assignedLanguage = 'js';
+            application.assignedLanguages = ['js'];
             application.team = 0;
 
             await application.save();
@@ -130,7 +130,7 @@ describe('User Games', () => {
 
         it('Should pass if you are not the owning user and a admin or moderator', async () => {
             const application = GameApplicationSeeding.withGameAndUser(game, user);
-            application.assignedLanguage = 'js';
+            application.assignedLanguages = ['js'];
             application.team = 0;
 
             await application.save();

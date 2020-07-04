@@ -11,8 +11,8 @@ export default class GameApplicationSeeding {
         gameApplication.game = null;
         gameApplication.user = null;
         gameApplication.team = random.arrayElement([0, 1, null]);
-        gameApplication.assignedLanguage =
-            gameApplication.team != null ? random.arrayElement(['js', 'css', 'html']) : null;
+        gameApplication.assignedLanguages =
+            gameApplication.team != null ? [random.arrayElement(['js', 'css', 'html'])] : [];
 
         return gameApplication;
     }
@@ -24,7 +24,7 @@ export default class GameApplicationSeeding {
         application.user = user;
 
         if (blankAssignment) {
-            application.assignedLanguage = null;
+            application.assignedLanguages = [];
             application.team = null;
         }
 

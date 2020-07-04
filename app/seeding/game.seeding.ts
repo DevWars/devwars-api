@@ -142,7 +142,7 @@ export default class GameSeeding {
 
             const gameApplication = new GameApplication(this.game, player);
             if (languages.length >= 1) {
-                gameApplication.assignedLanguage = languages.shift();
+                gameApplication.assignedLanguages = [languages.shift()];
                 gameApplication.team = index <= 2 ? 0 : 1;
             }
 

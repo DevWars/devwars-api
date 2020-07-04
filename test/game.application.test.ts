@@ -162,7 +162,7 @@ describe('Game Applications', () => {
 
             chai.expect(response.status).to.be.equal(200);
             chai.expect(response.body.id).to.be.equal(application.id);
-            chai.expect(response.body.assignedLanguage).to.be.equal(application.assignedLanguage);
+            chai.expect(response.body.assignedLanguages[0]).to.be.equal(application.assignedLanguages[0]);
             chai.expect(response.body.team).to.be.equal(application.team);
         });
     });

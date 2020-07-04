@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, IsNull, Not } from 'typeorm';
+import { EntityRepository, Repository, IsNull, Not, In } from 'typeorm';
 import * as _ from 'lodash';
 
 import GameApplication from '../models/gameApplication.model';
@@ -69,9 +69,12 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param language  The language that is being checked.
      */
     public async isGameLanguageAssigned(game: Game, team: number, language: string): Promise<boolean> {
-        const assignedLanguage = language.toLowerCase();
+        const result = await this.createQueryBuilder('application')
+            .where('application.game = :game', { game: game.id })
+            .andWhere('application.team = :team', { team: team })
+            .andWhere('application.assignedLanguages LIKE :language', { language: `%${language}%` })
+            .getCount();
 
-        const result = await this.count({ where: { game, team, assignedLanguage } });
         return result >= 1;
     }
 
@@ -80,8 +83,8 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param user The user who is checking to be assigned.
      * @param game The game which is being checked.
      */
-    public async isPlayerAlreadyAssigned(user: User, game: Game): Promise<boolean> {
-        const result = await this.count({ where: { user, game, team: Not(IsNull()) } });
+    public async isPlayerAlreadyAssignedToAnotherTeam(user: User, game: Game, teamId: number): Promise<boolean> {
+        const result = await this.count({ where: { user, game, team: Not(teamId) } });
         return result >= 1;
     }
 
@@ -90,10 +93,10 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      * @param user The user who is being unassigned.
      * @param game The game the user is being unassigned from.
      * @param team The team the player has been assigned too.
-     * @param language The language the user has been applied too.
+     * @param languages The languages the user has been applied too.
      */
-    public async assignUserToGame(user: User, game: Game, team: number, language: string): Promise<void> {
-        await this.update({ user, game }, { team: team, assignedLanguage: language.toLowerCase() });
+    public async assignUserToGame(user: User, game: Game, team: number, languages: string[]): Promise<void> {
+        await this.update({ user, game }, { team: team, assignedLanguages: languages });
     }
 
     /**
@@ -103,7 +106,7 @@ export default class GameApplicationRepository extends Repository<GameApplicatio
      */
 
     public async removeUserFromGame(user: User, game: Game) {
-        this.update({ user, game }, { team: null, assignedLanguage: null });
+        this.update({ user, game }, { team: null, assignedLanguages: [] });
     }
 
     /**

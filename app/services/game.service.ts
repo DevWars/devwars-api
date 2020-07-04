@@ -21,18 +21,20 @@ export default class GameService {
         const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
         const assignedPlayers = await gameApplicationRepository.findAssignedPlayersForGame(game, ['user']);
 
-        for (const { user: player, team, assignedLanguage: language } of assignedPlayers) {
+        for (const { user: player, team, assignedLanguages } of assignedPlayers) {
             // if the player index exists but is null or undefined, just
             // continue with the other players.
             if (_.isNil(player)) continue;
 
             const playerArr = team === 0 ? bluePlayers : redPlayers;
 
-            playerArr.push({
-                team,
-                language: language,
-                user: { id: player.id, username: player.username, avatarUrl: _.defaultTo(player.avatarUrl, null) },
-            });
+            for (const language of assignedLanguages) {
+                playerArr.push({
+                    team,
+                    language,
+                    user: { id: player.id, username: player.username, avatarUrl: _.defaultTo(player.avatarUrl, null) },
+                });
+            }
         }
 
         await firebaseGame?.child('teams').child('blue').child('players').set(bluePlayers);

@@ -144,6 +144,8 @@ export async function GetAllGameAssignedPlayersById(request: GameRequest, respon
  * @apiError PlayerAlreadyAssignedLanguage The player has already been assigned that language for that team (e.g html).
  */
 export async function assignPlayerToGameById(request: AuthorizedRequest & GameRequest, response: Response) {
+    // eslint-disable-next-line no-debugger
+    debugger;
     const { id, language, team }: { id: number; language: string; team: number } = request.body.player;
 
     const applicationRepository = getCustomRepository(GameApplicationRepository);
@@ -166,15 +168,20 @@ export async function assignPlayerToGameById(request: AuthorizedRequest & GameRe
         });
     }
 
-    const alreadyAssigned = await applicationRepository.isPlayerAlreadyAssigned(user, request.game);
+    const alreadyAssigned = await applicationRepository.isPlayerAlreadyAssignedToAnotherTeam(user, request.game, team);
     if (alreadyAssigned) {
         throw new ApiError({
-            error: 'The given user is already assigned to a team.',
+            error: 'The given user is assigned to another team.',
             code: 409,
         });
     }
 
-    const alreadyLanguageAssigned = await applicationRepository.isGameLanguageAssigned(request.game, team, language);
+    const alreadyLanguageAssigned = await applicationRepository.isGameLanguageAssigned(
+        request.game,
+        team,
+        language.toLowerCase()
+    );
+
     if (alreadyLanguageAssigned) {
         throw new ApiError({
             error: 'The given language is already assigned within the team',
@@ -182,7 +189,10 @@ export async function assignPlayerToGameById(request: AuthorizedRequest & GameRe
         });
     }
 
-    await applicationRepository.assignUserToGame(user, request.game, team, language);
+    // Update the list of languages for the given user and append it the newly
+    // assigned one. This will then be updated within the database.
+    application.assignedLanguages.push(language);
+    await applicationRepository.assignUserToGame(user, request.game, team, application.assignedLanguages);
 
     if (request.game.status === GameStatus.ACTIVE) {
         await GameService.sendGamePlayersToFirebase(request.game);

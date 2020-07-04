@@ -11,8 +11,8 @@ export default class GameApplication extends BaseModel {
     public team: number;
 
     // The assigned language of the given user.
-    @Column({ nullable: true })
-    public assignedLanguage: string;
+    @Column('simple-array', { nullable: true })
+    public assignedLanguages: string[];
 
     // ------------------------------------------------------------
     // Relations

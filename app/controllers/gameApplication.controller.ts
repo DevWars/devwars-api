@@ -23,7 +23,7 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
  * @apiSuccess {Date} application.createdAt           Time created
  * @apiSuccess {Date} application.updatedAt           Time updated
  * @apiSuccess {number} application.id                The id of the team the user is applying too.
- * @apiSuccess {string} application.assignedLanguage  The assigned language if selected.
+ * @apiSuccess {string} application.assignedLanguages  The assigned language if selected.
  * @apiSuccess {number} application.team              The assigned team if selected.
  *
  * @apiSuccessExample Success-Response:
@@ -32,7 +32,7 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
  *       {
  *          "id": 1,
  *          "team": 1,
- *          "assignedLanguage": "js",
+ *          "assignedLanguages": "js",
  *          "gameId": 1,
  *          "userId": 1,
  *          "createdAt": "2018-10-21T21:45:45.000Z",
@@ -43,7 +43,7 @@ import GameApplicationRepository from '../repository/gameApplication.repository'
  *          "team": 0,
  *          "gameId": 1,
  *          "userId": 1,
- *          "assignedLanguage": "css",
+ *          "assignedLanguages": "css",
  *          "createdAt": "2018-10-21T21:45:45.000Z",
  *          "updatedAt": "2018-10-21T21:45:45.000Z",
  *       }
@@ -67,7 +67,7 @@ export async function gatherAllUsersApplicationsById(request: UserRequest, respo
  * @apiSuccess {Date} application.createdAt           Time created
  * @apiSuccess {Date} application.updatedAt           Time updated
  * @apiSuccess {number} application.id                The id of the team the user is applying too.
- * @apiSuccess {string} application.assignedLanguage  The assigned language if selected.
+ * @apiSuccess {string} application.assignedLanguages  The assigned language if selected.
  * @apiSuccess {number} application.team              The assigned team if selected.
  *
  * @apiSuccessExample Success-Response:
@@ -75,7 +75,7 @@ export async function gatherAllUsersApplicationsById(request: UserRequest, respo
  *       {
  *          "id": 1,
  *          "team": 1,
- *          "assignedLanguage": "js",
+ *          "assignedLanguages": "js",
  *          "gameId": 1,
  *          "userId": 1,
  *          "createdAt": "2018-10-21T21:45:45.000Z",

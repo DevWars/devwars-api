@@ -41,14 +41,14 @@ describe('Game Players', () => {
 
         it('Should return a array of assigned players if players have been assigned', async () => {
             const application = GameApplicationSeeding.withGameAndUser(game, moderator);
-            application.assignedLanguage = 'html';
+            application.assignedLanguages = ['html'];
             application.team = 0;
 
             await application.save();
 
             const user = await UserSeeding.withRole(UserRole.USER).save();
             const applicationTwo = GameApplicationSeeding.withGameAndUser(game, user);
-            applicationTwo.assignedLanguage = 'html';
+            applicationTwo.assignedLanguages = ['html'];
             applicationTwo.team = 0;
 
             await applicationTwo.save();
@@ -142,7 +142,7 @@ describe('Game Players', () => {
             const user = await UserSeeding.withRole(UserRole.USER).save();
 
             const application = GameApplicationSeeding.withGameAndUser(game, user, true);
-            application.assignedLanguage = 'js';
+            application.assignedLanguages = ['js'];
             application.team = 0;
 
             await application.save();
@@ -180,7 +180,7 @@ describe('Game Players', () => {
                 .post(`/games/${game.id}/players`)
                 .set('Cookie', await cookieForUser(moderator))
                 .send(player)
-                .expect(409, { error: 'The given user is already assigned to a team.' });
+                .expect(409, { error: 'The given user is assigned to another team.' });
         });
     });
 
@@ -191,7 +191,7 @@ describe('Game Players', () => {
             user = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             const application = GameApplicationSeeding.withGameAndUser(game, user);
-            application.assignedLanguage = 'html';
+            application.assignedLanguages = ['html'];
             application.team = 0;
 
             await application.save();
