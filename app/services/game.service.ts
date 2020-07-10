@@ -46,10 +46,10 @@ export default class GameService {
      * @param game The game that is being updated in firebase.
      */
     public static async sendGameToFirebase(game: Game) {
-        const { storage, id, mode: name, title } = game;
+        const { id, mode: name, title } = game;
 
         let objectives: Array<{ number: number; description: string }> = [];
-        if (!_.isNil(storage.editors)) await this.sendGamePlayersToFirebase(game);
+        await this.sendGamePlayersToFirebase(game);
 
         objectives = Object.values(game.storage.objectives).map((obj) => {
             return {
