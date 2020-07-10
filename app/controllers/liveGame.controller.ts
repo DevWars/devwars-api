@@ -16,6 +16,7 @@ import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import User from '../models/user.model';
+import logger from '../utils/logger';
 
 /**
  * @api {post} /games/:game/actions/end Ends a game by a given id.
@@ -146,6 +147,7 @@ export async function GetAllGameAssignedPlayersById(request: GameRequest, respon
 export async function assignPlayerToGameById(request: AuthorizedRequest & GameRequest, response: Response) {
     // eslint-disable-next-line no-debugger
     debugger;
+
     const { id, language, team }: { id: number; language: string; team: number } = request.body.player;
 
     const applicationRepository = getCustomRepository(GameApplicationRepository);
@@ -191,7 +193,10 @@ export async function assignPlayerToGameById(request: AuthorizedRequest & GameRe
 
     // Update the list of languages for the given user and append it the newly
     // assigned one. This will then be updated within the database.
+    if (_.isNil(application.assignedLanguages)) application.assignedLanguages = [];
+
     application.assignedLanguages.push(language);
+
     await applicationRepository.assignUserToGame(user, request.game, team, application.assignedLanguages);
 
     if (request.game.status === GameStatus.ACTIVE) {
