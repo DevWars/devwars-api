@@ -13,7 +13,7 @@ import UserStats from '../models/userStats.model';
 import RegistrationRequest from '../request/registrationRequest';
 import { randomString } from '../utils/random';
 
-import { VerificationService } from './Verification.service';
+import { VerificationService } from './verification.service';
 import { sendPasswordResetEmail } from './mail.service';
 
 export class AuthService {

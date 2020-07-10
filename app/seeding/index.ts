@@ -1,6 +1,6 @@
 export { default as GameApplicationSeeding } from './gameApplication.seeding';
 
-export { default as ActivitySeeding } from './Activity.seeding';
+export { default as ActivitySeeding } from './activity.seeding';
 
 export { default as GameSeeding } from './game.seeding';
 

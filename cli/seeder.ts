@@ -1,7 +1,7 @@
 import * as typeorm from 'typeorm';
 
 import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
-import ActivitySeeding from '../app/seeding/Activity.seeding';
+import ActivitySeeding from '../app/seeding/activity.seeding';
 import GameSeeding from '../app/seeding/game.seeding';
 import UserSeeding from '../app/seeding/user.seeding';
 

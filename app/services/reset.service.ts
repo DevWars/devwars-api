@@ -1,5 +1,5 @@
 import User from '../models/user.model';
-import { VerificationService } from './Verification.service';
+import { VerificationService } from './verification.service';
 
 export class ResetService {
     public static async resetEmail(user: User, email: string) {

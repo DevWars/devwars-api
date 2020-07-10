@@ -8,12 +8,12 @@ import PasswordReset from '../models/passwordReset.model';
 import User, { UserRole } from '../models/user.model';
 
 import UserRepository from '../repository/user.repository';
-import PasswordResetRepository from '../repository/PasswordReset.repository';
+import PasswordResetRepository from '../repository/passwordReset.repository';
 
 import LoginRequest from '../request/loginRequest';
 import RegistrationRequest from '../request/registrationRequest';
 import { AuthService } from '../services/auth.service';
-import { VerificationService } from '../services/Verification.service';
+import { VerificationService } from '../services/verification.service';
 import { ResetService } from '../services/reset.service';
 import { RESERVED_USERNAMES } from '../constants';
 import { hash } from '../utils/hash';

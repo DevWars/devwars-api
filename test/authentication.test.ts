@@ -14,7 +14,7 @@ import EmailVerification from '../app/models/emailVerification.model';
 import PasswordReset from '../app/models/passwordReset.model';
 import User, { UserRole } from '../app/models/user.model';
 
-import PasswordResetRepository from '../app/repository/PasswordReset.repository';
+import PasswordResetRepository from '../app/repository/passwordReset.repository';
 import UserRepository from '../app/repository/user.repository';
 
 const server: ServerService = new ServerService();
