@@ -68,7 +68,7 @@
         "multer": "^1.4.2",
         "pg": "^8.2.2",
         "qs": "^6.9.4",
-        "superagent": "^5.2.2",
+        "superagent": "^5.3.1",
         "token-extractor": "^0.1.6",
         "ts-node": "8.10.1",
         "typeorm": "^0.2.25",
