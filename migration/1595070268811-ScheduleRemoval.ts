@@ -124,8 +124,11 @@ export class ScheduleRemoval1595070268811 implements MigrationInterface {
             }
         }
 
-        // step N. Alter game start time to not be nullable.
-        // await queryRunner.query('alter table game alter column "startTime" set not null;');
+        // step 6. Alter game start time to not be nullable.
+        await queryRunner.query('alter table game alter column "startTime" set not null;');
+
+        // step 7. remove twithc id from user stats
+        await queryRunner.dropColumn('user_stats', 'twitchId');
     }
 
     public async down(): Promise<any> {
