@@ -49,13 +49,13 @@
     },
     "dependencies": {
         "@hapi/joi": "^17.1.1",
-        "aws-sdk": "^2.712.0",
+        "aws-sdk": "^2.715.0",
         "axios": "^0.19.2",
         "bcrypt": "^5.0.0",
         "body-parser": "^1.18.2",
         "cookie-parser": "^1.4.5",
         "cors": "^2.8.4",
-        "date-fns": "^2.14.0",
+        "date-fns": "^2.15.0",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "faker": "^4.1.0",
@@ -109,7 +109,7 @@
         "mocha": "^8.0.1",
         "nyc": "^15.1.0",
         "supertest": "^4.0.2",
-        "ts-node-dev": "^1.0.0-pre.44",
-        "typescript": "^3.9.6"
+        "ts-node-dev": "^1.0.0-pre.52",
+        "typescript": "^3.9.7"
     }
 }
