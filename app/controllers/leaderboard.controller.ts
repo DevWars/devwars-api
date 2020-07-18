@@ -40,8 +40,8 @@ export async function getUsersLeaderboards(request: Request, response: Response)
 
     const results = await userRepository
         .createQueryBuilder('user')
-        .leftJoinAndSelect('user.gameStats', 'gameStats')
-        .leftJoinAndSelect('user.stats', 'stats')
+        .innerJoinAndSelect('user.gameStats', 'gameStats')
+        .innerJoinAndSelect('user.stats', 'stats')
         .orderBy('gameStats.wins', 'DESC')
         .take(30)
         .getMany();

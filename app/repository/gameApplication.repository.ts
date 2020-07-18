@@ -1,4 +1,4 @@
-import { EntityRepository, Repository, IsNull, Not, In } from 'typeorm';
+import { EntityRepository, Repository, IsNull, Not } from 'typeorm';
 import * as _ from 'lodash';
 
 import GameApplication from '../models/gameApplication.model';
