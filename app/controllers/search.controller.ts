@@ -48,15 +48,16 @@ import Game from '../models/game.model';
 export async function searchForUsers(request: UserRequest, response: Response) {
     const { limit, full } = request.query;
 
-    const username = parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH);
-    const email = parseStringWithDefault(request.query.email, '', 0, 50);
-
     const params = {
+        email: parseStringWithDefault(request.query.email, '', 0, 50),
+        username: parseStringWithDefault(request.query.username, '', 0, USERNAME_MAX_LENGTH),
+        provider: parseStringWithDefault(request.query.provider, '', 0, 25),
+
         limit: parseIntWithDefault(limit, 50, 1, 50) as number,
         full: parseBooleanWithDefault(full, false) as boolean,
     };
 
-    if (username === '' && email === '') {
+    if (params.username === '' && params.email === '') {
         throw new ApiError({
             error: 'One of the specified username or email within the query must not be empty.',
             code: 400,
@@ -64,7 +65,13 @@ export async function searchForUsers(request: UserRequest, response: Response) {
     }
 
     const userRepository = getCustomRepository(UserRepository);
-    const users = await userRepository.getUsersLikeUsernameOrEmail(username, email, params.limit, ['connections']);
+    const users = await userRepository.getUsersLikeUsernameOrEmailWithProvider(
+        params.username,
+        params.email,
+        params.provider,
+        params.limit,
+        ['connections']
+    );
 
     _.forEach(users, (user: any) => {
         user.connections = _.map(user.connections, (a) => {

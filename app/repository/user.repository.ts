@@ -24,7 +24,9 @@ export default class UserRepository extends Repository<User> {
      * @param email The email of the given user.
      */
     public findByEmail(email: string): Promise<User> {
-        return this.createQueryBuilder().where('LOWER(email) = LOWER(:email)', { email }).getOne();
+        return this.createQueryBuilder()
+            .where('LOWER(email) = LOWER(:email)', { email })
+            .getOne();
     }
 
     /**
@@ -32,7 +34,9 @@ export default class UserRepository extends Repository<User> {
      * @param username The username of the given user.
      */
     public findByUsername(username: string): Promise<User> {
-        return this.createQueryBuilder().where('LOWER(username) = LOWER(:username)', { username }).getOne();
+        return this.createQueryBuilder()
+            .where('LOWER(username) = LOWER(:username)', { username })
+            .getOne();
     }
 
     /**
@@ -52,7 +56,9 @@ export default class UserRepository extends Repository<User> {
      * @param email The email address to check if its in use or not.
      */
     public async userExistsWithEmail(email: string): Promise<boolean> {
-        const totalExist = await this.createQueryBuilder().where('LOWER(email) = LOWER(:email)', { email }).getCount();
+        const totalExist = await this.createQueryBuilder()
+            .where('LOWER(email) = LOWER(:email)', { email })
+            .getCount();
 
         return totalExist >= 1;
     }
@@ -81,11 +87,14 @@ export default class UserRepository extends Repository<User> {
      *
      * @param username The username that will be performed in the given *like* match.
      * @param email The email that will be performed in the given *like* match.
+     * @param provider The third-party connector to allow searching by twitch or discord,etc
      * @param limit The upper limit of the number of users to gather based on the likeness.
+     * @param relations The list of relations that will also be pulled back.
      */
-    public async getUsersLikeUsernameOrEmail(
+    public async getUsersLikeUsernameOrEmailWithProvider(
         username: string,
         email: string,
+        provider: string,
         limit = 50,
         relations: string[]
     ): Promise<User[]> {
@@ -96,6 +105,11 @@ export default class UserRepository extends Repository<User> {
 
         if (!_.isEmpty(email))
             query = query.orWhere('LOWER(user.email) LIKE :email', { email: `%${email.toLowerCase()}%` });
+
+        if (!_.isEmpty(provider))
+            query = query.andWhere('LOWER(connections.provider) = :provider', {
+                provider: provider.toLowerCase(),
+            });
 
         _.forEach(relations, (relation) => (query = query.leftJoinAndSelect(`user.${relation}`, relation)));
         return query.take(limit).getMany();
