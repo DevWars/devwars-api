@@ -1,6 +1,6 @@
 {
     "name": "devwars-api",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "author": "DevWars, LLC",
     "license": "MIT",
     "description": "Official Node API for DevWars",
@@ -19,12 +19,13 @@
         "docs:production": "apidoc -i ./app -o ./dist/docs",
         "docs": "apidoc -i ./app -o ./docs & http-server -p 8081 docs",
         "seed": "node -r ts-node/register ./cli/Seeder.ts",
-        "seed:password": "node -r ts-node/register ./cli/seed.passwords.ts",
+        "seed:password": "node -r ts-node/register ./cli/SeedPassword.ts",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
         "typeorm": "ts-node-dev -P ./tsconfig.json ./node_modules/typeorm/cli.js",
         "migrate": "ts-node-dev ./node_modules/typeorm/cli.js migration:run",
-        "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert"
+        "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
+        "release": "standard-version"
     },
     "husky": {
         "hooks": {
@@ -49,13 +50,13 @@
     },
     "dependencies": {
         "@hapi/joi": "^17.1.1",
-        "aws-sdk": "^2.715.0",
+        "aws-sdk": "^2.712.0",
         "axios": "^0.19.2",
         "bcrypt": "^5.0.0",
         "body-parser": "^1.18.2",
         "cookie-parser": "^1.4.5",
         "cors": "^2.8.4",
-        "date-fns": "^2.15.0",
+        "date-fns": "^2.14.0",
         "dotenv": "^8.2.0",
         "express": "^4.17.1",
         "faker": "^4.1.0",
@@ -108,8 +109,9 @@
         "husky": "^4.2.5",
         "mocha": "^8.0.1",
         "nyc": "^15.1.0",
+        "standard-version": "^8.0.2",
         "supertest": "^4.0.2",
-        "ts-node-dev": "^1.0.0-pre.52",
-        "typescript": "^3.9.7"
+        "ts-node-dev": "^1.0.0-pre.44",
+        "typescript": "^3.9.6"
     }
 }

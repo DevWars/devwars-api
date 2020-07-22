@@ -24,9 +24,7 @@ export default class UserRepository extends Repository<User> {
      * @param email The email of the given user.
      */
     public findByEmail(email: string): Promise<User> {
-        return this.createQueryBuilder()
-            .where('LOWER(email) = LOWER(:email)', { email })
-            .getOne();
+        return this.createQueryBuilder().where('LOWER(email) = LOWER(:email)', { email }).getOne();
     }
 
     /**
@@ -34,9 +32,7 @@ export default class UserRepository extends Repository<User> {
      * @param username The username of the given user.
      */
     public findByUsername(username: string): Promise<User> {
-        return this.createQueryBuilder()
-            .where('LOWER(username) = LOWER(:username)', { username })
-            .getOne();
+        return this.createQueryBuilder().where('LOWER(username) = LOWER(:username)', { username }).getOne();
     }
 
     /**
@@ -56,9 +52,7 @@ export default class UserRepository extends Repository<User> {
      * @param email The email address to check if its in use or not.
      */
     public async userExistsWithEmail(email: string): Promise<boolean> {
-        const totalExist = await this.createQueryBuilder()
-            .where('LOWER(email) = LOWER(:email)', { email })
-            .getCount();
+        const totalExist = await this.createQueryBuilder().where('LOWER(email) = LOWER(:email)', { email }).getCount();
 
         return totalExist >= 1;
     }
@@ -91,10 +85,9 @@ export default class UserRepository extends Repository<User> {
      * @param limit The upper limit of the number of users to gather based on the likeness.
      * @param relations The list of relations that will also be pulled back.
      */
-    public async getUsersLikeUsernameOrEmailWithProvider(
+    public async getUsersLikeUsernameOrEmail(
         username: string,
         email: string,
-        provider: string,
         limit = 50,
         relations: string[]
     ): Promise<User[]> {
@@ -106,9 +99,29 @@ export default class UserRepository extends Repository<User> {
         if (!_.isEmpty(email))
             query = query.orWhere('LOWER(user.email) LIKE :email', { email: `%${email.toLowerCase()}%` });
 
+        _.forEach(relations, (relation) => (query = query.leftJoinAndSelect(`user.${relation}`, relation)));
+        return query.take(limit).getMany();
+    }
+
+    /**
+     * Attempts to find a user by the given provider and id.
+     *
+     * @param provider The providing service, e.g twitch or discord.
+     * @param id The id of the user by of the provider.
+     * @param limit The upper limit of the number of users to gather based on the likeness.
+     */
+    public async getUsersByProviderAndId(
+        provider: string,
+        id: string,
+        limit = 50,
+        relations: string[]
+    ): Promise<User[]> {
+        let query = this.createQueryBuilder('user');
+
         if (!_.isEmpty(provider))
-            query = query.andWhere('LOWER(connections.provider) = :provider', {
+            query = query.andWhere('LOWER(connections.provider) = :provider and connections."providerId" = :id', {
                 provider: provider.toLowerCase(),
+                id,
             });
 
         _.forEach(relations, (relation) => (query = query.leftJoinAndSelect(`user.${relation}`, relation)));

@@ -8,6 +8,7 @@ import ServerService from '../app/services/server.service';
 import { cookieForUser } from './helpers';
 
 import User, { UserRole } from '../app/models/user.model';
+import LinkedAccount from '../app/models/linkedAccount.model';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -20,6 +21,71 @@ describe('search', () => {
 
     beforeEach(() => {
         agent = supertest.agent(server.App());
+    });
+
+    describe('GET - /search/users/connections?provider=:provider&id=:id - Performing  provider and id lookup', () => {
+        const lookupUrl = '/search/users/connections?provider=twitch&limit=3';
+
+        let moderator: User = null;
+        let connection: LinkedAccount = null;
+
+        beforeEach(async () => {
+            moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
+            connection = new LinkedAccount(moderator, moderator.username, 'twitch', `${moderator.id}`);
+
+            await connection.save();
+        });
+
+        it('Should reject not authenticated users', async () => {
+            await agent.get(lookupUrl).expect(401);
+        });
+
+        it('Should reject users not a minimum role of moderator', async () => {
+            const user = await UserSeeding.withRole(UserRole.USER).save();
+
+            await agent
+                .get(`${lookupUrl}&id=${moderator.id}`)
+                .set('Cookie', await cookieForUser(user))
+                .send()
+                .expect(403);
+        });
+
+        it('Should allow moderator and admins', async () => {
+            const admin = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            for (const test of [
+                [moderator, 200],
+                [admin, 200],
+            ]) {
+                await agent
+                    .get(`${lookupUrl}&id=${moderator.id}`)
+                    .set('Cookie', await cookieForUser(test[0] as User))
+                    .send()
+                    .expect(test[1]);
+            }
+        });
+
+        it('Should reject if the given provider is not provided', async () => {
+            await agent
+                .get('/search/users/connections')
+                .set('Cookie', await cookieForUser(moderator))
+                .send()
+                .expect(400, {
+                    error: 'One of the specified provider or id within the query must not be empty.',
+                });
+        });
+
+        it('Should return related user when looking up', async () => {
+            const response = await agent
+                .get(`${lookupUrl}&id=${moderator.id}`)
+                .set('Cookie', await cookieForUser(moderator))
+                .send();
+
+            chai.expect(response.body.length).to.be.eq(1);
+
+            chai.expect(moderator.username).to.eq(response.body[0].username);
+            chai.expect(moderator.id).to.eq(response.body[0].id);
+        });
     });
 
     describe('GET - /search/users?username=:username&limit=:limit - Performing username based like lookup', () => {

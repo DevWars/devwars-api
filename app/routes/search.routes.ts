@@ -9,8 +9,14 @@ export const SearchRoute: express.Router = express.Router();
 
 SearchRoute.get(
     '/users',
-    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR)],
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true)],
     wrapAsync(SearchController.searchForUsers)
+);
+
+SearchRoute.get(
+    '/users/connections',
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true)],
+    wrapAsync(SearchController.searchForUsersByConnections)
 );
 
 SearchRoute.get(

@@ -116,7 +116,12 @@ GameRoute.get(
 
 GameRoute.post(
     '/:game/applications/:user',
-    [mustBeAuthenticated, bindGameByParamId('game'), bindUserByParamId('user'), mustBeRoleOrOwner(UserRole.MODERATOR)],
+    [
+        mustBeAuthenticated,
+        bindGameByParamId('game'),
+        bindUserByParamId('user'),
+        mustBeRoleOrOwner(UserRole.MODERATOR, true),
+    ],
     wrapAsync(LiveGameController.applyToGameWithApplicationByIdAndGameId)
 );
 
