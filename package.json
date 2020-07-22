@@ -1,6 +1,6 @@
 {
     "name": "devwars-api",
-    "version": "0.2.1",
+    "version": "0.2.2",
     "author": "DevWars, LLC",
     "license": "MIT",
     "description": "Official Node API for DevWars",
