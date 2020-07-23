@@ -111,7 +111,7 @@
         "nyc": "^15.1.0",
         "standard-version": "^8.0.2",
         "supertest": "^4.0.2",
-        "ts-node-dev": "^1.0.0-pre.44",
+        "ts-node-dev": "^1.0.0-pre.52",
         "typescript": "^3.9.6"
     }
 }
