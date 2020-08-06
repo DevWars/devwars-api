@@ -107,7 +107,7 @@
         "eslint-config-prettier": "^6.11.0",
         "http-server": "^0.12.3",
         "husky": "^4.2.5",
-        "mocha": "^8.0.1",
+        "mocha": "^8.1.1",
         "nyc": "^15.1.0",
         "standard-version": "^8.0.2",
         "supertest": "^4.0.2",
