@@ -86,7 +86,7 @@
         "@types/faker": "^4.1.12",
         "@types/hapi__joi": "^17.1.2",
         "@types/jsonwebtoken": "^8.5.0",
-        "@types/lodash": "^4.14.158",
+        "@types/lodash": "^4.14.159",
         "@types/mailgun-js": "^0.22.10",
         "@types/mjml": "^4.0.4",
         "@types/mocha": "^7.0.2",
