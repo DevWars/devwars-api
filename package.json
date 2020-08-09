@@ -7,8 +7,8 @@
     "main": "server.js",
     "scripts": {
         "start": "cd dist && cross-env NODE_ENV=production node ./app/index.js",
-        "dev": "ts-node-dev --transpile-only ./app/index.ts",
-        "dev:break": "ts-node-dev --inspect --respawn ./app/index.ts",
+        "dev": "ts-node --transpile-only ./app/index.ts",
+        "dev:break": "ts-node --inspect --respawn ./app/index.ts",
         "test:nyc": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text-summary mocha",
         "test": "cross-env NODE_ENV=test nyc --reporter=text-summary mocha",
         "test:break": "cross-env NODE_ENV=test mocha --inspect-brk",
@@ -71,17 +71,16 @@
         "qs": "^6.9.4",
         "superagent": "^5.3.1",
         "token-extractor": "^0.1.6",
-        "ts-node": "8.10.1",
         "typeorm": "^0.2.25",
         "winston": "^3.3.3"
     },
     "devDependencies": {
+        "ts-node": "8.10.1",
         "@babel/code-frame": "^7.10.4",
         "@types/bcrypt": "^3.0.0",
         "@types/chai": "^4.2.12",
         "@types/cookie-parser": "^1.4.2",
         "@types/cors": "^2.8.7",
-        "@types/dotenv": "^8.2.0",
         "@types/express": "^4.17.7",
         "@types/faker": "^4.1.12",
         "@types/hapi__joi": "^17.1.2",
@@ -96,7 +95,6 @@
         "@types/qs": "^6.9.4",
         "@types/superagent": "^4.1.8",
         "@types/supertest": "^2.0.10",
-        "@types/winston": "^2.4.4",
         "@typescript-eslint/eslint-plugin": "^2.34.0",
         "@typescript-eslint/parser": "^2.34.0",
         "apidoc": "^0.24.0",
@@ -111,7 +109,6 @@
         "nyc": "^15.1.0",
         "standard-version": "^8.0.2",
         "supertest": "^4.0.2",
-        "ts-node-dev": "^1.0.0-pre.56",
         "typescript": "^3.9.7"
     }
 }
