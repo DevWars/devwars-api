@@ -16,6 +16,7 @@ import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import User from '../models/user.model';
+import { forEach } from 'lodash';
 
 /**
  * @api {post} /games/:game/actions/end Ends a game by a given id.
@@ -121,6 +122,13 @@ export async function GetAllGameAssignedPlayersById(request: GameRequest, respon
             team: Not(IsNull()),
         },
         relations: ['user'],
+    });
+
+    // Since we are also pulling back the user, ensure to sanitize the email
+    // from the response.
+    result.forEach((result) => {
+        const { id, username, avatarUrl } = result.user;
+        result.user = { id, username, avatarUrl } as User;
     });
 
     return response.json(result);

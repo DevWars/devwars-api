@@ -7,8 +7,7 @@
     "main": "server.js",
     "scripts": {
         "start": "cd dist && cross-env NODE_ENV=production node ./app/index.js",
-        "dev": "ts-node --transpile-only ./app/index.ts",
-        "dev:break": "ts-node --inspect --respawn ./app/index.ts",
+        "dev": "nodemon",
         "test:nyc": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text-summary mocha",
         "test": "cross-env NODE_ENV=test nyc --reporter=text-summary mocha",
         "test:break": "cross-env NODE_ENV=test mocha --inspect-brk",
@@ -75,7 +74,6 @@
         "winston": "^3.3.3"
     },
     "devDependencies": {
-        "ts-node": "8.10.1",
         "@babel/code-frame": "^7.10.4",
         "@types/bcrypt": "^3.0.0",
         "@types/chai": "^4.2.12",
@@ -106,9 +104,11 @@
         "http-server": "^0.12.3",
         "husky": "^4.2.5",
         "mocha": "^8.1.1",
+        "nodemon": "^2.0.4",
         "nyc": "^15.1.0",
         "standard-version": "^8.0.2",
         "supertest": "^4.0.2",
+        "ts-node": "8.10.1",
         "typescript": "^3.9.7"
     }
 }

@@ -20,7 +20,7 @@ const players: User[] = [];
 
 const generateConstantUsers = async (): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
-        await UserSeeding.withComponents(`test-${role}`, null, (UserRole as any)[role.toUpperCase()]).save();
+        await UserSeeding.withComponents(`test${role}`, null, (UserRole as any)[role.toUpperCase()]).save();
     }
 };
 

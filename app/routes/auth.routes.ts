@@ -30,7 +30,7 @@ AuthRoute.post(
 
 AuthRoute.post(
     '/reset/password',
-    [queryValidation(authValidator.resetPasswordSchema)],
+    [bodyValidation(authValidator.resetPasswordSchema)],
     wrapAsync(AuthController.resetPassword)
 );
 

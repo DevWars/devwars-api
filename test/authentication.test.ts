@@ -307,20 +307,21 @@ describe('Authentication', () => {
         const resetPasswordRoute = '/auth/reset/password';
 
         it('Should reject when the token is not provided in the query', async () => {
-            await agent.post(`${resetPasswordRoute}?token=&password=password`).expect(400);
+            await agent.post(`${resetPasswordRoute}`).send({ password: 'password', token: 'token' }).expect(400);
         });
 
         it('Should reject if the new password is not provided in the query', async () => {
-            await agent.post(`${resetPasswordRoute}?token=token&password=`).expect(400);
+            await agent.post(`${resetPasswordRoute}?token=token&password=`).send({ token: 'token' }).expect(400);
         });
 
         it('Should reject if the new password is not valid to the systems specification', async () => {
-            await agent.post(`${resetPasswordRoute}?token=token&password=bad`).expect(400);
+            await agent.post(`${resetPasswordRoute}`).send({ token: 'token', password: 'bad' }).expect(400);
         });
 
         it('Should reject if the password reset does not exist by the token', async () => {
             await agent
-                .post(`${resetPasswordRoute}?token=notexist&password=goodpassword`)
+                .post(`${resetPasswordRoute}`)
+                .send({ token: 'noexist', password: 'goodpassword' })
                 .expect(400, { error: 'Could not reset password' });
         });
 
@@ -330,7 +331,8 @@ describe('Authentication', () => {
             await updatedPasswordReset.save();
 
             await agent
-                .post(`${resetPasswordRoute}?token=tokenupdated&password=goodpassword`)
+                .post(`${resetPasswordRoute}`)
+                .send({ token: 'tokenupdated', password: 'goodpassword' })
                 .expect(401, { error: 'Expired password reset token' });
         });
 
@@ -340,8 +342,8 @@ describe('Authentication', () => {
             await updatedPasswordReset.save();
 
             await agent
-                .post(`${resetPasswordRoute}?token=thetoken&password=updatedpassword`)
-                .send()
+                .post(`${resetPasswordRoute}`)
+                .send({ token: 'thetoken', password: 'updatedpassword' })
                 .expect(200, { message: 'Password reset!' });
 
             const userRepository = getCustomRepository(UserRepository);
