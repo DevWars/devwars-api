@@ -1,14 +1,10 @@
 import * as express from 'express';
-import { ActivityRoute } from './Activity.routes';
-import { AuthRoute } from './Auth.routes';
-import { GameRoute } from './Game.routes';
-import { GameScheduleRoute } from './GameSchedule.routes';
-import { GameApplicationRoute } from './GameApplication.routes';
+import { AuthRoute } from './auth.routes';
+import { GameRoute } from './game.routes';
 import { HealthRoute } from './health.routes';
-import { LeaderboardRoute } from './Leaderboard.route';
-import { LinkedAccountRoute } from './LinkedAccount.routes';
-import { UserRoute } from './User.routes';
-import { TempRoute } from './Temp.routes';
+import { LeaderboardRoute } from './leaderboard.routes';
+import { LinkedAccountRoute } from './linkedAccount.routes';
+import { UserRoute } from './user.routes';
 import { ContactRoute } from './contact.routes';
 import { DocsRoute } from './docs.routes';
 import { SearchRoute } from './search.routes';
@@ -32,18 +28,6 @@ export const Routes: Route[] = [
         path: '/games',
     },
     {
-        handler: GameScheduleRoute,
-        path: '/schedules',
-    },
-    {
-        handler: GameApplicationRoute,
-        path: '/applications',
-    },
-    {
-        handler: ActivityRoute,
-        path: '/activities',
-    },
-    {
         handler: LeaderboardRoute,
         path: '/leaderboards',
     },
@@ -63,15 +47,8 @@ export const Routes: Route[] = [
         handler: SearchRoute,
         path: '/search',
     },
-
     {
         handler: DocsRoute,
         path: '/docs',
-    },
-
-    // TEMP: To support cookie authentication for Old Editor
-    {
-        handler: TempRoute,
-        path: '/user',
     },
 ];

@@ -1,9 +1,9 @@
 import { Connection as typeConnection } from 'typeorm';
 
-import { Connection } from '../app/services/Connection.service';
+import { Connection } from '../app/services/connection.service';
 import { hash } from '../app/utils/hash';
 import logger from '../app/utils/logger';
-import User from '../app/models/User';
+import User from '../app/models/user.model';
 
 let connection: typeConnection;
 

@@ -13,8 +13,6 @@ const TEST_CONFIGURATION = {
     NAME: process.env.TEST_DB_NAME,
     USER: process.env.TEST_DB_USER,
     PASS: process.env.TEST_DB_PASS,
-    SYNC: defaultTo(process.env.TEST_DB_SYNC, 'true') == 'true',
-    LOGGING: defaultTo(process.env.TEST_DB_LOGGING, 'false') == 'true',
 };
 
 const MASTER_CONFIGURATION = {
@@ -23,8 +21,6 @@ const MASTER_CONFIGURATION = {
     NAME: process.env.DB_NAME,
     USER: process.env.DB_USER,
     PASS: process.env.DB_PASS,
-    SYNC: defaultTo(process.env.DB_SYNC, 'true') === 'true',
-    LOGGING: defaultTo(process.env.DB_LOGGING, 'false') === 'true',
 };
 
 const config = {
