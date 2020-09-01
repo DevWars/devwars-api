@@ -16,7 +16,6 @@ import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import User from '../models/user.model';
-import { forEach } from 'lodash';
 
 /**
  * @api {post} /games/:game/actions/end Ends a game by a given id.

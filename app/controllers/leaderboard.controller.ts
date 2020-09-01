@@ -46,5 +46,7 @@ export async function getUsersLeaderboards(request: Request, response: Response)
         .take(30)
         .getMany();
 
-    return response.json({ data: results });
+    return response.json({
+        data: results.map((u) => u.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt', 'lastUsernameUpdateAt')),
+    });
 }
