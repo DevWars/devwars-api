@@ -11,4 +11,12 @@ export default class GameSourceRepository extends Repository<GameSource> {
     public findByGame(game: Game): Promise<GameSource[]> {
         return this.find({ where: { game } });
     }
+
+    /**
+     * Get all the related games source code.
+     * @param game The game which owns the sources.
+     */
+    public async deleteByGame(game: Game) {
+        await this.delete({ game });
+    }
 }

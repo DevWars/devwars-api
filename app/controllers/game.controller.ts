@@ -333,6 +333,9 @@ export async function activateById(request: AuthorizedRequest & GameRequest, res
  * @apiParam {Number} game The given game being removed.
  */
 export async function deleteGameById(request: AuthorizedRequest & GameRequest, response: Response) {
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
+    await gameSourceRepository.deleteByGame(request.game);
+
     await request.game.remove();
     return response.json(flattenGame(request.game));
 }
@@ -345,6 +348,6 @@ export async function deleteGameById(request: AuthorizedRequest & GameRequest, r
  * @apiParam {Number} game The given game source being gathered.
  */
 export async function getGamesRelatedSourceDetails(request: GameRequest, response: Response) {
-    const gameSourceRepository = getCustomRepository(GameSourceRepository)
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
     return response.json(gameSourceRepository.findByGame(request.game));
 }
