@@ -57,6 +57,12 @@ GameRoute.delete(
 );
 
 /*******************************
+ *  Source
+ ******************************/
+
+GameRoute.get('/:game/source', [bindGameByParamId('game')], wrapAsync(GameController.getGamesRelatedSourceDetails));
+
+/*******************************
  *  Actions
  ******************************/
 
