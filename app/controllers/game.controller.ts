@@ -349,5 +349,7 @@ export async function deleteGameById(request: AuthorizedRequest & GameRequest, r
  */
 export async function getGamesRelatedSourceDetails(request: GameRequest, response: Response) {
     const gameSourceRepository = getCustomRepository(GameSourceRepository);
-    return response.json(gameSourceRepository.findByGame(request.game));
+    const sources = await gameSourceRepository.findByGame(request.game);
+
+    return response.json(sources);
 }

@@ -1,4 +1,4 @@
-import { Column, Entity, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 
 import BaseModel from './base.model';
 import Game from './game.model';
@@ -17,7 +17,8 @@ export default class GameSource extends BaseModel {
     // Relations
     // ------------------------------------------------------------
 
-    @OneToOne(() => Game)
+    @ManyToOne(() => Game)
+    @JoinColumn()
     public game: Game;
 
     /**
