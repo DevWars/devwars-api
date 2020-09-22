@@ -13,6 +13,7 @@ import { cookieForUser } from './helpers';
 import User, { UserRole } from '../app/models/user.model';
 import Game, { GameMode } from '../app/models/game.model';
 import GameApplicationRepository from '../app/repository/gameApplication.repository';
+import GameSourceRepository from '../app/repository/gameSource.repository';
 
 const server: ServerService = new ServerService();
 let agent: any;
@@ -33,6 +34,9 @@ describe('game', () => {
 
     afterEach(async () => {
         const gameRepository = getCustomRepository(GameRepository);
+        const gameSourceRepository = getCustomRepository(GameSourceRepository);
+
+        await gameSourceRepository.delete({});
         await gameRepository.delete({});
     });
 
@@ -279,5 +283,15 @@ describe('game', () => {
             const updatedApplications = await gameApplicationRepository.findByGame(game);
             chai.expect(updatedApplications.length).to.be.equal(0);
         });
+    });
+});
+
+describe('GET - /games/:id/source - Get game source for existing games', () => {
+    it('Should return all games in the system.', async () => {
+        const game = await GameSeeding.default().WithTemplates().save();
+        await game.save();
+
+        const response = await agent.get(`/games/${game.id}/source`).send().expect(200);
+        chai.expect(response.body.length).to.be.equal(3); // the total languages.
     });
 });

@@ -3,6 +3,7 @@ import * as _ from 'lodash';
 
 import Game, { GameMode, GameStatus } from '../models/game.model';
 import GameApplication from '../models/gameApplication.model';
+import GameSource from '../models/gameSource.model';
 import User from '../models/user.model';
 
 import { GameObjective } from '../types/common';
@@ -230,6 +231,11 @@ export default class GameSeeding {
      */
     public async save(): Promise<Game> {
         const game = await this.game.save();
+
+        for (const language of Object.keys(game.storage.templates)) {
+            const gameSource = new GameSource(language, (game.storage.templates as any)[language], game);
+            await gameSource.save();
+        }
 
         for (const application of this.gameApplications) {
             application.game = game;

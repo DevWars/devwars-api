@@ -14,6 +14,7 @@ import { getCustomRepository } from 'typeorm';
 import PaginationService from '../services/pagination.service';
 import { DATABASE_MAX_ID } from '../constants';
 import GameRepository from '../repository/game.repository';
+import GameSourceRepository from '../repository/gameSource.repository';
 
 /**
  * Takes a game and flattens it within a top level object containing the core
@@ -322,6 +323,7 @@ export async function activateById(request: AuthorizedRequest & GameRequest, res
     await GameService.sendGameToFirebase(request.game);
     return response.json(flattenGame(request.game));
 }
+
 /**
  * @api {delete} /games/:game Deletes the game from the system
  * @apiName DeleteGameById
@@ -331,6 +333,23 @@ export async function activateById(request: AuthorizedRequest & GameRequest, res
  * @apiParam {Number} game The given game being removed.
  */
 export async function deleteGameById(request: AuthorizedRequest & GameRequest, response: Response) {
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
+    await gameSourceRepository.deleteByGame(request.game);
+
     await request.game.remove();
     return response.json(flattenGame(request.game));
+}
+
+/**
+ * @api {get} /games/:game/source Get all the source of the game after completion (e.g the source code)
+ * @apiName GetGameSourceByGameId
+ * @apiGroup Games
+ *
+ * @apiParam {Number} game The given game source being gathered.
+ */
+export async function getGamesRelatedSourceDetails(request: GameRequest, response: Response) {
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
+    const sources = await gameSourceRepository.findByGame(request.game);
+
+    return response.json(sources);
 }
