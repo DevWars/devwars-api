@@ -7,7 +7,7 @@ export default class UserStatsSeeding {
         const stats = new UserStats();
 
         stats.coins = random.number(20000);
-        stats.xp = random.number(20000);
+        stats.xp = random.number(100000);
         stats.level = random.number({ min: 1, max: 20 });
 
         return stats;

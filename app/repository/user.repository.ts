@@ -1,9 +1,10 @@
-import { EntityRepository, Repository } from 'typeorm';
+import { EntityRepository, getCustomRepository, Repository } from 'typeorm';
 import User from '../models/user.model';
 import UserStats from '../models/userStats.model';
 import UserGameStats from '../models/userGameStats.model';
 
 import * as _ from 'lodash';
+import RankRepository from './rank.repository';
 
 interface Credentials {
     identifier: string;
@@ -133,8 +134,12 @@ export default class UserRepository extends Repository<User> {
      * @param user The user who's game nd user stats will be returned.
      */
     public async findStatisticsForUser(user: User) {
+        const rankRepository = getCustomRepository(RankRepository);
+
         const [stats, game] = await Promise.all([UserStats.findOne({ user }), UserGameStats.findOne({ user })]);
-        return { ...stats, game };
+        const rank = await rankRepository.getRankFromExperience(stats.xp);
+
+        return { ...stats, game, rank };
     }
 
     public findGameStatsByUser(user: User): Promise<UserGameStats> {
