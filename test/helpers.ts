@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 
-import { AuthService } from '../app/services/Auth.service';
-import User from '../app/models/User';
+import { AuthService } from '../app/services/auth.service';
+import User from '../app/models/user.model';
 
 export const cookieForUser = async (user: User): Promise<string> => {
     return `token=${await AuthService.newToken(user)}`;
@@ -53,7 +53,6 @@ export const parseStringsFromQueryParameter = (parameter: any, min?: number, max
     // duplicates that existed.
     return _.uniq(_.compact(_.map(parameter, (e) => parseStringWithDefault(e, null, min, max))));
 };
-
 
 /**
  * Takes in a possible int value, ensures its a number and within a given bound. Returning the

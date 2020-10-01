@@ -1,11 +1,11 @@
 import * as dotenv from 'dotenv';
 import * as AWS from 'aws-sdk';
-import { isNil } from 'lodash';
+import { isNil, defaultTo } from 'lodash';
 
 dotenv.config();
 
-const DIALECT: any = process.env.DIALECT || 'postgres';
-const environment = process.env.NODE_ENV;
+const DIALECT: any = defaultTo(process.env.DIALECT, 'postgres');
+const environment = defaultTo(process.env.NODE_ENV, 'production');
 
 const TEST_CONFIGURATION = {
     HOST: process.env.TEST_DB_HOST,

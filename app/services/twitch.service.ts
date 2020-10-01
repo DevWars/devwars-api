@@ -45,6 +45,7 @@ export class TwitchService {
             const response = await axios.get(userEndpoint, {
                 headers: {
                     Authorization: `Bearer ${token}`,
+                    'Client-ID': process.env.TWITCH_CLIENT,
                 },
             });
 

@@ -1,6 +1,6 @@
 import { EntityRepository, In, Repository } from 'typeorm';
 
-import UserGameStats from '../models/UserGameStats';
+import UserGameStats from '../models/userGameStats.model';
 
 @EntityRepository(UserGameStats)
 export default class UserGameStatsRepository extends Repository<UserGameStats> {

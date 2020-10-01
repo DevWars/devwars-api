@@ -1,4 +1,3 @@
-import User from '../models/User';
 import { GameEditorTemplates, GameObjective } from './common';
 
 /**
@@ -7,32 +6,13 @@ import { GameEditorTemplates, GameObjective } from './common';
  * game has been completed. This includes players, editor assignments, results.
  */
 export interface GameStorage {
-    // The title of the given game, this is the display name used when showing
-    // users of the site players.
-    title: string;
-
-    // The mode the game is currently playing, e.g Classic, Blitz.
-    mode: string;
-
-    // The time the given game started at.
-    startTime?: Date;
-
     // The template html code that will be used to help get the game up and
     // running faster.
     templates?: GameEditorTemplates;
 
     // The objectives of the given game, what the teams must do to be win.
+    // index is the id of the objective.
     objectives?: { [index: string]: GameObjective };
-
-    // The objective of players that have been assigned to the given game. This
-    // can be expanded into the users object containing the players and users
-    // information, so the type supports its self and its self with the user
-    // object.
-    players?: { [index: string]: GameStoragePlayer | (GameStoragePlayer & User) };
-
-    // The teams objective, containing a list of the teams playing, including
-    // the id of the team, name and which objectives have been completed.
-    teams?: { [index: number]: GameStorageTeam };
 
     // The object of the editors that is related to the given game. including
     // which users have been to assigned to which editor.
@@ -48,18 +28,20 @@ export interface GameStorage {
  * scores/results of each team that competed.
  */
 export interface GameStorageMeta {
-    // The array of scores of the teams that played.
-    teamScores: GameStorageMetaTeamScore[];
+    // The object of scores of the teams that played. the index is the id of the
+    // given team/
+    teamScores: { [index: string]: GameStorageMetaTeamScore };
 
     // The id of the winning team.
     winningTeam: number;
 
+    // If the result of the game was a tie or not.
+    tie: boolean;
+
     // The result of the bets that had taken place for the given game, this is
     // the votes related to who will win and who will loose (or tie)
-    bets?: {
-        red: number;
-        blue: number;
-        tie: boolean;
+    bets: {
+        tie: number;
     };
 }
 
@@ -68,17 +50,23 @@ export interface GameStorageMeta {
  * rendering results on the site.
  */
 export interface GameStorageMetaTeamScore {
+    // The id of the given team.
+    id: number;
+
+    // The status of each objective for the given name in a string format. e.g
+    // has the given team completed or not completed the given objectives.
+    objectives?: {
+        [index: string]: 'complete' | 'incomplete';
+    };
+
+    // The number of bets for the given team.
+    bets: number;
+
     // The score the team got from the ui voting stage.
     ui: number;
 
     // The score the team got from the ux voting stage.
     ux: number;
-
-    // If the result of the game was a tie or not.
-    tie: boolean;
-
-    // The total number of objectives the give team has completed.
-    objectives: number;
 }
 
 /**
@@ -97,54 +85,4 @@ export interface GameStorageEditor {
 
     // The language the given editor has been assigned.
     language: string;
-}
-
-/**
- * The teams objective, containing a list of the teams playing, including the id
- * of the team, name and which objectives have been completed.
- */
-export interface GameStorageTeam {
-    // The id of the given team.
-    id: number;
-
-    // The name of the given team.
-    name: string;
-
-    // The voting output results of each stage (ui, ux and tie) for when the
-    // game has been completed.
-    votes?: {
-        // The score the team got from the ui voting stage.
-        ui: number;
-
-        // The score the team got from the ux voting stage.
-        ux: number;
-
-        // If the result of the game was a tie or not.
-        tie: boolean;
-    };
-
-    // The status of each objective for the given name in a string format. e.g
-    // has the given team completed or not completed the given objectives.
-    objectives?: {
-        [index: string]: 'complete' | 'incomplete';
-    };
-}
-
-/**
- * The player object that is currently assigned to the given game. This is used
- * as a reference point to the editor object that will contain the information
- * about what the player is doing on the team.
- */
-export interface GameStoragePlayer {
-    // The id of the given player.
-    id: number;
-    // The id of the team that the given player has been assigned too.
-    team: number;
-
-    // The username of the player that has been assigned to the game.
-    username: string;
-
-    // @optional -  The profile image of the user, that was assigned.
-    // If not assigned, will fall back to the default value.
-    avatarUrl?: string;
 }
