@@ -13,6 +13,10 @@ export default class GameSource extends BaseModel {
     @Column()
     public source: string;
 
+    // The allocated team the source came from.
+    @Column()
+    public team: number;
+
     // ------------------------------------------------------------
     // Relations
     // ------------------------------------------------------------
@@ -24,13 +28,15 @@ export default class GameSource extends BaseModel {
     /**
      * .Creates a new instance of the Game Source model.
      *
+     * @param team The team the source came from.
      * @param language The language of the source.
      * @param source The raw source text.
      * @param game The game that owns the source
      */
-    public constructor(language?: string, source?: string, game?: Game) {
+    public constructor(team?: number, language?: string, source?: string, game?: Game) {
         super();
 
+        this.team = team;
         this.language = language;
         this.source = source;
         this.game = game;

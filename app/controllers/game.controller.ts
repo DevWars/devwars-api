@@ -353,3 +353,56 @@ export async function getGamesRelatedSourceDetails(request: GameRequest, respons
 
     return response.json(sources);
 }
+
+/**
+ * @api {get} /games/:game/source/:team Get all the source of the game after completion for a given team.
+ * @apiName GetGameSourceByGameIdAndTeam
+ * @apiGroup Games
+ *
+ * @apiParam {Number} game The given game source being gathered.
+ * @apiParam {Number} team The given team
+ */
+export async function getGamesRelatedSourcesByTeam(request: GameRequest, response: Response) {
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
+
+    const team = parseIntWithDefault(request.params.team, null, 0, DATABASE_MAX_ID);
+
+    if (_.isNil(team)) {
+        throw new ApiError({
+            message: 'The specified team must be a valid team id.',
+            code: 400,
+        });
+    }
+
+    const sources = await gameSourceRepository.findByGameAndTeam(request.game, team);
+
+    return response.json(sources);
+}
+
+/**
+ * @api {get} /games/:game/source/:team/:language Get a given single source language from a game / team.
+ * @apiName GetGameSourceByGameIdTeamAndLanguage
+ * @apiGroup Games
+ *
+ * @description This will be returned as a raw string with the correct content headers.
+ *
+ * @apiParam {Number} game The given game source being gathered.
+ * @apiParam {Number} team The given team
+ * @apiParam {Number} language The language being returned
+ */
+export async function getGamesRelatedSourcesByTeamAndLanguage(request: GameRequest, response: Response) {
+    const gameSourceRepository = getCustomRepository(GameSourceRepository);
+
+    const { language } = request.params;
+    const team = parseIntWithDefault(request.params.team, null, 0, DATABASE_MAX_ID);
+
+    if (_.isNil(team)) {
+        throw new ApiError({
+            message: 'The specified team must be a valid team id.',
+            code: 400,
+        });
+    }
+
+    const source = await gameSourceRepository.findByGameTeamAndLanguage(request.game, team, language);
+    return response.send(source.source);
+}
