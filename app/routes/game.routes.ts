@@ -62,6 +62,18 @@ GameRoute.delete(
 
 GameRoute.get('/:game/source', [bindGameByParamId('game')], wrapAsync(GameController.getGamesRelatedSourceDetails));
 
+GameRoute.get(
+    '/:game/source/:team/',
+    [bindGameByParamId('game')],
+    wrapAsync(GameController.getGamesRelatedSourcesByTeam)
+);
+
+GameRoute.get(
+    '/:game/source/:team/:language',
+    [bindGameByParamId('game')],
+    wrapAsync(GameController.getGamesRelatedSourcesByTeamAndLanguage)
+);
+
 /*******************************
  *  Actions
  ******************************/
