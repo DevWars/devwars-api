@@ -284,14 +284,37 @@ describe('game', () => {
             chai.expect(updatedApplications.length).to.be.equal(0);
         });
     });
-});
 
-describe('GET - /games/:id/source - Get game source for existing games', () => {
-    it('Should return all games in the system.', async () => {
-        const game = await GameSeeding.default().WithTemplates().save();
-        await game.save();
+    describe('GET - /games/:id/source - Get game source for existing games', () => {
+        it('Should return all games in the system.', async () => {
+            const game = await GameSeeding.default().WithTemplates().save();
+            await game.save();
 
-        const response = await agent.get(`/games/${game.id}/source`).send().expect(200);
-        chai.expect(response.body.length).to.be.equal(3); // the total languages.
+            const response = await agent.get(`/games/${game.id}/source`).send().expect(200);
+            chai.expect(response.body.length).to.be.equal(6); // the total languages (total languages per team)
+        });
+    });
+
+    describe('GET - /games/:id/source/:team - Get game source for a given team', () => {
+        it('Should only return sources for the given team.', async () => {
+            const game = await GameSeeding.default().WithTemplates().save();
+            await game.save();
+
+            const response = await agent.get(`/games/${game.id}/source/1`).send().expect(200);
+            chai.expect(response.body.length).to.be.equal(3); // the total languages (total languages per team)
+
+            for (const source of response.body) {
+                chai.expect(source.team).to.be.equal(1);
+            }
+        });
+    });
+
+    describe('GET - /games/:id/source/:team/:file - Get game source for a given team and file', () => {
+        it('Should only return sources for the given team and language as a raw string.', async () => {
+            const game = await GameSeeding.default().WithTemplates().save();
+
+            const response = await agent.get(`/games/${game.id}/source/1/game.js`).send().expect(200);
+            chai.expect(response.text).to.be.equal(game.storage.templates.js);
+        });
     });
 });

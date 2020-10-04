@@ -232,9 +232,17 @@ export default class GameSeeding {
     public async save(): Promise<Game> {
         const game = await this.game.save();
 
-        for (const language of Object.keys(game.storage.templates)) {
-            const gameSource = new GameSource(language, (game.storage.templates as any)[language], game);
+        let count = 0;
+
+        for (const language of Object.keys(game.storage.templates).concat(Object.keys(game.storage.templates))) {
+            const gameSource = new GameSource(
+                count % 2,
+                `game.${language}`,
+                (game.storage.templates as any)[language],
+                game
+            );
             await gameSource.save();
+            count += 1;
         }
 
         for (const application of this.gameApplications) {

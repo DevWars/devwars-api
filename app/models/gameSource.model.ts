@@ -7,11 +7,15 @@ import Game from './game.model';
 export default class GameSource extends BaseModel {
     // The language of the source.
     @Column()
-    public language: string;
+    public file: string;
 
     // The source text of the given game language.
     @Column()
     public source: string;
+
+    // The allocated team the source came from.
+    @Column()
+    public team: number;
 
     // ------------------------------------------------------------
     // Relations
@@ -24,14 +28,16 @@ export default class GameSource extends BaseModel {
     /**
      * .Creates a new instance of the Game Source model.
      *
-     * @param language The language of the source.
+     * @param team The team the source came from.
+     * @param file The file and the extension tag, e.g game.js
      * @param source The raw source text.
      * @param game The game that owns the source
      */
-    public constructor(language?: string, source?: string, game?: Game) {
+    public constructor(team?: number, file?: string, source?: string, game?: Game) {
         super();
 
-        this.language = language;
+        this.team = team;
+        this.file = file;
         this.source = source;
         this.game = game;
     }
