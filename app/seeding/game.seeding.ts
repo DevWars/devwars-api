@@ -235,7 +235,12 @@ export default class GameSeeding {
         let count = 0;
 
         for (const language of Object.keys(game.storage.templates).concat(Object.keys(game.storage.templates))) {
-            const gameSource = new GameSource(count % 2, language, (game.storage.templates as any)[language], game);
+            const gameSource = new GameSource(
+                count % 2,
+                `game.${language}`,
+                (game.storage.templates as any)[language],
+                game
+            );
             await gameSource.save();
             count += 1;
         }

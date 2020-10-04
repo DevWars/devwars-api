@@ -23,14 +23,26 @@ export default class GameSourceRepository extends Repository<GameSource> {
     }
 
     /**
+     * Returns true if and only if the source exists for the given team, game and file.
+     *
+     * @param game The game which owns the sources.
+     * @param team THe id of the team.
+     * @param file The selected game file of the team.
+     */
+    public async existsByTeamAndFile(game: Game, team: number | number, file: string): Promise<boolean> {
+        const exists = await this.count({ where: { game, team, file } });
+        return exists >= 1;
+    }
+
+    /**
      * Gets all the sources for the given game that came from the specified language and team.
      *
      * @param game The game which owns the sources.
      * @param team THe id of the team.
-     * @param language The selected language of the team.
+     * @param file The selected game file of the team.
      */
-    public findByGameTeamAndLanguage(game: Game, team: number | number, language: string): Promise<GameSource> {
-        return this.findOne({ where: { game, team, language } });
+    public findByGameTeamAndFile(game: Game, team: number | number, file: string): Promise<GameSource> {
+        return this.findOne({ where: { game, team, file } });
     }
 
     /**

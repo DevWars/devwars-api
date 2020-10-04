@@ -393,16 +393,24 @@ export async function getGamesRelatedSourcesByTeam(request: GameRequest, respons
 export async function getGamesRelatedSourcesByTeamAndLanguage(request: GameRequest, response: Response) {
     const gameSourceRepository = getCustomRepository(GameSourceRepository);
 
-    const { language } = request.params;
+    const file = parseStringWithDefault(request.params.file, null, 0, 25);
     const team = parseIntWithDefault(request.params.team, null, 0, DATABASE_MAX_ID);
 
-    if (_.isNil(team)) {
+    if (_.isNil(team) || _.isNil(file)) {
         throw new ApiError({
-            message: 'The specified team must be a valid team id.',
+            message: 'The specified team must be a valid team id and file must not be empty.',
             code: 400,
         });
     }
 
-    const source = await gameSourceRepository.findByGameTeamAndLanguage(request.game, team, language);
+    if (!(await gameSourceRepository.existsByTeamAndFile(request.game, team, file))) {
+        throw new ApiError({
+            message: 'The specified source does not exist for the team and file.',
+            code: 400,
+        });
+    }
+
+    const source = await gameSourceRepository.findByGameTeamAndFile(request.game, team, file);
+
     return response.send(source.source);
 }
