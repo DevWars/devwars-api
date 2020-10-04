@@ -1,4 +1,4 @@
-import { MigrationInterface, QueryRunner, Table, TableForeignKey } from 'typeorm';
+import { MigrationInterface, QueryRunner, TableForeignKey } from 'typeorm';
 
 export class GameSourceCreation1601675832351 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<void> {
@@ -7,7 +7,7 @@ export class GameSourceCreation1601675832351 implements MigrationInterface {
                 id integer NOT NULL,
                 "updatedAt" timestamp without time zone DEFAULT now() NOT NULL,
                 "createdAt" timestamp without time zone DEFAULT now() NOT NULL,
-                language character varying NOT NULL,
+                file character varying NOT NULL,
                 source character varying NOT NULL,
                 team integer NOT NULL,
                 "gameId" integer

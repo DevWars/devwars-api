@@ -1,4 +1,5 @@
 import { EntityRepository, In, Repository } from 'typeorm';
+import User from '../models/user.model';
 
 import UserGameStats from '../models/userGameStats.model';
 
@@ -9,8 +10,8 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
      * there record.
      * @param losers The list of user id's which will be marked as a loss.
      */
-    public async incrementUsersLosesByIds(losers: number[]): Promise<void> {
-        await this.increment({ user: In(losers) }, 'loses', 1);
+    public async incrementUsersLosesByIds(losers: User[]): Promise<void> {
+        await this.increment({ user: In(losers.map((e) => e.id)) }, 'loses', 1);
     }
 
     /**
@@ -18,7 +19,7 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
      * there record.
      * @param winners The list of user id's which will be marked as a win.
      */
-    public async incrementUsersWinsByIds(winners: number[]): Promise<void> {
-        await this.increment({ user: In(winners) }, 'wins', 1);
+    public async incrementUsersWinsByIds(winners: User[]): Promise<void> {
+        await this.increment({ user: In(winners.map((e) => e.id)) }, 'wins', 1);
     }
 }

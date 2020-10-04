@@ -1,4 +1,4 @@
-import { EntityRepository, MoreThan, Repository } from 'typeorm';
+import { EntityRepository, Repository, LessThanOrEqual } from 'typeorm';
 import Rank from '../models/rank.model';
 
 @EntityRepository(Rank)
@@ -10,12 +10,8 @@ export default class RankRepository extends Repository<Rank> {
     public async getRankFromExperience(experience: number) {
         return this.findOne({
             select: ['level', 'name'],
-            where: {
-                totalExperience: MoreThan(experience),
-            },
-            order: {
-                totalExperience: 'ASC',
-            },
+            where: { totalExperience: LessThanOrEqual(experience) },
+            order: { totalExperience: 'DESC' },
         });
     }
 }

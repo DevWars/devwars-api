@@ -16,6 +16,7 @@ import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import User from '../models/user.model';
+import RankingService from '../services/ranking.service';
 
 /**
  * @api {post} /games/:game/actions/end Ends a game by a given id.
@@ -84,17 +85,33 @@ export async function endGameById(request: AuthorizedRequest & GameRequest, resp
 
         // Increment all the winners wins by one.
         if (!_.isNil(winners) && _.size(winners) > 0) {
-            await gameStatsRepository.incrementUsersWinsByIds(_.map(winners, (winner) => winner.user.id));
+            const winningUsers = _.map(winners, (e) => e.user);
+
+            await gameStatsRepository.incrementUsersWinsByIds(winningUsers);
+            await RankingService.assignWinningExperienceToUsers(winningUsers);
         }
 
         // Increment all the losers loses by one.
         if (!_.isNil(losers) && _.size(losers) > 0) {
-            await gameStatsRepository.incrementUsersLosesByIds(_.map(losers, (loser) => loser.user.id));
+            const losingUsers = _.map(losers, (e) => e.user);
+
+            await gameStatsRepository.incrementUsersLosesByIds(losingUsers);
+            await RankingService.assignLosingExperienceToUsers(losingUsers);
         }
+
+        // regardless of who own or lost and the amount of objectives that have
+        // been completed all users should get a fixed amount of experience for
+        // participation within devwars.
+        await RankingService.assignParticipationExperienceToUsers(
+            _.concat(
+                _.map(winners, (e) => e.user),
+                _.map(losers, (e) => e.user)
+            )
+        );
     }
 
     await game.save();
-    return response.status(200).send();
+    return response.send();
 }
 
 /*******************************

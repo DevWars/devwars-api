@@ -77,7 +77,7 @@ export const EXPERIENCE = {
     // event within devwars.
     PARTICIPATION: 800,
     // The total amount of experience gained for winning a game within devwars.
-    GAME_WIN: 800,
+    GAME_WIN: 4000,
     // The total amount of experience lost for losing a game within devwars.
     GAME_LOST: -2400,
     // The total amount of experience gained for getting all objectives within
