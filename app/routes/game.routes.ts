@@ -69,7 +69,7 @@ GameRoute.get(
 );
 
 GameRoute.get(
-    '/:game/source/:team/:language',
+    '/:game/source/:team/:file',
     [bindGameByParamId('game')],
     wrapAsync(GameController.getGamesRelatedSourcesByTeamAndLanguage)
 );
