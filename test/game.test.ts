@@ -309,12 +309,12 @@ describe('game', () => {
         });
     });
 
-    describe('GET - /games/:id/source/:team/:css - Get game source for a given team and language', () => {
+    describe('GET - /games/:id/source/:team/:file - Get game source for a given team and file', () => {
         it('Should only return sources for the given team and language as a raw string.', async () => {
             const game = await GameSeeding.default().WithTemplates().save();
 
-            const response = await agent.get(`/games/${game.id}/source/1/html`).send().expect(200);
-            chai.expect(response.text).to.be.equal(game.storage.templates.html);
+            const response = await agent.get(`/games/${game.id}/source/1/game.js`).send().expect(200);
+            chai.expect(response.text).to.be.equal(game.storage.templates.js);
         });
     });
 });
