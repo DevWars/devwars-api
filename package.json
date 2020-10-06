@@ -61,7 +61,7 @@
         "faker": "^4.1.0",
         "firebase-admin": "^8.13.0",
         "jsonwebtoken": "^8.2.0",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.20",
         "mailgun-js": "^0.22.0",
         "mime": "^2.4.6",
         "mjml": "^4.6.3",
