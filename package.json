@@ -96,7 +96,7 @@
         "@types/supertest": "^2.0.10",
         "@typescript-eslint/eslint-plugin": "^2.34.0",
         "@typescript-eslint/parser": "^2.34.0",
-        "apidoc": "^0.24.0",
+        "apidoc": "^0.25.0",
         "chai": "^4.2.0",
         "copyfiles": "^2.2.0",
         "cross-env": "^7.0.2",
