@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 
 import * as _ from 'lodash';
+import * as mime from 'mime';
 
 import Game, { GameMode, GameStatus } from '../models/game.model';
 
@@ -412,5 +413,6 @@ export async function getGamesRelatedSourcesByTeamAndLanguage(request: GameReque
 
     const source = await gameSourceRepository.findByGameTeamAndFile(request.game, team, file);
 
+    response.setHeader('Content-Type', mime.getType(source.file));
     return response.send(source.source);
 }
