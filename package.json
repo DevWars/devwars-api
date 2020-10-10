@@ -92,7 +92,7 @@
         "@types/multer": "^1.4.2",
         "@types/node": "^14.11.8",
         "@types/qs": "^6.9.4",
-        "@types/superagent": "^4.1.8",
+        "@types/superagent": "^4.1.10",
         "@types/supertest": "^2.0.10",
         "@typescript-eslint/eslint-plugin": "^2.34.0",
         "@typescript-eslint/parser": "^2.34.0",
