@@ -1,4 +1,4 @@
-import { EntityRepository, In, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 
 import UserGameStats from '../models/userGameStats.model';
 
@@ -10,7 +10,12 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
      * @param losers The list of user id's which will be marked as a loss.
      */
     public async incrementUsersLosesByIds(losers: number[]): Promise<void> {
-        await this.increment({ user: In(losers) }, 'loses', 1);
+        await this.createQueryBuilder()
+            .leftJoinAndSelect('user', 'user')
+            .update(UserGameStats)
+            .set({ loses: () => 'loses + 1' })
+            .where('user IN (:...users)', { users: losers })
+            .execute();
     }
 
     /**
@@ -19,6 +24,11 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
      * @param winners The list of user id's which will be marked as a win.
      */
     public async incrementUsersWinsByIds(winners: number[]): Promise<void> {
-        await this.increment({ user: In(winners) }, 'wins', 1);
+        await this.createQueryBuilder()
+            .leftJoinAndSelect('user', 'user')
+            .update(UserGameStats)
+            .set({ wins: () => 'wins + 1' })
+            .where('user IN (:...users)', { users: winners })
+            .execute();
     }
 }
