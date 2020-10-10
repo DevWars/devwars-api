@@ -87,6 +87,15 @@ export async function endGameById(request: AuthorizedRequest & GameRequest, resp
         if (!_.isNil(winners) && _.size(winners) > 0) {
             const winningUsers = _.map(winners, (e) => e.user);
 
+            const teamObjectives = Object.values(game.storage.meta.teamScores[winnerTeamId].objectives);
+            const totalCompleteTeamObjectives = teamObjectives.filter((e) => e === 'complete').length;
+
+            // If the given winning team completed all objectives, since if all
+            // objectives have been complete all users get a bonus about of
+            // xp.
+            if (_.size(game.storage.objectives) === totalCompleteTeamObjectives)
+                await RankingService.assignObjectiveCompletionExperienceToUsers(winningUsers);
+
             await gameStatsRepository.incrementUsersWinsByIds(winningUsers);
             await RankingService.assignWinningExperienceToUsers(winningUsers);
         }
@@ -94,6 +103,15 @@ export async function endGameById(request: AuthorizedRequest & GameRequest, resp
         // Increment all the losers loses by one.
         if (!_.isNil(losers) && _.size(losers) > 0) {
             const losingUsers = _.map(losers, (e) => e.user);
+
+            const teamObjectives = Object.values(game.storage.meta.teamScores[losingTeamId].objectives);
+            const totalCompleteTeamObjectives = teamObjectives.filter((e) => e === 'complete').length;
+
+            // If the given losing team completed all objectives, since if all
+            // objectives have been complete all users get a bonus about of
+            // xp.
+            if (_.size(game.storage.objectives) === totalCompleteTeamObjectives)
+                await RankingService.assignObjectiveCompletionExperienceToUsers(losingUsers);
 
             await gameStatsRepository.incrementUsersLosesByIds(losingUsers);
             await RankingService.assignLosingExperienceToUsers(losingUsers);

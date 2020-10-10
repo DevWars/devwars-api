@@ -25,6 +25,15 @@ export default class RankingService {
     }
 
     /**
+     * Add experience for users who completed all the objectives.
+     * @param users The users who completed all objectives.
+     */
+    public static async assignObjectiveCompletionExperienceToUsers(users: User[]) {
+        const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
+        await userStatisticsRepository.decreaseExperienceForUsers(EXPERIENCE.ALL_OBJECTIVES, users);
+    }
+
+    /**
      * Assign all users that participating within Devwars a given amount of experience.
      * @param users The users who will be gaining the participation amount.
      */
