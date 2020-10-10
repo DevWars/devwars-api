@@ -70,3 +70,23 @@ export const CONTACT_US_NAME_MAX = 64;
 // the min and max length of the contact message
 export const CONTACT_US_MESSAGE_MIN = 24;
 export const CONTACT_US_MESSAGE_MAX = 500;
+
+// XP - The experience that can be earned for different actions.
+export const EXPERIENCE = {
+    // The total amount fo experience earned for participating within a game or
+    // event within devwars.
+    PARTICIPATION: 800,
+    // The total amount of experience gained for winning a game within devwars.
+    GAME_WIN: 4000,
+    // The total amount of experience lost for losing a game within devwars.
+    GAME_LOST: -2400,
+    // The total amount of experience gained for getting all objectives within
+    // any given event or game that is held within devwars.
+    ALL_OBJECTIVES: 2400,
+    // The total amount of experience lost when forfeiting a game or event
+    // within devwars.
+    FORFEIT: -8000,
+    // The total amount of experience gained for being the best answer for a
+    // form for question asked to the community.
+    BEST_FORM_ANSWER: 800,
+};

@@ -4,6 +4,7 @@ import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
 import ActivitySeeding from '../app/seeding/activity.seeding';
 import GameSeeding from '../app/seeding/game.seeding';
 import UserSeeding from '../app/seeding/user.seeding';
+import RankSeeding from '../app/seeding/rank.seeding';
 
 import { Connection } from '../app/services/connection.service';
 import User, { UserRole } from '../app/models/user.model';
@@ -62,6 +63,17 @@ const generateApplications = async (): Promise<any> => {
     }
 };
 
+/**
+ * Generate all the core ranks for the application.
+ */
+const generateRanks = async (): Promise<any> => {
+    const ranks = RankSeeding.default();
+
+    for (const rank of ranks) {
+        await rank.save();
+    }
+};
+
 (async (): Promise<any> => {
     connection = await Connection;
 
@@ -77,6 +89,9 @@ const generateApplications = async (): Promise<any> => {
 
     logger.info('Generating applications');
     await generateApplications();
+
+    logger.info('Generate Ranks');
+    await generateRanks();
 
     // logger.info('Seeding complete');
     await connection.close();
