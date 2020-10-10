@@ -210,5 +210,52 @@ describe('Game Actions', () => {
                 chai.expect(gameStats.wins).to.be.equal(0, 'losers should not have a single won game.');
             }
         });
+
+        it('Should increase and decrease winners/losers experience', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+            const gameRepository = getCustomRepository(GameRepository);
+
+            const gameSetup = await GameSeeding.default().withStatus(GameStatus.ACTIVE).common();
+            let game = await gameSetup.save();
+
+            const allUsers = await gameApplicationRepository.findAssignedPlayersForGame(game, ['user', 'user.stats']);
+
+            for (const player of allUsers) {
+                player.user.stats.xp = 1000;
+                await player.user.stats.save();
+            }
+
+            await agent
+                .post(`/games/${game.id}/actions/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(200);
+
+            game = await gameRepository.findOne(game.id);
+            const winner = game.storage.meta.winningTeam;
+            const loser = game.storage.meta.winningTeam === 1 ? 0 : 1;
+
+            const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winner, [
+                'user',
+                'user.stats',
+            ]);
+
+            const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, loser, [
+                'user',
+                'user.stats',
+            ]);
+
+            for (const gameWinner of winners) {
+                const { stats } = gameWinner.user;
+
+                chai.expect(stats.xp).to.be.greaterThan(1000, 'winners should gain experience.');
+            }
+
+            for (const loser of losers) {
+                const { stats } = loser.user;
+                chai.expect(stats.xp).to.be.lessThan(1000, 'losers should lose experience.');
+            }
+        });
     });
 });

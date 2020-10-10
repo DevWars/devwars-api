@@ -32,7 +32,12 @@ export default class UserStatisticsRepository extends Repository<UserStats> {
     public async increaseExperienceForUsers(amount: number, users: User[]) {
         if (!isFinite(amount) || users.length <= 0) return;
 
-        await this.increment({ user: In(users.map((e) => e.id)) }, 'xp', amount);
+        await this.createQueryBuilder()
+            .leftJoinAndSelect('user', 'user')
+            .update(UserStats)
+            .set({ xp: () => `xp + ${amount}` })
+            .where('user IN (:...users)', { users: users.map((e) => e.id) })
+            .execute();
     }
 
     /**
@@ -48,16 +53,11 @@ export default class UserStatisticsRepository extends Repository<UserStats> {
     public async decreaseExperienceForUsers(amount: number, users: User[]) {
         if (!isFinite(amount) || users.length <= 0) return;
 
-        await this.manager.transaction(async (entityManger) => {
-            const statistics = await entityManger.find(UserStats, { where: { user: In(users.map((e) => e.id)) } });
-
-            for (const statistic of statistics) {
-                // Since the updating amount could be negative and we don't want
-                // to allow having a total amount of negative xp, if the new
-                // total is less than zero, set the to zero.
-                statistic.xp = Math.max(0, statistic.xp + amount);
-                await statistic.save();
-            }
-        });
+        await this.createQueryBuilder()
+            .leftJoinAndSelect('user', 'user')
+            .update(UserStats)
+            .set({ xp: () => `GREATEST(0, xp + ${amount})` })
+            .where('user IN (:...users)', { users: users.map((e) => e.id) })
+            .execute();
     }
 }
