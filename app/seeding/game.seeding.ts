@@ -9,6 +9,23 @@ import User from '../models/user.model';
 import { GameObjective } from '../types/common';
 import UserSeeding from './user.seeding';
 
+const SEEDING_TEMPLATE_SOURCE = {
+    html: `<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="game.css">
+    </head>
+
+    <body>
+        <script src="game.js"></script>
+    </body>
+</html>`,
+    css: 'body { background: white; }',
+    js: 'window.addEventListener("load", () => { /** Loaded */ });',
+};
+
 export default class GameSeeding {
     /**
      * Returns a creation of the default game seeding builder.
@@ -84,13 +101,13 @@ export default class GameSeeding {
     public WithTemplate(language: string): GameSeeding {
         switch (language) {
             case 'js':
-                this.game.storage.templates[language] = 'console.log("hit")';
+                this.game.storage.templates[language] = SEEDING_TEMPLATE_SOURCE.js;
                 break;
             case 'css':
-                this.game.storage.templates[language] = 'body { background: white; }';
+                this.game.storage.templates[language] = SEEDING_TEMPLATE_SOURCE.css;
                 break;
             case 'html':
-                this.game.storage.templates[language] = '<html><body>hi</body></html>';
+                this.game.storage.templates[language] = SEEDING_TEMPLATE_SOURCE.html;
                 break;
         }
         return this;
@@ -236,7 +253,7 @@ export default class GameSeeding {
 
         for (const language of Object.keys(game.storage.templates).concat(Object.keys(game.storage.templates))) {
             const fileName = language === 'html' ? 'index' : 'game';
-            
+
             const gameSource = new GameSource(
                 count % 2,
                 `${fileName}.${language}`,
