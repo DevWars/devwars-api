@@ -2,6 +2,8 @@ import { Request, Response } from 'express';
 import { getCustomRepository } from 'typeorm';
 
 import UserRepository from '../repository/user.repository';
+import RankRepository from '../repository/rank.repository';
+
 
 /**
  * @api {get} /users/leaderboards Get the current win based leaderboards for all users.
@@ -25,6 +27,7 @@ import UserRepository from '../repository/user.repository';
  *         "loses": 17,
  *         "xp": 15039,
  *         "coins": 18316,
+ *         "rank": { name: "Hacker I"},
  *         "level": 3
  *       ]
  *     }
@@ -45,6 +48,13 @@ export async function getUsersLeaderboards(request: Request, response: Response)
         .orderBy('gameStats.wins', 'DESC')
         .take(30)
         .getMany();
+
+        const rankRepository = getCustomRepository(RankRepository);
+
+    for (const result of results) {
+        const rank = await rankRepository.getRankFromExperience(result.stats.xp);
+        (result as any).rank = rank;
+    }
 
     return response.json({
         data: results.map((u) => u.sanitize('email', 'lastSignIn', 'createdAt', 'updatedAt', 'lastUsernameUpdateAt')),
