@@ -14,6 +14,8 @@ import UserRepository from '../app/repository/user.repository';
 import { helpers } from 'faker';
 import GameRepository from '../app/repository/game.repository';
 import { GameStatus } from '../app/models/game.model';
+import { BadgeSeeding } from '../app/seeding';
+import Badge from '../app/models/badge.model';
 
 let connection: typeorm.Connection;
 
@@ -23,6 +25,16 @@ const generateConstantUsers = async (): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
         await UserSeeding.withComponents(`test${role}`, null, (UserRole as any)[role.toUpperCase()]).save();
     }
+};
+
+const generateBadges = async (): Promise<Badge[]> => {
+    const badges = BadgeSeeding.default();
+
+    for (const badge of badges) {
+        await badge.save();
+    }
+
+    return badges;
 };
 
 const generateBasicUsers = async (): Promise<any> => {
@@ -81,8 +93,11 @@ const generateRanks = async (): Promise<any> => {
     logger.info('Synchronizing database, dropTablesBeforeSync = true');
     await connection.synchronize(true);
 
+    logger.info('Generating badges');
+    const badges = await generateBadges();
+
     logger.info('Generating basic users');
-    await generateBasicUsers();
+    await generateBasicUsers(badges);
 
     logger.info('Generating games');
     await generateGames();

@@ -17,4 +17,11 @@ export default class UserBadges extends BaseModel {
     @ManyToOne(() => User, (user) => user.id)
     @JoinColumn({ name: 'user_id' })
     public user: User;
+
+    constructor(user: User, badge: Badge) {
+        super();
+
+        this.user = user;
+        this.badge = badge;
+    }
 }

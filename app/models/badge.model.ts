@@ -24,4 +24,29 @@ export default class Badge extends BaseModel {
 
     @Column({ name: 'badge_variant' })
     public variant: BadgeVariant;
+
+    /**
+     * Create a new instance of the badge.
+     *
+     * @param name The name of the badge.
+     * @param description The description of the badge.
+     * @param awardingExperience The awarding experience.
+     * @param awardingCoins The awarding coins.
+     * @param variant The variant.
+     */
+    constructor(
+        name: string,
+        description: string,
+        awardingExperience: number,
+        awardingCoins: number,
+        variant: BadgeVariant
+    ) {
+        super();
+
+        this.name = name;
+        this.description = description;
+        this.awardingExperience = awardingExperience;
+        this.awardingCoins = awardingCoins;
+        this.variant = variant;
+    }
 }

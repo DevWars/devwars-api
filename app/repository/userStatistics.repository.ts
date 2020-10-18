@@ -1,4 +1,4 @@
-import { EntityRepository, In, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { isNil } from 'lodash';
 
 import UserStats from '../models/userStats.model';
