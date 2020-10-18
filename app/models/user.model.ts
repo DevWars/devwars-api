@@ -11,6 +11,7 @@ import GameApplication from './gameApplication.model';
 import EmailOptIn from './emailOptIn.model';
 import PasswordReset from './passwordReset.model';
 import UserGameStats from './userGameStats.model';
+import UserBadges from './userBadges.model';
 
 export enum UserRole {
     BANNED = 'BANNED',
@@ -79,6 +80,9 @@ export default class User extends BaseModel {
 
     @OneToMany(() => LinkedAccount, (accounts) => accounts.user)
     public connections: LinkedAccount[];
+
+    @OneToMany(() => UserBadges, (userBadges) => userBadges.user)
+    public badges: UserBadges[];
 
     /**
      * Creates a new instance of the user model.
