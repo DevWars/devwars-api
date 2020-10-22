@@ -7,6 +7,7 @@ const badges = [
         description: 'Verify your e-mail address',
         coins: 500,
         xp: 0,
+        implemented: true,
     },
     {
         id: 2,
@@ -14,6 +15,7 @@ const badges = [
         description: 'Connect any one social media account to your profile',
         coins: 900,
         xp: 0,
+        implemented: true,
     },
     {
         id: 3,
@@ -28,6 +30,7 @@ const badges = [
         description: 'Save up 5000 Devcoins',
         coins: 0,
         xp: 0,
+        implemented: true,
     },
     {
         id: 5,
@@ -35,6 +38,7 @@ const badges = [
         description: 'Save up 25000 Devcoins',
         coins: 0,
         xp: 0,
+        implemented: true,
     },
     {
         id: 6,
@@ -119,6 +123,7 @@ const badges = [
         description: 'Win your first game of DevWars',
         coins: 2900,
         xp: 0,
+        implemented: true,
     },
     {
         id: 18,
@@ -126,6 +131,7 @@ const badges = [
         description: 'Win 5 games of DevWars',
         coins: 900,
         xp: 0,
+        implemented: true,
     },
     {
         id: 19,
@@ -133,6 +139,7 @@ const badges = [
         description: 'Win 10 games of DevWars',
         coins: 2100,
         xp: 0,
+        implemented: true,
     },
     {
         id: 20,
@@ -140,6 +147,7 @@ const badges = [
         description: 'Win 25 games of DevWars',
         coins: 4900,
         xp: 0,
+        implemented: true,
     },
     {
         id: 21,

@@ -1,4 +1,4 @@
-import { getCustomRepository } from 'typeorm';
+import { getCustomRepository, In } from 'typeorm';
 import * as _ from 'lodash';
 
 import Badge from '../models/badge.model';
@@ -6,6 +6,8 @@ import User from '../models/user.model';
 import UserBadges from '../models/userBadges.model';
 import BadgeRepository from '../repository/badge.repository';
 import UserBadgesRepository from '../repository/userBadges.repository';
+import UserGameStatsRepository from '../repository/userGameStats.repository';
+import { BADGES } from '../constants';
 
 export class BadgeService {
     /**
@@ -45,5 +47,38 @@ export class BadgeService {
         if (_.isNil(badge)) return;
 
         return this.awardBadgeToUser(user, badge);
+    }
+
+    /**
+     * Goes through the process of assigning badges for users who are at different stages of winning
+     * games. Badges for first win, 5, 10, 25.
+     *
+     * @param users The users who have one the recent game.
+     */
+    public static async assignGameWinningBadgesForUsers(users: User[]) {
+        const userGameStatsRepository = getCustomRepository(UserGameStatsRepository);
+
+        const userStats = await userGameStatsRepository.find({
+            relations: ['user'],
+            where: {
+                user: In(users.map((e) => e.id)),
+            },
+        });
+
+        const badgeAwardingPromises = userStats.map((e) => {
+            switch (e.wins) {
+                case 1:
+                    if (e.loses === 0) return this.awardBadgeToUserById(e.user, BADGES.WIN_FIRST_GAME);
+                    break;
+                case 5:
+                    return this.awardBadgeToUserById(e.user, BADGES.WIN_5_GAMES);
+                case 10:
+                    return this.awardBadgeToUserById(e.user, BADGES.WIN_10_GAMES);
+                case 25:
+                    return this.awardBadgeToUserById(e.user, BADGES.WIN_25_GAMES);
+            }
+        });
+
+        return Promise.all(badgeAwardingPromises);
     }
 }
