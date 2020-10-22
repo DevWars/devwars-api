@@ -385,7 +385,7 @@ export async function getGamesRelatedSourcesByTeam(request: GameRequest, respons
  * @apiName GetGameSourceByGameIdTeamAndLanguage
  * @apiGroup Games
  *
- * @description This will be returned as a raw string with the correct content headers.
+ * @apiDescription This will be returned as a raw string with the correct content headers.
  *
  * @apiParam {Number} game The given game source being gathered.
  * @apiParam {Number} team The given team

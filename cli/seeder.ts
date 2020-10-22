@@ -94,10 +94,10 @@ const generateRanks = async (): Promise<any> => {
     await connection.synchronize(true);
 
     logger.info('Generating badges');
-    const badges = await generateBadges();
+    await generateBadges();
 
     logger.info('Generating basic users');
-    await generateBasicUsers(badges);
+    await generateBasicUsers();
 
     logger.info('Generating games');
     await generateGames();
