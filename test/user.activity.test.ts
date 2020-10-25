@@ -48,17 +48,6 @@ describe('User Activity', () => {
             chai.expect(response.body.length).to.be.equal(3);
         });
 
-        it('Should fail if you are not the owning user and not a admin or moderator', async () => {
-            const notOwning = await UserSeeding.withRole(UserRole.USER).save();
-
-            const response = await agent
-                .get(`/users/${user.id}/activities`)
-                .set('cookie', await cookieForUser(notOwning))
-                .send();
-
-            chai.expect(response.status).to.be.equal(403);
-        });
-
         it('Should pass if you are not the owning user and a admin or moderator', async () => {
             for (const role of [UserRole.ADMIN, UserRole.MODERATOR]) {
                 const notOwning = await UserSeeding.withRole(role).save();
@@ -107,18 +96,6 @@ describe('User Activity', () => {
             chai.expect(response.body.coins).to.be.equal(activity.coins);
             chai.expect(response.body.xp).to.be.equal(activity.xp);
             chai.expect(response.body.description).to.be.equal(activity.description);
-        });
-
-        it('Should fail if you are not the owning user and not a admin or moderator', async () => {
-            const activity = await ActivitySeeding.withUser(user).save();
-            const notOwning = await UserSeeding.withRole(UserRole.USER).save();
-
-            const response = await agent
-                .get(`/users/${user.id}/activities/${activity.id}`)
-                .set('cookie', await cookieForUser(notOwning))
-                .send();
-
-            chai.expect(response.status).to.be.equal(403);
         });
 
         it('Should pass if you are not the owning user and a admin or moderator', async () => {

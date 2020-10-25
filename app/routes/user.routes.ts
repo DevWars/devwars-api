@@ -173,13 +173,13 @@ UserRoute.get(
 
 UserRoute.get(
     '/:user/activities',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    [mustBeAuthenticated, bindUserByParamId('user')],
     wrapAsync(ActivityController.gatherAllUsersActivitiesById)
 );
 
 UserRoute.get(
     '/:user/activities/:activity',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    [mustBeAuthenticated, bindUserByParamId('user')],
     wrapAsync(ActivityController.gatherUserActivityById)
 );
 
