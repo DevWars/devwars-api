@@ -25,14 +25,12 @@ export default class UserStatisticsRepository extends Repository<UserStats> {
         userStats.coins = Math.max(0, userStats.coins + amount);
         await userStats.save();
 
-        // award badges for coins if the user has met the given coins range.
-        switch (userStats.coins) {
-            case 5000:
-                await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_5000);
-                break;
-            case 25000:
-                await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_25000);
-                break;
+        if (userStats.coins >= 5000) {
+            await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_5000);
+        }
+
+        if (userStats.coins >= 25000) {
+            await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_25000);
         }
     }
 

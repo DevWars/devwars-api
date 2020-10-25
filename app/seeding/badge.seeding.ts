@@ -211,8 +211,6 @@ export default class BadgeSeeding {
     public static default(): Badge[] {
         return badges.map((b) => {
             const badge = new Badge(b.name, b.description, b.xp, b.coins, BadgeVariant.Bronze);
-            badge.id = b.id;
-
             return badge;
         });
     }
