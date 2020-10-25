@@ -42,7 +42,6 @@ describe('User Statistics', () => {
             chai.expect(response.status).to.be.equal(200);
             chai.expect(response.body.coins).to.be.equal(stats.coins);
             chai.expect(response.body.xp).to.be.equal(stats.xp);
-            chai.expect(response.body.level).to.be.equal(stats.level);
             chai.expect(response.body.game.loses).to.be.equal(gameStats.loses);
             chai.expect(response.body.game.wins).to.be.equal(gameStats.wins);
         });

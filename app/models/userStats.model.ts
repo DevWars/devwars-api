@@ -12,9 +12,6 @@ export default class UserStats extends BaseModel {
     @Column({ default: 0 })
     public xp: number;
 
-    @Column({ default: 1 })
-    public level: number;
-
     // ------------------------------------------------------------
     // Relations
     @OneToOne(() => User)
