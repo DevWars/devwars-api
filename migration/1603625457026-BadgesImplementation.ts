@@ -1,4 +1,12 @@
-import { MigrationInterface, QueryRunner } from 'typeorm';
+import { MigrationInterface, Not, QueryRunner } from 'typeorm';
+import * as _ from 'lodash';
+
+import { BADGES } from '../app/constants';
+import Badge from '../app/models/badge.model';
+import User, { UserRole } from '../app/models/user.model';
+import UserBadges from '../app/models/userBadges.model';
+import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
+import UserRepository from '../app/repository/user.repository';
 
 export class BadgesImplementation1603625457026 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
@@ -145,6 +153,22 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
             INSERT INTO public.badge 
                 (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
                 VALUES (28, 'Coin Hoarder', 'Buy this badge from the coinshop to unlock it', 0, 0, 0);`);
+
+        // award all users who have verified there email address.
+        const userRepository = queryRunner.connection.getCustomRepository(UserRepository);
+        const verifiedUsers = await userRepository.find({ where: { role: Not(UserRole.PENDING)}})
+        const verificationBadge = await Badge.findOne(BADGES.EMAIL_VERIFICATION);
+
+        const verificationBadges = verifiedUsers.map(e => new UserBadges(e, verificationBadge).save());
+        await Promise.all(verificationBadges);
+
+        // award connecting any social media accounts.
+        const linkedAccountRepository = queryRunner.connection.getCustomRepository(LinkedAccountRepository);
+        const linkedUsers = _.uniqBy(await linkedAccountRepository.find({ relations: ['user'], }), e => e.user.id);
+        const linkedBadge = await Badge.findOne(BADGES.SINGLE_SOCIAL_ACCOUNT);
+
+        const linkedBadges = linkedUsers.map(e => new UserBadges(e.user, linkedBadge).save());
+        await Promise.all(linkedBadges);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
