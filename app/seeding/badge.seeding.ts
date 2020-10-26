@@ -1,4 +1,4 @@
-import Badge, { BadgeVariant } from '../models/badge.model';
+mport Badge, { BadgeVariant } from '../models/badge.model';
 
 const badges = [
     {

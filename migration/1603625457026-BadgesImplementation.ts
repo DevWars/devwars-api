@@ -1,4 +1,4 @@
-import { MigrationInterface, Not, QueryRunner } from 'typeorm';
+import { MigrationInterface, Not, QueryRunner, MoreThanOrEqual } from 'typeorm';
 import * as _ from 'lodash';
 
 import { BADGES } from '../app/constants';
@@ -7,6 +7,7 @@ import User, { UserRole } from '../app/models/user.model';
 import UserBadges from '../app/models/userBadges.model';
 import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
 import UserRepository from '../app/repository/user.repository';
+import UserStatisticsRepository from '../app/repository/userStatistics.repository';
 
 export class BadgesImplementation1603625457026 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
@@ -169,6 +170,22 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
 
         const linkedBadges = linkedUsers.map(e => new UserBadges(e.user, linkedBadge).save());
         await Promise.all(linkedBadges);
+
+        // 5000 and 25000 badges
+        const userStatsRepository = queryRunner.connection.getCustomRepository(UserStatisticsRepository);
+        const usersWithCoins = await userStatsRepository.find({ where: { coins: MoreThanOrEqual(5000)}, relations: ['user']});
+
+        const fiveBadge = await Badge.findOne(BADGES.DEVWARS_COINS_5000);
+        const twentyBadge = await Badge.findOne(BADGES.DEVWARS_COINS_25000);
+
+        const devCoinBadges: Promise<UserBadges>[] = [];
+
+        usersWithCoins.forEach(e=> {
+            if (e.coins >= 5000)  devCoinBadges.push(new UserBadges(e.user, fiveBadge).save());
+            if (e.coins >= 25000)  devCoinBadges.push(new UserBadges(e.user, twentyBadge).save());
+        })
+
+        await Promise.all(devCoinBadges);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {
