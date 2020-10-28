@@ -1,13 +1,13 @@
-import { MigrationInterface, Not, QueryRunner, MoreThanOrEqual } from 'typeorm';
+import { MigrationInterface, QueryRunner } from 'typeorm';
 import * as _ from 'lodash';
 
 import { BADGES } from '../app/constants';
-import Badge from '../app/models/badge.model';
-import User, { UserRole } from '../app/models/user.model';
 import UserBadges from '../app/models/userBadges.model';
 import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
 import UserRepository from '../app/repository/user.repository';
 import UserStatisticsRepository from '../app/repository/userStatistics.repository';
+import BadgeRepository from '../app/repository/badge.repository';
+import GameRepository from '../app/repository/game.repository';
 
 export class BadgesImplementation1603625457026 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
@@ -32,14 +32,14 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
                     id          serial                  not null,
                     "updatedAt" timestamp default now() not null,
                     "createdAt" timestamp default now() not null,
-                    badge_id    integer,
-                    user_id     integer,
+                    "badgeId"    integer,
+                    "userId"     integer,
                     constraint "PK_715b81e610ab276ff6603cfc8e8"
                         primary key (id),
                     constraint "FK_5884bfd1713e03fdc9a5e77f709"
-                        foreign key (badge_id) references public.badge,
+                        foreign key ("badgeId") references public.badge,
                     constraint "FK_b575efa2c1fbf6ffa17fdd811a9"
-                        foreign key (user_id) references public."user"
+                        foreign key ("userId") references public."user"
                 );`);
 
         await queryRunner.query(`
@@ -156,36 +156,190 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
                 VALUES (28, 'Coin Hoarder', 'Buy this badge from the coinshop to unlock it', 0, 0, 0);`);
 
         // award all users who have verified there email address.
-        const userRepository = queryRunner.connection.getCustomRepository(UserRepository);
-        const verifiedUsers = await userRepository.find({ where: { role: Not(UserRole.PENDING)}})
-        const verificationBadge = await Badge.findOne(BADGES.EMAIL_VERIFICATION);
+        const linkedAccountRepository = queryRunner.manager.getCustomRepository(LinkedAccountRepository);
+        const userRepository = queryRunner.manager.getCustomRepository(UserRepository);
+        const badgeRepository = queryRunner.manager.getCustomRepository(BadgeRepository);
+        const gameRepository = queryRunner.manager.getCustomRepository(GameRepository);
+        const userStatsRepository = queryRunner.manager.getCustomRepository(UserStatisticsRepository);
 
-        const verificationBadges = verifiedUsers.map(e => new UserBadges(e, verificationBadge).save());
+        const verifiedUsers = await userRepository
+            .createQueryBuilder('user')
+            .where('role != :role')
+            .setParameters({ role: UserRole.PENDING })
+            .getMany();
+
+        const verificationBadge = await badgeRepository
+            .createQueryBuilder('badge')
+            .where('id = :id', { id: BADGES.EMAIL_VERIFICATION })
+            .getOne();
+
+        const verificationBadges = verifiedUsers.map((e) =>
+            queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                verificationBadge.id,
+                e.id,
+            ])
+        );
+
         await Promise.all(verificationBadges);
 
         // award connecting any social media accounts.
-        const linkedAccountRepository = queryRunner.connection.getCustomRepository(LinkedAccountRepository);
-        const linkedUsers = _.uniqBy(await linkedAccountRepository.find({ relations: ['user'], }), e => e.user.id);
-        const linkedBadge = await Badge.findOne(BADGES.SINGLE_SOCIAL_ACCOUNT);
+        const linkedUsers = _.uniq(
+            (
+                await linkedAccountRepository
+                    .createQueryBuilder('linked_account')
+                    .innerJoinAndMapOne('linked_account.user', 'linked_account.user', 'user')
+                    .getMany()
+            ).map((e) => e.user.id)
+        );
 
-        const linkedBadges = linkedUsers.map(e => new UserBadges(e.user, linkedBadge).save());
+        const linkedBadge = await badgeRepository
+            .createQueryBuilder('badge')
+            .where('id = :id', { id: BADGES.SINGLE_SOCIAL_ACCOUNT })
+            .getOne();
+
+        const linkedBadges = linkedUsers.map((e) =>
+            queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                linkedBadge.id,
+                e,
+            ])
+        );
+
         await Promise.all(linkedBadges);
 
-        // 5000 and 25000 badges
-        const userStatsRepository = queryRunner.connection.getCustomRepository(UserStatisticsRepository);
-        const usersWithCoins = await userStatsRepository.find({ where: { coins: MoreThanOrEqual(5000)}, relations: ['user']});
+        // // 5000 and 25000 badges
+        const usersWithCoins = await userStatsRepository
+            .createQueryBuilder('stat')
+            .innerJoinAndMapOne('stat.user', 'stat.user', 'user')
+            .leftJoinAndMapMany('user.connections', 'user.connections', 'linked_account')
+            .getMany();
 
-        const fiveBadge = await Badge.findOne(BADGES.DEVWARS_COINS_5000);
-        const twentyBadge = await Badge.findOne(BADGES.DEVWARS_COINS_25000);
+        const fiveBadge = await badgeRepository
+            .createQueryBuilder('badge')
+            .where('id = :id', { id: BADGES.DEVWARS_COINS_5000 })
+            .getOne();
+
+        const twentyBadge = await badgeRepository
+            .createQueryBuilder('badge')
+            .where('id = :id', { id: BADGES.DEVWARS_COINS_25000 })
+            .getOne();
 
         const devCoinBadges: Promise<UserBadges>[] = [];
 
-        usersWithCoins.forEach(e=> {
-            if (e.coins >= 5000)  devCoinBadges.push(new UserBadges(e.user, fiveBadge).save());
-            if (e.coins >= 25000)  devCoinBadges.push(new UserBadges(e.user, twentyBadge).save());
-        })
+        usersWithCoins.forEach((e) => {
+            let coins = e.coins;
+
+            if (!_.isNil(e.user?.connections)) {
+                coins += _.sum(e.user.connections.map((e) => e.storage?.coins || 0));
+            }
+
+            if (coins >= 5000)
+                devCoinBadges.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        fiveBadge.id,
+                        e.user.id,
+                    ])
+                );
+            if (coins >= 25000)
+                devCoinBadges.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        twentyBadge.id,
+                        e.user.id,
+                    ])
+                );
+        });
 
         await Promise.all(devCoinBadges);
+
+        // win related badges.
+        // this is going to work by gathering all games and all users assigned to said games. determine the winner
+        // and increase the cache total wins for that user. If wins is 1 and loses 0, award first win badge, otherwise
+        // award badges on 5, 10, 20, etc.
+        // It has to be done this way to ensure first win badges are distributed.
+        const winRelatedStats: { [index: string]: { first: boolean; wins: number; loses: number; user: number } } = {};
+
+        const games = await gameRepository
+            .createQueryBuilder('game')
+            .innerJoinAndMapMany('game.applications', 'game.applications', 'game_application')
+            .orderBy('game.createdAt', 'ASC')
+            .getMany();
+
+        for (const game of games) {
+            if (game?.storage?.meta?.tie || _.isNil(game?.storage?.meta?.teamScores[0]?.objectives)) continue;
+
+            const teamScores = game.storage.meta.teamScores;
+            const check = (val: string) => (val === 'complete' ? 1 : 0);
+
+            const teamOne = Object.values(teamScores[0].objectives).reduce((acc, val) => (acc += check(val)), 0);
+            const teamTwo = Object.values(teamScores[1].objectives).reduce((acc, val) => (acc += check(val)), 0);
+
+            const winningTeamIndex = teamOne > teamTwo ? 0 : 1;
+            const losingTeamIndex = teamOne < teamTwo ? 0 : 1;
+
+            for (const winner of game.applications.filter((e) => e.team === winningTeamIndex)) {
+                if (_.isNil(winRelatedStats[winner.userId])) {
+                    winRelatedStats[winner.userId] = { first: true, wins: 0, loses: 0, user: winner.userId };
+                }
+
+                winRelatedStats[winner.userId].wins += 1;
+            }
+
+            for (const loser of game.applications.filter((e) => e.team === losingTeamIndex)) {
+                if (_.isNil(winRelatedStats[loser.userId])) {
+                    winRelatedStats[loser.userId] = { first: false, wins: 0, loses: 0, user: loser.userId };
+                }
+
+                winRelatedStats[loser.userId].loses += 1;
+            }
+        }
+
+        const winRelatedBadgePromises = [];
+
+        const winBadges = [
+            await badgeRepository.createQueryBuilder('badge').where('id = :id', { id: BADGES.WIN_FIRST_GAME }).getOne(),
+            await badgeRepository.createQueryBuilder('badge').where('id = :id', { id: BADGES.WIN_5_GAMES }).getOne(),
+            await badgeRepository.createQueryBuilder('badge').where('id = :id', { id: BADGES.WIN_10_GAMES }).getOne(),
+            await badgeRepository.createQueryBuilder('badge').where('id = :id', { id: BADGES.WIN_25_GAMES }).getOne(),
+        ];
+
+        for (const winUser of Object.values(winRelatedStats)) {
+            if (winUser.first) {
+                winRelatedBadgePromises.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        winBadges[0].id,
+                        winUser.user,
+                    ])
+                );
+            }
+
+            if (winUser.wins >= 5) {
+                winRelatedBadgePromises.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        winBadges[1].id,
+                        winUser.user,
+                    ])
+                );
+            }
+
+            if (winUser.wins >= 10) {
+                winRelatedBadgePromises.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        winBadges[2].id,
+                        winUser.user,
+                    ])
+                );
+            }
+
+            if (winUser.wins >= 25) {
+                winRelatedBadgePromises.push(
+                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                        winBadges[3].id,
+                        winUser.user,
+                    ])
+                );
+            }
+        }
+
+        await Promise.all(winRelatedBadgePromises);
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {

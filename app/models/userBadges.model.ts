@@ -11,11 +11,11 @@ export default class UserBadges extends BaseModel {
     // ------------------------------------------------------------
 
     @ManyToOne(() => Badge, (badge) => badge.id)
-    @JoinColumn({ name: 'badge_id' })
+    @JoinColumn({ name: 'badgeId' })
     public badge: Badge;
 
     @ManyToOne(() => User, (user) => user.id)
-    @JoinColumn({ name: 'user_id' })
+    @JoinColumn({ name: 'userId' })
     public user: User;
 
     constructor(user: User, badge: Badge) {
