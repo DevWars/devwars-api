@@ -1,4 +1,5 @@
 import * as typeorm from 'typeorm';
+import * as _ from 'lodash';
 
 import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
 import ActivitySeeding from '../app/seeding/activity.seeding';
@@ -16,6 +17,7 @@ import GameRepository from '../app/repository/game.repository';
 import { GameStatus } from '../app/models/game.model';
 import { BadgeSeeding } from '../app/seeding';
 import Badge from '../app/models/badge.model';
+import UserBadges from '../app/models/userBadges.model';
 
 let connection: typeorm.Connection;
 
@@ -37,7 +39,7 @@ const generateBadges = async (): Promise<Badge[]> => {
     return badges;
 };
 
-const generateBasicUsers = async (): Promise<any> => {
+const generateBasicUsers = async (badges: Badge[]): Promise<any> => {
     await generateConstantUsers();
 
     for (let i = 4; i <= 100; i++) {
@@ -47,6 +49,9 @@ const generateBasicUsers = async (): Promise<any> => {
             const activity = ActivitySeeding.withUser(user);
             await activity.save();
         }
+
+        const userBadges = _.map(_.sampleSize(badges, 3), (b) => new UserBadges(user, b).save());
+        await Promise.all(userBadges);
 
         players.push(user);
     }
@@ -94,10 +99,10 @@ const generateRanks = async (): Promise<any> => {
     await connection.synchronize(true);
 
     logger.info('Generating badges');
-    await generateBadges();
+    const badges = await generateBadges();
 
     logger.info('Generating basic users');
-    await generateBasicUsers();
+    await generateBasicUsers(badges);
 
     logger.info('Generating games');
     await generateGames();

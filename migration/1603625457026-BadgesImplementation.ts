@@ -8,6 +8,7 @@ import UserRepository from '../app/repository/user.repository';
 import UserStatisticsRepository from '../app/repository/userStatistics.repository';
 import BadgeRepository from '../app/repository/badge.repository';
 import GameRepository from '../app/repository/game.repository';
+import { UserRole } from '../app/models/user.model';
 
 export class BadgesImplementation1603625457026 implements MigrationInterface {
     public async up(queryRunner: QueryRunner): Promise<any> {
@@ -183,14 +184,13 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
         await Promise.all(verificationBadges);
 
         // award connecting any social media accounts.
-        const linkedUsers = _.uniq(
-            (
-                await linkedAccountRepository
-                    .createQueryBuilder('linked_account')
-                    .innerJoinAndMapOne('linked_account.user', 'linked_account.user', 'user')
-                    .getMany()
-            ).map((e) => e.user.id)
-        );
+
+        const linkedAccounts = await linkedAccountRepository
+            .createQueryBuilder('linked_account')
+            .innerJoinAndMapOne('linked_account.user', 'linked_account.user', 'user')
+            .getMany();
+
+        const linkedUsers = _.uniq(linkedAccounts.map((e) => e.user.id));
 
         const linkedBadge = await badgeRepository
             .createQueryBuilder('badge')
@@ -205,6 +205,29 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
         );
 
         await Promise.all(linkedBadges);
+
+        // update teh given users coins for all linked accounts
+        for (const link of linkedAccounts) {
+            if (_.isNil(link.storage?.coins)) continue;
+
+            const coins = link.storage.coins;
+
+            await linkedAccountRepository
+                .createQueryBuilder('linked_account')
+                .update()
+                .set({ storage: {} })
+                .where('id = :id', { id: link.id })
+                .execute();
+
+            await userStatsRepository
+                .createQueryBuilder('stat')
+                .update()
+                .set({ coins: () => `coins + ${coins}` })
+                .where('"userId" = :id', { id: link.user.id })
+                .execute();
+
+            console.log({ link: JSON.stringify(link), storage: link.storage });
+        }
 
         // // 5000 and 25000 badges
         const usersWithCoins = await userStatsRepository
@@ -340,6 +363,8 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
         }
 
         await Promise.all(winRelatedBadgePromises);
+
+        // coin updates
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {

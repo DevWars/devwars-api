@@ -46,6 +46,16 @@ async function connectTwitch(request: Request, response: Response, user: User): 
 
     if (_.isNil(linkedAccount)) {
         linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    } else {
+        // Since the linked account exist, ensure that if it already has associated dev coins,
+        // go and assign those coins to that account and remove all the coins from the storage section.
+        const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
+        const coins = linkedAccount.storage?.coins;
+
+        if (!_.isNil(coins) && _.isNumber(coins)) {
+            await userStatisticsRepository.updateCoinsForUser(user, coins);
+            delete linkedAccount.storage.coins;
+        }
     }
 
     linkedAccount.user = user;
