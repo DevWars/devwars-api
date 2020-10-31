@@ -18,7 +18,6 @@ import { UserRequest } from '../request/requests';
  * @apiSuccess {datetime} createdAt the time the user was created at.
  * @apiSuccess {number} coins The number of coins the user has. default is 0.
  * @apiSuccess {number} xp The amount of xp the user has. default is 0.
- * @apiSuccess {number} level The level of the user. default is 1.
  * @apiSuccess {string} twitchId The Twitch id of the user.
  * @apiSuccess {object} game The game stats of the user.
  * @apiSuccess {number} game.id The id of the user.
@@ -34,7 +33,6 @@ import { UserRequest } from '../request/requests';
  *      "createdAt": "1969-12-31T17:00:00.000Z",
  *      "coins": 48837,
  *      "xp": 600,
- *      "level": 1,
  *      "twitchId": null,
  *      "game": {
  *       "id": 1,

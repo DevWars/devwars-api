@@ -53,7 +53,7 @@ export default class Game extends BaseModel {
     // ------------------------------------------------------------
 
     @OneToMany(() => GameApplication, (applications) => applications.game)
-    public applications: GameApplication;
+    public applications: GameApplication[];
 
     /**
      * Creates a new instance of the games model.

@@ -12,10 +12,11 @@ import PasswordResetRepository from '../repository/passwordReset.repository';
 
 import LoginRequest from '../request/loginRequest';
 import RegistrationRequest from '../request/registrationRequest';
+import { BadgeService } from '../services/badge.service';
 import { AuthService } from '../services/auth.service';
 import { VerificationService } from '../services/verification.service';
 import { ResetService } from '../services/reset.service';
-import { RESERVED_USERNAMES } from '../constants';
+import { RESERVED_USERNAMES, BADGES } from '../constants';
 import { hash } from '../utils/hash';
 
 import { AuthorizedRequest } from '../request/requests';
@@ -134,7 +135,10 @@ export async function verifyUser(request: Request, response: Response) {
         await transaction.save(user);
     });
 
-    response.redirect(process.env.FRONT_URL);
+    // award email verification badge.
+    await BadgeService.awardBadgeToUserById(verificationToken.user, BADGES.EMAIL_VERIFICATION);
+
+    return response.redirect(process.env.FRONT_URL);
 }
 
 /**

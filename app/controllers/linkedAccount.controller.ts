@@ -4,16 +4,20 @@ import * as _ from 'lodash';
 
 import UserStatisticsRepository from '../repository/userStatistics.repository';
 import LinkedAccountRepository from '../repository/linkedAccount.repository';
+import UserRepository from '../repository/user.repository';
+
 import LinkedAccount, { Provider } from '../models/linkedAccount.model';
 import User from '../models/user.model';
 
-import { DiscordService } from '../services/discord.service';
 import { SendLinkedAccountEmail, SendUnLinkedAccountEmail } from '../services/mail.service';
-import { AuthorizedRequest, UserRequest } from '../request/requests';
-import ApiError from '../utils/apiError';
+import { DiscordService } from '../services/discord.service';
 import { TwitchService } from '../services/twitch.service';
-import UserRepository from '../repository/user.repository';
+import { BadgeService } from '../services/badge.service';
+
+import { AuthorizedRequest, UserRequest } from '../request/requests';
 import { parseStringWithDefault } from '../../test/helpers';
+import ApiError from '../utils/apiError';
+import { BADGES } from '../constants';
 
 function getProviderFromString(provider: string) {
     switch (provider.toUpperCase()) {
@@ -42,6 +46,16 @@ async function connectTwitch(request: Request, response: Response, user: User): 
 
     if (_.isNil(linkedAccount)) {
         linkedAccount = new LinkedAccount(user, twitchUser.username, Provider.TWITCH, twitchUser.id);
+    } else {
+        // Since the linked account exist, ensure that if it already has associated dev coins,
+        // go and assign those coins to that account and remove all the coins from the storage section.
+        const userStatisticsRepository = getCustomRepository(UserStatisticsRepository);
+        const coins = linkedAccount.storage?.coins;
+
+        if (!_.isNil(coins) && _.isNumber(coins)) {
+            await userStatisticsRepository.updateCoinsForUser(user, coins);
+            delete linkedAccount.storage.coins;
+        }
     }
 
     linkedAccount.user = user;
@@ -89,6 +103,9 @@ export async function connectToProvider(request: AuthorizedRequest, response: Re
 
     if (provider === Provider.DISCORD) return await connectDiscord(request, response, request.user);
     if (provider === Provider.TWITCH) return await connectTwitch(request, response, request.user);
+
+    // award the social badge to the user.
+    await BadgeService.awardBadgeToUserById(request.user, BADGES.SINGLE_SOCIAL_ACCOUNT);
 
     return response.redirect(`${process.env.FRONT_URL}/settings/connections`);
 }

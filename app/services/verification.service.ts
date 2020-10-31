@@ -31,8 +31,8 @@ export class VerificationService {
         const verificationUrl = `${process.env.API_URL}/auth/verify?token=${verification.token}`;
 
         await getManager().transaction(async (transactionalEntityManager) => {
-            await transactionalEntityManager.save(user);
             await transactionalEntityManager.save(verification);
+            await transactionalEntityManager.save(user);
         });
 
         await sendWelcomeEmail(user, verificationUrl);

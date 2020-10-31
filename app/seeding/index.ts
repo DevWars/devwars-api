@@ -13,3 +13,5 @@ export { default as UserProfileSeeding } from './userProfile.seeding';
 export { default as UserStatsSeeding } from './userStats.seeding';
 
 export { default as EmailVerificationSeeding } from './emailVerification.seeding';
+
+export { default as BadgeSeeding } from './badge.seeding';

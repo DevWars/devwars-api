@@ -9,6 +9,7 @@ import * as UserAvatarController from '../controllers/userAvatar.controller';
 import * as UserStatsController from '../controllers/userStats.controller';
 import * as ActivityController from '../controllers/activity.controller';
 import * as EmailController from '../controllers/email.controller';
+import * as BadgeController from '../controllers/badge.controller';
 import * as UserController from '../controllers/user.controller';
 import { UserRole } from '../models/user.model';
 
@@ -181,6 +182,16 @@ UserRoute.get(
     '/:user/activities/:activity',
     [mustBeAuthenticated, bindUserByParamId('user')],
     wrapAsync(ActivityController.gatherUserActivityById)
+);
+
+/******************************
+ *  Activities
+ ******************************/
+
+UserRoute.get(
+    '/:user/badges',
+    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    wrapAsync(BadgeController.gatherUserBadgeById)
 );
 
 export { UserRoute };

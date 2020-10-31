@@ -1,8 +1,10 @@
-import { EntityRepository, In, Repository } from 'typeorm';
+import { EntityRepository, Repository } from 'typeorm';
 import { isNil } from 'lodash';
 
 import UserStats from '../models/userStats.model';
 import User from '../models/user.model';
+import { BadgeService } from '../services/badge.service';
+import { BADGES } from '../constants';
 
 @EntityRepository(UserStats)
 export default class UserStatisticsRepository extends Repository<UserStats> {
@@ -22,6 +24,14 @@ export default class UserStatisticsRepository extends Repository<UserStats> {
         // is less than zero, set the coins to zero (otherwise the result).
         userStats.coins = Math.max(0, userStats.coins + amount);
         await userStats.save();
+
+        if (userStats.coins >= 5000) {
+            await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_5000);
+        }
+
+        if (userStats.coins >= 25000) {
+            await BadgeService.awardBadgeToUserById(user, BADGES.DEVWARS_COINS_25000);
+        }
     }
 
     /**
