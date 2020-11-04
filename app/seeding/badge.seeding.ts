@@ -186,7 +186,7 @@ const badges = [
     },
     {
         id: 26,
-        name: 'Poll position',
+        name: 'Poll Position',
         description: 'Complete a poll or a survey',
         coins: 900,
         xp: 0,

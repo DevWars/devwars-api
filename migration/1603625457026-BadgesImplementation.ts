@@ -44,116 +44,116 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
                 );`);
 
         await queryRunner.query(`
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (1, 'Authentic', 'Verify your e-mail address', 0, 500, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (2, 'Making Links', 'Connect any one social media account to your profile', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (3, 'Full Coverage', 'Connect all possible social media accounts to your profile', 0, 1300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (4, 'Feed The Pig', 'Save up 5000 Devcoins', 0, 0, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (5, 'Penny-Pincher', 'Save up 25000 Devcoins', 0, 0, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (6, 'High Roller', 'Earn 10000 Devcoins from betting', 0, 0, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (7, 'Innovator', 'Submit an idea that gets implemented', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (8, 'Exterminator', 'Find a bug and report it to the DevWars team', 0, 1700, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (9, 'Follow Me', 'Refer 5 friends using your custom referral link', 0, 1300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (10, 'Influential', 'Refer 25 friends using your custom referral link', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (11, 'Natural Leader', 'Refer 50 friends using your custom referral link', 0, 4100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (12, 'Ace High', 'Complete all objectives in a single game of DevWars', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (13, 'First Timer', 'Watch your first game of DevWars', 0, 500, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (14, 'Hobbyist', 'Watch 5 games of DevWars', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (15, 'Biggest Fan', 'Watch 25 games of DevWars', 0, 1300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (16, 'Obsessed', 'Watch 50 games of DevWars', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (17, 'Beginner''s Luck', 'Win your first game of DevWars', 0, 2900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (18, 'Victorious', 'Win 5 games of DevWars', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (19, 'Hotshot', 'Win 10 games of DevWars', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (20, 'Steamroller', 'Win 25 games of DevWars', 0, 4900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (21, 'Hot Streak', 'Win 3 games of DevWars in a row', 0, 1300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (22, 'On The Ball', 'Answer first on a Twitch quiz question', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (23, 'Smarty Pants', 'Answer 10 Twitch quiz questions first', 0, 1300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (24, 'I''m All In', 'Bet ALL of your Devcoins in a stream and win', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (25, 'Cake Day', 'Visit DevWars on your birthday', 0, 2100, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
-                VALUES (26, 'Poll position', 'Complete a poll or a survey', 0, 900, 0);
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
+                VALUES (26, 'Poll Position', 'Complete a poll or a survey', 0, 900, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (27, 'Rapid Response', 'Complete 25 polls or surveys', 0, 3300, 0);
 
-            INSERT INTO public.badge 
-                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant) 
+            INSERT INTO public.badge
+                (id, badge_name, badge_description, badge_awarding_experience, badge_awarding_coins, badge_variant)
                 VALUES (28, 'Coin Hoarder', 'Buy this badge from the coinshop to unlock it', 0, 0, 0);`);
 
         // award all users who have verified there email address.
