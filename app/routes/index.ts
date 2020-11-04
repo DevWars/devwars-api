@@ -8,6 +8,7 @@ import { UserRoute } from './user.routes';
 import { ContactRoute } from './contact.routes';
 import { DocsRoute } from './docs.routes';
 import { SearchRoute } from './search.routes';
+import { BadgeRoute } from './badges.routes';
 
 interface Route {
     path: string;
@@ -42,6 +43,10 @@ export const Routes: Route[] = [
     {
         handler: ContactRoute,
         path: '/contact',
+    },
+    {
+        handler: BadgeRoute,
+        path: '/badges'
     },
     {
         handler: SearchRoute,
