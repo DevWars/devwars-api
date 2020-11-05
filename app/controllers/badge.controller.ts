@@ -1,4 +1,4 @@
-import { getCustomRepository, In } from 'typeorm';
+import { getCustomRepository } from 'typeorm';
 import { Request, Response } from 'express';
 
 import UserBadgesRepository from '../repository/userBadges.repository';
@@ -77,8 +77,15 @@ export async function gatherUserBadgeById(request: UserRequest, response: Respon
 export async function getAllCurrentBadges(request: Request, response: Response) {
     const badgeRepository = getCustomRepository(BadgeRepository);
 
+    const implementedBadges = [1, 2, 4, 5, 17, 18, 19, 20];
+
     // Since only some of the badges have been implemented, only gather the once
     // that have been and ignore the rest, this list will grow over time.
-    const badges = await badgeRepository.find({ where: { id: In([1, 2, 4, 5, 17, 18, 19, 20]) } });
+    const badges = await badgeRepository.find();
+  
+    badges.filter((e) => implementedBadges.includes(e.id))
+      .forEach((badge: any) => { badge.implemented = true });
+
+
     return response.json(badges);
 }
