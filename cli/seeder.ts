@@ -23,9 +23,14 @@ let connection: typeorm.Connection;
 
 const players: User[] = [];
 
-const generateConstantUsers = async (): Promise<any> => {
+const generateConstantUsers = async (badges: Badge[]): Promise<any> => {
     for (const role of ['admin', 'moderator', 'user']) {
-        await UserSeeding.withComponents(`test${role}`, null, (UserRole as any)[role.toUpperCase()]).save();
+        const userRole: UserRole = (UserRole as any)[role.toUpperCase()];
+        const user = await UserSeeding.withComponents(`test${role}`, null, userRole).save();
+
+        const userBadges = _.map(_.sampleSize(badges, 3), (b) => new UserBadges(user, b).save());
+        await Promise.all(userBadges);
+
     }
 };
 
@@ -40,7 +45,7 @@ const generateBadges = async (): Promise<Badge[]> => {
 };
 
 const generateBasicUsers = async (badges: Badge[]): Promise<any> => {
-    await generateConstantUsers();
+    await generateConstantUsers(badges);
 
     for (let i = 4; i <= 100; i++) {
         const user = await UserSeeding.withComponents().save();
