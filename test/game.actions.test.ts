@@ -8,6 +8,7 @@ import GameRepository from '../app/repository/game.repository';
 import { GameStatus } from '../app/models/game.model';
 import { UserRole } from '../app/models/user.model';
 
+import * as constants from '../app/constants';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
@@ -191,6 +192,7 @@ describe('Game Actions', () => {
             for (const gameWinner of winners) {
                 const { gameStats } = gameWinner.user;
 
+
                 chai.expect(gameStats.winStreak).to.be.equal(1, 'winnners streak should now be one.');
             }
         });
@@ -223,7 +225,6 @@ describe('Game Actions', () => {
                 .expect(200);
 
             game = await gameRepository.findOne(game.id);
-            const winner = game.storage.meta.winningTeam;
             const loser = game.storage.meta.winningTeam === 1 ? 0 : 1;
 
             const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, loser, [
