@@ -156,7 +156,90 @@ describe('Game Actions', () => {
                 .expect(400, { error: 'The game is already in a end state.' });
         });
 
+        it('should increase the winstreak if the given users win', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+            const gameRepository = getCustomRepository(GameRepository);
+
+            const gameSetup = await GameSeeding.default().withStatus(GameStatus.ACTIVE).common();
+            let game = await gameSetup.save();
+
+            const allUsers = await gameApplicationRepository.findAssignedPlayersForGame(game, [
+                'user',
+                'user.gameStats',
+            ]);
+
+            for (const player of allUsers) {
+                player.user.gameStats.winStreak = 0;
+                await player.user.gameStats.save();
+            }
+
+            await agent
+                .post(`/games/${game.id}/actions/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(200);
+
+            game = await gameRepository.findOne(game.id);
+            const winner = game.storage.meta.winningTeam;
+
+            const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winner, [
+                'user',
+                'user.gameStats',
+            ]);
+
+            for (const gameWinner of winners) {
+                const { gameStats } = gameWinner.user;
+
+                chai.expect(gameStats.winStreak).to.be.equal(1, 'winnners streak should now be one.');
+            }
+        });
+
+        it('should reset the winstreak if the given users win', async () => {
+            const user = await UserSeeding.withRole(UserRole.ADMIN).save();
+
+            const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
+            const gameRepository = getCustomRepository(GameRepository);
+
+            const gameSetup = await GameSeeding.default().withStatus(GameStatus.ACTIVE).common();
+            let game = await gameSetup.save();
+
+            const allUsers = await gameApplicationRepository.findAssignedPlayersForGame(game, [
+                'user',
+                'user.gameStats',
+            ]);
+
+            for (const { user } of allUsers) {
+                user.gameStats.winStreak = 5;
+                user.gameStats.loses = 0;
+                user.gameStats.wins = 5;
+
+                await user.gameStats.save();
+            }
+
+            await agent
+                .post(`/games/${game.id}/actions/end`)
+                .set('Cookie', await cookieForUser(user))
+                .expect(200);
+
+            game = await gameRepository.findOne(game.id);
+            const winner = game.storage.meta.winningTeam;
+            const loser = game.storage.meta.winningTeam === 1 ? 0 : 1;
+
+            const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, loser, [
+                'user',
+                'user.gameStats',
+            ]);
+
+            for (const loser of losers) {
+                const { gameStats } = loser.user;
+
+                chai.expect(gameStats.winStreak).to.be.equal(0, 'losers win streak should be reset to 0.');
+            }
+        });
+
         it('Should increment the winners and loses wins/loses', async () => {
+
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             const gameApplicationRepository = getCustomRepository(GameApplicationRepository);

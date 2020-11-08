@@ -14,7 +14,10 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
         await this.createQueryBuilder()
             .leftJoinAndSelect('user', 'user')
             .update(UserGameStats)
-            .set({ loses: () => 'loses + 1' })
+            .set({
+                loses: () => 'loses + 1',
+                winStreak: 0,
+            })
             .where('user IN (:...users)', { users: losers.map((e) => e.id) })
             .execute();
     }
@@ -28,7 +31,10 @@ export default class UserGameStatsRepository extends Repository<UserGameStats> {
         await this.createQueryBuilder()
             .leftJoinAndSelect('user', 'user')
             .update(UserGameStats)
-            .set({ wins: () => 'wins + 1' })
+            .set({
+                wins: () => 'wins + 1',
+                winStreak: () => 'win_streak + 1',
+            })
             .where('user IN (:...users)', { users: winners.map((e) => e.id) })
             .execute();
     }

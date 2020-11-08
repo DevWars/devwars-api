@@ -11,6 +11,12 @@ export default class UserGameStats extends BaseModel {
     public wins: number;
 
     /**
+     * The total number of wins the given user is currently had in a row.
+     */
+    @Column({ default: 0, nullable: false, name: 'win_streak' })
+    public winStreak: number;
+
+    /**
      * The total number of loses the given player has occurred on the platform.
      */
     @Column({ default: 0, nullable: false })
