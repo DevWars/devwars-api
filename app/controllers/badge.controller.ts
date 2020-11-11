@@ -77,15 +77,15 @@ export async function gatherUserBadgeById(request: UserRequest, response: Respon
 export async function getAllCurrentBadges(request: Request, response: Response) {
     const badgeRepository = getCustomRepository(BadgeRepository);
 
-    const implementedBadges = [1, 2, 4, 5, 17, 18, 19, 20];
+    const implementedBadges = [1, 2, 4, 5, 17, 18, 19, 20, 21];
 
     // Since only some of the badges have been implemented, only gather the once
     // that have been and ignore the rest, this list will grow over time.
     const badges = await badgeRepository.find();
+
+    badges.forEach((badge: any) => {
+      badge.implemented = implementedBadges.includes(badge.id);
+    })
   
-    badges.filter((e) => implementedBadges.includes(e.id))
-      .forEach((badge: any) => { badge.implemented = true });
-
-
     return response.json(badges);
 }

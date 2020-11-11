@@ -23,6 +23,8 @@ export default class UserStatisticsRepository extends Repository<UserStats> {
         // allow having a total amount of negative coins, if the new total coins
         // is less than zero, set the coins to zero (otherwise the result).
         userStats.coins = Math.max(0, userStats.coins + amount);
+
+
         await userStats.save();
 
         if (userStats.coins >= 5000) {
