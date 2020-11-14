@@ -7,6 +7,7 @@ import UserBadges from '../models/userBadges.model';
 import BadgeRepository from '../repository/badge.repository';
 import UserBadgesRepository from '../repository/userBadges.repository';
 import UserGameStatsRepository from '../repository/userGameStats.repository';
+import UserStatisticsRepository from '../repository/userStatistics.repository';
 import { BADGES } from '../constants';
 
 export class BadgeService {
@@ -32,7 +33,13 @@ export class BadgeService {
         if (await this.checkUserOwnsBadge(user, badge)) return;
 
         const userBadgesRepository = getCustomRepository(UserBadgesRepository);
-        await userBadgesRepository.insert(new UserBadges(user, badge));
+        const userStatsRepository = getCustomRepository(UserStatisticsRepository);
+
+        await Promise.all([
+            await userBadgesRepository.insert(new UserBadges(user, badge)),
+            await userStatsRepository.updateCoinsForUser(user, badge.awardingCoins),
+            await userStatsRepository.increaseExperienceForUsers(badge.awardingExperience, [user]),
+        ]);
     }
 
     /**
@@ -65,20 +72,30 @@ export class BadgeService {
             },
         });
 
-        const badgeAwardingPromises = userStats.map((e) => {
-            switch (e.wins) {
-                case 1:
-                    if (e.loses === 0) return this.awardBadgeToUserById(e.user, BADGES.WIN_FIRST_GAME);
-                    break;
-                case 5:
-                    return this.awardBadgeToUserById(e.user, BADGES.WIN_5_GAMES);
-                case 10:
-                    return this.awardBadgeToUserById(e.user, BADGES.WIN_10_GAMES);
-                case 25:
-                    return this.awardBadgeToUserById(e.user, BADGES.WIN_25_GAMES);
-            }
-        });
+        const winBadges: { [index: string]: (user: User) => Promise<void> } = {
+            HOT_STREAK: (user: User) => this.awardBadgeToUserById(user, BADGES.WIN_3_IN_ROW),
+            5: (user: User) => this.awardBadgeToUserById(user, BADGES.WIN_5_GAMES),
+            10: (user: User) => this.awardBadgeToUserById(user, BADGES.WIN_10_GAMES),
+            25: (user: User) => this.awardBadgeToUserById(user, BADGES.WIN_25_GAMES),
+        };
 
-        return Promise.all(badgeAwardingPromises);
+        const badgesBeingAwarded: Array<Promise<void>> = [];
+
+        for (const stats of userStats) {
+            if (stats.wins >= 1 && stats.loses === 0) {
+                badgesBeingAwarded.push(this.awardBadgeToUserById(stats.user, BADGES.WIN_FIRST_GAME));
+            }
+
+            const badge = winBadges[stats.wins];
+
+            // If the user has met any of the win related badge requirements, go and
+            // distribute that badge to the user.
+            if (!_.isNil(badge)) badgesBeingAwarded.push(badge(stats.user));
+
+            // If the user is on a win streak, then go and award them the hot streak badge
+            if (stats.winStreak === 3) badgesBeingAwarded.push(winBadges['HOT_STREAK'](stats.user));
+        }
+
+        return Promise.all(badgesBeingAwarded);
     }
 }

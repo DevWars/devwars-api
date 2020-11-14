@@ -34,16 +34,24 @@ describe('user-badges', () => {
         await server.Start();
         await (await Connection).synchronize(true);
 
-        const badges = BadgeSeeding.default().map((e) => e.save());
-        await Promise.all(badges);
+        for (const badge of BadgeSeeding.default()) {
+          await badge.save();
+        }
     });
 
     beforeEach(async () => {
         agent = supertest.agent(server.App());
 
         user = UserSeeding.default();
+
         userGameStats = UserGameStatsSeeding.withUser(user);
+        userGameStats.wins = 0;
+        userGameStats.winStreak = 0;
+        userGameStats.loses = 0;
+
         userStats = UserStatsSeeding.withUser(user);
+        userStats.xp = 0;
+        userStats.coins = 0;
 
         await connectionManager.transaction(async (transaction) => {
             await transaction.save(user);
@@ -176,7 +184,7 @@ describe('user-badges', () => {
 
         it('should award win 5 games badge on 5th win.', async () => {
             userGameStats.wins = 5;
-            userGameStats.loses = 0;
+            userGameStats.loses = 1;
 
             await userGameStats.save();
 
@@ -196,7 +204,7 @@ describe('user-badges', () => {
 
         it('should award win 10 games badge on 10th win.', async () => {
             userGameStats.wins = 10;
-            userGameStats.loses = 0;
+            userGameStats.loses = 1;
 
             await userGameStats.save();
 
@@ -216,7 +224,7 @@ describe('user-badges', () => {
 
         it('should award win 25 games badge on 25th win.', async () => {
             userGameStats.wins = 25;
-            userGameStats.loses = 0;
+            userGameStats.loses = 1;
 
             await userGameStats.save();
 
@@ -232,6 +240,34 @@ describe('user-badges', () => {
 
             const [selectedBadgeOne] = response.body.filter((e: Badge) => e.id === BADGES.WIN_25_GAMES);
             chai.expect(selectedBadgeOne.id).to.be.equal(BADGES.WIN_25_GAMES);
+        });
+
+        it('should award streak badge if met', async () => {
+            userGameStats.winStreak = 3;
+            userGameStats.loses = 1;
+            userGameStats.wins = 3;
+
+            userStats.coins = 0;
+
+            await userGameStats.save();
+
+            await BadgeService.assignGameWinningBadgesForUsers([user]);
+
+            const response = await agent
+                .get(`/users/${user.id}/badges`)
+                .set('cookie', await cookieForUser(user))
+                .send();
+
+            chai.expect(response.status).to.be.equal(200);
+            chai.expect(response.body.length).to.be.equal(1);
+
+            const [selectedBadgeOne] = response.body.filter((e: Badge) => e.id === BADGES.WIN_3_IN_ROW);
+            chai.expect(selectedBadgeOne.id).to.be.equal(BADGES.WIN_3_IN_ROW);
+        
+            const userStatsRepository = getCustomRepository(UserStatisticsRepository);
+            const stats = await userStatsRepository.findOne({ where: { user: user.id}})
+
+            chai.expect(stats.coins).to.be.equal(selectedBadgeOne.awardingCoins);
         });
     });
 });
