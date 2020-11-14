@@ -181,7 +181,14 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
             ])
         );
 
+      const verificationBadgeCoins = verifiedUsers.map((e) =>
+        queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+          verificationBadge.awardingCoins, e.id])
+      );
+
         await Promise.all(verificationBadges);
+        await Promise.all(verificationBadgeCoins);
+
 
         // award connecting any social media accounts.
 
@@ -204,7 +211,13 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
             ])
         );
 
+      const linkedBadgeCoins = verifiedUsers.map((e) =>
+        queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+          linkedBadge.awardingCoins, e.id])
+      );
+
         await Promise.all(linkedBadges);
+        await Promise.all(linkedBadgeCoins);
 
         // update teh given users coins for all linked accounts
         for (const link of linkedAccounts) {
@@ -255,20 +268,23 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
                 coins += _.sum(e.user.connections.map((e) => e.storage?.coins || 0));
             }
 
-            if (coins >= 5000)
-                devCoinBadges.push(
-                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
-                        fiveBadge.id,
-                        e.user.id,
-                    ])
-                );
-            if (coins >= 25000)
-                devCoinBadges.push(
-                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
-                        twentyBadge.id,
-                        e.user.id,
-                    ])
-                );
+          if (coins >= 5000) {
+            devCoinBadges.push(
+              queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                fiveBadge.id,
+                e.user.id,
+              ])
+            );
+          }
+
+          if (coins >= 25000) {
+            devCoinBadges.push(
+              queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                twentyBadge.id,
+                e.user.id,
+              ])
+            );
+          }
         });
 
         await Promise.all(devCoinBadges);
@@ -325,32 +341,54 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
         ];
 
         for (const winUser of Object.values(winRelatedStats)) {
-            if (winUser.first) {
-                winRelatedBadgePromises.push(
-                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
-                        winBadges[0].id,
-                        winUser.user,
-                    ])
-                );
-            }
+          if (winUser.first) {
+            winRelatedBadgePromises.push(
+              queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                winBadges[0].id,
+                winUser.user,
+              ])
+            );
 
-            if (winUser.wins >= 5) {
-                winRelatedBadgePromises.push(
-                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
-                        winBadges[1].id,
-                        winUser.user,
-                    ])
-                );
-            }
+            winRelatedBadgePromises.push(
+              queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+                winBadges[0].awardingCoins,
+                winUser.user,
+              ])
+            );
+          }
 
-            if (winUser.wins >= 10) {
-                winRelatedBadgePromises.push(
-                    queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
-                        winBadges[2].id,
-                        winUser.user,
-                    ])
-                );
-            }
+          if (winUser.wins >= 5) {
+            winRelatedBadgePromises.push(
+              queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                winBadges[1].id,
+                winUser.user,
+              ])
+            );
+
+            winRelatedBadgePromises.push(
+              queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+                winBadges[1].awardingCoins,
+                winUser.user,
+              ])
+            );
+
+          }
+
+          if (winUser.wins >= 10) {
+            winRelatedBadgePromises.push(
+              queryRunner.query('INSERT into user_badges_badge ("badgeId", "userId") values ($1, $2)', [
+                winBadges[2].id,
+                winUser.user,
+              ])
+            );
+
+            winRelatedBadgePromises.push(
+              queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+                winBadges[2].awardingCoins,
+                winUser.user,
+              ])
+            );
+          }
 
             if (winUser.wins >= 25) {
                 winRelatedBadgePromises.push(
@@ -359,12 +397,17 @@ export class BadgesImplementation1603625457026 implements MigrationInterface {
                         winUser.user,
                     ])
                 );
+
+              winRelatedBadgePromises.push(
+                queryRunner.query('UPDATE user_stats SET coins = coins + $1 WHERE "userId" = $2', [
+                  winBadges[3].awardingCoins,
+                  winUser.user,
+                ])
+              );
             }
         }
 
         await Promise.all(winRelatedBadgePromises);
-
-        // coin updates
     }
 
     public async down(queryRunner: QueryRunner): Promise<any> {

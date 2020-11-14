@@ -28,7 +28,7 @@ export default class Rank extends BaseModel {
      * @param name  The name of the given rank.
      * @param totalExperience  The total required experience of the rank.
      */
-    constructor(level: number, name: string, totalExperience: number) {
+    constructor(level?: number, name?: string, totalExperience?: number) {
         super();
 
         this.level = level;

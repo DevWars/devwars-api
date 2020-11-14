@@ -8,7 +8,6 @@ import GameRepository from '../app/repository/game.repository';
 import { GameStatus } from '../app/models/game.model';
 import { UserRole } from '../app/models/user.model';
 
-import * as constants from '../app/constants';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
