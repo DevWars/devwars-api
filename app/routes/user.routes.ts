@@ -142,7 +142,7 @@ UserRoute.get(
 
 UserRoute.get(
     '/:user/games',
-    [mustBeAuthenticated, mustBeRoleOrOwner(UserRole.MODERATOR), bindUserByParamId('user')],
+    [mustBeAuthenticated, bindUserByParamId('user')],
     wrapAsync(GameApplicationsController.gatherUsersPlayedGamesById)
 );
 
