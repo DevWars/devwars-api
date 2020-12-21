@@ -13,6 +13,8 @@ import GameApplication from '../models/gameApplication.model';
 import Game, { GameStatus } from '../models/game.model';
 
 import { GameRequest, AuthorizedRequest, UserRequest } from '../request/requests';
+import { EndGameRequest } from '../request/endGameRequest';
+
 import { flattenGame } from './game.controller';
 import ApiError from '../utils/apiError';
 import User from '../models/user.model';
@@ -76,7 +78,7 @@ async function handleLosersForGame(game: Game, losingTeamId: number, losers: Gam
  *
  * @apiError GameAlreadyEnded The given game has already ended.
  */
-export async function endGameById(request: AuthorizedRequest & GameRequest, response: Response) {
+export async function endGameById(request: EndGameRequest & AuthorizedRequest & GameRequest, response: Response) {
     if (request.game.status === GameStatus.ENDED) {
         throw new ApiError({
             error: 'The game is already in a end state.',
@@ -85,7 +87,7 @@ export async function endGameById(request: AuthorizedRequest & GameRequest, resp
     }
 
     const { game } = request;
-    game.status = GameStatus.ENDED;
+    const endGameRequest: EndGameRequest = request.body;
 
     // Update the results on the object of the game.
     const results = await GameService.getCompletedGameResult();
