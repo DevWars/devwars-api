@@ -56,7 +56,7 @@ describe('User Games', () => {
             chai.expect(response.body.length).to.be.equal(3);
         });
 
-        it('Should fail if you are not the owning user and not a admin or moderator', async () => {
+        it('Should not fail if you are not the owning user and not a admin or moderator', async () => {
             const notOwning = await UserSeeding.withRole(UserRole.USER).save();
 
             const response = await agent
@@ -64,7 +64,7 @@ describe('User Games', () => {
                 .set('cookie', await cookieForUser(notOwning))
                 .send();
 
-            chai.expect(response.status).to.be.equal(403);
+            chai.expect(response.status).to.be.equal(200);
         });
 
         it('Should pass if you are not the owning user and a admin or moderator', async () => {
@@ -111,7 +111,7 @@ describe('User Games', () => {
             chai.expect(response.body.id).to.be.equal(game.id);
         });
 
-        it('Should fail if you are not the owning user and not a admin or moderator', async () => {
+        it('Should not fail if you are not the owning user and not a admin or moderator', async () => {
             const application = GameApplicationSeeding.withGameAndUser(game, user);
             application.assignedLanguages = ['js'];
             application.team = 0;
@@ -125,7 +125,7 @@ describe('User Games', () => {
                 .set('cookie', await cookieForUser(notOwning))
                 .send();
 
-            chai.expect(response.status).to.be.equal(403);
+            chai.expect(response.status).to.be.equal(200);
         });
 
         it('Should pass if you are not the owning user and a admin or moderator', async () => {
