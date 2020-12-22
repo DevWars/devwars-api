@@ -20,6 +20,7 @@ import ApiError from '../utils/apiError';
 import User from '../models/user.model';
 import RankingService from '../services/ranking.service';
 import { BadgeService } from '../services/badge.service';
+import { GameStorageMetaTeamScore } from '../types/game';
 
 async function handleWinnersForGame(game: Game, winningTeamId: number, winners: GameApplication[]) {
     const gameStatsRepository = getCustomRepository(UserGameStatsRepository);
@@ -86,60 +87,77 @@ export async function endGameById(request: EndGameRequest & AuthorizedRequest & 
         });
     }
 
-    const { game } = request;
-    const endGameRequest: EndGameRequest = request.body;
+    const { game } = request,
+        endGameRequest: EndGameRequest = request.body || {},
+        teamScores: { [index: string]: GameStorageMetaTeamScore } = {};
 
-    // Update the results on the object of the game.
-    const results = await GameService.getCompletedGameResult();
+    let winner: any = null,
+        tie = true;
+
+    for (const team of _.defaultTo(endGameRequest.teams, [])) {
+        const { total: uiTotal } = endGameRequest.teamVoteResults.filter((e) => e.category === 'design')[0],
+            { total: uxTotal } = endGameRequest.teamVoteResults.filter((e) => e.category === 'function')[0];
+
+        const completedObjectives = team.completeObjectives;
+
+        const objectives = endGameRequest.objectives.reduce((acc, value) => {
+            acc[`${value.id}`] = completedObjectives.includes(value.id) ? 'complete' : 'incomplete';
+            return acc;
+        }, {} as { [index: string]: 'complete' | 'incomplete' });
+
+        const score = {
+            id: team.id,
+            objectives,
+            ui: uiTotal,
+            ux: uxTotal,
+            bets: 0,
+        };
+
+        teamScores[`${team.id}`] = score;
+
+        if (winner === null || score.ui + score.ux > winner.ui + winner.ux) {
+            winner = score;
+        }
+
+        // Ensure to set the tie state for the winner plus the current team.
+        // This will ensure to check all teams vs the current winner to check if
+        // we are in tie state.
+        tie = winner.ui + winner.ux === score.ui + score.ux;
+    }
+
+    winner = _.defaultTo(winner, { id: 0 });
 
     game.storage.meta = {
-        bets: results.bets || {},
-        winningTeam: results.winner === 'blue' ? 0 : 1,
-        teamScores: { '0': { bets: 0, id: 0, ui: 0, ux: 0 }, '1': { bets: 0, id: 0, ui: 0, ux: 0 } },
-        tie: results.winner === 'tie',
+        winningTeam: winner,
+        teamScores: teamScores,
+        tie,
     };
 
-    const objectivesForTeam = (team: string) => {
-        const result: any = {};
+    const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
 
-        _.forEach(results.objectives, (o: any) => {
-            result[o.id] = o[team];
-        });
+    // Handle the logic for the winners
+    const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winner.id, ['user']);
+    if (!_.isNil(winners) && _.size(winners) > 0) await handleWinnersForGame(game, winner.id, winners);
 
-        return result;
-    };
+    const lowerApplications = [];
 
-    game.storage.meta.teamScores[0].objectives = objectivesForTeam('blue');
-    game.storage.meta.teamScores[0].ui = results?.votes?.ui.blue || 0;
-    game.storage.meta.teamScores[0].ux = results?.votes?.ux.blue || 0;
+    // Handle the logic for the losers
+    for (const losingTeam of endGameRequest.teams.filter((e) => e.id !== winner.id)) {
+        const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, losingTeam.id, ['user']);
+        if (!_.isNil(losers) && _.size(losers) > 0) await handleLosersForGame(game, losingTeam.id, losers);
 
-    game.storage.meta.teamScores[1].objectives = objectivesForTeam('red');
-    game.storage.meta.teamScores[1].ui = results?.votes?.ui.red || 0;
-    game.storage.meta.teamScores[1].ux = results?.votes?.ux.red || 0;
-
-    if (!_.isNil(results)) {
-        const winnerTeamId = game.storage.meta.winningTeam;
-        const losingTeamId = winnerTeamId === 1 ? 0 : 1;
-
-        const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
-
-        const winners = await gameApplicationRepository.getAssignedPlayersForTeam(game, winnerTeamId, ['user']);
-        const losers = await gameApplicationRepository.getAssignedPlayersForTeam(game, losingTeamId, ['user']);
-
-        // Handle the logic for the winners and losers.
-        if (!_.isNil(winners) && _.size(winners) > 0) await handleWinnersForGame(game, winnerTeamId, winners);
-        if (!_.isNil(losers) && _.size(losers) > 0) await handleLosersForGame(game, losingTeamId, losers);
-
-        // regardless of who own or lost and the amount of objectives that have
-        // been completed all users should get a fixed amount of experience for
-        // participation within devwars.
-        await RankingService.assignParticipationExperienceToUsers(
-            _.concat(
-                _.map(winners, (e) => e.user),
-                _.map(losers, (e) => e.user)
-            )
-        );
+        lowerApplications.push(...losers);
     }
+
+    // regardless of who own or lost and the amount of objectives that have
+    // been completed all users should get a fixed amount of experience for
+    // participation within devwars.
+    await RankingService.assignParticipationExperienceToUsers(
+        _.concat(
+            _.map(winners, (e) => e.user),
+            _.map(lowerApplications, (e) => e.user)
+        )
+    );
 
     await game.save();
     return response.send();

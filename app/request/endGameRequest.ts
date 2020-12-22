@@ -34,7 +34,7 @@ export interface EndGameRequest {
         name: string;
         completeObjectives: Array<number>;
         objectiveScore: number;
-        enabled: true;
+        enabled: boolean;
     }>;
 
     // The assigned editors that exist during the games runtime. These exist
