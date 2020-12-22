@@ -89,7 +89,6 @@ export default class GameSeeding {
                 },
                 winningTeam: null,
                 tie: false,
-                bets: { tie: 0 },
             },
         });
     }
