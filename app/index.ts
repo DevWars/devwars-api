@@ -35,11 +35,11 @@ const handleServerError = (error: any) => {
 
     server.on('error', handleServerError);
 
-    server.listen(config.PORT, config.HOST, () => {
+    server.listen(config.port, config.host, () => {
         logger.info([
             `${packageJson.name} v${packageJson.version}`,
             process.env.NODE_ENV,
-            `listening: http://${config.HOST}:${config.PORT}`,
+            `listening: http://${config.host}:${config.port}`,
             `pid: ${process.pid}`,
         ].join(' | '));
     });
