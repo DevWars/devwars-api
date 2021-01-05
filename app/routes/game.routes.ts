@@ -2,6 +2,7 @@ import * as express from 'express';
 
 import * as LiveGameController from '../controllers/liveGame.controller';
 import * as GameController from '../controllers/game.controller';
+import * as NewGameController from '../controllers/newGame.controller';
 
 import { mustBeMinimumRole, mustBeAuthenticated, mustBeRoleOrOwner } from '../middleware/authentication.middleware';
 import { bindGameByParamId } from '../middleware/gameApplication.middleware';
@@ -88,6 +89,12 @@ GameRoute.post(
     '/:game/actions/end',
     [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true), bindGameByParamId('game')],
     wrapAsync(LiveGameController.endGameById)
+);
+
+GameRoute.post(
+    '/archive',
+    [mustBeAuthenticated, mustBeMinimumRole(UserRole.MODERATOR, true)],
+    wrapAsync(NewGameController.archiveGame)
 );
 
 /*******************************

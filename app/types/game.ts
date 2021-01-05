@@ -37,12 +37,6 @@ export interface GameStorageMeta {
 
     // If the result of the game was a tie or not.
     tie: boolean;
-
-    // The result of the bets that had taken place for the given game, this is
-    // the votes related to who will win and who will loose (or tie)
-    bets: {
-        tie: number;
-    };
 }
 
 /**

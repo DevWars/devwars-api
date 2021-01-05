@@ -11,6 +11,7 @@ import { UserRole } from '../app/models/user.model';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding } from '../app/seeding';
 import { cookieForUser } from './helpers';
+import { EndGameRequest } from '../app/request/endGameRequest';
 
 const server: ServerService = new ServerService();
 let agent: supertest.SuperTest<supertest.Test> = null;
@@ -116,6 +117,15 @@ describe('Game Actions', () => {
                 .post(`/games/${game.id}/actions/end`)
                 .send({
                     apiKey: process.env.API_KEY,
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [],
                 })
                 .expect(200);
         });
@@ -142,6 +152,17 @@ describe('Game Actions', () => {
                 await agent
                     .post(`/games/${game.id}/actions/end`)
                     .set('Cookie', await cookieForUser(user))
+                    .send({
+                        id: game.id,
+                        mode: game.mode,
+                        title: game.title,
+                        stage: 'end',
+                        objectives: [],
+                        teams: [],
+                        editors: [],
+                        players: [],
+                        teamVoteResults: [],
+                    })
                     .expect(200);
             }
         });
@@ -153,6 +174,17 @@ describe('Game Actions', () => {
             await agent
                 .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
+                .send({
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [],
+                })
                 .expect(400, { error: 'The game is already in a end state.' });
         });
 
@@ -178,6 +210,17 @@ describe('Game Actions', () => {
             await agent
                 .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
+                .send({
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [],
+                })
                 .expect(200);
 
             game = await gameRepository.findOne(game.id);
@@ -190,7 +233,6 @@ describe('Game Actions', () => {
 
             for (const gameWinner of winners) {
                 const { gameStats } = gameWinner.user;
-
 
                 chai.expect(gameStats.winStreak).to.be.equal(1, 'winnners streak should now be one.');
             }
@@ -221,6 +263,17 @@ describe('Game Actions', () => {
             await agent
                 .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
+                .send({
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [],
+                })
                 .expect(200);
 
             game = await gameRepository.findOne(game.id);
@@ -239,7 +292,6 @@ describe('Game Actions', () => {
         });
 
         it('Should increment the winners and loses wins/loses', async () => {
-
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
@@ -263,6 +315,17 @@ describe('Game Actions', () => {
             await agent
                 .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
+                .send({
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [],
+                })
                 .expect(200);
 
             game = await gameRepository.findOne(game.id);
@@ -294,7 +357,7 @@ describe('Game Actions', () => {
             }
         });
 
-        it('Should increase and decrease winners/losers experience', async () => {
+        it.only('Should increase and decrease winners/losers experience', async () => {
             const user = await UserSeeding.withRole(UserRole.ADMIN).save();
 
             const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
@@ -313,6 +376,53 @@ describe('Game Actions', () => {
             await agent
                 .post(`/games/${game.id}/actions/end`)
                 .set('Cookie', await cookieForUser(user))
+                .send({
+                    id: game.id,
+                    mode: game.mode,
+                    title: game.title,
+                    stage: 'end',
+                    objectives: [],
+                    teams: [{
+                        id: 1,
+                        name: 'team-1',
+                        completeObjectives: [],
+                        objectiveScore: 0,
+                        enabled: false,
+                    }, {
+                        id: 2,
+                        name: 'team-2',
+                        completeObjectives: [],
+                        objectiveScore: 0,
+                        enabled: false,
+                    }],
+                    editors: [],
+                    players: [],
+                    teamVoteResults: [{
+                        category: 'design',
+                        score: 0,
+                        teamId: 0,
+                        total: 0,
+                        votes: 0,
+                    }, {
+                        category: 'design',
+                        score: 0,
+                        teamId: 1,
+                        total: 0,
+                        votes: 0,
+                    }, {
+                        category: 'function',
+                        score: 0,
+                        teamId: 0,
+                        total: 0,
+                        votes: 0,
+                    }, {
+                        category: 'function',
+                        score: 0,
+                        teamId: 1,
+                        total: 0,
+                        votes: 0,
+                    }],
+                } as EndGameRequest)
                 .expect(200);
 
             game = await gameRepository.findOne(game.id);
