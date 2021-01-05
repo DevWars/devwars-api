@@ -102,12 +102,12 @@ describe('Linked Account - Twitch', () => {
             const requestBody = {
                 amount: 100,
                 username: linkedUser.username,
-                apiKey: process.env.API_KEY,
             };
 
             const failResponse = await agent
                 .patch(`/oauth/${linkedUser.provider}/${linkedUser.providerId}/coins`)
                 .set('Cookie', await cookieForUser(admin))
+                .set('apikey', process.env.API_KEY)
                 .send(requestBody);
 
             chai.expect(failResponse.status).to.eq(200);
@@ -133,11 +133,11 @@ describe('Linked Account - Twitch', () => {
 
             const requestBody = {
                 username: 'username',
-                apiKey: process.env.API_KEY,
             };
 
             await agent
                 .patch(`/oauth/${linkedUser.provider}/${linkedUser.providerId}/coins`)
+                .set('apikey', process.env.API_KEY)
                 .send(requestBody)
                 .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
@@ -148,11 +148,11 @@ describe('Linked Account - Twitch', () => {
             const requestBody = {
                 username: 'username',
                 amount: 'not a number',
-                apiKey: process.env.API_KEY,
             };
 
             await agent
                 .patch(`/oauth/${linkedUser.provider}/${linkedUser.providerId}/coins`)
+                .set('apikey', process.env.API_KEY)
                 .send(requestBody)
                 .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
@@ -162,11 +162,11 @@ describe('Linked Account - Twitch', () => {
 
             const requestBody = {
                 amount: 5,
-                apiKey: process.env.API_KEY,
             };
 
             await agent
                 .patch(`/oauth/${linkedUser.provider}/${linkedUser.providerId}/coins`)
+                .set('apikey', process.env.API_KEY)
                 .send(requestBody)
                 .expect(400, { error: await testSchemaValidation(requestBody, updateTwitchCoinsSchema) });
         });
@@ -177,7 +177,6 @@ describe('Linked Account - Twitch', () => {
             const requestBody = {
                 amount: 100,
                 username: linkedAccount.username,
-                apiKey: process.env.API_KEY,
             };
 
             const userStatsRepository = getCustomRepository(UserStatisticsRepository);
@@ -185,6 +184,7 @@ describe('Linked Account - Twitch', () => {
 
             const response = await agent
                 .patch(`/oauth/${linkedAccount.provider}/${linkedAccount.providerId}/coins`)
+                .set('apikey', process.env.API_KEY)
                 .send(requestBody);
 
             const userStats = await userStatsRepository.findOne({ where: { user: linkedAccount.user } });
@@ -206,10 +206,13 @@ describe('Linked Account - Twitch', () => {
             const requestBody = {
                 amount: 100,
                 username: 'testing_101',
-                apiKey: process.env.API_KEY,
             };
 
-            await agent.patch('/oauth/twitch/testing101/coins').send(requestBody).expect(200);
+            await agent
+                .patch('/oauth/twitch/testing101/coins')
+                .set('apikey', process.env.API_KEY)
+                .send(requestBody).expect(200);
+
             existingUser = await linkedAccountRepository.findOne({
                 providerId: 'testing101',
                 provider: Provider.TWITCH,

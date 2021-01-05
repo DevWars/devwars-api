@@ -115,8 +115,8 @@ describe('Game Actions', () => {
 
             await agent
                 .post(`/games/${game.id}/actions/end`)
+                .set('apikey', process.env.API_KEY)
                 .send({
-                    apiKey: process.env.API_KEY,
                     id: game.id,
                     mode: game.mode,
                     title: game.title,

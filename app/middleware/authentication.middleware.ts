@@ -15,16 +15,11 @@ export const mustBeAuthenticated = wrapAsync(
     async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
         const { token } = request.cookies;
 
-        // Ensure that if we are a bot, and that if the api key is given, that
-        // it is a valid token.
-        if (
-            (!_.isNil(request.body?.apiKey) && request.body.apiKey === process.env.API_KEY) ||
-            (!_.isNil(request.query?.apiKey) && request.query.apiKey === process.env.API_KEY)
-        ) {
-            // Dummy user to be used as the bot. All checks should ensure that
-            // the given bot value is checked before the role is checked, so the
-            // users role will be kept at the min just in case.
-            request.user = new User('bot', process.env.API_KEY, 'bot@devwars.tv', UserRole.USER);
+        // Allow and assign dummy user if API_KEY was provided.
+        if (process.env.API_KEY && request.headers?.apikey === process.env.API_KEY) {
+            // Dummy user used to bypass middleware down the stack. The mustBeMinimumRole has a special flag for
+            // allowing apiKeys so the user role is kept to a minimum just in case.
+            request.user = new User('API_KEY', process.env.API_KEY, 'api@devwars.tv', UserRole.USER);
             request.user.id = -1;
 
             return next();
@@ -62,17 +57,14 @@ export const mustBeAuthenticated = wrapAsync(
     }
 );
 
-export const mustBeMinimumRole = (role?: UserRole, bot = false) =>
+export const mustBeMinimumRole = (role?: UserRole, allowApiKey = false) =>
     wrapAsync(async (request: AuthorizedRequest, response: Response, next: NextFunction) => {
-        // If the requesting user must be a bot, ensure they are a bot, if they
-        // can only be a bot and failed the check, ensure that we fail the
-        // request. Otherwise continue to role validation.
-        if (bot && !_.isNil(request.user)) {
-            const apiKey = request.user.password;
-            if (apiKey === process.env.API_KEY) return next();
+        // The apiKey dummy user should have the apiKey set on the password field.
+        if (allowApiKey && request?.user?.password === process.env.API_KEY) {
+            return next();
         }
 
-        if (_.isNil(role) && bot) throw new ApiError({ code: 403, error: 'Unauthorized, invalid api key specified.' });
+        if (_.isNil(role) && allowApiKey) throw new ApiError({ code: 403, error: 'Unauthorized, invalid api key specified.' });
 
         // If the authorized user does meet the minimal requirement of the role or greater, then the
         // request can continue as expected.
