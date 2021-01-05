@@ -1,16 +1,12 @@
 import * as dotenv from 'dotenv';
 import logger from './utils/logger';
-
-import * as cluster from 'cluster';
-import { cpus } from 'os';
-
 import Server from './services/server.service';
 import { config } from '../config';
 
 dotenv.config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
-const project = require('../package');
+const packageJson = require('../package.json');
 
 /**
  * Called when a error occurring within the http server.
@@ -33,28 +29,16 @@ const handleServerError = (error: any) => {
     }
 };
 
-const handleListening = (name: string, version: string, port: number) => () => {
-    logger.info(`${name} | version: ${version} | process: ${process.pid} | port: ${port} | ${process.env.NODE_ENV}`);
-};
+(async () => {
+    const port = Number(process.env.PORT) || config.PORT_APP || 8080;
 
-if (process.env.NODE_ENV === 'production' && cluster.isMaster) {
-    logger.debug(`\n-------------------> RUN ${process.env.NODE_ENV} ENVIRONMENT\n`);
+    const appServer = new Server();
+    const server = await appServer.Start();
 
-    for (let i = 0; i < cpus().length; i++) cluster.fork();
+    server.on('error', handleServerError);
 
-    cluster.on('exit', (worker, code, signal) => {
-        logger.info(`Worker ${worker.process.pid} died with code: ${code}, and signal: ${signal}`);
-        logger.info('Starting a new worker');
-        cluster.fork();
+    server.listen(port, () => {
+        const { name, version } = packageJson;
+        logger.info(`${name} v${version} | ENV: ${process.env.NODE_ENV} | port: ${port} | pid: ${process.pid}`);
     });
-} else {
-    const port: number = Number(process.env.PORT) || config.PORT_APP || 8080;
-    const applicationServer = new Server();
-
-    applicationServer.Start().then((server) => {
-        server.listen(port);
-
-        server.on('error', handleServerError);
-        server.on('listening', handleListening(project.name, project.version, port));
-    });
-}
+})();
