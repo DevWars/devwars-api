@@ -30,15 +30,17 @@ const handleServerError = (error: any) => {
 };
 
 (async () => {
-    const port = Number(process.env.PORT) || config.PORT_APP || 8080;
-
     const appServer = new Server();
     const server = await appServer.Start();
 
     server.on('error', handleServerError);
 
-    server.listen(port, () => {
-        const { name, version } = packageJson;
-        logger.info(`${name} v${version} | ENV: ${process.env.NODE_ENV} | port: ${port} | pid: ${process.pid}`);
+    server.listen(config.PORT, config.HOST, () => {
+        logger.info([
+            `${packageJson.name} v${packageJson.version}`,
+            process.env.NODE_ENV,
+            `listening: http://${config.HOST}:${config.PORT}`,
+            `pid: ${process.pid}`,
+        ].join(' | '));
     });
 })();

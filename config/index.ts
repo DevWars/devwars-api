@@ -25,7 +25,8 @@ const MASTER_CONFIGURATION = {
 
 const config = {
     DATABASE: !isNil(environment) && environment === 'test' ? TEST_CONFIGURATION : MASTER_CONFIGURATION,
-    PORT_APP: Number(process.env.APP_PORT),
+    PORT: Number(process.env.PORT ?? 8000),
+    HOST: process.env.HOST ?? '0.0.0.0',
 };
 
 AWS.config.update({
