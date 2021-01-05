@@ -13,6 +13,7 @@ const {
     NODE_ENV = 'development',
     PORT = '8000',
     HOST = '0.0.0.0',
+    CORS_ORIGINS = '',
     AWS_ACCESS_KEY,
     AWS_SECRET_KEY,
 }: { [key: string]: string | undefined } = process.env;
@@ -49,6 +50,10 @@ const config = {
     port: Number(PORT),
     host: HOST,
     databaseOptions,
+    cors: {
+        credentials: true,
+        origin: CORS_ORIGINS.split(' '),
+    },
 };
 
 AWS.config.update({

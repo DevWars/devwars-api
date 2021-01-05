@@ -5,6 +5,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as morgan from 'morgan';
 
+import { config } from '../../config';
 import * as errorController from '../controllers/error.controller';
 import * as Connection from './connection.service';
 import logger from '../utils/logger';
@@ -57,13 +58,8 @@ export default class ServerService {
             },
         });
 
-        const corOptions = cors({
-            credentials: true,
-            origin: process.env.FRONT_URL || 'http://localhost:3000',
-        });
-
         this.app.use(routeLogging);
-        this.app.use(corOptions);
+        this.app.use(cors(config.cors));
     }
 
     private ConfigurationRouter(): void {
