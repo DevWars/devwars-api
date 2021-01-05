@@ -2,6 +2,7 @@ import * as jwt from 'jsonwebtoken';
 import { getManager } from 'typeorm';
 import { hash } from '../utils/hash';
 import { addHours } from 'date-fns';
+import { nanoid } from 'nanoid';
 
 import PasswordReset from '../models/passwordReset.model';
 import UserGameStats from '../models/userGameStats.model';
@@ -11,7 +12,6 @@ import EmailOptIn from '../models/emailOptIn.model';
 import UserStats from '../models/userStats.model';
 
 import RegistrationRequest from '../request/registrationRequest';
-import { randomString } from '../utils/random';
 
 import { VerificationService } from './verification.service';
 import { sendPasswordResetEmail } from './mail.service';
@@ -73,7 +73,7 @@ export class AuthService {
      * @param user The user of the password being reset.
      */
     public static async resetPassword(user: User) {
-        const reset = new PasswordReset(user, randomString(256), addHours(new Date(), 6));
+        const reset = new PasswordReset(user, nanoid(64), addHours(new Date(), 6));
         const resetUrl = `${process.env.FRONT_URL}/reset-password?token=${reset.token}`;
 
         await reset.save();

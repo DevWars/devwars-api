@@ -3,6 +3,7 @@ import * as supertest from 'supertest';
 import { SuperTest, Test } from 'supertest';
 import * as chai from 'chai';
 import * as _ from 'lodash';
+import { nanoid } from 'nanoid';
 
 import { BadgeSeeding, UserGameStatsSeeding, UserSeeding, UserStatsSeeding } from '../app/seeding';
 import { Connection } from '../app/services/connection.service';
@@ -16,7 +17,6 @@ import UserStatisticsRepository from '../app/repository/userStatistics.repositor
 import { BadgeService } from '../app/services/badge.service';
 import { BADGES } from '../app/constants';
 import Badge from '../app/models/badge.model';
-import { randomString } from '../app/utils/random';
 
 const server: ServerService = new ServerService();
 let agent: SuperTest<Test>;
@@ -75,7 +75,7 @@ describe('user-badges', () => {
             user.role = UserRole.PENDING;
 
             const emailVerification = new EmailVerification();
-            emailVerification.token = randomString(256);
+            emailVerification.token = nanoid(64);
             emailVerification.user = user;
 
             await emailVerification.save();
@@ -263,7 +263,7 @@ describe('user-badges', () => {
 
             const [selectedBadgeOne] = response.body.filter((e: Badge) => e.id === BADGES.WIN_3_IN_ROW);
             chai.expect(selectedBadgeOne.id).to.be.equal(BADGES.WIN_3_IN_ROW);
-        
+
             const userStatsRepository = getCustomRepository(UserStatisticsRepository);
             const stats = await userStatsRepository.findOne({ where: { user: user.id}})
 

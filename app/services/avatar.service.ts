@@ -1,16 +1,13 @@
 import * as AWS from 'aws-sdk';
 import * as fs from 'fs';
-
+import { nanoid } from 'nanoid';
 import { PutObjectRequest } from 'aws-sdk/clients/s3';
 import { ManagedUpload } from 'aws-sdk/lib/s3/managed_upload';
-
 import User from '../models/user.model';
-
-import { randomString } from '../utils/random';
 
 export class AvatarService {
     public static async updateAvatarForUser(user: User, filePath: string) {
-        const path = `profilepics-test/${user.id}/${randomString(32)}.jpg`;
+        const path = `profilepics-test/${user.id}/${nanoid()}.jpg`;
 
         const params: PutObjectRequest = {
             Body: fs.createReadStream(filePath),

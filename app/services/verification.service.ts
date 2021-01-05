@@ -1,9 +1,9 @@
 import { getManager, getCustomRepository } from 'typeorm';
+import { nanoid } from 'nanoid';
 import EmailVerification from '../models/emailVerification.model';
 import User, { UserRole } from '../models/user.model';
 
 import logger from '../utils/logger';
-import { randomString } from '../utils/random';
 import { sendWelcomeEmail } from './mail.service';
 
 import EmailVerificationRepository from '../repository/emailVerification.repository';
@@ -26,7 +26,7 @@ export class VerificationService {
         user.role = UserRole.PENDING;
 
         const verification = new EmailVerification();
-        verification.token = randomString(256);
+        verification.token = nanoid(64);
         verification.user = user;
 
         const verificationUrl = `${process.env.API_URL}/auth/verify?token=${verification.token}`;
