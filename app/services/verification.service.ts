@@ -2,6 +2,7 @@ import { getManager, getCustomRepository } from 'typeorm';
 import EmailVerification from '../models/emailVerification.model';
 import User, { UserRole } from '../models/user.model';
 
+import logger from '../utils/logger';
 import { randomString } from '../utils/random';
 import { sendWelcomeEmail } from './mail.service';
 
@@ -34,6 +35,11 @@ export class VerificationService {
             await transactionalEntityManager.save(verification);
             await transactionalEntityManager.save(user);
         });
+
+        // Log verification urls in production in case email service fails.
+        if (process.env.NODE_ENV === 'production') {
+            logger.info(`USER REGISTRATION: name: "${user.username}" email: "${user.email}" verificationUrl: "${verificationUrl}"`);
+        }
 
         await sendWelcomeEmail(user, verificationUrl);
     }
