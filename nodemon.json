@@ -1,6 +1,0 @@
-{
-    "watch": ["app"],
-    "ext": "ts",
-    "ignore": ["app/**/*.spec.ts", "node_module"],
-    "exec": "ts-node --transpile-only ./app/index.ts"
-}

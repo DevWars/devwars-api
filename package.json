@@ -6,7 +6,7 @@
     "description": "Official Node API for DevWars",
     "scripts": {
         "start": "cross-env NODE_ENV=production node ./dist/index.js",
-        "dev": "nodemon",
+        "dev": "ts-node-dev --transpile-only --respawn --no-notify ./app/index.ts",
         "test:nyc": "cross-env NODE_ENV=test nyc --reporter=html --reporter=text-summary mocha",
         "test": "cross-env NODE_ENV=test nyc --reporter=text-summary mocha",
         "test:break": "cross-env NODE_ENV=test mocha --inspect-brk",
@@ -104,11 +104,11 @@
         "http-server": "^0.12.3",
         "husky": "^4.3.6",
         "mocha": "^8.2.1",
-        "nodemon": "^2.0.6",
         "nyc": "^15.1.0",
         "standard-version": "^9.0.0",
         "supertest": "^6.0.1",
         "ts-node": "9.1.1",
+        "ts-node-dev": "^1.1.1",
         "typescript": "^4.1.3"
     }
 }
