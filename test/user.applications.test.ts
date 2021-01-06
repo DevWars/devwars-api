@@ -4,7 +4,7 @@ import * as chai from 'chai';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameApplicationSeeding, GameSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import User, { UserRole } from '../app/models/user.model';
 import Game from '../app/models/game.model';
 

@@ -13,7 +13,7 @@ import UserStatisticsRepository from '../app/repository/userStatistics.repositor
 import { updateTwitchCoinsSchema } from '../app/routes/validators/linkedAccount.validator';
 import { testSchemaValidation } from '../app/routes/validators';
 import { UserSeeding, UserStatsSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import LinkedAccountRepository from '../app/repository/linkedAccount.repository';
 
 const server: ServerService = new ServerService();

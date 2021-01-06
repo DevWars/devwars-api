@@ -5,7 +5,7 @@ import * as express from 'express';
 import * as http from 'http';
 import * as morgan from 'morgan';
 
-import { config } from '../../config';
+import { config } from '../config';
 import * as errorController from '../controllers/error.controller';
 import * as Connection from './connection.service';
 import logger from '../utils/logger';

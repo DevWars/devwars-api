@@ -1,8 +1,8 @@
 import * as fs from 'fs';
 import * as _ from 'lodash';
 
-import { AuthService } from '../app/services/auth.service';
-import User from '../app/models/user.model';
+import { AuthService } from '../services/auth.service';
+import User from '../models/user.model';
 
 export const cookieForUser = async (user: User): Promise<string> => {
     return `token=${await AuthService.newToken(user)}`;

@@ -4,7 +4,7 @@ import * as chai from 'chai';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
 import { UserSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import User, { UserRole } from '../app/models/user.model';
 import { getCustomRepository } from 'typeorm';
 import LinkedAccount, { Provider } from '../app/models/linkedAccount.model';

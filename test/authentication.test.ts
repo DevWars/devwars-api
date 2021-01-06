@@ -8,7 +8,7 @@ import { addHours } from 'date-fns';
 import { EmailVerificationSeeding, UserSeeding } from '../app/seeding';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 
 import EmailVerification from '../app/models/emailVerification.model';
 import PasswordReset from '../app/models/passwordReset.model';

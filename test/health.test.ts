@@ -5,7 +5,7 @@ import * as _ from 'lodash';
 import ServerService from '../app/services/server.service';
 import { UserRole } from '../app/models/user.model';
 import { UserSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 
 const server: ServerService = new ServerService();
 let agent: supertest.SuperTest<supertest.Test> = null;

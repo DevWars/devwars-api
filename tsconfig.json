@@ -1,16 +1,17 @@
 {
     "compilerOptions": {
-        "module": "commonjs",
-        "target": "es2018",
-        "lib": ["es2018"],
+        "module": "CommonJS",
+        "target": "es2019",
         "noImplicitAny": true,
         "sourceMap": true,
         "emitDecoratorMetadata": true,
         "experimentalDecorators": true,
-        "baseUrl": ".",
-        "paths": {
-            "*": ["app/types/*"]
-        }
+        "outDir": "./dist"
     },
-    "exclude": ["node_modules"]
+    "include": [
+        "app/**/*"
+    ],
+    "exclude": [
+        "node_modules"
+    ]
 }

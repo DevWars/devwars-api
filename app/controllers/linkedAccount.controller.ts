@@ -15,7 +15,7 @@ import { TwitchService } from '../services/twitch.service';
 import { BadgeService } from '../services/badge.service';
 
 import { AuthorizedRequest, UserRequest } from '../request/requests';
-import { parseStringWithDefault } from '../../test/helpers';
+import { parseStringWithDefault } from '../utils/helpers';
 import ApiError from '../utils/apiError';
 import { BADGES } from '../constants';
 

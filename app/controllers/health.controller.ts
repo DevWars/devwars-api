@@ -1,7 +1,7 @@
 import { Request, Response } from 'express';
 import * as fs from 'fs';
 
-import { canAccessPath, pathExists } from '../../test/helpers';
+import { canAccessPath, pathExists } from '../utils/helpers';
 import path = require('path');
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires

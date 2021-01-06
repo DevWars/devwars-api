@@ -5,7 +5,7 @@ import { UserSeeding, GameSeeding } from '../app/seeding';
 
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 
 import User, { UserRole } from '../app/models/user.model';
 import LinkedAccount from '../app/models/linkedAccount.model';

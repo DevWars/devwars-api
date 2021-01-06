@@ -12,7 +12,7 @@ import EmailVerification from '../app/models/emailVerification.model';
 import User, { UserRole } from '../app/models/user.model';
 import UserGameStats from '../app/models/userGameStats.model';
 import UserStats from '../app/models/userStats.model';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import UserStatisticsRepository from '../app/repository/userStatistics.repository';
 import { BadgeService } from '../app/services/badge.service';
 import { BADGES } from '../app/constants';

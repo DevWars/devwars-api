@@ -4,7 +4,7 @@ import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding, GameApplicationSeeding } from '../app/seeding';
 import User, { UserRole } from '../app/models/user.model';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import Game from '../app/models/game.model';
 const server: ServerService = new ServerService();
 let agent: supertest.SuperTest<supertest.Test> = null;

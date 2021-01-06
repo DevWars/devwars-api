@@ -10,7 +10,7 @@ import { UserRole } from '../app/models/user.model';
 
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import { EndGameRequest } from '../app/request/endGameRequest';
 
 const server: ServerService = new ServerService();

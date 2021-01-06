@@ -1,9 +1,6 @@
-import * as dotenv from 'dotenv';
+import { config } from './config';
 import logger from './utils/logger';
 import Server from './services/server.service';
-import { config } from '../config';
-
-dotenv.config();
 
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 const packageJson = require('../package.json');

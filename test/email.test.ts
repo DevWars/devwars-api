@@ -7,7 +7,7 @@ import { isBoolean, isNil } from 'lodash';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
 import { UserSeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import { UserRole } from '../app/models/user.model';
 import EmailOptInSeeding from '../app/seeding/emailOptIn.seeding';
 import EmailRepository from '../app/repository/emailOptIn.repository';

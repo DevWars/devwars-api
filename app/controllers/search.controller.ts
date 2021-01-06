@@ -6,7 +6,7 @@ import UserRepository from '../repository/user.repository';
 import { UserRequest } from '../request/requests';
 import ApiError from '../utils/apiError';
 
-import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../../test/helpers';
+import { parseBooleanWithDefault, parseIntWithDefault, parseStringWithDefault } from '../utils/helpers';
 
 import User from '../models/user.model';
 import { USERNAME_MAX_LENGTH } from '../constants';

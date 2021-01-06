@@ -7,7 +7,7 @@ import GameRepository from '../repository/game.repository';
 import { DATABASE_MAX_ID } from '../constants';
 import { wrapAsync } from '../routes/handlers';
 import ApiError from '../utils/apiError';
-import { parseIntWithDefault } from '../../test/helpers';
+import { parseIntWithDefault } from '../utils/helpers';
 
 export const bindGameById = (id: any) =>
     wrapAsync(async (request: GameRequest, response: Response, next: NextFunction) => {

@@ -10,7 +10,7 @@ import { UpdateGameRequest } from '../request/updateGameRequest';
 import ApiError from '../utils/apiError';
 
 import GameService from '../services/game.service';
-import { parseStringWithDefault, parseIntWithDefault, parseEnumFromValue } from '../../test/helpers';
+import { parseStringWithDefault, parseIntWithDefault, parseEnumFromValue } from '../utils/helpers';
 import { getCustomRepository } from 'typeorm';
 import PaginationService from '../services/pagination.service';
 import { DATABASE_MAX_ID } from '../constants';

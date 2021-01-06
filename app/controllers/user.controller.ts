@@ -19,7 +19,7 @@ import { AuthorizedRequest, UserRequest } from '../request/requests';
 import { USERNAME_CHANGE_MIN_DAYS } from '../constants';
 import ApiError from '../utils/apiError';
 
-import { parseIntWithDefault } from '../../test/helpers';
+import { parseIntWithDefault } from '../utils/helpers';
 
 import { isRoleHigher, isRoleOrHigher } from './authentication.controller';
 import PaginationService from '../services/pagination.service';

@@ -3,7 +3,7 @@ import * as dotenv from 'dotenv';
 import * as winston from 'winston';
 import { join } from 'path';
 
-import { pathExists, canAccessPath } from '../../test/helpers';
+import { pathExists, canAccessPath } from './helpers';
 dotenv.config();
 
 const { colorize, combine, timestamp, printf, splat } = winston.format;

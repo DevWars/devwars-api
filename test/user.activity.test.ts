@@ -4,7 +4,7 @@ import * as chai from 'chai';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, ActivitySeeding } from '../app/seeding';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import User, { UserRole } from '../app/models/user.model';
 
 const server: ServerService = new ServerService();

@@ -8,7 +8,7 @@ import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding, GameApplicationSeeding } from '../app/seeding';
 import { UserRole } from '../app/models/user.model';
 import { GameMode } from '../app/models/game.model';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 import { testSchemaValidation } from '../app/routes/validators';
 import { addGamePlayerSchema, removeGamePlayerSchema } from '../app/routes/validators/game.validator';
 const server: ServerService = new ServerService();

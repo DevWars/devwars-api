@@ -42,7 +42,7 @@ const databaseOptions: ConnectionOptions = {
     synchronize: booleanEnv(TYPEORM_SYNCHRONIZE),
     logging: booleanEnv(TYPEORM_LOGGING),
 
-    entities: [path.join(__dirname, '../app/models/*{.ts,.js}')],
+    entities: [path.join(__dirname, 'models/*{.ts,.js}')],
 };
 
 const config = {

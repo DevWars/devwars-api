@@ -2,7 +2,7 @@ import { Response } from 'express';
 import { getCustomRepository, Not, IsNull } from 'typeorm';
 import * as _ from 'lodash';
 
-import { parseIntWithDefault } from '../../test/helpers';
+import { parseIntWithDefault } from '../utils/helpers';
 import { UserRequest } from '../request/requests';
 import { DATABASE_MAX_ID } from '../constants';
 import ApiError from '../utils/apiError';

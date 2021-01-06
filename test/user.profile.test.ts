@@ -8,7 +8,7 @@ import { UserProfileSeeding, UserSeeding } from '../app/seeding';
 import { ProfileRequest } from '../app/request/profileRequest';
 import { Connection } from '../app/services/connection.service';
 import ServerService from '../app/services/server.service';
-import { cookieForUser } from './helpers';
+import { cookieForUser } from '../app/utils/helpers';
 
 import UserProfile, { Sex } from '../app/models/userProfile.model';
 import User, { UserRole } from '../app/models/user.model';

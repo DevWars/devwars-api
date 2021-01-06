@@ -4,7 +4,7 @@ import * as firebase from 'firebase-admin';
 import * as fs from 'fs';
 
 import logger from './logger';
-import { canAccessPath, pathExists } from '../../test/helpers';
+import { canAccessPath, pathExists } from './helpers';
 import { isNil } from 'lodash';
 
 dotenv.config();
