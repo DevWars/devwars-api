@@ -20,26 +20,26 @@ export class AuthService {
     public static async register(request: RegistrationRequest, shouldSendVerification = true) {
         const { username, email, password } = request;
 
-        const user = new User(username, await hash(password), email, UserRole.PENDING);
+        let user = new User(username, await hash(password), email, UserRole.PENDING);
         user.lastSignIn = new Date();
 
-        const profile = new UserProfile(user);
-        profile.skills = { html: 1, css: 1, js: 1 };
-
-        const userStats = new UserStats(user);
-        const gameStats = new UserGameStats(user);
-        const emailOptIn = new EmailOptIn(user);
-
-        // Only email if specified (is by default)
-        if (shouldSendVerification) await VerificationService.reset(user);
-
         await getManager().transaction(async (transactionalEntityManager) => {
-            await transactionalEntityManager.save(user);
+            user = await transactionalEntityManager.save(user);
+
+            const profile = new UserProfile(user);
+            profile.skills = { html: 1, css: 1, js: 1 };
+            const userStats = new UserStats(user);
+            const gameStats = new UserGameStats(user);
+            const emailOptIn = new EmailOptIn(user);
+
             await transactionalEntityManager.save(profile);
             await transactionalEntityManager.save(userStats);
             await transactionalEntityManager.save(gameStats);
             await transactionalEntityManager.save(emailOptIn);
         });
+
+        // Only email if specified (is by default)
+        if (shouldSendVerification) await VerificationService.reset(user);
 
         return user;
     }

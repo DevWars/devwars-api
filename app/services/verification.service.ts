@@ -27,13 +27,12 @@ export class VerificationService {
 
         const verification = new EmailVerification();
         verification.token = nanoid(64);
-        verification.user = user;
 
         const verificationUrl = `${process.env.API_URL}/auth/verify?token=${verification.token}`;
 
         await getManager().transaction(async (transactionalEntityManager) => {
+            verification.user = await transactionalEntityManager.save(user);
             await transactionalEntityManager.save(verification);
-            await transactionalEntityManager.save(user);
         });
 
         // Log verification urls in production in case email service fails.
