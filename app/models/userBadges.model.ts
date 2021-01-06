@@ -1,4 +1,4 @@
-import { Entity, ManyToOne, JoinColumn } from 'typeorm';
+import { Entity, ManyToOne, JoinColumn, Index } from 'typeorm';
 
 import Badge from './badge.model';
 import User from './user.model';
@@ -14,6 +14,8 @@ export default class UserBadges extends BaseModel {
     @JoinColumn({ name: 'badgeId' })
     public badge: Badge;
 
+
+    @Index()
     @ManyToOne(() => User, (user) => user.id)
     @JoinColumn({ name: 'userId' })
     public user: User;

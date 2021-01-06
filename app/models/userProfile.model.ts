@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, Index } from 'typeorm';
 import BaseModel from './base.model';
 import User from './user.model';
 
@@ -59,6 +59,9 @@ export default class UserProfile extends BaseModel {
 
     // ------------------------------------------------------------
     // Relations
+
+
+    @Index()
     @OneToOne(() => User)
     @JoinColumn()
     public user: User;

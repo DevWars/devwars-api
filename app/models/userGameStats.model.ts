@@ -1,4 +1,4 @@
-import { Entity, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, Column, OneToOne, JoinColumn, Index } from 'typeorm';
 import BaseModel from './base.model';
 import User from './user.model';
 
@@ -35,6 +35,8 @@ export default class UserGameStats extends BaseModel {
     /**
      * The user who owns this user game state.
      */
+
+    @Index()
     @OneToOne(() => User, (user) => user.id)
     @JoinColumn()
     public user: User;

@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, Index, JoinColumn, OneToOne } from 'typeorm';
 import BaseModel from './base.model';
 import User from './user.model';
 
@@ -19,6 +19,7 @@ export default class EmailOptIn extends BaseModel {
     // ------------------------------------------------------------
     // Relations
 
+    @Index()
     @OneToOne(() => User)
     @JoinColumn()
     public user: User;
