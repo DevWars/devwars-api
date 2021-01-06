@@ -14,6 +14,6 @@ docs
 *.iml
 
 .env
-firebase.json
+.env.*
 
 .vscode

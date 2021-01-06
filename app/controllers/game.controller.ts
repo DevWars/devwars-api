@@ -9,7 +9,6 @@ import { GameRequest, AuthorizedRequest, CreateGameRequest } from '../request/re
 import { UpdateGameRequest } from '../request/updateGameRequest';
 import ApiError from '../utils/apiError';
 
-import GameService from '../services/game.service';
 import { parseStringWithDefault, parseIntWithDefault, parseEnumFromValue } from '../utils/helpers';
 import { getCustomRepository } from 'typeorm';
 import PaginationService from '../services/pagination.service';
@@ -183,11 +182,6 @@ export async function updateGameById(request: AuthorizedRequest & GameRequest, r
     };
 
     await game.save();
-
-    if (game.status === GameStatus.ACTIVE) {
-        await GameService.sendGameToFirebase(game);
-    }
-
     return response.json(flattenGame(game));
 }
 
@@ -321,7 +315,6 @@ export async function activateById(request: AuthorizedRequest & GameRequest, res
     request.game.status = GameStatus.ACTIVE;
     await request.game.save();
 
-    await GameService.sendGameToFirebase(request.game);
     return response.json(flattenGame(request.game));
 }
 

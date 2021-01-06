@@ -7,7 +7,6 @@ import UserGameStatsRepository from '../repository/userGameStats.repository';
 import UserRepository from '../repository/user.repository';
 
 import { sendGameApplicationApplyingEmail, SendGameApplicationResignEmail } from '../services/mail.service';
-import GameService from '../services/game.service';
 
 import GameApplication from '../models/gameApplication.model';
 import Game, { GameStatus } from '../models/game.model';
@@ -67,9 +66,8 @@ async function handleLosersForGame(game: Game, losingTeamId: number, losers: Gam
  * @api {post} /games/:game/actions/end Ends a game by a given id.
  * @apiVersion 1.0.0
  * @apiName EndGame
- * @apiDescription Ends a game by the given id, ensuring to gather results from
- * firebase, store them while additionally updating the related users wins and
- * loses (based on the results).
+ * @apiDescription Ends a game by the given id while additionallyupdating
+ * the related users wins and loses (based on the results).
  * @apiGroup LiveGame
  *
  * @apiParam {number} game The id of the game.
@@ -204,7 +202,6 @@ export async function GetAllGameAssignedPlayersById(request: GameRequest, respon
  * @apiVersion 1.0.0
  * @apiName AddPlayerToTeamRole
  * @apiDescription Assigns the player to the given team with the given language.
- * Ensuring to update firebase with the game is active.
  * @apiGroup LiveGame
  *
  * @apiParam {number} game The id of the game the player is being added too.
@@ -271,10 +268,6 @@ export async function assignPlayerToGameById(request: AuthorizedRequest & GameRe
 
     await applicationRepository.assignUserToGame(user, request.game, team, application.assignedLanguages);
 
-    if (request.game.status === GameStatus.ACTIVE) {
-        await GameService.sendGamePlayersToFirebase(request.game);
-    }
-
     return response.status(201).json(flattenGame(request.game));
 }
 /**
@@ -292,7 +285,6 @@ export async function removePlayerFromGameById(request: AuthorizedRequest & Game
     const gameApplicationRepository = getCustomRepository(GameApplicationRepository);
     await gameApplicationRepository.removeUserFromGame({ id } as User, request.game);
 
-    if (request.game.status === GameStatus.ACTIVE) await GameService.sendGamePlayersToFirebase(request.game);
     return response.status(200).json(flattenGame(request.game));
 }
 

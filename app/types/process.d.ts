@@ -17,8 +17,6 @@ export interface ProcessEnv {
     DB_USER: string;
     DB_PASS: string;
 
-    FIREBASE_URL: string;
-
     FRONT_URL: string;
     API_URL: string;
 

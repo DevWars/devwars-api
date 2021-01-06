@@ -36,7 +36,6 @@ Welcome to the [DevWars](https://DevWars.tv) API codebase. This is the core back
 
 -   [Nodejs](https://nodejs.org/en/): 10.0 or higher
 -   [PostgreSQL](https://www.postgresql.org/): 9.4 or higher.
-    <!-- -   [Firebase](https://firebase.google.com/): instance with database (service account). -->
 
 ### Dependency Installation
 
