@@ -19,9 +19,6 @@
         "seed:password": "node -r ts-node/register ./cli/seed.passwords.ts",
         "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
         "lint:fix": "eslint . --fix --ext .js,.jsx,.ts,.tsx",
-        "typeorm": "ts-node -P ./tsconfig.json ./node_modules/typeorm/cli.js",
-        "migrate": "ts-node ./node_modules/typeorm/cli.js migration:run",
-        "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
         "release": "standard-version"
     },
     "husky": {

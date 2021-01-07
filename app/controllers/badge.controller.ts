@@ -48,7 +48,6 @@ export async function gatherUserBadgeById(request: UserRequest, response: Respon
  * @api {get} /badges Get the current list of possible badges.
  * @apiName GetUserPossibleBadges
  * @apiGroup Badges
- * @apiPermission
  *
  * @apiSuccess {string} name The name of the badge.
  * @apiSuccess {string} description The description of the badge.
@@ -86,6 +85,6 @@ export async function getAllCurrentBadges(request: Request, response: Response) 
     badges.forEach((badge: any) => {
       badge.implemented = implementedBadges.includes(badge.id);
     })
-  
+
     return response.json(badges);
 }
