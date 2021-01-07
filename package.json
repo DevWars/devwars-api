@@ -11,7 +11,6 @@
         "test": "cross-env NODE_ENV=test nyc --reporter=text-summary mocha",
         "test:break": "cross-env NODE_ENV=test mocha --inspect-brk",
         "build": "npm run clean && tsc",
-        "copy": "copyfiles -u 1 ./**/*.mjml dist",
         "clean": "rimraf dist",
         "docs:build": "apidoc -i ./app -o ./docs",
         "docs:production": "apidoc -i ./app -o ./dist/docs",
