@@ -71,7 +71,12 @@ export async function registerNewUser(request: Request, response: Response) {
     // Gather and bind the new token for the newly registered user, removing the need for the user
     // to again login since they have "already" authenticated with the service with the registering
     // process.
-    response.cookie('token', await AuthService.newToken(user), { domain: process.env.COOKIE_DOMAIN });
+
+    response.cookie('token', await AuthService.newToken(user), {
+        maxAge: 6 * 24 * 60 * 60 * 1000, // 6 days
+        domain: process.env.COOKIE_DOMAIN,
+    });
+
     response.json(flattenUser(user));
 }
 
@@ -187,8 +192,10 @@ export async function loginUser(request: Request, response: Response) {
         });
     }
 
-    const token = await AuthService.newToken(user);
-    response.cookie('token', token, { domain: process.env.COOKIE_DOMAIN });
+    response.cookie('token', await AuthService.newToken(user), {
+        maxAge: 6 * 24 * 60 * 60 * 1000, // 6 days
+        domain: process.env.COOKIE_DOMAIN,
+    });
 
     user.lastSignIn = new Date();
     await user.save();

@@ -48,8 +48,8 @@ export class AuthService {
      * Generates a new JWT token that will be used for the authorization of the user.
      * @param user The user who is getting the new token.
      */
-    public static async newToken(user: User): Promise<string> {
-        user.token = jwt.sign({ id: user.id }, process.env.AUTH_SECRET, { expiresIn: '7d' });
+    public static async newToken(user: User, expiresIn: string | number = '7d'): Promise<string> {
+        user.token = jwt.sign({ id: user.id }, process.env.AUTH_SECRET, { expiresIn });
         await user.save();
         return user.token;
     }
