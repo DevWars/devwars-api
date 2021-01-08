@@ -2,7 +2,7 @@
   <mj-body>
     <mj-section>
       <mj-column>
-        <mj-image width="162px" src="https://www.devwars.tv/_nuxt/img/fc5c1f9.png"></mj-image>
+        <mj-image width="162px" src="https://devwars-cdn.s3.amazonaws.com/assets/logo.svg"></mj-image>
       </mj-column>
     </mj-section>
   </mj-body>
