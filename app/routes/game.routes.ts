@@ -27,6 +27,7 @@ const GameRoute: express.Router = express.Router();
  ******************************/
 
 GameRoute.get('/', wrapAsync(GameController.gatheringAllGamesWithPaging));
+GameRoute.get('/new', wrapAsync(NewGameController.getAllGames));
 
 GameRoute.post(
     '/',
@@ -39,6 +40,7 @@ GameRoute.post(
  ******************************/
 
 GameRoute.get('/:game', [bindGameByParamId('game')], wrapAsync(GameController.getGameById));
+GameRoute.get('/new/:game', wrapAsync(NewGameController.getGameById));
 
 GameRoute.patch(
     '/:game',
@@ -75,6 +77,11 @@ GameRoute.get(
     wrapAsync(GameController.getGamesRelatedSourcesByTeamAndLanguage)
 );
 
+GameRoute.get(
+    '/new/:game/source/:team/:file',
+    wrapAsync(NewGameController.serveGameFile)
+);
+
 /*******************************
  *  Actions
  ******************************/
@@ -105,6 +112,11 @@ GameRoute.get(
     '/:game/players',
     [bindGameByParamId('game')],
     wrapAsync(LiveGameController.GetAllGameAssignedPlayersById)
+);
+
+GameRoute.get(
+    '/new/:game/players',
+    wrapAsync(NewGameController.getAllGamePlayersById)
 );
 
 GameRoute.post(

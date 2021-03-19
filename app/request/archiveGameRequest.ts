@@ -8,6 +8,7 @@ export interface ArchiveGameRequest {
     objectives: Array<{
         id: number;
         description: string;
+        bonus: boolean,
     }>;
 
     teams: Array<{
@@ -21,6 +22,7 @@ export interface ArchiveGameRequest {
         id: number;
         language: string; // html, css, js
         fileName: string;
+        fileText: string;
         locked: false;
         teamId: number;
         playerId?: number;
