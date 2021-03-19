@@ -69,7 +69,7 @@ UserRoute.put(
 
 UserRoute.get(
     '/:user/statistics',
-    [mustBeAuthenticated, bindUserByParamId('user')],
+    [bindUserByParamId('user')],
     wrapAsync(UserStatsController.getUserStatisticsById)
 );
 
