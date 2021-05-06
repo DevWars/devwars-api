@@ -55,7 +55,7 @@
         "express": "^4.17.1",
         "faker": "^5.1.0",
         "jsonwebtoken": "^8.2.0",
-        "lodash": "^4.17.20",
+        "lodash": "^4.17.21",
         "mailgun-js": "^0.22.0",
         "mime": "^2.4.7",
         "mjml": "^4.8.1",
