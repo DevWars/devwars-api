@@ -13,6 +13,7 @@ import UserProfile from '../models/userProfile.model';
 import EmailOptIn from '../models/emailOptIn.model';
 import UserStats from '../models/userStats.model';
 import Activity from '../models/activity.model';
+import UserBadges from '../models/userBadges.model';
 
 import UserRepository from '../repository/user.repository';
 import { AuthorizedRequest, UserRequest } from '../request/requests';
@@ -294,6 +295,10 @@ export async function deleteUserById(request: UserRequest, response: Response) {
         // they are purged from the players and editors body.
         const gameApplications = await transaction.find(GameApplication, whereOptions);
         await transaction.remove(gameApplications);
+
+        // remove the given users badges
+        const badges = await transaction.find(UserBadges, whereOptions);
+        await transaction.remove(badges);
 
         // Finally delete the user.
         await transaction.remove(removingUser);
