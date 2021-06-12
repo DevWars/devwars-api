@@ -74,7 +74,7 @@ export async function archiveGame(request: AuthorizedRequest, response: Response
 export async function getAllGames(request: Request, response: Response): Promise<any> {
     const newGames = await NewGame.find({ order: { createdAt: 'DESC' } });
     if (!newGames) {
-        return response.status(404);
+        return response.sendStatus(404);
     }
 
     const games = [];
@@ -89,7 +89,7 @@ export async function getGameById(request: Request, response: Response): Promise
     const id = request.params.game;
     const newGame = await NewGame.findOne(id);
     if (!newGame) {
-        return response.status(404);
+        return response.sendStatus(404);
     }
 
     response.json(normalizeNewGameToOldGame(newGame));
@@ -99,7 +99,7 @@ export async function getAllGamePlayersById(request: Request, response: Response
     const id = request.params.game;
     const game = await NewGame.findOne(id);
     if (!game) {
-        return response.status(404);
+        return response.sendStatus(404);
     }
 
     const players = [];
@@ -107,8 +107,7 @@ export async function getAllGamePlayersById(request: Request, response: Response
         delete editor.fileText;
         const user = await User.findOne(editor.playerId);
         if (!user) {
-            console.log('deletedUser', editor.playerId);
-            return response.send(404);
+            return response.sendStatus(404);
         }
 
         const existingPlayer = players.find(p => p.userId === user.id);
@@ -116,8 +115,6 @@ export async function getAllGamePlayersById(request: Request, response: Response
             existingPlayer.assignedLanguages.push(editor.language);
             continue;
         }
-        // PRINTED
-        console.log(user.id, game.storage.raw.editors.map(e => e.playerId));
 
         const player = {
             gameId: game.id,
@@ -148,12 +145,12 @@ export async function serveGameFile(request: Request, response: Response) {
 
     const newGame = await NewGame.findOne(gameId);
     if (!newGame) {
-        return response.status(404);
+        return response.sendStatus(404);
     }
 
     const editor = newGame.storage.raw.editors.find(e => e.fileName === file && e.teamId === Number(team));
     if (!editor) {
-        return response.status(404);
+        return response.sendStatus(404);
     }
 
     response.setHeader('Content-Type', mime.getType(editor.fileName));
