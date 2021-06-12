@@ -14,6 +14,7 @@ import EmailOptIn from '../models/emailOptIn.model';
 import UserStats from '../models/userStats.model';
 import Activity from '../models/activity.model';
 import UserBadges from '../models/userBadges.model';
+import NewGame from '../models/newGame.model';
 
 import UserRepository from '../repository/user.repository';
 import { AuthorizedRequest, UserRequest } from '../request/requests';
@@ -258,6 +259,13 @@ export async function deleteUserById(request: UserRequest, response: Response) {
     }
 
     await getConnection().transaction(async (transaction) => {
+        const userRepository = transaction.getCustomRepository(UserRepository);
+        const competitor = await userRepository.findByUsername('competitor');
+
+        // The reserved user needs to exist before hand to ensure that the user can be removed and
+        // there details are replaced with the template reserved user (competitor).
+        if (!competitor) throw Error('Users cannot be removed since a replacement user does not exist.');
+
         const whereOptions = { where: { user: removingUser } };
 
         // First remove all related activities for the given user. Since the user is being removed, any
@@ -292,13 +300,41 @@ export async function deleteUserById(request: UserRequest, response: Response) {
         const emailVerifications = await transaction.find(EmailVerification, whereOptions);
         await transaction.remove(emailVerifications);
 
+        // remove the given users badges
+        const badges = await transaction.find(UserBadges, whereOptions);
+        await transaction.remove(badges);
+
         // they are purged from the players and editors body.
         const gameApplications = await transaction.find(GameApplication, whereOptions);
         await transaction.remove(gameApplications);
 
-        // remove the given users badges
-        const badges = await transaction.find(UserBadges, whereOptions);
-        await transaction.remove(badges);
+        // For all applications that exist for the user, replace them with the replacement user
+        // "Competitor", this is a pre-defined user to help with ensuring data is not damaged and
+        // not usable since related users are missing.
+        for (const application of gameApplications) {
+            application.user = competitor;
+            await transaction.save(application)
+        }
+
+        const newGames = await transaction.find(NewGame);
+        for (const game of newGames) {
+            game.storage.raw.players.forEach(player => {
+                if (player.id === removingUserId) {
+                    player.id = competitor.id;
+                    player.username = competitor.username;
+                    player.role = competitor.role;
+                    player.avatarUrl = competitor.avatarUrl;
+                }
+            });
+
+            game.storage.raw.editors.forEach(editor => {
+                if (editor.playerId === removingUserId) {
+                    editor.playerId = competitor.id;
+                }
+            });
+
+            await transaction.save(game);
+        }
 
         // Finally delete the user.
         await transaction.remove(removingUser);

@@ -198,7 +198,7 @@ export async function GetAllGameAssignedPlayersById(request: GameRequest, respon
 }
 
 /**
- * @api {get} /games/:game/players Assign player to team.
+ * @api {post} /games/:game/players Assign player to team.
  * @apiVersion 1.0.0
  * @apiName AddPlayerToTeamRole
  * @apiDescription Assigns the player to the given team with the given language.

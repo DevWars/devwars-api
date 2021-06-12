@@ -51,6 +51,10 @@ function normalizeNewGameToOldGame(game: NewGame) {
         },
     };
 
+    for (const editor of game.storage.raw.editors) {
+        delete (editor as any).connection;
+    }
+
     return { ...game, objectives, meta };
 }
 
@@ -100,9 +104,11 @@ export async function getAllGamePlayersById(request: Request, response: Response
 
     const players = [];
     for (const editor of game.storage.raw.editors) {
+        delete editor.fileText;
         const user = await User.findOne(editor.playerId);
         if (!user) {
-            return response.status(404);
+            console.log('deletedUser', editor.playerId);
+            return response.send(404);
         }
 
         const existingPlayer = players.find(p => p.userId === user.id);
@@ -110,6 +116,8 @@ export async function getAllGamePlayersById(request: Request, response: Response
             existingPlayer.assignedLanguages.push(editor.language);
             continue;
         }
+        // PRINTED
+        console.log(user.id, game.storage.raw.editors.map(e => e.playerId));
 
         const player = {
             gameId: game.id,
