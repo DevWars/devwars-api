@@ -1,5 +1,5 @@
-import { hacker, helpers, internet, lorem, random, date } from 'faker';
 import * as _ from 'lodash';
+import * as faker from 'faker';
 
 import Game, { GameMode, GameStatus } from '../models/game.model';
 import GameApplication from '../models/gameApplication.model';
@@ -43,7 +43,7 @@ export default class GameSeeding {
 
         for (let index = 0; index < num; index++) {
             objectives[index] = {
-                description: lorem.sentence(),
+                description: faker.lorem.sentence(),
                 isBonus: index === num,
                 id: index,
             };
@@ -73,12 +73,12 @@ export default class GameSeeding {
      * Create a default seeded game object, that uses the builder method.
      */
     public constructor() {
-        const mode = helpers.randomize(Object.values(GameMode));
-        const title = hacker.noun() + hacker.noun();
-        const videoUrl = helpers.randomize([undefined, internet.url()]);
-        const gameStatus = helpers.randomize([GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED]);
+        const mode = faker.helpers.randomize(Object.values(GameMode));
+        const title = faker.hacker.noun() + faker.hacker.noun();
+        const videoUrl = faker.helpers.randomize([undefined, faker.internet.url()]);
+        const gameStatus = faker.helpers.randomize([GameStatus.ACTIVE, GameStatus.ENDED, GameStatus.SCHEDULED]);
 
-        this.game = new Game(3, mode, title, videoUrl, gameStatus, date.past(2, new Date()), {
+        this.game = new Game(3, mode, title, videoUrl, gameStatus, faker.date.past(2, new Date()), {
             editors: {},
             objectives: GameSeeding.createObjectives(5),
             templates: {},
@@ -208,17 +208,17 @@ export default class GameSeeding {
             return result;
         };
 
-        this.game.storage.meta.teamScores[0].ui = random.number({ min: 0, max: 100 });
-        this.game.storage.meta.teamScores[0].ux = random.number({ min: 0, max: 100 });
+        this.game.storage.meta.teamScores[0].ui = faker.datatype.number({ min: 0, max: 100 });
+        this.game.storage.meta.teamScores[0].ux = faker.datatype.number({ min: 0, max: 100 });
 
-        this.game.storage.meta.teamScores[1].ui = random.number({ min: 0, max: 100 });
-        this.game.storage.meta.teamScores[1].ux = random.number({ min: 0, max: 100 });
+        this.game.storage.meta.teamScores[1].ui = faker.datatype.number({ min: 0, max: 100 });
+        this.game.storage.meta.teamScores[1].ux = faker.datatype.number({ min: 0, max: 100 });
 
-        this.game.storage.meta.winningTeam = random.arrayElement([0, 1]);
+        this.game.storage.meta.winningTeam = faker.random.arrayElement([0, 1]);
         const numberOfObjectives = _.size(this.game.storage.objectives);
 
-        const teamOneObjectives = random.number({ min: 0, max: numberOfObjectives });
-        const teamTwoObjectives = random.number({ min: 0, max: numberOfObjectives });
+        const teamOneObjectives = faker.datatype.number({ min: 0, max: numberOfObjectives });
+        const teamTwoObjectives = faker.datatype.number({ min: 0, max: numberOfObjectives });
 
         this.game.storage.meta.teamScores[0].objectives = objectivesForTeam(teamOneObjectives);
         this.game.storage.meta.teamScores[1].objectives = objectivesForTeam(teamTwoObjectives);

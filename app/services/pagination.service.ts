@@ -39,11 +39,15 @@ export default class PaginationService {
         // Support for reverse requires flipping the ordering when we perform
         // the queries, this supports cases in which you want to order by the
         // newer value rather than the older at the top, e.g recent games list.
+        /* eslint-disable */
         if (!reverse) {
+            // @ts-ignore
             order[pointerKey as keyof T] = forward ? 'ASC' : 'DESC';
         } else if (reverse) {
+            // @ts-ignore
             order[pointerKey as keyof T] = forward ? 'DESC' : 'ASC';
         }
+        /* eslint-enable */
 
         // If we are paging forward, ensure to look at anything more than the
         // last value of the previous query otherwise look less than our

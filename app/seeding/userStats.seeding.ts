@@ -1,4 +1,4 @@
-import { random } from 'faker';
+import * as faker from 'faker';
 import UserStats from '../models/userStats.model';
 import User from '../models/user.model';
 
@@ -6,8 +6,8 @@ export default class UserStatsSeeding {
     public static default(): UserStats {
         const stats = new UserStats();
 
-        stats.coins = random.number(20000);
-        stats.xp = random.number(100000);
+        stats.coins = faker.datatype.number(20000);
+        stats.xp = faker.datatype.number(100000);
 
         return stats;
     }

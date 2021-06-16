@@ -1,14 +1,14 @@
 import * as bcrypt from 'bcrypt';
-import { helpers, random } from 'faker';
+import * as faker from 'faker';
 import User, { UserRole } from '../models/user.model';
 import { UserProfileSeeding, UserStatsSeeding, UserGameStatsSeeding } from '.';
 import EmailOptInSeeding from './emailOptIn.seeding';
 
 export default class UserSeeding {
     public static default(): User {
-        const userCard = helpers.userCard();
+        const userCard = faker.helpers.userCard();
 
-        const role = random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
+        const role = faker.random.arrayElement([UserRole.PENDING, UserRole.ADMIN, UserRole.MODERATOR, UserRole.USER]);
         const user = new User(userCard.username, bcrypt.hashSync('secret', 1), userCard.email, role);
 
         // user.avatarUrl = random.image();

@@ -1,4 +1,4 @@
-import { random } from 'faker';
+import * as faker from 'faker';
 
 import GameApplication from '../models/gameApplication.model';
 import Game from '../models/game.model';
@@ -10,9 +10,9 @@ export default class GameApplicationSeeding {
 
         gameApplication.game = null;
         gameApplication.user = null;
-        gameApplication.team = random.arrayElement([0, 1, null]);
+        gameApplication.team = faker.random.arrayElement([0, 1, null]);
         gameApplication.assignedLanguages =
-            gameApplication.team != null ? [random.arrayElement(['js', 'css', 'html'])] : [];
+            gameApplication.team != null ? [faker.random.arrayElement(['js', 'css', 'html'])] : [];
 
         return gameApplication;
     }

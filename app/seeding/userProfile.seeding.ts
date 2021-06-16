@@ -1,28 +1,28 @@
-import { name, date, random, lorem, helpers, internet, address, company } from 'faker';
+import * as faker from 'faker';
 import UserProfile, { Sex } from '../models/userProfile.model';
 
 export default class UserProfileSeeding {
     public static default(): UserProfile {
         const profile = new UserProfile();
 
-        profile.firstName = name.firstName();
-        profile.lastName = name.lastName();
-        profile.dob = date.past(50);
-        profile.sex = helpers.randomize([Sex.MALE, Sex.FEMALE, Sex.OTHER]);
-        profile.about = lorem.paragraphs(5);
-        profile.forHire = random.boolean();
-        profile.company = company.companyName();
-        profile.websiteUrl = internet.url();
-        profile.addressOne = address.streetAddress();
-        profile.addressTwo = address.secondaryAddress();
-        profile.city = address.city();
-        profile.state = address.state();
-        profile.zip = address.zipCode();
-        profile.country = address.country();
+        profile.firstName = faker.name.firstName();
+        profile.lastName = faker.name.lastName();
+        profile.dob = faker.date.past(50);
+        profile.sex = faker.helpers.randomize([Sex.MALE, Sex.FEMALE, Sex.OTHER]);
+        profile.about = faker.lorem.paragraphs(5);
+        profile.forHire = faker.datatype.boolean();
+        profile.company = faker.company.companyName();
+        profile.websiteUrl = faker.internet.url();
+        profile.addressOne = faker.address.streetAddress();
+        profile.addressTwo = faker.address.secondaryAddress();
+        profile.city = faker.address.city();
+        profile.state = faker.address.state();
+        profile.zip = faker.address.zipCode();
+        profile.country = faker.address.country();
         profile.skills = {
-            css: random.number({ min: 1, max: 5 }),
-            html: random.number({ min: 1, max: 5 }),
-            js: random.number({ min: 1, max: 5 }),
+            css: faker.datatype.number({ min: 1, max: 5 }),
+            html: faker.datatype.number({ min: 1, max: 5 }),
+            js: faker.datatype.number({ min: 1, max: 5 }),
         };
 
         return profile;

@@ -1,4 +1,4 @@
-import { random } from 'faker';
+import * as faker from 'faker';
 import Activity from '../models/activity.model';
 import User from '../models/user.model';
 
@@ -7,9 +7,9 @@ export default class ActivitySeeding {
         const activity = new Activity();
 
         Object.assign(activity, {
-            description: random.words(5),
-            coins: random.number(20000),
-            xp: random.number(20000),
+            description: faker.random.words(5),
+            coins: faker.datatype.number(20000),
+            xp: faker.datatype.number(20000),
         });
 
         return activity;

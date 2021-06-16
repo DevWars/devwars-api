@@ -1,5 +1,6 @@
-import * as typeorm from 'typeorm';
 import * as _ from 'lodash';
+import * as faker from 'faker';
+import * as typeorm from 'typeorm';
 
 import GameApplicationSeeding from '../app/seeding/gameApplication.seeding';
 import ActivitySeeding from '../app/seeding/activity.seeding';
@@ -12,7 +13,7 @@ import User, { UserRole } from '../app/models/user.model';
 import logger from '../app/utils/logger';
 
 import UserRepository from '../app/repository/user.repository';
-import { helpers } from 'faker';
+
 import GameRepository from '../app/repository/game.repository';
 import { GameStatus } from '../app/models/game.model';
 import { BadgeSeeding } from '../app/seeding';
@@ -67,7 +68,7 @@ const generateGames = async (): Promise<any> => {
         const gamePlayers = players.slice(i % players.length, (i + 6) % players.length);
         const game = (await GameSeeding.default().common(gamePlayers))
             .withStatus(GameStatus.ENDED)
-            .withSeason(helpers.randomize([1, 2, 3]));
+            .withSeason(faker.helpers.randomize([1, 2, 3]));
         await game.save();
     }
 };
