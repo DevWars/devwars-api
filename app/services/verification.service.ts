@@ -37,7 +37,11 @@ export class VerificationService {
 
         // Log verification urls in production in case email service fails.
         if (process.env.NODE_ENV === 'production') {
-            logger.info(`USER REGISTRATION: name: "${user.username}" email: "${user.email}" verificationUrl: "${verificationUrl}"`);
+            logger.info('USER REGISTRATION:'
+                + ` username: ${user.username}`
+                + ` email: ${user.email}`
+                + ` verificationUrl: ${verificationUrl}`
+            );
         }
 
         await sendWelcomeEmail(user, verificationUrl);

@@ -36,17 +36,16 @@ export const mustBeAuthenticated = wrapAsync(
         // Decode the given token, if the token is null, then the given token is no longer valid and should be rejected.
         const decodedToken = AuthService.VerifyAuthenticationToken(token);
 
-        if (_.isNil(decodedToken))
-            throw new ApiError({
-                code: 401,
-                error: 'Invalid authentication token was provided.',
-            });
+        if (_.isNil(decodedToken)) {
+            throw new ApiError({ code: 401, error: 'Invalid authentication token was provided.' });
+        }
 
         const userRepository = getCustomRepository(UserRepository);
         const user = await userRepository.findById(decodedToken.id);
 
-        if (_.isNil(user) || user.token !== token)
+        if (_.isNil(user) || user.token !== token) {
             throw new ApiError({ code: 401, error: 'Expired authentication token was provided.' });
+        }
 
         // Ensure that the user is correctly sanitized to remove the token, password and other core
         // properties. Since this is the current authenticated user, there is no need to remove any more
@@ -64,11 +63,15 @@ export const mustBeMinimumRole = (role?: UserRole, allowApiKey = false) =>
             return next();
         }
 
-        if (_.isNil(role) && allowApiKey) throw new ApiError({ code: 403, error: 'Unauthorized, invalid api key specified.' });
+        if (_.isNil(role) && allowApiKey) {
+            throw new ApiError({ code: 403, error: 'Unauthorized, invalid api key specified.' });
+        }
 
         // If the authorized user does meet the minimal requirement of the role or greater, then the
         // request can continue as expected.
-        if (!_.isNil(request.user) && !_.isNil(role) && isRoleOrHigher(request.user, role)) return next();
+        if (!_.isNil(request.user) && !_.isNil(role) && isRoleOrHigher(request.user, role)) {
+            return next();
+        }
 
         // Otherwise ensure that the user is made aware that they are not meeting the minimal
         // requirements of the role.
@@ -85,6 +88,9 @@ export const mustBeRoleOrOwner = (role?: UserRole, bot = false) =>
 
         // Ensure that the requesting user is the entity they are also trying to perform the following
         // request on. For example: you can only update your own profile and not others (unless your a admin).
-        if (!_.isNil(request.user) && request.user.id === requestedUserId) return next();
+        if (!_.isNil(request.user) && request.user.id === requestedUserId) {
+            return next();
+        }
+
         return mustBeMinimumRole(role, bot)(request, response, next);
     });

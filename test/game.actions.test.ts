@@ -2,7 +2,7 @@ import { getCustomRepository } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';
 
-import GameApplicationRepository from '../app/repository/gameApplication.repository';
+// import GameApplicationRepository from '../app/repository/gameApplication.repository';
 import GameRepository from '../app/repository/game.repository';
 
 import { GameStatus } from '../app/models/game.model';
@@ -11,7 +11,7 @@ import { UserRole } from '../app/models/user.model';
 import ServerService from '../app/services/server.service';
 import { UserSeeding, GameSeeding } from '../app/seeding';
 import { cookieForUser } from '../app/utils/helpers';
-import { EndGameRequest } from '../app/request/endGameRequest';
+// import { EndGameRequest } from '../app/request/endGameRequest';
 
 const server: ServerService = new ServerService();
 let agent: supertest.SuperTest<supertest.Test> = null;

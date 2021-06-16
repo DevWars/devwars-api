@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
 import * as chai from 'chai';
 import * as _ from 'lodash';
 import { getCustomRepository } from 'typeorm';

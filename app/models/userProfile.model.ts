@@ -55,7 +55,7 @@ export default class UserProfile extends BaseModel {
     public country: string;
 
     @Column({ type: 'jsonb', nullable: true })
-    public skills: object;
+    public skills: any;
 
     // ------------------------------------------------------------
     // Relations

@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { EntityManager, getCustomRepository, getManager } from 'typeorm';
 import * as supertest from 'supertest';
 import * as chai from 'chai';

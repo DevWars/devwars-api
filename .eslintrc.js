@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-undef
 module.exports = {
     root: true,
     parser: '@typescript-eslint/parser',
@@ -13,6 +14,7 @@ module.exports = {
         '@typescript-eslint/camelcase': 0,
         '@typescript-eslint/explicit-function-return-type': 0,
         '@typescript-eslint/ban-ts-ignore': 0,
+        '@typescript-eslint/explicit-module-boundary-types': 0,
     },
     plugins: [
         '@typescript-eslint',

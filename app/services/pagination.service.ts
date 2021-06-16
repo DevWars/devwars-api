@@ -167,7 +167,7 @@ export default class PaginationService {
         }
 
         if (forward && !first && !_.isEmpty(result)) {
-            let pointerValue: string | Date | object = _.first(result)[pointerKey];
+            let pointerValue: string | Date  = _.first(result)[pointerKey];
 
             // if we are using a date time object, then ensure we are in ISO
             // format. Otherwise it will not be in a good format for a cursor.
