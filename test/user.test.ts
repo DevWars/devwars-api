@@ -261,6 +261,11 @@ describe('user', () => {
             // performing a correct deletion.
             administrator = await UserSeeding.withRole(UserRole.ADMIN).save();
             moderator = await UserSeeding.withRole(UserRole.MODERATOR).save();
+
+            // ensure that replacement user exists when deleting competitors.
+            const competitor = UserSeeding.withRole(UserRole.USER);
+            competitor.username = 'competitor';
+            await competitor.save();
         });
 
         beforeEach(async () => {
