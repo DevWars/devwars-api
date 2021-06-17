@@ -71,7 +71,7 @@
     },
     "devDependencies": {
         "@babel/code-frame": "^7.12.11",
-        "@types/bcrypt": "^3.0.0",
+        "@types/bcrypt": "^5.0.0",
         "@types/chai": "^4.2.14",
         "@types/cookie-parser": "^1.4.2",
         "@types/cors": "^2.8.9",
